@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if [ "$#" -eq '0' ]; then
+  echo "Usage: fsearch <path-list> [<file(s)>]"
+  exit 1
+fi
+
+# set -vx
+
+case "`uname`" in
+*NT*)	dirlistsep=':';;
+*)	dirlistsep=':';;
+esac
+
+pathlist=`echo $1|sed "s/${dirlistsep}/ /g"`
+shift
+files="$*"
+
+for f in ${files}; do
+  for d in ${pathlist}; do
+    if [ -r "${d}/${f}" -o -x "${d}/${f}" ]; then
+      echo "${d}/${f}"
+      break
+    fi
+  done
+done
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:
