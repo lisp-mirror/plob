@@ -1,0 +1,172 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  LaTeX style file for BibTeX style CDNAMED                     %%%
+%%%  -----------------------------------------                     %%%
+%%%  This is a modified version of LaTeX style NAMED (see below).  %%%
+%%%  Modifications were done by Christian Drewniok in April 1993   %%%
+%%%  and are marked with `%%CD%%'.                                 %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+% This file implements citations for the ``named'' bibliography style.
+%  Place it in a file called named.sty in the TeX search path.  (Placing it
+% in the same directory as the LaTeX document should also work.)
+ 
+% Prepared by Peter F. Patel-Schneider, with the assistance of several,
+% since forgotten, LaTeX hackers.
+% This style is NOT guaranteed to work.  It is provided in the hope
+% that it will make the preparation of papers easier.
+%
+% There are undoubtably bugs in this style.  If you make bug fixes,
+% improvements, etc.  please let me know.  My e-mail address is:
+%       pfps@research.att.com
+ 
+% The preparation of this file was supported by Schlumberger Palo Alto
+% Research and AT\&T Bell Laboratories.
+ 
+% This file can be modified and used in other conferences as long
+% as credit to the authors and supporting agencies is retained, this notice
+% is not changed, and further modification or reuse is not restricted.
+ 
+% The ``named'' bibliography style creates citations with labels like
+%       \citeauthoryear{author-info}{year}
+% these labels are processed by the following commands:
+%       \cite{key}
+%               which produces citations with both author and year,
+%               enclosed in square brackets
+%       \shortcite{key}
+%               which produces citations with year only,
+%               enclosed in square brackets
+%       \citeauthor{key}
+%               which produces the author information only
+%       \citeyear{key}
+%               which produces the year information only
+ 
+\def\@up#1{\mbox{}\raise.2ex\hbox{#1}}
+
+\let\@internalcite\cite
+\def\cite{\def\@citeseppen{-1000}%
+ \def\@cite##1##2{\@up[\nobreak\hskip 0in{##1\if@tempswa , ##2\fi}\@up]}%
+% \def\citeauthoryear##1##2{##1, ##2}\@internalcite}
+% \def\@cite##1##2{\@up(\nobreak\hskip 0in{##1\if@tempswa , ##2\fi}\@up)}%%CD%%
+ \def\citeauthoryear##1##2{##1~##2}%
+ \@internalcite}%%CD%%
+\def\shortcite{\def\@citeseppen{1000}%
+ \def\@cite##1##2{\@up[{##1\if@tempswa , ##2\fi}\@up]}%
+% \def\@cite##1##2{\@up({##1\if@tempswa , ##2\fi}\@up)}%%CD%%
+ \def\citeauthoryear##1##2{##2}\@internalcite}
+%%CD%% NAMECITE defined this way to allow optional argument
+\def\namecite{\def\@citeseppen{-1000}%
+ \def\@cite##1##2{{##1\if@tempswa , ##2\fi}\@up]}%
+ \def\citeauthoryear##1##2{##1\ \@up[\nobreak\hskip 0in{##2}}\@internalcite}
+% `\' added after `##1' in the previous line -- CS
+\def\citeauthor#1{\def\@citeseppen{1000}%
+ \def\@cite##1##2{{##1\if@tempswa , ##2\fi}}%
+ \def\citeauthoryear##1##2{##1}\@citedata{#1}}
+\def\citeyear#1{\def\@citeseppen{1000}%
+ \def\@cite##1##2{{##1\if@tempswa , ##2\fi}}%
+ \def\citeauthoryear##1##2{##2}\@citedata{#1}}
+ 
+\def\@citedata#1{\@tempswafalse%
+ \if@filesw\immediate\write\@auxout{\string\citation{#1}}\fi
+  \def\@citea{}\@cite{\@for\@citeb:=#1\do
+    {\@citea\def\@citea{,\penalty\@citeseppen\ }\@ifundefined
+       {b@\@citeb}{{\bf ?}\@warning
+       {Citation \noexpand`\@citeb\noexpand' on page \thepage \space undefined}}
+%
+{\csname b@\@citeb\endcsname}}}{}}
+ 
+% don't box citations, separate with ; and a space
+% also, make the penalty between citations negative: a good place to break
+\def\@citex[#1]#2{\if@filesw\immediate\write\@auxout{\string\citation{#2}}\fi
+  \def\@citea{}\@cite{\@for\@citeb:=#2\do
+%%CD%%    {\@citea\def\@citea{;\penalty\@citeseppen\ }\@ifundefined
+    {\@citea\def\@citea{,\penalty\@citeseppen\ }\@ifundefined
+       {b@\@citeb}{{\bf ?}\@warning
+       {Citation \noexpand`\@citeb\noexpand' on page \thepage \space undefined}}
+%
+{\csname b@\@citeb\endcsname}}}{#1}}
+ 
+% raise the brackets in bibliography labels
+%\def\@biblabel#1{\def\citeauthoryear##1##2{##1, ##2}%
+%\def\@biblabel#1{\def\citeauthoryear##1##2{##1~(##2)~}%%CD%%
+\def\citeauthornoyear#1#2{#1}%%HK%%
+\def\@biblabel#1{\def\citeauthoryear##1##2{##1~##2}%%CD%%
+                 %%\def\citeauthornoyear##1##2{##1}%%CD%% %%%HK%%%
+  \raise.2ex\hbox{[}#1\raise.2ex\hbox{]}~\hfill}
+%  {\bf #1}~\hfill}%%CD%%
+ 
+ 
+%%CD%% NAMECITE was defined above to allow an optional argument
+%%%\newcommand{\namecite}[1]{\citeauthor{#1} \shortcite{#1}}   %%CD%%
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CD: Below we define new commands \samecite and \samenamecite
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\def\samecite{\def\@citeseppen{-1000}%
+ \def\@cite##1{\@up[\nobreak\hskip 0in{##1}\@up]}%
+ \@samecitex}
+ 
+\def\samenamecite{\def\@citeseppen{-1000}%
+ \def\@cite##1{{##1}\@up]}%
+ \@samenamecitex}
+ 
+\newif\iffirstauthor
+ 
+\def\@samecitex#1{%
+  \if@filesw\immediate\write\@auxout{\string\citation{#1}}\fi%
+  \def\@citea{}%
+  \firstauthortrue%
+  \@cite{%
+    \@for\@citeb:=#1\do%
+      {\iffirstauthor%
+        \@ifundefined{b@\@citeb}{\def\fauthor{}\def\fauthorl{}}%
+          {\def\citeauthoryear##1##2{##1}%
+           \edef\fauthorl{\@citeb}%
+           \edef\fauthor{\csname b@\@citeb\endcsname}}%
+        \firstauthorfalse%
+        \def\citeauthoryear##1##2{##1~##2}%
+       \else%
+        \@ifundefined{b@\@citeb}{\edef\thisauthor{\fauthor}}%
+          {\def\citeauthoryear##1##2{##1}%
+           \edef\thisauthor{\csname b@\@citeb\endcsname}}%
+        \ifx\fauthor\thisauthor\empty\else\@warning{Different authors `\fauthorl'\space and `\@citeb' \space in samecite on page \thepage}\fi%
+        \def\citeauthoryear##1##2{##2}%
+       \fi%
+       \@citea%
+        \def\@citea{,\penalty\@citeseppen\ }%
+        \@ifundefined%
+          {b@\@citeb}%
+          {{\bf ?}\@warning%
+            {Citation \noexpand`\@citeb\noexpand' on page \thepage \space undefined}}%
+          {%
+            {\csname b@\@citeb\endcsname}%
+          }}}}
+ 
+\def\@samenamecitex#1{%
+  \if@filesw\immediate\write\@auxout{\string\citation{#1}}\fi%
+  \def\@citea{}%
+  \firstauthortrue%
+  \@cite{%
+    \@for\@citeb:=#1\do%
+      {\iffirstauthor%
+        \@ifundefined{b@\@citeb}{\def\fauthor{}\def\fauthorl{}}%
+          {\def\citeauthoryear##1##2{##1}%
+           \edef\fauthorl{\@citeb}%
+           \edef\fauthor{\csname b@\@citeb\endcsname}}%
+        \firstauthorfalse%
+        \def\citeauthoryear##1##2{##1\ \@up[\nobreak\hskip 0in{##2}}%
+       \else%
+        \@ifundefined{b@\@citeb}{\edef\thisauthor{\fauthor}}%
+          {\def\citeauthoryear##1##2{##1}%
+           \edef\thisauthor{\csname b@\@citeb\endcsname}}%
+        \ifx\fauthor\thisauthor\empty\else\@warning{Different authors `\fauthorl'\space and `\@citeb' \space in samenamecite on page \thepage}\fi%
+        \def\citeauthoryear##1##2{##2}%
+       \fi%
+       \@citea%
+        \def\@citea{,\penalty\@citeseppen\ }%
+        \@ifundefined%
+          {b@\@citeb}%
+          {{\bf ?}\@warning%
+            {Citation \noexpand`\@citeb\noexpand' on page \thepage \space undefined}}%
+          {\csname b@\@citeb\endcsname}%
+          }}}
