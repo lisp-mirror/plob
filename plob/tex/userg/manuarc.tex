@@ -1,0 +1,100 @@
+% This is -*-LaTeX-*-
+%
+% userg.tex
+% HK 26.5.94
+% Rewritten 1997/09
+
+\chapter[Architecture]%
+{Architecture of \protect\plob}
+
+For a detailed description of \protect\plob's architecture see
+\cite{bib:Kirschke-99}.
+
+In its first version up to September 1996, \plob\ was a single-user
+system prepared for multi-user capabilities. At end of 1996, the
+system was redesigned into a client/server architecture.
+\begin{description}
+
+\item[Client] The client is the LISP process using persistent
+  objects. A client is connected to no or one server. At the moment,
+  \lwcl\ and \allegrocl\ processes are supported as clients.
+
+\item[Server] The server is a \unix\ process serving requests from the
+  clients which connected itselves to the server. A server can handle
+  many clients.
+
+\end{description}
+
+Figure~\ref{sec:PLOBwRPCs} shows 
+\begin{figure}[htbp]
+\centerline{\psfig{figure=\Path/plobrpce.eps}}
+\caption{\protect\plob\ layers}%
+\label{sec:PLOBwRPCs}
+\end{figure}%
+the layers of \plob\ as implemented in the actual version.
+
+Based upon an evaluation of a few persistent memory systems done by
+\cite{bib:Mueller-91}, it was decided to use the \postore\ library
+(Persistent Object Store) as low level store.  The layers 2--5 have
+been implemented by the author, layers 2 and 3 in ANSI-C and layer 4
+and 5 in \cl. The communication between layers 2 and 3 is done by RPCs
+(Remote Procedure Calls), an approved \unix\ standard communication
+tool.
+
+\section[POSTORE layer]%
+{Layer 1:\ \protect\postore\ layer}
+
+\postore\ is the persistent memory used in Napier88, a persistent
+programming language developed at the University of St.\ Andrews.
+This layer offers a persistent heap, a concept very similar to a
+transient heap, but the `records' allocated from a persistent heap are
+persistent. Each \postore\ vector is subdivided into a first part
+interpreted as having references to other \postore\ vectors and a
+second part which is not interpreted by \postore\ any further; the
+second part is used to store the state of value-like objects, that
+means, objects not referencing other objects. This is used by
+\postore\ to implement a garbage collection based on reachability.
+
+The \postore\ has no usable transaction processing in the sense
+of a database. The locking offered by \postore\ is a simple semaphore
+locking on a per-object basis.
+
+\section[C-PLOB server layer]%
+{Layer 2:\ C-\protect\plob\ server layer}
+
+This layer adds a whole bunch of functionality to the system:
+Sessions, object locking and transactions, persistent B-Trees.
+Layer 1 and 2 make up the \plob\ server process.
+
+\section[C-PLOB client layer]%
+{Layer 3:\ C-\protect\plob\ client layer}
+
+The task of this layer is to interface between the previous and the
+next layer. Besides this, it contains the code for connecting the
+client with the server process, implements some caching and
+pre-allocation of persistent objects etc.  A part of the functionality
+of layer 2 is used directly on the client side by layer 3 to reduce
+the number of RPC calls to the server, for example, the print
+representation for persistent immediates is computed on the client
+side. Layer 3 up to layer 5 make up the \plob\ client process.
+
+\section[PLOB layer]%
+{Layer 4:\ \protect\plob\ layer}
+
+This layer implements an interface to the application layer for
+convenient usage of persistency. Its functionality is documented in
+this user's guide.
+
+\section[Application layer]%
+{Layer 5:\ Application layer}
+
+The application layer uses the functionality offered by the previous
+layer: Persistent packages, persistent symbols, sessions, associative
+access by using persistent btrees.
+
+\clearpage\thispagestyle{plain}\cleardoublepage%
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "userg"
+%%% End: 
