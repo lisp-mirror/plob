@@ -1,0 +1,95 @@
+%       This is -*-LaTeX-*-
+%
+% 15.09.93
+%
+%%\input{epsfig.sty}
+%
+\input{diagdefs}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+\objectmargin{0ex}
+%
+\newsavebox{\frkl}%
+\sbox{\frkl}{\fbox{\footnotesize{}Dr.\ Kl\"{o}bner}}%
+\newsavebox{\frml}%
+\sbox{\frml}{\fbox{\footnotesize{}Herr M\"{u}ller-L\"{u}denscheid}}%
+%
+\newsavebox{\boxtmpa}%                          % Temp. Box
+\newsavebox{\boxtmpb}%                          % Temp. Box
+\def\xSsolid{\morphism{\Ssolid}{\notip}{\notip}}
+%
+\def\mkman#1#2#3#4#5#6#7{%
+\sbox{#1}{
+\begin{diagram}
+%
+\rule{#7}{0ex}% Laenge des linken Fusses
+ &\rule{0.5em}{0ex}% Abstand linker Arm vom Koerper
+  &\squarify<1.3em>{}\circled% Kopf
+   \save\go+<0em,-0.2em>
+   \Drop{\Text{$_{. .}$\\$^{#2}$}}% Augen und Mund
+   \restore
+   &\rule{0.5em}{0ex}% Abstand rechter Arm vom Koerper
+    &\rule{#7}{0ex}\\% Laenge des rechten Fusses
+&&\rule{0.4em}{0.7ex}\\ % Hals
+&&\rule{#3}{#4}% Koerper
+  \save\go+<-0.9\cL,\cH>\dldouble!<-0.8ex,\cH>\restore% Linker Arm
+  \save\go+<0.9\cR,\cH>\drdouble!<0.8ex,\cH>\restore% Rechter Arm
+  \save\go+<-0.7\cL,-\cD>\xSsolid[2,-1]\restore% Linkes Bein
+  \save\go+<0.7\cR,-\cD>\xSsolid[2,1]\restore% Rechtes Bein
+  &&&\framed{\grow{\Text{\footnotesize#5}}}\\% Namensschild
+&\rule{0em}{4ex}&&\rule{0em}{4ex}&&#6\\% Beinlaenge und Label
+\rdouble&&&\rdouble&% Fuesse
+%
+\end{diagram}}
+}%
+%
+\mkman{\boxtmpa}{\frown}{1.5em}{4.5ex}{Dr.\ Kl\"{o}bner}{\noiv}{0.6em}%
+\mkman{\boxtmpb}{\smile}{1.3em}{5ex}{Herr M\"{u}ller-\\{}\footnotesize{}L\"{u}denscheid}{\novii}{0.8em}%
+%
+\let\coliw\bigtxtw%
+%\let\coliiw\bigtxtw%
+\def\coliiw{16em}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{1pc}%
+\def\ogrow#1{\grow<\stdomargin>{#1}}
+\def\toperson{%
+\save%\go+<-\cR,0em>%
+%\xdotted'[0,-1]+<0.5ex,0ex>|<{\rotate\tip}'[-4,-1]+<0.5ex,0ex>'[-4,0]+<-\cR,0ex>|>{\tip}%
+\xline'[0,-1]+<0.5ex,0ex>|<{\rotate\tip}'[-4,-1]+<0.5ex,0ex>'[-4,0]+<-\cR,0ex>|>{\tip}%
+\restore
+}%
+%
+\begin{diagram}%
+%
+&\usebox{\boxtmpa}%
+ &&\usebox{\boxtmpb}\\%
+\rule{0em}{8ex}\\
+&\ogrow{\makebox[\coliw]{\noi\ \lisp{<KARTE\protect\us{}12>}}}%
+ \save\go[4,0]\merge\framed<5pt>\restore%
+                &&\ogrow{\makebox[\coliiw]{
+                \nov\ \lisp{<KARTE\protect\us{}25>}}}%
+                   \save\go[4,0]\merge\framed<5pt>\restore\\%
+&\ogrow{\makebox[\coliw]{\dotfill}}
+                &&\ogrow{\makebox[\coliiw]{\dotfill}}\\
+&\ogrow{\makebox[\coliw]{\noii\ \lisp{NAME=\dq{}Kl\"{o}bner\dq}}}%
+ \toperson%
+ %\xdotted'[0,-1]|<{\rotate\tip}%
+ %                 '[4,-1][4,0]+<1cm,0ex>%
+                &&\ogrow{\makebox[\coliiw]{%
+                   \novi\ \lisp{NAME=\dq{}M\"{u}ller-L\"{u}denscheid\dq}}}
+                   \toperson%
+                   %\xdotted'[0,1]|<{\rotate\tip}%
+                   %                '[4,1][4,0]+<-2cm,0ex>&%
+                   \\%
+&\ogrow{\makebox[\coliw]{\noiii\ \lisp{CHEF=<KARTE\us{}25>}}}%
+ \save%\go+<\cR,0em>%
+   %\xto'[0,1]+<-0.5ex,0ex>'[-3,1]+<-0.5ex,0ex>'[-3,2]+<-\cR,0ex>%
+   \xline'[0,1]+<-0.5ex,0ex>'[-3,1]+<-0.5ex,0ex>'[-3,2]+<-\cR,0ex>%
+ \restore%
+                &&\ogrow{\text{\lisp{CHEF=<...>}}}\\%
+&\ogrow{\text{\lisp{GEHALT=3000}}}%
+                &&\ogrow{\text{\lisp{GEHALT=6000}}}%\\
+%&\rule{0em}{2.5cm}&&\\
+\end{diagram}%
