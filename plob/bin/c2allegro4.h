@@ -50,25 +50,19 @@
 /* voidResult for functions with no resultkeyword_ */
 #define	voidResult		keyword_void
 
-#define AS_IS			keyword_lisp
+#undef	CHAR
 #define	CHAR			keyword_character
-#define	CONST_STRING		keyword_string
+#undef	DOUBLE_FLOAT
 #define	DOUBLE_FLOAT		keyword_double_float
+#undef	FIXNUM
 #define	FIXNUM			keyword_fixnum
+#undef	INTEGER
 #define	INTEGER			keyword_integer
+#undef	POINTER
 #define POINTER			FIXNUM
+#undef	SINGLE_FLOAT
 #define	SINGLE_FLOAT		keyword_single_float
-#define	STRING(size)		keyword_string
-#define	_VECTOR_as_is		AS_IS
 #define	_VECTOR_void		keyword_array
-#if 1
-#define	_VECTOR_int		POINTER
-#define	_VECTOR_u_int		POINTER
-#else
-#define	_VECTOR_int		keyword_array
-#define	_VECTOR_u_int		keyword_array
-#endif
-#define	VECTOR(type,size)	_VECTOR_##type
 
 #endif /* C2ALLEGRO4_H */
 

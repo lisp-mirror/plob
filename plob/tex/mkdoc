@@ -26,9 +26,9 @@ for pass in ${szPasses}; do
 	5)	nice dvips -o ${dir}.ps ${dir}.dvi;;
 	6)	nice ps2pdf ${dir}.ps;;
 	7)	if [ "${pages}" = "oneside" ]; then
-		  cp ${dir}.pdf ../../../ps/${dir}.pdf
+		  cp ${dir}.pdf ../../../doc/${dir}.pdf
 		else
-		  cp ${dir}.pdf ../../../ps/${dir}2.pdf
+		  cp ${dir}.pdf ../../../doc/${dir}2.pdf
 		fi;;
 	esac
       )
