@@ -1,0 +1,33 @@
+/* ----------------------------------------------------------------------
+|
+|		PLOB - Persistent Lisp OBjects
+|		       =	  =    ==
+|
+| Script	Makefile
+| Copyright	(C) 14.6.1994 Heiko Kirschke
+|		kirschke@informatik.uni-hamburg.de
+| Description	Makefile for this directory
+ ---------------------------------------------------------------------- */
+
+#define	relPlobDir	ddot
+#include		"../conf/make.rules.in"
+
+/* ----------------------------------------------------------------------
+| Standard settings
+ ---------------------------------------------------------------------- */
+SUBDIRS=include common lcommon server client local lispworks allegro util admin
+
+/* ----------------------------------------------------------------------
+| Main targets
+ ---------------------------------------------------------------------- */
+drule ( $(STDTARGETS), \
+	noDependencies, \
+	silent $(ADDBINDIR); bsnl \
+	$(MAKE) default dash ruleTarget nln \
+	tab silent $(MAKECMD) "$(SUBDIRS)" ruleTarget )
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/

@@ -1,0 +1,70 @@
+/* ----------------------------------------------------------------------
+| Script	make.undef.in
+| Copyright	(C) 1997 Heiko Kirschke
+|		kirschke@informatik.uni-hamburg.de
+| Undefine disturbing predefined #defines
+ ---------------------------------------------------------------------- */
+
+#ifdef SOLARIS
+#undef SOLARIS
+#endif
+#ifdef Solaris
+#undef Solaris
+#endif
+#ifdef solaris
+#undef solaris
+#endif
+
+#ifdef HPUX
+#undef HPUX
+#endif
+#ifdef Hpux
+#undef Hpux
+#endif
+#ifdef hpux
+#undef hpux
+#endif
+
+#ifdef IRIX
+#undef IRIX
+#endif
+#ifdef Irix
+#undef Irix
+#endif
+#ifdef irix
+#undef irix
+#endif
+
+#ifdef LINUX
+#undef LINUX
+#endif
+#ifdef Linux
+#undef Linux
+#endif
+#ifdef linux
+#undef linux
+#endif
+
+#ifdef ALPHAPC
+#undef ALPHAPC
+#endif
+#ifdef Alphapc
+#undef Alphapc
+#endif
+#ifdef alphapc
+#undef alphapc
+#endif
+
+#ifdef unix
+#undef unix
+#endif
+
+#ifdef sparc
+#undef sparc
+#endif
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/

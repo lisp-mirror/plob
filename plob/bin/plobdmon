@@ -1,0 +1,67 @@
+#!/bin/sh
+# PLOB! message monitor
+# 1996/11/01 HK kirschke@informatik.uni-hamburg.de
+
+szScript='plobdmon'
+szSpaces='        '
+
+szHost="`hostname`"
+
+szDefaultDatabase='database'
+
+# Extend path by some standard directories:
+PATH="${PATH}:/bin:/usr/bin:/usr/openwin/bin:/usr/X11/bin"
+export PATH
+
+fnCheckLogfile ()
+{(
+  szRawLogfile="$1"
+  if [ -z "${szRawLogfile}" ]; then
+    szLogfile="${szDefaultDatabase}"
+  else
+    szLogfile="${szRawLogfile}"
+  fi
+  if [ -d "${szLogfile}" ]; then
+    szLogfile="${szLogfile}/messages.log"
+  fi
+  while [ ! -r "${szLogfile}" ]; do
+    if [ ! -r "${szLogfile}" ]; then
+      ( set +e; : > ${szLogfile} ) 2>/dev/null
+    fi
+    if [ ! -r "${szLogfile}" ]; then
+      echo "${szScript}: Can't read logfile ${szLogfile}."
+      echo "${szSpaces}  Press any key to retry, q or ^C to quit: \c"
+      read answer
+      case "${answer}" in
+      [nNqQ]*)	exit 1;;
+      esac
+    fi
+  done
+  if [ -r "${szLogfile}" ]; then
+    echo "${szLogfile}"
+  fi
+);} # fnCheckLogfile
+
+case "$1" in
+
+'-tail')	szRawLogfile="$2"
+		trap "exec $0 $*" 16
+		szLogfile="`fnCheckLogfile "${szRawLogfile}"`"
+		if [ -r "${szLogfile}" ]; then
+		  echo "]0;PLOB! message monitor on `dirname ${szLogfile}`"
+		  if [ -z "${szRawLogfile}" ]; then
+		    echo "*** Monitoring default directory '${szDefaultDatabase}'
+"
+		  fi
+		  tail -f ${szLogfile}
+		fi;;
+
+*)		szRawLogfile="$1"
+		( xterm -T "${szHost}:PLOB! message monitor" \
+		    -n "${szHost}:PLOB!monitor" \
+		    -e "$0" '-tail' "${szRawLogfile}" </dev/null >/dev/null & );;
+esac
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

@@ -1,0 +1,51 @@
+/* ----------------------------------------------------------------------
+|
+|		PLOB - Persistent Lisp OBjects
+|		       =	  =    ==
+|
+| Script	Makefile
+| Copyright	(C) 14.6.1994 Heiko Kirschke
+|		kirschke@informatik.uni-hamburg.de
+| Description	Makefile for PLOB library files
+ ---------------------------------------------------------------------- */
+
+#define	relPlobDir	ddot
+#include		"../conf/make.rules.in"
+
+/* ----------------------------------------------------------------------
+| Main targets
+ ---------------------------------------------------------------------- */
+drule ( all, \
+	noDependencies, \
+	noActions )
+
+/* ----------------------------------------------------------------------
+| Standard targets
+ ---------------------------------------------------------------------- */
+PLOBD=trim(fileExe(plobd))
+PLOBDADMIN=trim(fileExe(plobdadmin))
+/* #if HasServer */
+#define	ServerApps $(opsys) slash $(PLOBD) spc $(opsys) slash $(PLOBDADMIN)
+MkCopyRule($(opsys) slash,$(CONFDIR) slash $(opsys) slash,$(PLOBD))
+MkCopyRule($(opsys) slash,$(CONFDIR) slash $(opsys) slash,$(PLOBDADMIN))
+/* #else */
+/* #define	ServerApps */
+/* #endif */
+
+drule ( initial, \
+	link, \
+	noActions )
+
+drule ( link, \
+	ServerApps, \
+	noActions )
+
+drule ( $(STDTARGETS), \
+	noDependencies, \
+	silent $(MAKE) default dash ruleTarget )
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/

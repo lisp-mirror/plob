@@ -1,0 +1,90 @@
+#!/bin/sh
+
+# Constants:
+szScript='evalexpr'; export szScript
+szSpaces='        '
+
+# Defaults:
+szDefaultAwk='nawk'
+
+# ----------------------------------------------------------------------
+# Function	fnUsage
+# Arguments	---
+# Description	Show help text
+# ----------------------------------------------------------------------
+fnUsage () {
+  echo "\
+Usage: ${szScript} [-a <awk>] <expression>
+Description:
+    Echo evaluated <expression> to stdout.
+Options:
+    -a  Use <awk> instead of '${szDefaultAwk}'." 1>&2
+  exit 1
+} # fnUsage
+
+# ----------------------------------------------------------------------
+# Funktion	fnEvalExpr
+# Argumente	---
+# Beschreibung	Evaluiert einen Ausdruck
+# ----------------------------------------------------------------------
+fnEvalExpr () {
+  szAwk="$1"; shift
+  szExpression="`echo "$*"|sed 's/  *//g'`"
+  ${szAwk} '
+function HEX( nHex ) {
+  nHex		= tolower( nHex );
+  nResult	= 0;
+  while( nHex !~ /^$/ ) {
+    nResult	= nResult * 16 + \
+		  index( "0123456789abcdef", substr( nHex, 1, 1 ) ) - 1;
+    nHex	= substr( nHex, 2 );
+  }
+  return nResult;
+} # HEX
+function OR( nNumber1, nNumber2 ) {
+  nResult	= 0;
+  nFactor	= 1;
+  while( nNumber1 > 0 || nNumber2 > 0 ) {
+    if( nNumber1 % 2 > 0 || nNumber2 % 2 > 0 ) {
+      nResult	+= nFactor;
+    }
+    nFactor	*= 2;
+    nNumber1	= int( nNumber1 / 2 );
+    nNumber2	= int( nNumber2 / 2 );
+  }
+  return nResult;
+} # OR
+function SHIFTLEFT( nX, nN ) {
+  while( nN > 0 ) {
+    nX	*= 2;
+    nN--;
+  }
+  return nX;
+} # SHIFTLEFT
+BEGIN {
+  print '"${szExpression}"';
+}'
+} # fnEvalExpr
+
+unset szAwk
+while [ $# -gt 0 ]; do
+  case "$1" in
+  '-a')		szAwk="$2"; shift;;
+  '+a')		unset szAwk;;
+  '-h')		fnUsage; exit 1;;
+  '-'|'--')	shift; break;;
+  '-'*|'+'*)	echo "${szScript}: W01: Ignoring unknown option '$1'" 1>&2;;
+  *)		break;;
+  esac
+  shift
+done
+
+if [ -z "${szAwk}" ]; then
+  szAwk="${szDefaultAwk}"
+fi
+
+fnEvalExpr "${szAwk}" "$*"
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:
