@@ -1,0 +1,26 @@
+	Persistenz in objekt-orientierten Programmiersprachen
+			am Beispiel von CLOS:
+	     Eine Uebersicht der erfolgten Realisierung.
+
+Nachdem ich im Dezember '93 die Konzepte meiner Diplomarbeit fuer die
+Einbettung von persistenten Objekten in ein transientes LISP System
+darstellte, beschreibe ich nunmehr die erfolgte Realisierung dieser
+Konzepte. Der Vortrag erlaeutert kurz Motivation und Zielsetzung des
+realisierten Systems PLOB! (Persistente Lisp OBjekte). Bei der
+Konzeptbildung flossen u.a. die Ideen bereits realisierter Systeme
+fuer Persistenz ein; typische Vertreter dieser Systeme werden
+vorgestellt und im Hinblick auf die Zielsetzung meiner Arbeit
+bewertet. Die Uebersicht der Realisierung von PLOB! umfasst folgende
+Themenbereiche:
+
+	* Architekturansatz
+	* Repraesentation/Bedeutung von persistenten Objekten
+	* Integration von Datenbankfunktionalitaeten
+	* Integration von LISP-spezifischen Funktionalitaeten
+	* Einbindung von Persistenz in transientes LISP
+	* Performanzueberlegungen
+
+Das Referenzhandbuch des Systems wurde halbautomatisch aus dem LISP
+Quellcode durch ein von mir erstelltes, allgemein verwendbares System
+generiert; bei Bedarf & reichender Zeit koennte ich dieses System kurz
+vorstellen.
