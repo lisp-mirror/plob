@@ -2,7 +2,8 @@
 <html>
 
 <head><title>Persistent Lisp OBjects</title>
-<!-- Changed by: Heiko Kirschke, 13-Mar-1998 -->
+<!-- Changed by: Heiko Kirschke, 14-Feb-2001 -->
+<!-- $Header$ -->
 
 <meta content="Persistent LISP Objects" name="description">
 <meta content="persistency,persistent
@@ -17,7 +18,7 @@
 <img alt="MOP Inside!" src="mop-inside.gif">
 <font size="6">P</FONT><font size="5">ERSISTENT</font> <font size="6">L</font><font size="5">ISP</font> <font size="6">OB</font><font size="5">JECTS</FONT><font size="6">!</font></h1>
 
-Version 2.09 of May 22, 2000
+Version 2.10 of May 22, 2000
 
 <p>by <a href="#contact">Heiko Kirschke</a></p>
 
@@ -251,14 +252,14 @@ Server</a>; see <b>PLOB</b>'s <a href="README">README</a> for details.
 
 <dt></dt><table> <tr><td><table
 border="4"><tr><td><kbd>ftp</kbd></td></tr></table> <td><a
-href="http://www.lisp.de/software/plob/plob-2.09.tar.gz">plob-2.09.tar.gz</a>,
-gzipped around 10 MB; <br>(plob-2.09.tar uncompressed takes around 36
+href="http://www.lisp.de/software/plob/plob-2.10.tar.gz">plob-2.10.tar.gz</a>,
+gzipped around 10 MB; <br>(plob-2.10.tar uncompressed takes around 36
 MB, so it is not available here).
 
 </td></tr>
 </table>
 
-<dd>The complete <b>PLOB!</b> version 2.09 distribution, including
+<dd>The complete <b>PLOB!</b> version 2.10 distribution, including
 sources, all documentation (more than being showed below) and
 precompiled binaries.
 </dd>
@@ -349,7 +350,7 @@ design rationales. 4 pages.
 <table border=0 cellspacing=0 cellpadding=0 width="100%">
 <tr>
 <td valign="bottom">
-<h2><a name="bugfixes">Bugfixes for version 2.09</a></h2>
+<h2><a name="bugfixes">Bugfixes for version 2.10</a></h2>
 </td>
 <td>
 <table border=0 cellspacing=0 cellpadding=0 bgcolor="#000000">
@@ -384,14 +385,18 @@ design rationales. 4 pages.
 </tr>
 </table>
 
-Between 2.08 and 2.09, <b>PLOB</b>'s internal API between the
-client and server code has changed. This means for switching from 2.08
-to 2.09, all layers except the database layer must use the new 2.09
-code; PLOB might crash when the 2.09 client code is used with a 2.08
-server. So, take care for using the 2.09 LISP code, the 2.09 client
-DLL and the 2.09 server. Doing a 2.09 standard installation will
-overwrite the old 2.08 server binary. The 2.09 components are able to
-work on pre-2.09 databases.
+Between 2.09 and 2.10, <b>PLOB</b>'s internal API between the
+client and server code has changed. This means for switching from 2.09
+to 2.10, all layers except the database layer must use the new 2.10
+code; PLOB might crash when the 2.10 client code is used with a 2.09
+server. So, take care for using the 2.10 LISP code, the 2.10 client
+DLL and the 2.10 server. Doing a 2.10 standard installation will
+overwrite the old 2.09 server binary. The 2.10 components are able to
+work on pre-2.10 databases.
+
+<h2>Bugfixes for version 2.09</a></h2>
+
+None available.
 
 <h2>Bugfixes for version 2.08</h2>
 
@@ -492,7 +497,24 @@ aware of this problem and will extend the interface.
 
 <p></p><hr>
 
-<h2><a name="changes">Changes from version 2.08 to 2.09</a></h2>
+<h2><a name="changes">Changes from version 2.09 to 2.10</a></h2>
+
+<ul type="disc">
+
+<li> Support for Allegro Common LISP 6.0 has been added.
+
+<li> Further support for IRIX is still unclear. Contact <a
+href="mailto:Heiko.Kirschke@acm.org">me</a> if you are interested in
+an IRIX port.
+
+<li> The sources are now maintained within CVS. Currently, I try to
+set up a CVS archive at <a
+href="http://www.sourceforge.net/projects/plob">sourceforge</a> and a
+possibility for anonymous ftp.
+
+</ul>
+
+<h2>Changes from version 2.08 to 2.09</a></h2>
 
 <ul type="disc">
 
@@ -843,20 +865,20 @@ target="_parent">AltaVista's babelfish</a>.</dd>
 
 <hr>
 
-Created May 13, 1997; last change May 22, 2000.
+Created May 13, 1997; last change February 15, 2000.
 
 <address>
 <!-- <a href="http://lki-www.informatik.uni-hamburg.de/~kirschke/"
 target="_parent"> Heiko Kirschke</a>, --><a
 href="mailto:Heiko.Kirschke@acm.org">
-Heiko.Kirschke@acm.org</a></address></td></dd>
+Heiko.Kirschke@acm.org</a></address>
 
 </body></html>
 
 <!-- Keep this comment at the end of the file
 Local variables:
 mode: sgml
-sgml-default-dtd-file:"c:/opt/emacs-20.3.1/site-lisp/dtd/html32/html32.ced"
+sgml-default-dtd-file:"c:/opt/emacs-20.6/site-lisp/dtd/html32/html32.ced"
 sgml-omittag:nil
 sgml-shorttag:nil
 buffer-file-coding-system: iso-latin-1-unix
