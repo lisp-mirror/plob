@@ -74,16 +74,16 @@ s/=||/#/g
 s/\([^ ]\) *\((\) *\([^ ]\)/\1\2\3/g
 s/\([^ ]\) *\()\)/\1\2/g
 :rmblank
-/@[	 ][	 ]*\([bgqstn]\)[	 ]*@/ {
-  s/[	 ]*@[	 ][	 ]*\([bgqstn]\)[	 ]*@[	 ]*/@\1@/g
+/@[	 ][	 ]*\([bdgpqstn]\)[	 ]*@/ {
+  s/[	 ]*@[	 ][	 ]*\([bdgpqstn]\)[	 ]*@[	 ]*/@\1@/g
   b rmblank
 }
-/@[	 ]*\([bgqstn]\)[	 ][	 ]*@/ {
-  s/[	 ]*@[	 ]*\([bgqstn]\)[	 ][	 ]*@[	 ]*/@\1@/g
+/@[	 ]*\([bdgqrstn]\)[	 ][	 ]*@/ {
+  s/[	 ]*@[	 ]*\([bdgpqrstn]\)[	 ][	 ]*@[	 ]*/@\1@/g
   b rmblank
 }
-/@[	 ][	 ]*\([bgqstn]\)[	 ][	 ]*@/ {
-  s/[	 ][	 ]*@[	 ]*\([bgqstn]\)[	 ][	 ]*@[	 ]*/@\1@/g
+/@[	 ][	 ]*\([bdgpqrstn]\)[	 ][	 ]*@/ {
+  s/[	 ][	 ]*@[	 ]*\([bdgpqrstn]\)[	 ][	 ]*@[	 ]*/@\1@/g
   b rmblank
 }
 s/$/@n@/
@@ -113,10 +113,25 @@ s/^  *//
  s/[	 ]*@b@[	 ]*/\\/g
  b loopbsl
 }
+:loopdol
+/@d@/ {
+ s/[	 ]*@d@[	 ]*/$/g
+ b loopdol
+}
 :loopsqu
 /@q@/ {
  s/[	 ]*@q@[	 ]*/'"'"'/g
  b loopsqu
+}
+:loopdqu
+/@p@/ {
+ s/[	 ]*@p@[	 ]*/"/g
+ b loopdqu
+}
+:loopbqu
+/@r@/ {
+ s/[	 ]*@r@[	 ]*/`/g
+ b loopbqu
 }
 :loopspc
 /@s@/ {

@@ -603,7 +603,7 @@ LDSHAREDOPT=
 /* ----------------------------------------------------------------------
 | Standard make targets
  ---------------------------------------------------------------------- */
-STDTARGETS=all clean dist dash clean initial makefiles
+STDTARGETS=all clean dist dash clean initial shipoutconf makefiles
 
 /* ----------------------------------------------------------------------
 | Utilities settings
@@ -1007,10 +1007,10 @@ if [ ! option1(d) "src/include/allegro5" ]; then bsnl \
 fi; bsnl \
 PATH="$${PWD}/bin:$${PATH}"; export PATH
 
-rule ( config shipout, \
-       noDependencies, \
-       silent $(ASSERTTOPLEVEL); bsnl \
-       plobconfig option1(ruleTarget) )
+drule ( config shipout, \
+        noDependencies, \
+        silent $(ASSERTTOPLEVEL); bsnl \
+        plobconfig option1(ruleTarget) )
 
 rule ( standard dash config, \
        noDependencies, \
@@ -1080,6 +1080,10 @@ drule ( default dash initial, \
         $(opsys), \
 	noActions )
 
+drule ( default dash shipoutconf, \
+        $(opsys), \
+	noActions )
+
 rule ( $(RULES), \
        noDependencies, \
        noActions )
@@ -1121,6 +1125,10 @@ drule ( makefile default dash makefiles, \
 	"makefile.in" )
 
 ALLOPSYS=irix linux solaris win32
+
+rule ( echo dash allopsys, \
+       noDependencies, \
+       silent echo '>>aa>>' $(ALLOPSYS) '<<zz<<' )
 
 MKMAKEFILE=fnMkMakefile () { bsnl
   set +e; bsnl

@@ -93,9 +93,9 @@ drule ( link, \
 	AllLibs, \
 	noActions )
 
-drule ( echo-libs, \
-	noDependencies, \
-	silent echo '>>aa>>' AllLibs '<<zz<<' )
+rule ( echo dash libs, \
+       noDependencies, \
+       silent echo '>>aa>>' AllLibs '<<zz<<' )
 
 drule ( $(STDTARGETS), \
 	noDependencies, \

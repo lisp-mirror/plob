@@ -37,7 +37,7 @@ MAKE_FILE=win32/makefile
 MAKE=$(MAKE_EXE) $(MAKE_F) $(MAKE_FILE)
 RANLIB=: ranlib
 LDSHAREDOPT=-dll
-STDTARGETS=all clean dist-clean initial makefiles
+STDTARGETS=all clean dist-clean initial shipoutconf makefiles
 SHELL=/bin/sh
 C2RPC=$(BINDIR)/c2rpc -CPP   '$(CPP)' -I$(BINDIR)   -P   $(RPC_PROGRAM) -V   $(RPC_VERSION) $(C2RPCFLAGS)
 C2LISP=$(BINDIR)/c2lisp -CPP   '$(CPP)' -I$(BINDIR)   $(C2LISPFLAGS)
@@ -249,7 +249,7 @@ echo "*** in the top-level directory of PLOB!" 1>&2; \
 exit 1; \
 fi; \
 PATH="$${PWD}/bin:$${PATH}"; export PATH
-config shipout : 
+config shipout :: 
 	@$(ASSERTTOPLEVEL); \
 plobconfig -$@
 standard-config : 
@@ -284,6 +284,7 @@ default-clean ::
 default-dist-clean :: clean
 		-rm -f     *.lib       *.obj *.dll     *.fsl *.fasl *.wfasl
 default-initial :: $(opsys)
+default-shipoutconf :: $(opsys)
 $(RULES) : 
 $(CONFDIR)/make.server.in : 
 GETMAKEVARSCMD=fnCallGetMakeVars() { \
@@ -310,6 +311,8 @@ makefile default-makefiles :: makefile.in $(RULES)         $(CONFDIR)/$(opsys)/m
 echo "plobimake -CPP '$(CPP)' -I $(CONFDIR)/$(opsys) -o $(opsys)/makefile makefile.in"; \
 $${BINPATH}/plobimake -CPP "$(CPP)" -I "$(CONFDIR)/$(opsys)" -o "$(opsys)/makefile" "makefile.in"
 ALLOPSYS=irix linux solaris win32
+echo-allopsys : 
+	@echo '>>aa>>' $(ALLOPSYS) '<<zz<<'
 MKMAKEFILE=fnMkMakefile() { \
 set +e; \
 echo ''; \
@@ -345,7 +348,7 @@ $(opsys)/$(LIBLOCPLOBDLL) : $(CONFDIR)/$(opsys)/$(LIBLOCPLOBDLL)
 	cp -p $(CONFDIR)/$(opsys)/$(LIBLOCPLOBDLL) $(opsys)/$(LIBLOCPLOBDLL)
 initial :: link
 link :: $(opsys)/$(LIBPOSTORE)    $(opsys)/$(LIBRPCPLOBDLL) $(opsys)/$(LIBLOCPLOBDLL)
-echo-libs :: 
+echo-libs : 
 	@echo '>>aa>>' $(opsys)/$(LIBPOSTORE)    $(opsys)/$(LIBRPCPLOBDLL) $(opsys)/$(LIBLOCPLOBDLL)   '<<zz<<'
 $(STDTARGETS) :: 
 	@$(MAKE) default-$@

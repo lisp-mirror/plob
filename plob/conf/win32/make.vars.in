@@ -42,7 +42,7 @@
 
 SHELL=/bin/sh
 
-PLOBDIR=/home/hkirschk/plob-2.09
+PLOBDIR=c:/home/hkirschk/plob-2.10
 
 #define HasAuth			AUTH_NON
 #define HasClient		yes

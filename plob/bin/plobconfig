@@ -1048,6 +1048,22 @@ fnStartServer ()
 } # fnStartServer
 
 # ----------------------------------------------------------------------
+# Function	fnTrimMake
+# Argument(s)	---
+# Description	Trim output of make
+# ----------------------------------------------------------------------
+fnTrimMake ()
+{
+  sed -n '
+/>>aa>>/ {
+  s/^.*>>aa>>//
+  s/<<zz<<.*$//
+  p
+  q
+}'
+} # fnTrimMake
+
+# ----------------------------------------------------------------------
 # Function	fnFindFiles
 # Argument(s)	---
 # Description	Find all 'interesting' files for the .tar archive
@@ -1250,51 +1266,63 @@ PLOB! (C) 1994-1998 Heiko Kirschke ${szEmail}"
   else
     szTarFile="`fnMakeAbsPath ${szPlob}.tar`"
   fi
-  szAllLibs="`make -f ./${szPlob}/lib/${szopsys}/makefile echo-libs|sed -n '
-/>>aa>>/ {
-  s/^.*>>aa>>//
-  s/<<zz<<.*$//
-  p
-  q
-}'`"
+  fnPrompt szTarFile "${szTarFile}" "Enter tar file" "Name of tar file containing the final distribution"
+  if ${bVerbose}; then
+    echo ''
+    echo "${szScript}: Copying back binaries to configuration directory ..." 1>&2
+  fi
   echo "\
 CONFDIR=./${szPlob}/${szConfDir}
-LIBDIR=./${szPlob}/lib
-BINDIR=./${szPlob}/bin/${szopsys}
+libdir=./${szPlob}/lib
+bindir=./${szPlob}/bin
 STDTARGET=copy_back_binaries
-\$(STDTARGET)::
-\$(STDTARGET)::\$(CONFDIR) \$(CONFDIR)/${szopsys}
-\$(CONFDIR) \$(CONFDIR)/${szopsys}:
+\$(STDTARGET) ::
+\$(STDTARGET) :: \$(CONFDIR)
+\$(CONFDIR) :
 	mkdir \$@" > ${szTmpFile}
-  for l in ${szAllLibs}; do
+  szAllOpSys="`make -f ./${szPlob}/lib/${szopsys}/makefile echo-allopsys|fnTrimMake`"
+  for o in ${szAllOpSys}; do
     echo "\
-\$(STDTARGET)::\$(CONFDIR)/$l
-\$(CONFDIR)/$l:\$(LIBDIR)/$l
-	cp -p \$(LIBDIR)/$l \$@"
+\$(STDTARGET) :: \$(CONFDIR)/${o}
+\$(CONFDIR)/${o} :
+	mkdir \$@"
+    for c in lib bin; do
+      szAllCategories="`make -f ./${szPlob}/${c}/${o}/makefile echo-${c}s|fnTrimMake`"
+      for f in ${szAllCategories}; do
+        echo "\
+\$(STDTARGET) :: \$(CONFDIR)/${f}
+\$(${c}dir)/${f} :
+	\$(EXISTS)
+\$(CONFDIR)/${f} : \$(${c}dir)/${f}
+	\$(CP) -fp \$(${c}dir)/${f} \$@"
+      done
+    done
   done >> ${szTmpFile}
-  case "${szopsys}" in
-  'win32')
-    szExe='.exe';;
-  *)
-    szExe=;;
-  esac
-  if [ -r ./${szPlob}/bin/${szopsys}/plobd${szExe} ]; then
-    echo "\
-\$(STDTARGET)::\$(CONFDIR)/${szopsys}/plobd${szExe}
-\$(CONFDIR)/${szopsys}/plobd${szExe}:\$(BINDIR)/plobd${szExe}
-	cp -p \$(BINDIR)/plobd${szExe} \$@" >> ${szTmpFile}
-  fi
-  if [ -r ./${szPlob}/bin/${szopsys}/plobdadmin${szExe} ]; then
-    echo "\
-\$(STDTARGET)::\$(CONFDIR)/${szopsys}/plobdadmin${szExe}
-\$(CONFDIR)/${szopsys}/plobdadmin${szExe}:\$(BINDIR)/plobdadmin${szExe}
-	cp -p \$(BINDIR)/plobdadmin${szExe} \$@" >> ${szTmpFile}
-  fi
-  make -f ${szTmpFile}
+  # cat  ${szTmpFile}
+  # First make: Check if all files are existing
+  make EXISTS='@echo "*** File $@ is missing."' CP='@:' -f ${szTmpFile} 
+  # Second make: Do the actual copying, exit if a file is missing
+  set -e
+  make EXISTS='@echo "*** Exiting because of missing files." && exit 1' CP='cp' -f ${szTmpFile}
+  set +e
   rm -f ${szTmpFile}
+  if ${bVerbose}; then
+    fnEchoC "${szScript}: Gathering files ..." 1>&2
+  fi
   szAllFiles="`fnFindFiles ${szBootstrap} ${szPlob}`"
+  if ${bVerbose}; then
+    set -- '' ${szAllFiles}; shift
+    echo " done, found $# files" 1>&2
+  fi
   chmod 644 ${szAllFiles}
+  if ${bVerbose}; then
+    fnEchoC "${szScript}: Gathering directories ..." 1>&2
+  fi
   szAllDirectories="`for f in ${szAllFiles}; do dirname $f; done|sort -u`"
+  if ${bVerbose}; then
+    set -- '' ${szAllDirectories}; shift
+    echo " done, found $# directories" 1>&2
+  fi
   chmod 755 ${szAllDirectories}
   for f in ${szPlob}/bin/*; do
     if [ -f "$f" ] && head -1 "$f" | grep '^#!/' > /dev/null 2>&1; then

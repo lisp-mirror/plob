@@ -63,6 +63,10 @@ MkCopyRule($(opsys) slash,$(CONFDIR) slash $(opsys) slash,$(PLOBDADMIN))
 /* #define	ServerApps */
 /* #endif */
 
+rule ( echo dash bins, \
+       noDependencies, \
+       silent echo '>>aa>>' ServerApps '<<zz<<' )
+
 drule ( initial, \
 	link, \
 	noActions )
