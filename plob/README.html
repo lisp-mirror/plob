@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+
+<head><title>Persistent Lisp OBjects Readme</title>
+<!-- Changed by: Heiko Kirschke, 16-Feb-2001 -->
+<!-- $Header$ -->
+
+
+<h1><b>PLOB!</b> - <b>P</b>ersistent <b>L</b>isp
+<b>OB</b>jects<b></b></h1>
+
+&copy; 1994--2001 <a href="mailto:Heiko.Kirschke@acm.org">Heiko Kirschke</a><br>
+
+
+This version: 2.10 as of February 9, 2001
+$Header$
+
+<h2>ftp Download</h2>
+
+2.10: ftp download is currently not possible from 
+<a href="ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/">
+ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/</a>.
+
+<p>The files on <a href="http://www.lisp.de/software/plob">http://www.lisp.de/software/plob</a> are mirrored to
+<a href="ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob">ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/</a>. Don't forget
+to switch to binary mode (ftp command `bin'). If you encounter
+problems with timeouts, try to download the divided archive in files
+plob-2.10.tar.gz.aa to plob-2.10.tar.gz.ah. On Unix, the original
+archive can be restored after having downloaded all files by:
+
+<blockquote><code>
+    cat plob-2.10.tar.gz.* &gt; plob-2.10.tar.gz
+</code></blockquote>
+
+For Windows/NT, download script restore-plob.bat into the same
+directory as the archive components and call
+
+<blockquote><code>
+    restore-plob
+</code></blockquote>
+
+to restore the complete archive from its components.
+
+<h2>Release notes</h2>
+
+Release 2.10 supports ACL 6.0. The current distribution does not
+contain the Irix version. Contact <a
+href="mailto:Heiko.Kirschke@acm.org">me</a> for obtaining the Irix
+release; for doing this, I must be provided with an account on an Irix
+machine with approx. 100 MB disk space.
+
+<p>Between 2.09 and 2.10, <b>PLOB</b>'s internal API between the
+client and server code has changed. This means for switching from 2.09
+to 2.10, all layers except the database layer must use the new 2.10
+code; <b>PLOB</b> might crash when the 2.10 client code is used with a 2.09
+server. So, take care for using the 2.10 LISP code, the 2.10 client
+DLL and the 2.10 server. Doing a 2.10 standard installation will
+overwrite the old 2.09 server binary. The 2.10 components are able to
+work on pre-2.10 databases.
+
+<h2>Latest bug fixes</h2>
+
+Before starting an installation, please consult the <a
+href="http://www.lisp.de/software/plob/plob.html#bugfixes"
+target="contents">Bugfixes</a> section, since the archive may contain
+not yet fixed bugs.
+
+<h2>Documentation</h2>
+
+Please read the documentation found in subdirectory <a
+href="ps/" target="contents">plob-2.10/ps</a>; most files are provided in
+PostScript and in pdf format.
+
+<blockquote>
+<table border="4" width="80%">
+
+<tr>
+<th align="left">File</th>
+<th align="right">Pages</th>
+<th align="left">Language</th>
+<th align="left">Description</th>
+</tr>
+
+<tr>
+<td><a href="ps/install.pdf" target="contents">install.pdf</a></td>
+<td align="right">8</td>
+<td align="left">english</td>
+<td align="left">How to install <b>PLOB!</b></td>
+</tr>
+
+<tr>
+<td><a href="ps/userg.pdf" target="contents">userg.pdf</a><br>
+<a href="ps/userg.ps" target="contents">userg.ps</a></td>
+<td align="right">88<br>94</td>
+<td>english</td>
+<td>User's guide compiled for 1 side printing<br>
+User's guide compiled for 2 side printing</td>
+</tr>
+
+<tr>
+<td><a href="ps/plobelugm.pdf" target="contents">plobelugm.pdf</a></td>
+<td align="right">8</td>
+<td>english</td>
+<td>Paper presented at ELUGM 99 in Amsterdam</td>
+</tr>
+
+<tr>
+<td><a href="ps/eref.pdf" target="contents">eref.pdf</a><br>
+<a href="ps/eref.ps" target="contents">eref.ps</a></td>
+<td align="right">159<br>157</td>
+<td>english</td>
+<td>API Reference Manual compiled for 1 side printing<br>
+API Reference Manual compiled for 2 side printing</td>
+</tr>
+
+<tr>
+<td><a href="ps/iref.pdf" target="contents">iref.pdf</a><br>
+<a href="ps/iref.ps" target="contents">iref.ps</a></td>
+<td align="right">283<br>281</td>
+<td>english</td>
+<td>Internal Interface Reference Manual compiled for 1 side printing<br>
+Internal Interface Reference Manual compiled for 2 side printing</td>
+</tr>
+
+<tr>
+<td><a href="ps/ldocman.ps" target="contents">ldocman.ps</a></td>
+<td align="right">29</td>
+<td>english</td>
+<td>Documents the documentation facility lisp-doc</td>
+</tr>
+
+<tr>
+<td><a href="ps/diplom.pdf" target="contents">diplom.pdf</a><br>
+<a href="ps/diplom.ps" target="contents">diplom.ps</a></td>
+<td align="right">188</td>
+<td>german</td>
+<td>My master thesis in computer sciences about persistent objects</td>
+</tr>
+
+</table>
+</blockquote>
+
+See <a
+href="http://www.adobe.com/prodindex/acrobat/readstep.html" target="getreader">here</a>
+for a reader of PDF files.
+
+<p>The file ldocman.ps describes a general-purpose LISP documentation
+extraction module used for building the reference manual; this can be
+used indepently from <b>PLOB!</b> to extract a reference manual from LISP
+sources looking similar to the standard set by [CLtLII].
+
+Further understandings about the design philosophy behind <b>PLOB!</b>
+can be found in my master thesis.
+
+<h2>Quick Installation</h2>
+
+Here's the roadmap to a quick installation of PLOB!:
+
+<ul type="1">
+
+<li> In the shell, call
+<blockquote><pre>
+make config
+</pre></blockquote>
+
+   in the directory containing this readme file and answer all
+   questions (most of the questions already have suitable default
+   answers).
+
+<p><li> Depending on your LISP target system (LispWorks or Allegro),
+   cd either to
+
+<blockquote><pre>
+cd plob-2.10/src/lispworks
+</pre></blockquote>
+   or
+<blockquote><pre>
+cd plob-2.10/src/allegro
+</pre></blockquote>
+
+   <i>For Windows/NT only:</i> cd always to plob-2.10/src/allegro
+
+<p><li> Start LispWorks or Allegro Common LISP.
+
+<p><li> <i>For Windows/NT only:</i> Edit file defsystem-plob.lisp. Around
+  line 42, change the defconstant:
+
+<blockquote><pre>
+(defconstant &#43;plob-dir&#43; ".."
+  #+:lisp-doc "\\plob\\ installation directory.")
+</pre></blockquote>
+   to contain an absolute path to the local PLOB! installation, for
+   example:
+<blockquote><pre>
+(defconstant &#43;plob-dir&#43; "c:/opt/plob/plob-2.10"
+  #+:lisp-doc "\\plob\\ installation directory.")
+</pre></blockquote>
+
+<p><li> In the LISP listener, evaluate
+<blockquote><pre>
+(compile-file "defsystem-plob")
+(load "defsystem-plob")
+(compile-plob)
+(load-plob)
+</pre></blockquote>
+
+<p><li> That's it. For getting first experiences with <b>PLOB!</b>, compile and
+   load plob-2.10/src/example/plob-example.lisp and
+   plob-2.10/src/example/plob-quick-tour.lisp
+
+</ul>
+
+Have fun,<br>
+Heiko
+
+<hr>
+Created May 13, 1997; last change February 16, 2000.
+
+<address>
+<a href="mailto:Heiko.Kirschke@acm.org">
+Heiko.Kirschke@acm.org</a></address>
+
+</body></html>
