@@ -3,7 +3,7 @@
 
 ARCH=sun5
 
-CC=cc
+CC=gcc
 
 CAT=cat
 CHMOD=chmod
