@@ -1,0 +1,144 @@
+To: lispworks-support@harlequin.co.uk
+CC: schroed
+Subject: Metaobject-Protocol support for LispWorks CLOS
+--text follows this line--
+
+Dear Sir or Madam,
+
+I'm currently working on my diploma thesis at the University of
+Hamburg, Dept. of Computer Science. My theme is persistence in CLOS,
+esp. implementing persistent objects in LispWorks CLOS.  I'm using
+LispWorks version 3.1.1 on a SUN SPARC station 370 running under SUNOS
+4.1.3. The person who takes care for me here in place for questions
+concerning LispWorks is Carsten Schroeder
+(schroed@informatik.uni-hamburg.de).
+
+  At working on slot-allocation and -access for CLOS objects I
+found out that there are missing some generic functions & methods in
+LispWorks CLOS w.r.t. the MOP specification found in [MOP91] Gregor
+Kiczales, Jim des Rivieres, and Daniel G. Bobrow: The Art of the
+Metaobject Protocol, The MIT Press, Cambridge, Massachusetts, 1991.
+
+ 1. The instance allocation protocol differs from the specification in
+    [MOP91]. I tried to setf the slot-definition-allocation of CLOS
+    instance slots to a value not eq to :class or :instance; the
+    effective setf method specialized to slot-definition signals an
+    error in this case [this happens because of the selected
+    representation scheme for storing a slot allocation: it is put
+    into the least significant bit of the slot
+    effective-slot-description's slot named clos::flags, 0 for a
+    :class slot allocation and 1 for a :instance slot allocation].
+    My aim was as described in [MOP91], p. 99-106, to allocate some
+    slots by myself and not under the control of CLOS.
+
+ 2. The generic functions and default methods for reader-method-class
+    ([MOP91], p. 224) and writer-method-class ([MOP91], p. 242) are
+    missing [instead, there is a generic function
+    clos::class-reader-and-writer-type, which returns 2 values; these
+    values seem to indicate to CLOS if a standard or non-standard slot
+    access should be used].
+
+ 3. The lambda list of the generic function make-method-lambda differs
+    from the specification given in [MOP91], p. 207.
+
+ 4. The methods of make-method-lambda are not called for slot reader
+    & writer methods defined with the slot-options :reader resp.
+    :writer resp. :accessor [instead, there are two generic functions
+    which have been used already in PCL: optimize-slot-value and
+    clos::optimize-set-slot-value; the method generation for slot
+    accessing methods seems to be built-in into the initialization or
+    finalization of its enclosing class metaobject class]. My aim was
+    to generate my own slot accessing methods for persistent objects
+    and to use make-method-lambda for this purpose (see also [MOP91],
+    p. 207-209).
+
+ 5. The generated (optimized) slot accessing methods don't seem to
+    call slot-value-using-class; of course, this is an effect of the
+    optimization done for the slot access. My problem is that I can't
+    influence the slot access optimization by writing specialized
+    methods to the generic functions reader-method-class,
+    writer-method-class and make-method-lambda because they are
+    missing or not called by CLOS. Using no slot access optimization
+    at all will enable slot access by using specialized methods to
+    slot-value-using-class, but will also slow down access to
+    persistent objects quite a lot, I think.
+
+  For now, I solve the problems mentioned above by directly modifying
+the class metaobject of classes with persistent instances by some
+right placed :after methods and hoping that these changes don't need
+to be done in any further places too (caches etc). I guess that most
+of the MOP incompatibilities stem from the fact that on some early
+stage LispWorks CLOS seemed to be developed from PCL.
+
+  Employing this technique of directly modifying class metaobjects is
+not very satisfying, so I'd like to ask You if there will be a CLOS
+version for LispWorks which is compatible with the specification
+given in [MOP91] concerning the above described problems.
+
+
+Sincerely,
+Heiko Kirschke
+-------------------------------------------------------------------------------
+1, forwarded,,
+Mail-from: From guy@harlequin.co.uk Fri Apr 22 18:43:23 1994
+Return-Path: <guy@harlequin.co.uk>
+Received: from fbihh.informatik.uni-hamburg.de by kogs26.informatik.uni-hamburg.de (4.1/SMI-4.1)
+	id AA28810; Fri, 22 Apr 94 18:43:22 +0200
+Received: from holly.cam.harlequin.co.uk
+	by fbihh.informatik.uni-hamburg.de (5.65+/FBIHH-1.29) with SMTP;
+	id AA04174; Fri, 22 Apr 94 18:43:07 +0200
+Received: from rocannon.cam.harlequin.co.uk by holly.cam.harlequin.co.uk; Fri, 22 Apr 1994 17:38:00 +0100
+Received: from pangloss.cam.harlequin.co.uk by rocannon.cam.harlequin.co.uk; Fri, 22 Apr 1994 17:37:31 +0100
+From: Guy Snape <guy@harlequin.co.uk>
+Date: Fri, 22 Apr 94 17:37:30 BST
+Message-Id: <12664.9404221637@pangloss.cam.harlequin.co.uk>
+To: kirschke@kogs26.informatik.uni-hamburg.de
+In-Reply-To: Heiko Kirschke's message of Fri, 25 Mar 94 09:24:04 +0100 <9403250824.AA03867@kogs26.informatik.uni-hamburg.de>
+Subject: Re: Metaobject-Protocol support for LispWorks CLOS
+Cc: lispworks-support@harlequin.co.uk
+Reply-To: lispworks-support@harlequin.co.uk
+Status: OR
+
+*** EOOH ***
+Return-Path: <guy@harlequin.co.uk>
+From: Guy Snape <guy@harlequin.co.uk>
+Date: Fri, 22 Apr 94 17:37:30 BST
+To: kirschke@kogs26.informatik.uni-hamburg.de
+In-Reply-To: Heiko Kirschke's message of Fri, 25 Mar 94 09:24:04 +0100 <9403250824.AA03867@kogs26.informatik.uni-hamburg.de>
+Subject: Re: Metaobject-Protocol support for LispWorks CLOS
+Cc: lispworks-support@harlequin.co.uk
+Reply-To: lispworks-support@harlequin.co.uk
+
+Heiko,
+
+Sorry about the long delay.  Here are some answers to your queries
+about the future availibility of an AMOP compliant version of
+LispWorks:
+
+The LispWorks MOP was implementated to conform to a version of part
+III of the CLOS specification that was not adopted by ANSI CL
+standard. This document differs from the AMOP in a number of places.
+
+Now that the AMOP book provides a publicly available description of
+the MOP, LW will be migrating towards it (during future releases)
+while taking into account:
+
+	backwards compatibility
+	ensuring the continued efficiency of non-MOP code
+	consultations with our customers
+
+We are currently working on customized slot allocation code for
+another customer and this may be available soon.
+
+Concerning an individual point. Slot-value optimization can be turned
+off in LW 3.1 and LW 3.2 by the following class-option:
+
+(defclass thing ()
+  ((slot))
+  (:optimize-slot-access nil))
+
+I hope this is helpful.
+
+Regards,
+
+- Guy
