@@ -1,0 +1,313 @@
+% LKI DOCUMENT STYLE -- Released 11 November 1994
+%    for LaTeX version 2.09
+% Copyright (C) 1994 by Heiko Kirschke
+% kirschke@informatik.uni-hamburg.de (HK)
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{lki}
+              [1994/11/11 v0.0]
+
+% \@lkilogorighttrue: Put LKI logo on the right margin of the page
+% \@lkilogorightfalse: Put LKI logo on the left margin of the page
+\newif\if@lkilogoright
+\@lkilogorighttrue
+\ifx\thechapter\undefined\ifx\thesection\undefined%
+\@lkilogorightfalse\fi\fi%
+
+\DeclareOption{logoleft}{\@lkilogorightfalse}
+\DeclareOption{logoright}{\@lkilogorighttrue}
+
+\ProcessOptions
+
+\RequirePackage{lkilogo}
+\RequirePackage{deflist}
+
+\def\@gobblethree#1#2#3{}
+
+\let\@tempa\relax%
+\ifx\slide\undefined%
+\ifx\letter\undefined%
+\ifx\fax\undefined%
+\def\@tempa{\input{lki.def}}
+\fi\fi\else%
+\def\@tempa{\input{lkislide.def}}%
+\fi%
+\@tempa\let\@tempa\relax
+
+\newcommand\makebibliography{%
+\ifx\chapter\undefined\relax\else%
+\clearpage\thispagestyle{empty}\cleardoublepage%
+\fi%
+\bibliography}
+
+\ifx\thebibliography\undefined%
+\let\@tempa\newenvironment%
+\else\let\@tempa\renewenvironment\fi%
+\@tempa{thebibliography}[1]
+     {\ifx\chapter\undefined%
+       \section*{\bibname
+         \@mkboth%
+         % HK 1994/11/09
+         %{\uppercase{\bibname}}{\uppercase{\bibname}}
+         {\bibname}{\bibname}%
+         }%
+       % HK 1996/02/08: Added toc-entry:
+       \addcontentsline{toc}{section}%
+         {\protect\numberline{}{\protect\bibname}}%
+      \else%
+       \chapter*{\bibname
+         \@mkboth%
+         % HK 1994/11/09
+         %{\uppercase{\bibname}}{\uppercase{\bibname}}
+         {\bibname}{\bibname}%
+         }%
+       % HK 1996/02/08: Added toc-entry:
+       \addcontentsline{toc}{chapter}%
+         {\protect\numberline{}{\protect\bibname}}%
+      \fi
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy\clubpenalty4000\widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+
+\ifx\@openbib@code\undefined\let\@openbib@code\relax\fi
+
+%\ifx\@restonecoltrue\undefined\newif\if@restonecol\fi
+
+\let\@tempa\@gobblethree
+\ifx\theindex\undefined\else%
+\let\@tempa\renewenvironment\fi
+\@tempa{theindex}
+               {\if@twocolumn
+                  \@restonecolfalse
+                \else
+                  \@restonecoltrue
+                \fi
+                \columnseprule \z@
+                \columnsep 35\p@
+                \twocolumn[\@makeschapterhead{\indexname}]%
+                \@mkboth%
+                % HK 1994/11/09
+                %{\uppercase{\indexname}}%
+                %{\uppercase{\indexname}}%
+                {\indexname}{\indexname}%
+                \thispagestyle{plain}\parindent\z@
+                \parskip\z@ \@plus .3\p@\relax
+                \let\item\@idxitem}
+               {\if@restonecol\onecolumn\else\clearpage\fi}
+
+% HK 1994/11/09
+\newcommand\@lheadrule{%
+%\mbox{}\\[-2pt]% Alt
+\mbox{}\\[-6pt]%
+\rule{\textwidth}{\@headrulethickness}%
+%\\%[2pt]%
+}
+
+\def\@lkixtraspace{1cm}
+
+\newcommand\@rheadrule{%
+%\mbox{}\\[-2pt]% Alt
+\mbox{}\\[-6pt]%
+\if@lkilogoright%
+\setbox\@tempboxa\hbox{\lki}%
+\@tempdimb\textwidth\advance\@tempdimb-\wd\@tempboxa%
+\@tempdimc\@lkiframe%
+\advance\@tempdimb-\@tempdimc%
+\advance\@tempdimb-\@lkixtraspace%
+\else%
+\@tempdimb\@lkixtraspace%
+\fi%
+\rule{\@tempdimb}{\@headrulethickness}%
+\hskip\@lkiframe%
+\setbox\@tempboxa\hbox{\lkileft}%
+\raisebox{\dp\@tempboxa}{\copy\@tempboxa}%
+%\hskip\@lkiframe%
+\raisebox{\dp\@tempboxa}{\lkiright}%
+\setbox\@tempboxa\hbox{\lkiright}%
+\@tempdimb\wd\@tempboxa\advance\@tempdimb-\@lkiframe%
+\hskip-\@tempdimb%
+\if@lkilogoright%
+\advance\@tempdimb\@lkixtraspace%
+\else%
+\@tempdima\textwidth\advance\@tempdima\@tempdimb%
+\setbox\@tempboxa\hbox{\lki}%
+\advance\@tempdima-\wd\@tempboxa%
+\advance\@tempdima-\@lkixtraspace%
+\advance\@tempdima-\@lkiframe%
+\@tempdimb\@tempdima%
+\fi%
+\rule{\@tempdimb}{\@headrulethickness}%
+%\\%[2pt]%
+}%
+
+% Left chapter mark for two sided documents:
+\newcommand\@lkicmarkl[2]{%
+\protect\hspace{-\textwidth}%
+\protect\parbox[t]{\textwidth}{\protect\raggedleft{\rm\bf{}%
+\def\@tempa{#1}\ifx\@tempa\@empty\relax\else%
+\ifnum\c@secnumdepth>\m@ne%
+\ifx\thechapter\undefined%
+\ifx\thesection\undefined\relax\else%
+\thesection\ \fi%
+\else\@chapapp\ \thechapter.\ \fi\fi\fi#2%
+}\protect\@lheadrule}}%
+
+% Right chapter mark for one sided documents:
+\newcommand\@lkicmarkr[2]{%
+\protect\parbox[t]{\textwidth}{%
+\if@lkilogoright{\rm\bf{}%
+\def\@tempa{#1}\ifx\@tempa\@empty\relax\else%
+\ifnum\c@secnumdepth>\m@ne%
+\ifx\thechapter\undefined%
+\ifx\thesection\undefined\relax\else%
+\thesection\ \fi%
+\else\@chapapp\ \thechapter.\ \fi\fi\fi#2%
+}\fi\protect\@rheadrule}%
+\protect\hspace*{-\textwidth}}%
+
+% Right section mark for two sided documents:
+\newcommand\@lkismark[2]{%
+\protect\parbox[t]{\textwidth}{%
+\if@lkilogoright{\rm\bf{}%
+\def\@tempa{#1}\ifx\@tempa\@empty\relax\else%
+\ifnum\c@secnumdepth>\z@\thesection.\ \fi\fi#2%
+}\fi\protect\@rheadrule}%
+\protect\hspace*{-\textwidth}}%
+
+\newcommand\@hkmkboth[2]{%
+\markboth{\protect\@lkicmarkl{}{#1}}{\protect\@lkicmarkr{}{#2}}
+}%
+
+\if@twoside
+    \def\ps@headings{%
+      \let\@oddfoot\@empty\let\@evenfoot\@empty
+      \def\@evenhead{\ifnum\value{page}>\z@\thepage\fi\hfil\leftmark}%
+      \def\@oddhead{\rightmark\hfil\ifnum\value{page}>\z@\thepage\fi}%
+      \let\@mkboth\@hkmkboth%
+      \ifx\thechapter\undefined%
+      \def\sectionmark##1{%
+        \markboth{\protect\@lkicmarkl{t}{##1}}%
+          {\protect\@lkismark{}{}}}%
+      \def\subsectionmark##1{\markright{\protect\@lkismark{t}{##1}}}%
+      \else%
+      \def\chaptermark##1{%
+        \markboth{\protect\@lkicmarkl{t}{##1}}%
+          {\protect\@lkismark{}{}}}%
+      \def\sectionmark##1{\markright{\protect\@lkismark{t}{##1}}}\fi%
+      \markboth{\protect\@lkicmarkl{}{}}{\protect\@lkismark{}{}}%
+      }
+\else
+    \def\ps@headings{%
+      \let\@oddfoot\@empty%
+      \def\@oddhead{\rightmark\hfil\ifnum\value{page}>\z@\thepage\fi}%
+      \let\@evenhead\@oddhead%
+      \ifx\slide\undefined\relax\else%
+      \def\ps@slide{%
+        \def\rightmark{\@lkicmarkr{}{\@title}}%
+        %\def\@oddfoot{\@mainsize \mbox{}\hfil\hb@xt@3em{\theslide\hss}}%
+        \def\@oddhead{\rightmark\hfil\ifnum\value{slide}>\z@\theslide\fi}%
+        %\def\@evenfoot{\@mainsize \mbox{}\hfil\hb@xt@3em{\theslide\hss}}%
+        %\def\@evenhead{}%
+        \let\@evenfoot\@empty\let\@evenhead\@oddhead}
+      \fi%
+      \let\@mkboth\@hkmkboth%
+      \ifx\thechapter\undefined%
+      \def\sectionmark##1{\markright{\protect\@lkicmarkr{t}{##1}}}%
+      \else\def\chaptermark##1{\markright{\protect\@lkicmarkr{t}{##1}}}\fi%
+      \markright{\protect\@lkicmarkr{}{}}}%
+\fi
+
+\def\ps@myheadings{%
+    \let\@oddfoot\@empty\let\@evenfoot\@empty
+    % HK 1994/11/09
+    %\def\@evenhead{\thepage\hfil\slshape\leftmark}%
+    %\def\@oddhead{{\slshape\rightmark}\hfil\thepage}%
+    \def\@evenhead{\ifnum\value{page}>\z@\thepage\fi\hfil\leftmark}%
+    \def\@oddhead{\rightmark\hfil\ifnum\value{page}>\z@\thepage\fi}%
+    \let\@mkboth\@gobbletwo
+    \let\chaptermark\@gobble
+    \let\sectionmark\@gobble
+    }
+
+\ifx\slide\undefined\let\@tempa\relax%
+\else\let\@tempa\ps@headings\fi
+\@tempa
+
+\let\@tempa\@gobblethree
+\ifx\titlepage\undefined\else%
+\let\@tempa\renewenvironment\fi%
+
+\@tempa{titlepage}
+    {%
+      \if@twocolumn
+        \@restonecoltrue\onecolumn
+      \else
+        \@restonecolfalse\newpage
+      \fi
+      \thispagestyle{empty}%
+      % HK 1994/11/18
+      %\if@compatibility
+        %\setcounter{page}{0}
+      %\else
+        \setcounter{page}{1}%
+      % HK 1994/11/18
+      %\fi%
+      }%
+    {\if@restonecol\twocolumn \else \newpage \fi
+      % HK 1994/11/18
+      %\setcounter{page}{1}%
+      \setcounter{page}{2}%
+    }
+
+\def\@makechapterhead#1{%
+  % HK 1994/11/09
+  %\vspace*{50\p@}%
+  \vspace*{30\p@}%
+  {\ifx\avb\undefined\let\avb\relax\fi%
+    \parindent \z@ \raggedright \reset@font
+    % HK 1994/11/09
+    \rule{\textwidth}{1.2pt}\vspace*{20pt} %
+    \ifnum \c@secnumdepth >\m@ne
+         % HK 1994/11/09
+         %\huge\bfseries \@chapapp{} \thechapter
+         \huge\avb \@chapapp{} \thechapter
+         \par
+         \vskip 20\p@
+       \fi
+    % HK 1994/11/09
+    %\Huge \bfseries #1\par
+    \Huge \avb #1\par
+    \nobreak
+    % HK 1994/11/09
+    %\vskip 40\p@
+    \vskip10pt\rule{\textwidth}{\@headrulethickness}\vskip30pt%
+  }}
+
+\def\@makeschapterhead#1{%
+  % HK 1994/11/09
+  %\vspace*{50\p@}%
+  \vspace*{30\p@}%
+  {\ifx\avb\undefined\let\avb\relax\fi%
+    \parindent \z@ \raggedright
+    \reset@font
+    % HK 1994/11/09
+    %\Huge \bfseries  #1\par
+    \rule{\textwidth}{1.2pt}\vspace*{20pt} %
+    \Huge \avb #1\par
+    \nobreak
+    % HK 1994/11/09
+    %\vskip 40\p@
+    \vskip10pt\rule{\textwidth}{\@headrulethickness}\vskip30pt%
+  }}
+
+\endinput

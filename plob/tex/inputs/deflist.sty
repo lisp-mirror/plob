@@ -1,0 +1,19 @@
+% DEFLIST DOCUMENT STYLE -- Released 7 February 1996
+%    for LaTeX version 2.09
+% Copyright (C) 1996 by Heiko Kirschke
+% kirschke@informatik.uni-hamburg.de (HK)
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{deflist}
+              [1996/02/07 v0.0]
+
+\ifx\deflist\undefined
+\newcommand\deflabel[1]{\bf #1\hfill}
+\newenvironment{deflist}[1][]%
+{\begin{list}{}%
+ {\settowidth{\labelwidth}{\bf #1}%
+  \setlength{\leftmargin}{\labelwidth}%
+  \addtolength{\leftmargin}{\labelsep}%
+  \renewcommand{\makelabel}{\deflabel}}}%
+{\end{list}}
+\fi

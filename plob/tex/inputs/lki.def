@@ -1,0 +1,143 @@
+%
+\newcommand\maketableofcontents{%
+\ifx\chapter\undefined\relax\else%
+\clearpage\thispagestyle{empty}\cleardoublepage\pagenumbering{roman}%
+\fi%
+\tableofcontents%
+\ifx\chapter\undefined\relax\else%
+\clearpage\thispagestyle{empty}\cleardoublepage\pagenumbering{arabic}%
+\fi}
+
+\ifx\chapter\undefined
+% TOC for article:
+\renewcommand\tableofcontents{%
+    \begin{small}\@starttoc{toc}\end{small}%
+    }
+\renewcommand\l@section[2]{%
+  \ifnum \c@tocdepth >\z@
+    \addpenalty\@secpenalty
+    %\addvspace{1.0em \@plus\p@}%
+    \setlength\@tempdima{1.5em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode \bfseries
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+    \endgroup
+  \fi}
+\else
+\renewcommand\tableofcontents{%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \chapter*{\contentsname
+    \@mkboth{\contentsname}{\contentsname}%
+	}%
+    \@starttoc{toc}%
+    \if@restonecol\twocolumn\fi
+    }
+\fi
+
+\renewcommand\listoffigures{%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \chapter*{\listfigurename
+      \@mkboth%
+      {\listfigurename}{\listfigurename}%
+      }%
+    \@starttoc{lof}%
+    \if@restonecol\twocolumn\fi
+    }
+
+\renewcommand\listoftables{%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \chapter*{\listtablename
+      \@mkboth%
+      {\listtablename}{\listtablename}
+      }%
+    \@starttoc{lot}%
+    \if@restonecol\twocolumn\fi
+    }
+
+\if@titlepage
+  \renewcommand\maketitle{\begin{titlepage}%
+  \let\footnotesize\small
+  \let\footnoterule\relax
+  % HK 1994/11/15
+  \parindent\z@%
+  \null\vfil
+  % HK 1994/11/09
+  %\vskip 60\p@
+  \vskip 100\p@
+  % HK 1994/11/09
+  %\begin{center}%
+    {% HK 1994/11/09
+     \ifx\avb\undefined\relax\else\avb\fi%
+     \LARGE%
+     % HK 1994/11/09
+     \baselineskip 3ex%
+     \@title \par}%
+    % HK 1994/11/09
+    %\vskip 3em%
+    \vskip 1.5em\par%
+    {\large \@date}\par\vskip 3em\par%       % Set date in \large size.
+    {\large
+     \lineskip .75em%
+      % HK 1994/11/09
+      %\begin{tabular}[t]{c}%
+        \@author
+      % HK 1994/11/09
+      %\end{tabular}%
+      \par}%
+      \vskip 1.5em%
+    % HK 1994/11/09
+    %{\large \@date \par}%       % Set date in \large size.
+  %\end{center}%
+  \par
+  \@thanks
+  \vfil\null
+  \end{titlepage}%
+  \setcounter{footnote}{0}%
+  \let\thanks\relax\let\maketitle\relax
+  %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}%
+  }
+\else
+\renewcommand\maketitle{%
+  \parindent\z@\par%
+  \begingroup%
+    \renewcommand\thefootnote{\fnsymbol{footnote}}%
+    \def\@makefnmark{\hbox to\z@{$\m@th^{\@thefnmark}$\hss}}%
+    \long\def\@makefntext##1{%
+            %\parindent 1em\noindent%
+            \parindent\z@\noindent%
+            \hbox to1.8em{\hss$\m@th^{\@thefnmark}$}##1}%
+    \if@twocolumn
+      \ifnum \col@number=\@ne
+        \@maketitle%
+      \else
+        \twocolumn[\@maketitle]%
+      \fi%
+    \else%
+      \newpage%
+      \global\@topnum\z@   % Prevents figures from going at top of page.
+      \@maketitle%
+    \fi%
+    \thispagestyle{plain}\@thanks%
+  \endgroup%
+  \setcounter{footnote}{0}%
+  \let\thanks\relax%
+  \let\maketitle\relax\let\@maketitle\relax%
+  %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}%
+  }
+\fi
