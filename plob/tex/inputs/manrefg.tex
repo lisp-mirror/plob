@@ -1,0 +1,143 @@
+% This is -*-LaTeX-*-
+%
+% manrefg.tex
+% HK 27.4.94
+%
+\input{mutitle}
+
+\pagenumbering{roman}\pagestyle{headings}
+\ifx\mytocdepth\undefined\relax\else%
+\settocdepth{\mytocdepth}%
+\fi%
+\ifx\notableofcontents\undefined%
+\tableofcontents\clearpage%
+\thispagestyle{plain}\cleardoublepage%
+\listoffigures%
+\fi%
+\clearpage\thispagestyle{plain}\cleardoublepage%
+
+\pagenumbering{arabic}%
+
+\BetterSloppy
+
+\chapter{Introduction}
+
+This chapter describes all constants, variables, macros, classes,
+functions, generic functions and methods of
+\plob\ifx\thistitle\undefined\relax\else{}'{}s \thistitle\fi\ in
+alphabetical order. The style of presentation and the notation used in
+this chapter are `borrowed' and extended from chapter~6 of
+\cite{bib:AMOP}; see \cite[\citepage{163}]{bib:AMOP} for details
+concerning the notation used in this chapter for [generic] functions
+and methods.  Here are the extensions and changes introducted to the
+style of chapter~6 of \cite{bib:AMOP}:
+\begin{itemize}
+\item Constants, variables, macros and classes are documented too.
+\item Since this chapter does not only describe the external interface
+  but also all internal entities, there is an addition to each section
+  header stating whether the entity is {\it external} or {\it
+    internal}.  The internal entities are described here to document
+  the \plob\ system itself.
+\item Added to each section is a subsection named `{\sc See Also}'
+  with references to other entities; the references are ordered
+  according to their importance.
+\item References are given by an identifier naming the kind of entity,
+  the symbol naming the entity and a page resp.\ bibliographic
+  reference in square brackets, e.g.: \Fcite{make-btree}.
+\item If a form has a {\bf (setf)} equivalent, the {\bf(setf)} form is
+  placed right behind the non-{\bf(setf)} form, e.g.\ the description
+  of \fcite{(setf btree-test)}\ is placed behind the description of
+  \fcite{btree-test}.
+\end{itemize}
+
+\section{Naming conventions}
+
+The following naming conventions are often obeyed for function resp.\ 
+argument names; the subsections are ordered from low-level (i.e.\ more
+C-like) to high-level (i.e.\ more \cl-like) name prefixes.
+
+\subsection{Prefix `c-sh-'}
+
+This is the prefix used by \plob\ for the \cl\ functions defined by
+the foreign function interface of \lw. The `c-sh-'\footnote{`c-sh-' is
+  an abbrevation for `C level of \sh-'.} functions are the `direct'
+interface functions to the C level; their $\lambda$-lists are very
+C-like. The arguments taken by these functions are of simple types.
+
+These functions are generated from the C header files whose
+names match {\tt c-plob*.h} by C preprocessor macro expansion; they
+are not documented here.
+
+\subsection{Prefix `sh-'}
+
+Each function with a `c-sh-' prefix has a documented corresponding
+function with a `sh-'\footnote{`sh-' is an abbrevation for `\sh-'.}
+prefix; they make up a more \cl-like interface, e.g.\ they use {\opt}
+and {\key{}} parameters or transform between programming constructs
+which are more C-like and \cl\ programming constructs, like mapping
+argument values from symbols to C level \lisp{enum} constants and vice
+versa or composing \cl\ types from obtained values of the C level.
+
+Although already offering a suitable \cl\ interface, their
+functionality w.r.t.\ \cl\ is still relatively simple, i.e.\ `they do
+nothing more than transforming arguments to resp.\ return values from
+the level below'.
+
+\subsection{Prefix `p-'}
+
+The meaning of the `p-'\footnote{`p-' is an abbrevation for
+  `persistent-'.} prefix depends on its context:
+\begin{description}
+\item[As a function name:] The functions named with a `p-' prefix are
+  the high-level interface to \plob; many of them are exported.
+  Functions whose names are composed of the prefix `p-' with a name
+  specified in \cite{bib:CLtLII} do quite the same, but the `p-'
+  function works on a persistent object, e.g.\ the \fcite{p-car}\ 
+  returns the car of a persistent cons cell.
+\item[As a variable name:] The value of variables whose names start
+  with `p-' is a persistent object; this object is perhaps not
+  represented at all in transient memory. The \objid\ of such an
+  object is a handle passed down to the C level to reference it.
+\end{description}
+
+\subsection{Prefix `t-'}
+
+Prefix 't-'\footnote{`t-' is an abbrevation for `transient-'.} is used
+for names having to do with pure-transient objects. This prefix is
+used for function and argument names at places where it is necessary
+to distinguish exactly betweeen the transient and persistent
+representation of an object.
+
+\section{Standard function arguments}
+
+Some function arguments are specified for a lot of \plob\ functions;
+these are mostly the {\opt} arguments \funarg{p-heap}\ and
+\funarg{depth}. Because they are used so often and their meaning is
+always the same, they are explained here and not at every function
+which specifies them.
+
+\subsection[Function argument p-heap]%
+{Standard function argument \protect\funarg{p-heap}}
+
+For the {\opt} \funarg{p-heap}\ argument with a default value of {\bf
+  *default-persistent-heap*} see the description of
+\fcite{*default-persistent-heap*}\ and of \fcite{persistent-heap}.
+
+\subsection[Function argument depth]%
+{Standard function argument \protect\funarg{depth}}
+
+When the function using the \funarg{depth}\ argument is a storing
+function, i.e.\ a function which transfers a transient object into the
+persistent memory, like {\bf store-object}, {\bf t-object-to-p-objid}
+or {\bf (setf sub-object)}, the meaning of the \funarg{depth} argument
+is as specified for the \fcite{store-object}.
+
+When the function using the \funarg{depth}\ argument is a loading
+function, i.e.\ a function which transfers a persistent object into
+its transient representation, like {\bf load-object}, {\bf
+  p-objid-to-t-object} or {\bf sub-object}, the meaning of the
+\funarg{depth} argument is as specified for the \fcite{load-object}.
+
+\sloppy\numberingoff%
+\cleardoublepage%
+\chapter[Reference Guide]{\protect\thistitle\ Reference Guide}%
