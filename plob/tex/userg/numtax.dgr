@@ -1,0 +1,32 @@
+%       This is -*-LaTeX-*-
+%
+% 1998/01/12 HK
+%
+\input{diagdefs}%
+%
+\begin{small}
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramcolumns{-1pc}
+\objectmargin{4pt}
+%
+\def\lheight{12pt}%     % Zeilenhoehe
+\def\fwidth{8ex}%
+\def\nfrbox#1#2{%
+\parbox{#1}{\centering#2}
+}%
+\def\nfrtxt#1{\nfrbox{\fwidth}{#1}}%
+
+\begin{diagram}%
+&&\nfrtxt{number}\\
+&\nfrtxt{integer}\urto\\
+\nfrtxt{\textbf{fixnum}}\urto
+&&\nfrtxt{\textbf{bignum}}\ulto%
+&&\nfrtxt{\textbf{ratio}}\xto[-2,-2]%
+&\nfrtxt{\textbf{complex}}\xto[-2,-3]\\
+&&&\nfrtxt{float}\xto[-3,-1]\\
+&&\nfrtxt{\textbf{short-float}}\urto
+&&\nfrtxt{\textbf{double-float}}\ulto\\
+&&&\nfrtxt{\textbf{single-float}}\uuto
+\end{diagram}%
+\end{small}
