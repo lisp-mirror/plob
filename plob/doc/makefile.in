@@ -1,0 +1,24 @@
+# ----------------------------------------------------------------------
+#
+#		PLOB - Persistent Lisp OBjects
+#		       =	  =    ==
+#
+# Script	Makefile
+# Copyright	(C) 30.6.1994 Heiko Kirschke
+#		kirschke@informatik.uni-hamburg.de
+# Description	Makefile for PLOB ps
+# ----------------------------------------------------------------------
+
+#define	relPlobDir	ddot
+#include		"../conf/make.rules.in"
+
+# ----------------------------------------------------------------------
+# Main targets
+# ----------------------------------------------------------------------
+drule ( $(STDTARGETS), \
+	noDependencies, \
+	silent $(MAKE) default dash ruleTarget )
+
+rule ( ps-clean, \
+       noDependencies, \
+       -rm -f test*.ps )
