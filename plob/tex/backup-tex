@@ -1,0 +1,23 @@
+#!/bin/sh
+
+szFiles="backup-tex mkdoc `find . '(' -name diplom -prune ')' \
+-o -name '*.bib' -print \
+-o -name '*.bst' -print \
+-o -name '*.cls' -print \
+-o -name '*.def' -print \
+-o -name '*.dgr' -print \
+-o -name '*.dtx' -print \
+-o -name '*.eps' -print \
+-o -name '*.fd' -print \
+-o -name '*.ins' -print \
+-o -name 'makefile' -print \
+-o -name '*.sty' -print \
+-o -name '*.tex' -print \
+|sed 's/^[.][/]//'|sort`"
+
+tar fc tex-sources.tar ${szFiles}
+gzip -9 tex-sources.tar
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

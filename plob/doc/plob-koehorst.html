@@ -1,0 +1,69 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<html>
+
+<head><title>Persistent Lisp OBjects users</title>
+<body>
+
+<h1>
+<img alt="MOP Inside!" src="mop-inside.gif">
+<font size="6">P</FONT><font size="5">ERSISTENT</font> <font size="6">L</font><font size="5">ISP</font> <font size="6">OB</font><font size="5">JECTS</FONT><font size="6">!</font></h1>
+
+<p>
+
+<hr>
+
+<pre>
+Date: Tue, 13 Oct 1998 14:11:31 +0200
+From: Andre Koehorst
+Subject: Using PLOB in an application for CSCW
+To: Heiko.Kirschke@poet.de
+Organization: University of Maastricht (UM)
+</pre>
+
+Heiko,
+
+<p>[...]
+
+<p>I am using <a href="Welcome.html" target="_parent">PLOB</a>
+together with <a href="http://www.ai.mit.edu/cl-http/"
+target="_parent">CL-HTTP</a> in applications to support our education
+(a university study in medicine). Since monday we have a small
+application up and running that enables students to work together on a
+writing assignment.  PLOB is used to store CLOS objects used to
+represent groups, students, the assignment and students' contributions
+to it. CL-HTTP is used to generate the interface for students.
+
+<p>The system is dynamic since students add contributions to it. PLOB
+is perfect for storing these changes. From the persistent objects it
+is easy to re-create all neccessary CL-HTTP-objects (computed
+URLS, realms, groups and users ...)
+
+<p>The system will be used the next four weeks by four groups of 8-9
+students.
+
+<p>With PLOB it took me a day to implement persistency and the
+functions to reinstall the assignments in CL-HTTP (took me a day since
+I am not really a programmer ....). Without PLOB it would have been a
+pain to do this, and probably impossible given the time I had to
+develop the app.
+
+<p>[...]
+
+<p>Andre
+
+<hr>
+
+Created October 13, 1998.<address><a
+href="http://lki-www.informatik.uni-hamburg.de/~kirschke/"
+target="_parent">Heiko Kirschke</a>, <a
+href="mailto:Heiko.Kirschke@acm.org">Heiko.Kirschke@acm.org</a></address></td></dd>
+
+</body></html>
+
+<!--
+Local variables:
+buffer-file-coding-system: iso-latin-1-unix
+End:
+-->
