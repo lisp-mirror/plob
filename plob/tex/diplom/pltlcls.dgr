@@ -1,0 +1,56 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+\def\class#1{#1}
+%
+\newsavebox{\mleg}\sbox{\mleg}{{\mkmleg}}%
+%
+\newlength{\omargin}\setlength{\omargin}{4pt}
+\objectmargin{\omargin}%
+\def\objectstyle{\hbox}%
+\spreaddiagramrows{-1pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\def\mkdescr#1{\begin{diagram}\dgmc{\textrm{\class{#1}}}\end{diagram}}%
+%
+\newsavebox{\cdescr}\sbox{\cdescr}{\mkdescr{class-description}}%
+\newsavebox{\mdescr}\sbox{\mdescr}{\mkdescr{method-description}}%
+\newlength{\doffsx}\setlength{\doffsx}{-2em}%
+\newlength{\doffsy}\setlength{\doffsy}{1em}%
+%
+\newsavebox{\dslot}\sbox{\dslot}{\mkdescr{direct-slot-description}}%
+\newsavebox{\eslot}\sbox{\eslot}{\mkdescr{effective-slot-description}}%
+\newlength{\soffsx}\setlength{\soffsx}{3.5em}%
+%
+%
+\begin{diagram}
+%
+	%&\dgc{\hspace*{1em}\textrm{\class{T}}\hspace*{1em}}\\
+	&\dgc{\textrm{\class{standard-object}}}
+         %\subclassof[-1,0]|>\stip%
+         \\%
+	&\dgmc{\textrm{\class{persistent-clos-object}}}
+	 \subclassof[-1,0]|>\stip
+		&&\save\Drop{\usebox{\mleg}}\restore\\
+	&\dgmc{\textrm{\class{plob-description}}}
+	 \subclassof[-1,0]|>\stip\\
+\save\go!<\doffsx,\doffsy>%
+\Drop{\grow<-\omargin>{\usebox{\cdescr}}}%
+\subclassof[-1,1]|>\stip
+\restore
+\rule{\wd\cdescr}{0em}
+	&\dgmc{\textrm{\class{slot-description}}}
+	 \subclassof[-1,0]|>\stip
+		&\save\go!<-\doffsx,\doffsy>%
+		 \Drop{\grow<-\omargin>{\usebox{\mdescr}}}%
+		 \subclassof[-1,-1]|>\stip
+		 \restore
+		 \rule{\wd\mdescr}{0em}\\
+\save\go!<\soffsx,0ex>%
+\Drop{\grow<-\omargin>{\usebox{\dslot}}}%
+\subclassof[-1,1]|>\stip\restore
+		&&\save\go!<-\soffsx,0ex>%
+		  \Drop{\grow<-\omargin>{\usebox{\eslot}}}
+		  \subclassof[-1,-1]|>\stip\restore
+%
+\end{diagram}%

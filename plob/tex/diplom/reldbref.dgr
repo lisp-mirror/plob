@@ -1,0 +1,48 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\mkddotarrow%
+\newsavebox{\tleg}\sbox{\tleg}{\mktleg}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{1cm}%
+\objectmargin{\stdomargin}%
+\objectwidth{\bigtxtw}%
+%
+\begin{diagram}
+%
+\text{\textrm{\class{ANGESTELLTER}}}%
+\save\go[5,0]\merge\framed<5pt>\restore\\
+\makebox[\bigtxtw]{\hrulefill}\\
+\text{\textrm{\noi\ \lisp{NAME=\dq\namei\dq}}}\\
+\makebox[\bigtxtw]{\dotfill}\\
+\text{\textrm{\noii\ \lisp{ABTEILUNG=\dq{}Schuhe\dq}}}%
+\save\go+<\cR,0em>\xdotted[3,1]!<-\cL,0em>|<{\rotate\tip}|>{\tip}\restore\\
+\text{\lisp{GEHALT=3000}}%
+	&\text{\lisp{ABTEILUNG}}%
+	 \save\go[4,0]\merge\framed<5pt>\restore\\
+	&\makebox[\bigtxtw]{\hrulefill}\\
+	&\text{\textrm{\noiii\ \lisp{NAME=\dq{}Schuhe\dq}}}\\
+	&\makebox[\bigtxtw]{\dotfill}\\
+\text{\textrm{\class{ANGESTELLTER}}}%
+\save\go[5,0]\merge\framed<5pt>\restore%
+	&\text{\textrm{\noiv\ \lisp{LEITER=\dq\nameii\dq}}}%
+	 \save\go+<-\cL,0em>\xdotted[2,-1]!<\cR,0em>
+              |<{\rotate\tip}|>{\tip}\restore\\
+\makebox[\bigtxtw]{\hrulefill}\\
+\text{\textrm{\nov\ \lisp{NAME=\dq\nameii\dq}}}\\
+\makebox[\bigtxtw]{\dotfill}\\
+\text{\textrm{\novi\ \lisp{ABTEILUNG=\dq{}Schuhe\dq}}}%
+\save\go+<\cR,0em>\xdotted[-6,1]!<-\cL,0em>|<{\rotate\tip}|>{\tip}\restore\\
+\text{\lisp{GEHALT=6000}}\\
+%
+% Legende:
+&\save\Drop{\usebox{\tleg}}\restore\\
+\rule{0em}{\ht\tleg}%
+\save\Drop{\text{\textrm{\footnotesize%
+\raisebox{0.5ex}{\ddotarrow}
+Kopplung \"{u}ber {\em{}Join}}}}\restore%
+%
+\end{diagram}%

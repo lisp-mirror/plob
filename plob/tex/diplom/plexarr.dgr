@@ -1,0 +1,93 @@
+%       This is -*-LaTeX-*-
+%
+% 1.9.94
+%
+\input{diagdefs}%
+%
+\newlength{\rowh}\setlength{\rowh}{18pt}%      % Zeilenhoehe
+\newlength{\rowht}\setlength{\rowht}{0.1\rowh}% % Zeilenhoehe / 10
+\newlength{\csep}\setlength{\csep}{2ex}%        % Spaltentrenner
+\newlength{\coliw}\setlength{\coliw}{8em}%
+\newlength{\coliiw}\setlength{\coliiw}{4em}%
+\newlength{\coliiiw}\setlength{\coliiiw}{19em}%
+%
+\addtolength{\csep}{\stdomargin}
+\def\rlineh{\rule{0em}{\rowh}}%
+%
+\fboxsep0pt%
+\parindent0pt%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramrows{-\fboxrule}
+\spreaddiagramcolumns{-2pc}
+\spreaddiagramcolumns{-\fboxrule}
+\objectmargin{0pt}
+%
+\def\frbox#1#2{%
+\save\Drop{\text{\textrm{#2}}}\restore%
+\framebox{\rule{0em}{\rowh}\rule{#1}{0ex}}%
+}%
+%
+\def\colibox#1{\parbox{\coliw}{\hfill#1}}
+\def\coliiibox#1{\parbox{\coliiiw}{\hspace*{\stdomargin}#1\hfill}}
+\def\frtxt#1{\frbox{\coliiw}{#1}}%
+\def\frptr{\frtxt{\hspace*{0.7\coliiw}$\bullet$}%
+\save
+\go[0,0]+<0.5\coliiw,0ex>+<\stdomargin,0ex>%
+\xline+<-0.3\coliiw,0ex>%
+\restore%
+\rrto%
+}
+\def\idx#1#2{{\rm\it e}$_{#1#2}$}
+%
+\begin{diagram}
+%
+        &\rule{\csep}{0ex}
+                &\rule{\coliiw}{0ex}
+                        &\rule{\csep}{0ex}\\
+\colibox{Anzahl Referenzen}
+        &&\frtxt{9}\\
+\colibox{Vektorgr\"{o}\ss{}e}
+        &&\frtxt{11}\\
+\colibox{Kennung, {\em [Flags]}}
+        &&\frtxt{\lisp{\#x20}}\\
+\colibox{Lock-Info}
+        &&\frptr
+                &&\coliiibox{\ldots}\\
+\colibox{\em data-vector}
+        &&\frptr
+                &&\coliiibox{\lisp{%
+                  \#(\idx{0}{0}\ \idx{0}{1}\ \idx{0}{2}\ {\rm\ldots} %
+                     \idx{i}{j} {\rm\ldots} %
+                     \idx{2}{1}\ \idx{2}{2}\ \idx{2}{3})}}\\
+\colibox{\em fill-pointer}
+        &&\frptr
+                &&\coliiibox{\lispnil}\\
+\colibox{\em displaced-offset}
+        &&\frptr
+                &&\coliiibox{\lispnil}\\
+\colibox{\em adjustable-array}
+        &&\frptr
+                &&\coliiibox{\lispnil}\\
+\colibox{\em array-rank}
+        &&\frtxt{2}
+&&                \save\go[0,0]+<3em,-4ex>\Drop{%
+                  \parbox{\coliiiw}{\small%
+%
+                  \idx{i}{j}\ bezeichnet das Feldelement mit dem
+                  Index \lisp{({\rm\it i\/} {\rm\it
+                  j\/})}.\\[\smallskipamount]
+%
+                  {\it array-rank}\,=\,2 $\Rightarrow$ Das Feld
+                  ist zweidimensional.\\[\smallskipamount]
+%
+                  {\it 0.\ dimension}\,=\,3,
+                  {\it 1.\ dimension}\,=\,4 $\Rightarrow$\\
+                  Die Dimensionen des Feldes sind \lisp{(3 4).}
+%
+                  }}\restore\\
+\colibox{\em 0.\ dimension}
+        &&\frtxt{3}\\
+\colibox{\em 1.\ dimension}
+        &&\frtxt{4}
+\end{diagram}%

@@ -1,0 +1,28 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\let\coliw\bigtxtw%
+\let\coliiw\bigtxtw%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramrows{-\stdomargin}
+\objectmargin{\stdomargin}
+%
+\begin{diagram}
+%
+\makebox[\coliw]{\lisp{ANGESTELLTER a}}%
+\save\go[4,0]\merge\framed<5pt>\restore%
+		&&\makebox[\coliiw]{\lisp{ANGESTELLTER b}}%
+		  \save\go[4,0]\merge\framed<5pt>\restore\\%
+\makebox[\coliw]{\hrulefill}
+		&&\makebox[\coliiw]{\hrulefill}\\
+\text{\lisp{NAME=\dq\namei\dq}}%
+	&\save\Drop{\stackrel{?}{\equiv}}\restore%
+		&\text{\lisp{NAME=\dq\namei\dq{}}}\\
+\text{\lisp{ABTEILUNG=\dq{}Schuhe\dq}}%
+		&&\text{\lisp{ABTEILUNG=\dq{}Schuhe\dq}}\\%
+\text{\lisp{GEHALT=3000}}%
+		&&\text{\lisp{GEHALT=3000}}%
+%
+\end{diagram}%

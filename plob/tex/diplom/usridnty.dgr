@@ -1,0 +1,44 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\mkdotdarrow%
+\newsavebox{\tleg}\sbox{\tleg}{\mktleg}%
+%
+\let\coliw\smltxtw%
+\let\coliiw\stdtxtw%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{1ex}%
+\objectmargin{\stdomargin}%
+%
+\begin{diagram}%
+%
+\makebox[\coliw]{\class{BEN\us{}DEF\us{}BEZ}}%
+\save\go[2,0]\merge\framed\restore%
+	&&\makebox[\coliiw]{\class{ANGESTELLTER}}%
+	  \save\go[4,0]\merge\framed<5pt>\restore\\
+\makebox[\coliw]{\hrulefill}%
+	&&\makebox[\coliiw]{\hrulefill}\\
+\makebox[\coliw]{\lisp{\dq\namei\dq}}%
+\xdotted'[0,1]+<0em,0ex>'[-2,1]+<0em,0ex>[-2,2]|>{\tip}%
+	&&\text{\lisp{NAME=\dq\namei\dq}}\\
+\save\Drop{\parbox{\coliw}{\raggedright\footnotesize{}%
+\ \\[5ex]Benutzer-definierter Bezeichner}}\restore%
+	&&\makebox[\coliiw]{\dotfill}\\
+	&&\text{\lisp{GEHALT=3000}}\\
+%
+% Legende:
+	&&\rule{0em}{2ex}\parbox{\coliiw}{\footnotesize{}%
+	  Instanz (Tupel)}
+		&\rule{\wd\tleg}{0ex}%
+		  \save\Drop{\usebox{\tleg}}\restore\\
+	&&\rule{0em}{\ht\tleg}
+	  \save\Drop{\text{\textrm{\footnotesize%
+	  \raisebox{0.5ex}{\dotdarrow}
+	  Schwache Kopplung (Methode, {\em{}Join\/})}}}\restore%
+%
+\end{diagram}%

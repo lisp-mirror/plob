@@ -1,0 +1,19 @@
+%	This is -*-LaTeX-*-
+%
+% incldbmo.dgr
+% 5.8.94
+%
+\spreaddiagramrows{-1pc}%
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{-1em}%
+\newlength{\colw}\setlength{\colw}{6em}
+%
+\def\mkbox#1#2{\parbox{\colw}{\centering #2}}
+%
+\begin{diagram}
+		&\mkbox{1}{Datenbank Y}\\
+\urto|<{\rotate\tip}
+\mkbox{2}{Programmier-\\sprache X}\rrto|<{\rotate\tip}
+				&&\ulto|<{\rotate\tip}
+				  \mkbox{2}{Reales\\System R}
+\end{diagram}

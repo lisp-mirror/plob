@@ -1,0 +1,521 @@
+% This is -*-LaTeX-*-
+%
+\newcommand{\etal}{et al.}
+\newcommand{\manualpagesof}[1]{%
+\bibitem[man #1]{bib:#1}
+\unix\ Manualseiten zu \lisp{#1}}%
+%
+\newcommand{\inaoods}[1]{%
+K.\ R.\ Dittrich (Hrsg.):
+{\em Advances in Object-Oriented Database Systems,
+Bad M\"{u}nster am Stein-Ebernburg, Deutschland 1988\/},
+\citepage{#1},
+Springer-Verlag, Berlin, 1988}
+%
+\newcommand{\indtap}[1]{%
+Malcolm P.\ Atkinson, Peter Buneman, Ronald Morrison (Hrsg.):
+{\em Data Types and Persistence\/},
+\citepage{#1},
+Springer-Verlag, Berlin, 1988}
+%
+\newcommand{\inpos}[1]{%
+John Rosenberg, David Koch (Hrsg.):
+{\em Persistent Object Systems,
+Newcastle, Australia 1989\/},
+\citepage{#1},
+Springer-Verlag, Berlin, 1989}
+%
+\newcommand{\inoocda}[1]{%
+Won Kim, Frederick H.\ Lochovsky (Hrsg.):
+{\em Object-Oriented Concepts, Databases, and Applications\/},
+\citepage{#1},
+ACM Press, New York, 1989}
+%
+\newcommand{\inpea}[1]{%
+P.\ P.\ Spies (Hrsg.):
+{\em Proceedings Euro-ARCH '93\/},
+\citepage{#1},
+Informatik Aktuell,
+Springer-Verlag, Berlin, 1993}
+%
+\newcommand{\inroods}[1]{%
+Stanley B. Zdonik, David Maier (Hrsg.):
+{\em Readings in Object-Oriented Database Systems\/},
+\citepage{#1},
+Morgan Kaufmann Publishers, San Mateo, Ca., 1990}
+%
+\newcommand{\inrdoop}[1]{%
+Bruce Shriver, Peter Wegner (Hrsg.):
+{\em Research Directions in Object-Oriented Programming\/},
+\citepage{#1},
+MIT Press, Cambridge, Mass., 1987}
+%
+\begin{thebibliography}{Stonebraker \etal\ 86a}
+\addcontentsline%
+ {toc}%
+ {chapter}%
+ {\protect\numberline{}{\protect\bibname}}%
+%
+\item[]%
+\vspace{-\topsep}\hspace{-\leftmargin}%
+%
+\begin{fortune}[11cm]
+{\rglqq}I saw Hamlet last night.\ {[}\ldots{]} It's full of
+quotations.{\rgrqq}
+%\from{Samuel Goldwyn \cite[\citepage{20}]{ka92}}\\[\medskipamount]
+\from{Samuel Goldwyn}\\[\bigskipamount]
+After all, all he did was string together a lot of old, well-known
+quotations.
+\from{H.\ L.\ Mencken \"{u}ber Shakespeare}
+\end{fortune}%
+%
+\vspace{-\itemsep}%
+%
+\bibitem[Ahmed \etal\ 91]{bib:ah91}
+Shamim Ahmed, Albert Wong, Duvvuru Sriram, Robert Logcher:
+A Comparision of Object-Oriented Database Management Systems for
+Engineering Applications.
+Bericht R91-12, % Best.\ Nr.\ IESL90-03, 91-03,
+MIT, 1991
+%
+\bibitem[AMOP]{bib:amop91}
+Gregor Kiczales, Jim des Rivi\`{e}res, Daniel G.\ Bobrow:
+The Art of the Metaobject Protocol.
+MIT Press, Cambridge, Mass., 1991
+%
+\bibitem[Atkinson \etal\ 89]{bib:at89}
+Malcolm Atkinson, Ronald Morrison:
+Persistent System Architectures.
+\inpos{73--97}
+%
+\bibitem[Beech 87]{bib:be87}
+David Beech:
+Groundwork for an Object Database Model.
+\inrdoop{317--354}
+%
+\bibitem[Bj\"{o}rnerstedt \etal\ 89]{bib:bj89}
+Anders Bj\"{o}rnerstedt, Christer Hult\'{e}n:
+Version Control in an Object-Oriented Architecture.
+\inoocda{451--485}
+%
+\bibitem[Br\"{o}ssler \etal\ 89]{bib:broe89}
+P.\ Br\"{o}ssler, B.\ Freisleben:
+Transactions on Persistent Objects.
+\inpos{303--318}
+%
+\bibitem[Brown 92]{bib:br92}
+A.\ L.\ Brown:
+\sh\ manual pages,
+Datei \lisp{postore/""man/""stable\us{}heap.%
+""3p},
+25~Mai 1992
+%
+\bibitem[Cardelli \etal\ 88]{bib:ca88}
+Luca Cardelli, David MacQueen:
+Persistence and Type Abstraction.
+\indtap{31--41}
+%
+\bibitem[Clamen 91]{bib:cl91}
+Stewart M.\ Clamen:
+Data Persistency in Programming Languages, A Survey.
+Bericht CMU-CS-91-155,
+Carnegie Mellon University, Pittsburgh,
+1991
+%
+\bibitem[CLtLII]{bib:st90}
+Guy L.\ Steele Jr.:
+\cl\ the Language, Second Edition.
+Digital Press, Bedford, Mass., 1990
+%
+\bibitem[Codd 79]{bib:co79}
+E.\ F.\ Codd:
+Extending The Database Relational Model to Capture More Meaning.
+{\em ACM Transactions on Database Systems\/},
+4(4):397--434, Dezember 1979
+%
+\bibitem[Fernandez \etal\ 89]{bib:fe89}
+Mary F.\ Fernandez, Stanley B.\ Zdonik:
+Transaction Groups:
+A Model for Controlling Cooperative Transactions.
+\inpos{341--350}
+%
+\bibitem[Ford \etal\ 88]{bib:fo88}
+Steve Ford, John Joseph, David E.\ Langworthy, David F.\ Lively,
+Girish Pathak, Edward R.\ Perez, Robert W.\ Peterson, Diana
+M.\ Sparacin, Satish M.\ Thatte, David L.\ Wells, Sanjive Agarwala:
+ZEITGEIST: Database Support for Object-Oriented Programming.
+\inaoods{23--42}
+%
+\bibitem[Goldberg \etal\ 89]{bib:go89}
+Adele Goldberg, David Robson:
+\smalltalk: The Language.
+Addison-Wesley, Reading, Mass., 1989
+%
+\bibitem[Gray \etal\ 93]{bib:gr93}
+Jim Gray, Andreas Reuter:
+Transaction Processing:
+Concepts and Techniques.
+Morgan Kaufmann Publishers, San Mateo, Ca., 1993
+%
+\bibitem[Heiler \etal\ 89]{bib:he89}
+Sandra Heiler, Barbara Blaustein:
+Generating and Manipulating Identifiers
+for Heterogeneous, Distributed Objects.
+\inpos{235--247}
+%
+\bibitem[Itasca 91]{bib:it91}
+Itasca Systems, Inc.:
+\itasca\ Distributed Object Database Management System,
+Technical Summary.
+Itasca Systems, Inc., Minneapolis, 1991
+% Bibliografische Angaben aus \cite[\citepage{10}]{bib:ah91}
+%
+\bibitem[Jessen \etal\ 87]{bib:je87}
+Eike Jessen, R\"{u}diger Valk:
+Rechensysteme.
+Springer-Verlag, Berlin, 1987
+%
+\bibitem[Kaehler \etal\ 90]{bib:ka90}
+Ted Kaehler, Glenn Krasner:
+LOOM - Large Object-Oriented Memory for \smalltalk\ Systems.
+\inroods{298--307}
+%
+\bibitem[Keene 89]{bib:ke89}
+Sonya E.\ Keene:
+Object-oriented Programming in \cl:
+A Programmer's Guide to \clos.
+Addison-Wesley, Reading, Mass., 1989
+%
+\bibitem[Kernighan \etal\ 88]{bib:ker88}
+Brian W.\ Kernighan, Dennis M.\ Ritchie:
+The C Programming Language,
+Second Edition.
+Prentice Hall, Englewood Cliffs, N.J., 1988
+%
+\bibitem[Khoshafian \etal\ 90]{bib:ko90}
+Setrag N.\ Khoshafian, George P.\ Copeland:
+Object Identity.
+\inroods{37--46}
+%
+\bibitem[Kim \etal\ 89]{bib:ki89}
+Won Kim, Nat Ballou, Hong-Tai Chou, Jorge F.\ Garza, Darrell Woelk:
+Features of the \orion\ Object-Oriented Database System.
+\inoocda{251--282}
+%
+\ifbericht
+\bibitem[Kirschke 94a]{bib:ki94a}
+Heiko Kirschke:
+Persistenz in objekt-orientierten Programmiersprachen am Beispiel von
+\clos.
+Diplomarbeit,
+Fachbereich Informatik, Universit\"{a}t Hamburg,
+1994
+\fi
+%
+\ifbericht
+\bibitem[Kirschke 94b]{bib:ki94b}
+\else
+\bibitem[Kirschke 94]{bib:ki94b}
+\fi
+Heiko Kirschke:
+Persistent LISP Objects:
+User's Guide, Reference Manual.
+Fachbereich Informatik, Universit\"{a}t Hamburg,
+1994
+%Erh\"{a}ltlich als komprimierte \ps-Datei
+%\"{u}ber die WWW Seite
+%\texttt{http://%
+%lki-www.informatik.uni-hamburg.de/\td{}kirschke/home.html}%
+%
+\bibitem[Klaus \etal\ 76]{bib:kl76}
+Georg Klaus, Manfred Buhr (Hrsg.):
+Philosophisches W\"{o}rterbuch,
+12.~Auf\-la\-ge.
+Verlag das europ\"{a}ische Buch, Berlin, 1976
+%
+\bibitem[Maier \etal\ 87]{bib:ma87}
+David Maier, Jacob Stein:
+Development and Implementation of an Object-Oriented DBMS.
+\inrdoop{355--392}
+%
+\manualpagesof{mmap}
+%
+\manualpagesof{socket}
+%
+\bibitem[Matthes 92a]{bib:ma92a}
+F.\ Matthes:
+The Database Programming Language DBPL.
+Rationale and Report.
+Bericht FBI-HH-B-158/92,
+Fachbereich Informatik, Universit\"{a}t Hamburg,
+1992
+%
+\bibitem[Matthes \etal\ 92b]{bib:ma92b}
+F.\ Matthes, A.\ Rudloff, J.\ Schmidt, K.\ Subieta:
+The Database Programming Language DBPL.
+User and System Manual.
+Bericht FBI-HH-B-159/92,
+Fachbereich Informatik, Universit\"{a}t Hamburg,
+1992
+%
+\bibitem[Matthes \etal\ 92c]{bib:ma92c}
+F.\ Matthes, J.\ Schmidt:
+Definition of the Tycoon Laguage TL -- A Preliminary Report
+Bericht FBI-HH-B-160/92,
+Fachbereich Informatik, Universit\"{a}t Hamburg,
+1992
+%
+\bibitem[Matthes \etal\ 93]{bib:ma93}
+F.\ Matthes, J.\ Schmidt:
+System Construction in the Tycoon Environment:
+Architectures, Interfaces and Gateways.
+\inpea{301--317}
+%
+\bibitem[Morrison \etal\ 89a]{bib:mo89a}
+R.\ Morrison, A.L.\ Brown, R.\ Carrick, R.\ Connor, A.\ Dearle:
+The Napier Type System.
+\inpos{3--18}
+%
+\bibitem[Morrison \etal\ 89b]{bib:mo89b}
+R.\ Morrison, A.L.\ Brown, R.\ Connor, A.\ Dearle:
+The Napier88 Reference Manual.
+Bericht PPRR 77-89, Universities of Glasgow and St.\ Andrews, 1989
+%
+\bibitem[M\"{u}ller 91]{bib:mu91}
+Rainer M\"{u}ller:
+Sprachprozessoren und Objektspeicher:
+Schnittstellenentwurf und -implementierung.
+Diplomarbeit,
+Fachbereich Informatik, Universit\"{a}t Hamburg,
+1991
+%
+\bibitem[Nikhil 88]{bib:ni88}
+Rishiyur S.\ Nikhil:
+Functional Databases, Functional Languages.
+\indtap{51--67}
+%
+\bibitem[Norvig 92]{bib:no92}
+Peter Norvig:
+Paradigms of Artificial Intelligence Programming:
+Case Study in Common LISP.
+Morgan Kaufmann Publishers, San Mateo, Ca., 1992
+%
+\bibitem[O'Neil 94]{bib:on94}
+Patrick O'Neil:
+Database Principles, Programming, Performance.
+Morgan Kaufmann Publishers, San Francisco, Ca., 1994
+%
+\bibitem[Paepke 91a]{bib:pa91a}
+Andreas Paepke:
+\pclos\ Reference Manual.
+HP Laboratories, Palo Alto, Ca., 1991
+%
+\bibitem[Paepcke 91b]{bib:pa91b}
+Andreas Paepke:
+User-Level Language Crafting:
+Introducing the \clos\ Metaobject Protocol.
+HP Laboratories Technical Report HPL-91-169, 1991
+%
+\bibitem[Paton \etal\ 88]{bib:pat88}
+Norman W.\ Paton, Peter M.\ D.\ Gray:
+Identification of Database Objects by Key.
+\inaoods{280--285}
+%
+\bibitem[Rhein \etal\ 93]{bib:rh93}
+John Rhein, Greg Kemnitz (Hrsg.):
+The \postgres\ User Manual,
+Version~4.1.
+Bericht, University of California, Berkeley, 1993
+%
+\bibitem[Richardson \etal\ 89]{bib:ri89}
+Joel E.\ Richardson, Michael J.\ Carey:
+Implementing Persistence in E.
+\inpos{175--199}
+%
+\bibitem[Rowe 87]{bib:ro87}
+Lawrence A.\ Rowe:
+A Shared Object Hierarchy.
+Bericht, University of California, Berkeley, 1987
+%
+\bibitem[Schank \etal\ 90]{bib:scha90}
+Patricia Schank, Joe Konstan, Chung Liu, Lawrence A.\ Rowe, Steve
+Seitz, Brian Smith:
+\picasso\ Reference Manual,
+Version~1.0.
+Bericht, University of California, Berkeley, 1990
+%
+\bibitem[Sche\-we \etal\ 92]{bib:sche92}
+Klaus-Dieter Schewe, Bernhard Thalheim, Ingrid Wetzel:
+Foundations of Object Oriented Database Concepts.
+Bericht FBI-HH-B-157/92,
+Fachbereich Informatik, Universit\"{a}t Hamburg,
+1992
+%
+\bibitem[Schlageter \etal\ 83]{bib:schl83}
+G.\ Schlageter, W.\ Stucky:
+Datenbanksysteme: Konzepte und Modelle.
+2.~Auf\-la\-ge,
+Teubner, Stuttgart, 1983
+%
+\bibitem[Schmidt 77]{bib:schm77}
+Joachim W.\ Schmidt:
+Some High Level Language Constructs for Data of Type Relation.
+{\em ACM Transactions on Database Systems\/},
+2(3):247--261, September 1977
+%
+\bibitem[Schmidt \etal\ 80]{bib:schm80}
+Joachim W.\ Schmidt, Manuel Mall:
+\pascalr\ Report.
+Bericht IFI-HH-B-66/80,
+Fachbereich Informatik, Universit\"{a}t Hamburg,
+1980
+%
+\bibitem[Schmidt 82]{bib:schm82}
+Heinrich Schmidt:
+Philosophisches W\"{o}rterbuch,
+21.~Auf\-la\-ge.
+Stuttgart, 1982
+%
+\bibitem[Singhal \etal\ 93]{bib:skw93}
+Vivek Singhal, Sheetal V.\ Kakkad, Paul R.\ Wilson:
+Texas: Good, Fast, Cheap Persistence for \cpp.
+{\em OOPS Messenger\/},
+4(2):145--147, April 1993
+%
+\bibitem[Skarra \etal\ 87]{bib:sk87}
+Andrea H.\ Skarra, Stanley B.\ Zdonik:
+Type Evolution in an Object-Oriented Database,
+\inrdoop{393--415}
+%
+\bibitem[Snape 93]{bib:sn93}
+Pers\"{o}nliche Kommunikation \"{u}ber E-Mail mit Guy Snape, Harlequin
+Limited:
+Re: [kirschke: memory representation in LispWorks].
+Text in Datei \lisp{plob/""mail/""binary-repr},
+9.~November 1993
+%
+\bibitem[Snape 94]{bib:sn94}
+Pers\"{o}nliche Kommunikation \"{u}ber E-Mail mit Guy Snape, Harlequin
+Limited:
+Re: Metaobject-Protocol support for LispWorks \clos.
+Text in Datei \lisp{plob/""mail/""mop-support},
+22.~April 1994
+%
+\bibitem[St.\ Clair 93]{bib:wo93}
+Bill St.\ Clair:
+\wood\ (William's Object Oriented Database),
+Datei \lisp{cambridge.""apple.""com:%
+""/pub/""MCL2/""contrib/%
+""wood.""doc}, 1993
+%
+\bibitem[Stonebraker \etal\ 86a]{bib:sto86a}
+Michael Stonebraker, Lawrence A.\ Rowe:
+The Design of \postgres.
+Bericht, University of California, Berkeley, 1986
+% Siehe auch Konferenzband
+% \cite[\citepage{55}, Literaturangabe (32)]{bib:at89} 
+%
+\bibitem[Stonebraker 86b]{bib:sto86b}
+Michael Stonebraker:
+Inclusion of New Types in Relational Data Base Systems.
+Bericht, University of California, Berkeley, 1986
+%
+\bibitem[Stonebraker \etal\ 89]{bib:sto89}
+Michael Stonebraker, Lawrence A.\ Rowe, Michael Hirohama:
+The Implementation of \postgres.
+Bericht, University of California, Berkeley, 1989
+%
+\bibitem[Thatte 90]{bib:th90}
+Satish Thatte:
+Persistent Memory: Merging AI-Knowledge and Databases.
+\inroods{242--250}
+%
+\bibitem[Uhl \etal\ 93]{bib:uhl93}
+J\"{u}rgen Uhl, Dietmar Theobald, Bernhard Schiefer, Michael Ranft,
+Walter Zimmer, Jochen Alt:
+The Object Management System of STONE.
+Bericht aus {\tt ftp.fzi.de:/pub/OBST/OBST3-3.3},
+Forschungszentrum Informatik, Karlsruhe, 1993
+%
+\bibitem[Valduriez \etal\ 89]{bib:vaga89}
+Patrick Valduriez, Georges Gardarin:
+Analysis and Comparison of Relational Database Systems.
+Addison-Wesley, Reading, Mass., 1989
+%
+\bibitem[Wahrig 68]{bib:wa68}
+Gerhard Wahrig:
+Deutsches W\"{o}rterbuch.
+Bertelsmann Lexikon-Verlag, G\"{u}tersloh, 1968
+%
+\bibitem[Wand 89]{bib:wa89}
+Yair Wand:
+A Proposal for a Formal Model of Objects.
+\inoocda{537--559}
+%
+\bibitem[Wegner 90]{bib:we90}
+Peter Wegner:
+Concepts and Paradigms of Object-Oriented Programming.
+{\em OOPS Messenger\/},
+1(1):7--87, August 1990
+%
+\bibitem[Wensel 93]{bib:we93}
+S.\ Wensel (Hrsg.):
+The \postgres\ Reference Manual,
+Version~4.1.
+Bericht M88/20, University of California, Berkeley, 1993
+%
+\bibitem[Winston \etal\ 89]{bib:wi89}
+Patrick Henry Winston, Berthold Klaus Paul Horn:
+LISP, Third Edition.
+Addison-Wesley, Reading, Mass., 1989
+%
+\bibitem[Wirth 83]{bib:wi83}
+Niklaus Wirth:
+Algorithmen und Datenstrukturen,
+3.~Auf\-la\-ge.
+B.\ G.\ Teubner, Stuttgart, 1983
+%\think{Neuere Ausgabe?}
+%
+\bibitem[Zdonik \etal\ 90]{bib:zd90}
+Stanley B.\ Zdonik, David Maier:
+Fundamentals of Object-Oriented Databases.
+\inroods{1--32}
+%%
+%\item[]%
+%\hspace{-\leftmargin}%
+%Die eingestreuten Zitate entstammen folgenden Werken:
+%%
+%\bibitem[Karasek 92]{ka92}
+%Hellmuth Karasek:
+%Billy Wilder: eine Nahaufnahme von Hellmuth Karasek.
+%Hoffmann und Campe, Hamburg, 1992
+%%
+%\bibitem[Lichtenberg 50]{li50}
+%Georg Christoph Lichtenberg, Wilhelm Jagow (Hrsg.):
+%Gedanken / Eine Auslese aus seinen Sudelb\"{u}chern.
+%Th\"{u}ringer Volksverlag, Weimar, 1950
+%%
+%\bibitem[Russell 92]{ru92}
+%Bertrand Russell:
+%Denker des Abendlandes / Eine Geschichte der Philosophie,
+%3.~Auf\-la\-ge.
+% dtv, M\"{u}nchen, 1992
+%%
+%\bibitem[Schwitters 87]{sc87}
+%Kurt Schwitters, Christina Weiss \etal\ (Hrsg.):
+%\rglqq{}Eile ist des Witzes Weile\rgrqq{}.
+%Reclam, Stuttgart, 1987
+%%
+\end{thebibliography}
+\vspace*{\fill}
+\begin{fortune}
+There are {\em (sic!)\/} a finite number of jokes in the universe.
+% Von einem D. Byrne CD Cover (Stop Making Sense); da steht wirklich
+% ,,are'', nicht das korrekte ,,is''
+\from{David Byrne: Stop Making Sense}
+\end{fortune}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

@@ -1,0 +1,21 @@
+%	This is -*-LaTeX-*-
+%
+% incldbme.dgr
+% 17.8.95
+%
+\begin{small}
+\spreaddiagramrows{-1pc}%
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{-2em}%
+\newlength{\colw}\setlength{\colw}{7em}
+%
+\def\mkbox#1#2{\parbox{\colw}{\centering #2}}
+%
+\begin{diagram}
+		&\mkbox{1}{Database Y}\\
+\urto|<{\rotate\tip}
+\mkbox{2}{Programming\\language X}\rrto|<{\rotate\tip}
+				&&\ulto|<{\rotate\tip}
+				  \mkbox{2}{Real\\system R}
+\end{diagram}
+\end{small}

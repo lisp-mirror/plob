@@ -1,0 +1,74 @@
+%       This is -*-LaTeX-*-
+%
+% 8.7.94
+%
+\input{diagdefs}%
+%
+\newlength{\coliw}\setlength{\coliw}{6em}%
+\newlength{\coliiiw}\setlength{\coliiiw}{2em}%
+\newlength{\colvw}\setlength{\colvw}{4em}%
+\newlength{\colsep}\setlength{\colsep}{2ex}%
+\newlength{\lsepw}\setlength{\lsepw}{3ex}%
+\def\objnamei#1{\;\raisebox{0ex}[1.1ex][0em]{$O_1#1$}\;}
+\def\objnameii#1{\raisebox{0ex}[1ex][0em]{$o_3#1$}}
+\def\objnameiii#1{\raisebox{0ex}[1ex][0em]{$o_2#1$}}
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{\colsep}%
+\objectmargin{\stdomargin}%
+%
+\begin{diagram}%
+%
+\save%
+\go[3,0]\merge\framed%
+\restore%
+&\save\go[3,4]\merge\framed\restore\\
+\hspace*{\coliw}%
+\xdotted[0,3]%
+_(0.6){\Text{\textrm{\footnotesize{}Transparenter}\\%
+             \textrm{\footnotesize{}Zugriff}}}%
+|<{\rotate\tip}|>{\tip}%
+                &&&%\dlto
+                   \framed<5pt>{\grow{\objnamei{}}}\drto%
+                   \xdashed[8,0]%
+                   ^(0.6){\text{\textrm{\footnotesize{}Datenaustausch}}}%
+                   |<{\rotate\tip}|>{\tip}\\
+        &&%\framed<5pt>{\grow{\objnameii{}}}
+                        &&\framed<5pt>{\grow{\objnameiii{}}}\\
+\parbox{\coliw}{\hfill{}Sitzung}%
+                                &&&&&\rule{0em}{\colsep}%
+                                     \parbox{\colvw}{\hfill\clos}\\%
+%
+\rule{0em}{\colsep}&&\rule{\coliiiw}{0ex}\\%
+&\save\go[1,4]\merge\framed\restore\\
+&\xline'[0,-1]+<\lsepw,0ex>%
+       ^(0.65){\text{\textrm{\footnotesize{}Anfragen}}}%
+       |<{\rotate\tip}%
+       [-3,-1]!<\lsepw,0ex>%
+ \xline'[0,0]+<-\stdomargin,0em>[0,1]
+        &\text{\textrm{\footnotesize{}steuern}}%
+         \rto
+                                &&&\rule{0em}{\colsep}%
+                                   \parbox{\colvw}{\hfill\plob}\\%
+\rule{0em}{\colsep}\\%
+%
+&\save\go[3,4]\merge\framed\restore\\
+                &&&%\dlto
+                   \framed<5pt>{\grow{\objnamei{'}}}\drto%
+                   \xdotted'[0,-3]+<-\lsepw,0ex>%
+                           ^(0.825){\Text{\textrm{\footnotesize{}%
+                                            [In]transparenter}\\%
+                                          \textrm{\footnotesize{}%
+                                            Zugriff}}}%
+                           |<{\rotate\tip}%
+                           [-6,-3]!<-\lsepw,0ex>%
+                           |>{\tip}\\
+        &&%\framed<5pt>{\grow{\objnameii{'}}}
+                        &&\framed<5pt>{\grow{\objnameiii{'}}}\\
+                                &&&&&\rule{0em}{\colsep}%
+                                     \parbox{\colvw}{\hfill\postore}%
+%
+\end{diagram}%

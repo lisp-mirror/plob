@@ -1,0 +1,938 @@
+% This is -*-LaTeX-*-
+%
+\chapter{Shared Object Hierarchy}%
+\label{chap:soh}%
+%
+Die Zielsetzung im Rahmen \ifbericht dieses Berichtes \else\ifbuch der
+in diesem Buch dargestellten Forschungsarbeit \else dieser Arbeit
+\fi\fi bestand darin, zu pr\"{u}fen, ob die vorliegende Realisierung
+des persistenten Objektsystems Shared Object Hierarchy (\soh) die in
+Abschnitt~\ref{sec:task} (\citepage{\pageref{sec:task}}) gestellte
+Aufgabenstellung l\"{o}sen k\"{o}nnte. Der in \cite{bib:ro87}
+geschilderte Entwurf sprach zun\"{a}chst daf\"{u}r; ebenso gab die
+Verwendung der objekt-orientierten relationalen Datenbank \postgres\ 
+als persistenter Speicher Anla\ss{} zu der Hoffnung, da\ss{} die dort
+realisierten Konzepte auch in \soh\ wiederzufinden seien. Eine
+konkrete \"{U}berpr\"{u}fung der Realisierung war nur durch eine
+Anpassung des vorliegenden Quellcodes an das verwendete LISP-System
+m\"{o}glich; dabei wurde auch die Schnittstelle zu der
+\soh-benutzenden Schicht an die sich durch das \mop\ ergebenden
+M\"{o}g\-lich\-kei\-ten angepa\ss{}t.
+%
+\par{}Das System \soh\ \cite{bib:ro87} wurde von 1986 bis ca.\ 1989
+von Lawrence A.\ Rowe in Berkeley an der Universit\"{a}t Kalifornien
+konzipiert und unter seiner Leitung realisiert. Die Konzeption wird in
+\cite{bib:ro87} dargestellt; die Dokumentation der Realisierung
+besteht in einer kurzen Funktionsbeschreibung in \cite[\citepage{5-74
+-- 5-79}]{bib:scha90} und aus dem Quellcode.
+%
+\par{}Die Zielsetzung von \soh\ besteht darin, eine gro\ss{}e Anzahl von
+Objekten persistent zu speichern und mehreren BenutzerInnen den
+gemeinsamen Zugriff auf diese
+Objekte zu erm\"{o}glichen \cite[\citepage{1}]{bib:ro87}. Als
+persistenter Speicher dient die objekt-orientierte relationale
+Datenbank \postgres, deren Funktionalit\"{a}t f\"{u}r persistente Objekte
+genutzt werden soll \cite[\citepage{2}]{bib:ro87}.
+%
+\par{}Im folgenden wird die vorliegende Implementation von
+\soh\ beschrieben.  Es handelt sich dabei um die Version~1.1 mit Stand
+vom 4.8.1991, entnommen aus dem System \picasso\ Version~2.0
+\cite{bib:scha90}; diese Version wird im folgenden Text als
+Originalversion bezeichnet. Die Originalversion wurde von mir nach
+\lwcl~3.1.1 portiert. Ferner benutzte die vorliegende \soh\ Version
+die objekt-orientierte relationale Datenbank \postgres~1.0 als
+persistenten Speicher; die Schnittstelle wurde von mir nach
+\postgres~3.1 umgeschrieben. Die aus der portierten Originalversion
+entstandene Realisierung wird als portierte Version bezeichnet.
+%
+\section{Architektur}
+%
+\figurename~\ref{fig:sohlay} %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/sohlay.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/sohlay.eps}}%
+\fi%
+\caption{\protect\soh\ Schichtenmodell}%
+\label{fig:sohlay}%
+\end{figure}%
+%
+zeigt ein Schichtenmodell des Systems \soh. Die 1.~Schicht wird durch
+die ob\-jekt-""orien\-tier\-te relationale Datenbank
+\postgres\ gebildet. Schicht~2 ist die f\"{u}r die Anbindung von
+\postgres\ an LISP verwendete Bibliothek \lisp{libpq}. Schicht~3 ist
+das eigentliche System \soh; es realisiert Persistenz f\"{u}r die Objekte
+der 4.~Schicht.
+%
+\section{Schicht 1: Die objekt-orientierte relationale Datenbank
+\protect\postgres}
+%
+Die Konzeption f\"{u}r die objekt-orientierte relationale
+\cite[\citepage{11}]{bib:sto89} Datenbank \postgres\ \cite{bib:sto86a}
+entstand um 1986 als Nachfolger der Datenbank \ingres\ in Berkeley an
+der Universit\"{a}t Kalifornien. Eine Beta-Version war 1987
+funktionsf\"{a}hig; Version~1 wurde ab 1989 ausgeliefert. Mitte 1990
+folgte Version~2. Die bei der Anpassung im Rahmen \ifbericht dieses
+Berichtes \else\ifbuch dieses Buches \else dieser Arbeit \fi\fi
+verwendete Version~3.1 wurde 1991 ver\"{o}ffentlicht. Die momentan
+aktuelle Version~4.1 erschien 1993 (alle Angaben nach
+\cite[\citepage{2}]{bib:rh93}).  Inzwischen wird \postgres\ unter dem
+Namen {\em Montage\/}\footnote{Ich nehme an, es handelt sich {\em
+    nicht\/} um den Plural von Montag.} in der Version 1.00
+kommerziell angeboten \cite[\citepage{179}]{bib:on94}.
+%
+\par{}Au\ss{}er den \"{u}blichen Eigenschaften einer relationalen Datenbank
+wurden in \postgres\ die nachfolgend beschriebenen Konzepte
+realisiert, die zwar z.T.\ Eingang in die Konzeption von \soh\ fanden,
+in der Originalversion aber nicht realisiert wurden, obwohl dies im
+Rahmen \ifbericht dieses Berichtes \else\ifbuch dieses Buches \else
+dieser Arbeit \fi\fi n\"{u}tzlich gewesen w\"{a}re.
+%
+\subsection{Realisierung von Konzepten der objekt-orientierten
+Programmierung}
+%
+In \postgres\ werden Relationen als Klassen und Attribute als
+\Slt[s]\/ im Sinne der ob\-jekt-""orien\-tier\-ten Programmierung
+aufgefa\ss{}t, die an Sub-\rglq{}Klas\-sen\rgrq\ (d.h.\ Relationen in
+\postgres) vererbt werden k\"{o}n\-nen \cite[\citepage{8}]{bib:rh93}
+(siehe auch \tablename~\ref{tab:objvsdb},
+\citepage{\pageref{tab:objvsdb}}). Zus\"{a}tzlich k\"{o}nnen Attribute nicht
+nur auf Basistypen, sondern auch auf Relationen typisiert werden
+\cite[\citepage{10}]{bib:rh93}.
+%
+\subsubsection{Kritik}
+%
+W\"{u}nschenswert w\"{a}re eine Aufhebung der aus externer Sicht auch in
+\postgres\ existierenden Trennung zwischen Tupeln und Instanzen von
+Basistypen (siehe auch Aufz\"{a}hlung der Typisierungskonzepte von
+{\em Montage\/} in \cite[\citepage{179}]{bib:on94}).
+%
+\par{}Die Vererbungsregeln lassen sich nicht beeinflussen; hier fehlt
+noch eine dem \mop\ vergleichbare M\"{o}glichkeit.
+%
+\subsection{Tupel als Objekte Erster Klasse}
+%
+Mit Tupeln als Objekte Erster Klasse kann in auf Relationen
+typisierten Attributen eine Referenz auf einen Tupel innerhalb der
+Datenbank repr\"{a}sentiert werden \cite[\citepage{184}]{bib:on94}.
+%
+\subsubsection{Kritik}
+%
+Nach wie vor m\"{u}ssen in \postgres\ die Attribute statisch typisiert
+werden; die Tupel selbst sind nicht typisiert.  Ein auf eine Relation
+typisiertes Attribut kann nur auf ein Tupel der entsprechenden
+Relation verweisen.
+%
+\subsection{Speicherung und Ausf\"{u}hrung von \protect\mtd[n]\ in der
+Datenbank}
+%
+In der Datenbank k\"{o}nnen Methoden gespeichert und auch ausgef\"{u}hrt
+werden \cite[\citepage{10}]{bib:rh93} \cite[\citepage{69}]{bib:we93}.
+Der Aufruf einer Methode kann an die Erzeugung bzw.\ den Zugriff auf
+den Zustand einer Instanz gebunden werden
+\cite[\citepage{82}]{bib:we93}.
+%
+\subsubsection{Kritik}
+%
+Der Code von \mtd[n]\ ist auf aus \clogo\ \"{u}bersetztem Objektcode
+sowie auf die \postgres-eigene Datenmanipulationssprache
+\postquel\ festgelegt, d.h.\ die direkte Ablage oder Ausf\"{u}hrung von
+LISP Code ist nicht m\"{o}glich.
+%
+\subsection{Definition eigener Basistypen und \protect\spc[r]
+\protect\mtd[n]}
+%
+In \postgres\ k\"{o}nnen von den BenutzerInnen zus\"{a}tzliche
+Basistypen in die Datenbank eingebunden werden
+\cite[\citepage{12}]{bib:rh93} \cite[\citepage{85}]{bib:we93}
+\cite{bib:sto86b}. Ferner kann ihr Verhalten durch 1- und 2-stellige
+Methoden spezialisiert werden
+\cite[\citepage{79}]{bib:we93},\footnote{In \postgres\ wird statt
+  \rglq{\it n}-stelliger Methode\rgrq\ mit 1\,$\leq$\,{\it n}\,$\leq$
+  2 die Bezeichnung \rglq{}Operator\rgrq\ verwendet.} insbesondere im
+Hinblick auf die Verwendung der von \postgres\ angebotenen
+Indexverwaltung \cite[\citepage{27--34}]{bib:rh93}. Speziell
+\ifbericht im Rahmen dieses Berichtes \else\ifbuch im Rahmen dieses
+Buches \else f\"{u}r diese Arbeit \fi\fi w\"{a}re es m\"{o}glich
+gewesen, f\"{u}r geografische Daten entsprechende Basistypen und
+Zugriffsmethoden zu realisieren, die die von \postgres\ angebotene
+Indexverwaltung f\"{u}r mehrdimensionale Schl\"{u}ssel nutzen.
+%
+\subsubsection{Kritik}
+%
+Die realisierte Schnittstelle zur Einbindung eines eigenen Basistyps
+ist extrem umst\"{a}ndlich. Dies hat meiner Meinung nach zwei Gr\"{u}nde:
+\begin{itemize}
+%
+\item In \postgres\ wurde ein eigenes Objektsystem realisiert;
+die \og[en]\ 1- und 2-stelligen Methoden f\"{u}r die Instanzen dieses
+Objektsystems zur Nutzung der Indexverwaltung 
+m\"{u}ssen in Form von \"{u}bersetztem \clogo\ Code eingebunden werden. Um
+eine m\"{o}glichst hohe Performanz zu erreichen, baut die Schnittstelle
+direkt auf diesem Objektsystem auf. Damit wird bei den BenutzerInnen
+viel Wissen \"{u}ber die Interna der Datenbank vorausgesetzt.
+%
+\item \postgres\ strebt intern eine m\"{o}glichst hohe Optimierung der
+Indexverwaltung an; dazu m\"{u}ssen f\"{u}r einen selbstdefinierten Typ
+der Datenbank deklarativ sehr spezielle Hinweise gegeben werden, die
+intern das Verhalten der Indexverwaltung f\"{u}r Instanzen des
+definierten Typs festlegen.
+%
+\end{itemize}
+%
+\subsection{Speicherung von gro\ss{}en Objekten}%
+%
+\postore\ unterst\"{u}tzt die Speicherung von \gande{gro\ss{}en
+Objekten}{large objects}%
+\addglossary{Gro\ss{}es Objekt}[large object][Ein gro\ss{}es Objekt ist ein
+Objekt innerhalb einer relationalen Datenbank, das die maximale
+Tupelgr\"{o}\ss{}e \"{u}berschreitet; beispielsweise ist in
+\protect\postgres\ die maximale Gr\"{o}\ss{}e eines Tupels auf 8~KByte
+beschr\"{a}nkt.]\ \cite[\citepage{23}]{bib:rh93}
+\cite[\citepage{128--137}]{bib:we93}. Es werden zwei Formate
+angeboten, von denen das eine auf Geschwindigkeit und das andere auf
+Datensicherheit optimiert ist.
+%
+\subsubsection{Kritik}
+%
+Ein Objekt in \postgres\ ist genau dann gro\ss{}, wenn f\"{u}r die
+\representation{} seines Zustands mehr als 8~KByte Speicher ben\"{o}tigt
+werden; diese Gr\"{o}\ss{}e wird unter Umst\"{a}nden relativ schnell von LISP
+Objekten (beispielsweise durch Vektoren oder Felder) erreicht. Die
+Betonung, da\ss{} zu\-s\"{a}tz\-lich \rglq{}gro\ss{}e\rgrq\ Objekte unterst\"{u}tzt
+werden, l\"{a}\ss{}t den Schlu\ss{} zu, da\ss{} ihre Verarbeitung im Vergleich zu
+\rglq{}kleinen\rgrq\ Objekten ineffizienter sein wird.
+%
+\subsection{Einbindung der Konzepte in \protect\soh}
+%
+Einige der \og\ Konzepte wurden zwar in die Konzeption von
+\soh\ \"{u}bernommen, deren Realisierung wurde in der Originalversion aber
+nicht durchgef\"{u}hrt; statt \postgres\ h\"{a}tte ebenso gut eine rein
+relationale Datenbank verwendet werden k\"{o}nnen. Der Grund ist
+\ua\ darin zu sehen, da\ss{} diese erweiterten Konzepte noch zu
+datenbank-speziell realisiert wurden; eine \"{U}bertragung auf eine
+allgemeine Programmiersprache (insbesondere LISP) bereitet damit noch
+erhebliche Schwierigkeiten.
+%
+\section{Schicht 2: Die LIBPQ Schicht}
+%
+Schicht~1 und die Schichten~2--4 laufen jeweils in einem eigenen
+\unix\ Proze\ss{}. Der Schicht~1 zugeordnete Proze\ss{} wird als {\em
+Backend\/}-Proze\ss{}\addglossary{Backend-Proze\ss{}}[{%
+Datenbank-bearbeitender \protect\unix\ Proze\ss{}; er verarbeitet die
+vom {\protect\see{\em Front\-end\/}}-Pro\-ze\ss{} kommenden
+Datenbank-Anfragen.}]\ bezeichnet, der zur Schicht~2--4 geh\"{o}rige
+hei\ss{}t {\em Frontend\/}-Proze\ss{}\addglossary{Frontend-Proze\ss{}}[{%
+Datenbank-benutzender \protect\unix\ Proze\ss{}; er startet einen
+{\protect\see{\protect\em Back\-end\/}}-Pro\-ze\ss{}, sendet ihm die
+Datenbank-Anfragen und gibt die Antworten an das in den h\"{o}heren
+Schichten des {\protect\em Frontend\/}-Prozesses laufende
+von den BenutzerInnen erstellte Programm
+weiter.}]\ \cite[\citepage{30}]{bib:we93}. Durch diese Entkopplung
+k\"{o}nnen zum einen an den {\em Backend\/}-Proze\ss{} gerichtete
+Datenbankanfragen des {\em Frontend\/}-Prozesses parallel zu diesem
+verarbeitet werden; zum anderen f\"{u}hrt ein Abbruch des
+{\em Frontend\/}-Prozesses nicht automatisch zum Abbruch des auf die
+Datenbank zugreifenden {\em Backend\/}-Prozesses, der statt dessen
+kontrolliert terminieren kann.
+%
+\par{}Die Aufgabe der 2.~Schicht besteht darin, den Start des {\em
+Backend\/}-Prozesses zu veranlassen und zwischen dem {\em
+Frontend\/}- und dem {\em Backend\/}-Proze\ss{} eine Verbindung \"{u}ber
+einen \unix\ {\em Socket\/} \cite{bib:socket} herzustellen.
+%
+\section{Schicht 3: Die \protect\soh\ Schicht}
+%
+Die in \cite{bib:ro87} gegebene Konzeption und die Originalversion von
+\soh\ unterscheiden sich zum Teil extrem; auf signifikante
+Differenzen wird im folgenden Text hingewiesen. Sofern im folgenden
+Text nur Eigenschaften der Originalversion beschrieben werden, gelten
+dieselben Eigenschaften auch f\"{u}r die portierte Version.
+%
+\subsection{Der \protect\cache}
+%
+Der \cache\/ ist als assoziativer transienter Zwei-Wege-Speicher in der
+3.~Schicht realisiert; er bildet sowohl die innerhalb des persistenten
+Speichers zur Identita"tsrepr\"{a}sentation verwendeten \objid[s]\ auf
+die transiente Identit\"{a}tsrepr\"{a}sentation eines persistenten Objektes
+ab als auch umgekehrt. In der Konzeption
+\cite[\citepage{14--21}]{bib:ro87} werden
+verschiedene Strategien zur Verwaltung des \cache\/ erl\"{a}utert,
+speziell im Hinblick auf Konsistenzerhaltung des \cache\/ bei
+Mehr-BenutzerInnen-Betrieb; realisiert wurde keiner der dort
+angegebenen Algorithmen.
+%
+\subsubsection{Terminierung f\"{u}r Objektgraphen mit Zyklen}%
+\label{sec:sohtcyc}%
+%
+Bei einer \"{U}bertragung des Zustands eines Objektes zwischen dem
+transienten und persistenten Speicher ergibt sich aus der transitiv
+referenzierten H\"{u}lle des Objektes ein gerichteter Graph, dessen
+Knoten aus den zu \"{u}bertragenen Objekten und dessen Kanten durch die
+in den \Slt[s]\/ enthaltenen Referenzen zwischen den Objekten gebildet
+werden. Dieser Graph mu\ss{} nicht zyklenfrei sein; um in diesem Fall die
+\"{U}bertragung der Zust\"{a}nde der zum Graphen geh\"{o}rigen Objekte zu
+terminieren, werden bereits \"{u}bertragene Objekte als
+\rglq{}gespeichert\rgrq\ markiert. Wird beim Traversieren des Graphen
+ein als \rglq{}gespeichert\rgrq\ markiertes Objekt aus einem
+\Slt\/ referenziert, wurde dessen Zustand bereits \"{u}bertragen;
+andernfalls wird das referenzierte Objekt als
+\rglq{}gespeichert\rgrq\ markiert und sein Zustand wird \"{u}bertragen.
+%
+\par{}Realisiert wurde in der Originalversion die Markierung
+\rglq{}gespeichert\rgrq\ als
+Eintrag in den \cache, d.h.\ wenn die Instanz vom \cache\/ referenziert
+wird, gilt sie als bereits gespeichert. Damit werden nach dem ersten
+Speichern eines Objektes die Zust\"{a}nde der transitiv vom gespeicherten
+Objekt referenzierten Instanzen im aktuellen LISP Proze\ss{} immer nur
+ein einziges Mal gespeichert, auch wenn sich ihre Zust\"{a}nde ge\"{a}ndert
+haben sollten.
+%
+\subsection{\protect\Spc\ \protect\mc[n]}
+%
+In der Konzeption werden die Relationen \relation{DBObject}\ und
+\relation{DBClass}\ definiert \cite[\citepage{10}]{bib:ro87}. Die
+Relation \relation{DBObject}\ repr\"{a}sentiert die Zust\"{a}nde der \Slt[s],
+die sich aus der an alle ak\-tiv-""per\-si\-sten\-ten Klassen
+vererbten abstrakten Superklasse \class{dbobject}\ ergeben. Die
+Relation \relation{DBClass}\ re\-pr\"{a}\-sen\-tiert die \clsmo[e]\ von
+aktiv-persistenten Klassen.
+%
+\par{}In der Originalversion fand dies seinen Niederschlag in der
+Klasse \class{dbobject}, die im Verlauf der Definition einer
+aktiv-persistenten Klasse immer an die definierte Klasse vererbt
+wird, und der \spc[n]\ \clsmc\ \class{dbclass}\ zur Repr\"{a}sentation
+von ak\-tiv-""per\-si\-sten\-ten Klassen.
+%
+\par{}In der portierten Version werden die direkten bzw.\ effektiven
+\Slt[s]\/ von aktiv-persistenten Klassen durch
+\sltmo[e]\ der \spc[n]\ \sltmc[n]\ %
+\class{dbclass-\lb{}standard-\lb{}direct-\lb{}slot-\lb{}definition}%
+\ bzw.\ %
+\class{dbclass-\lb{}standard-\lb{}effective-\lb{}slot-\lb{}definition}%
+\ repr\"{a}sentiert.
+%
+\subsection{Objektrepr\"{a}sentation}
+%
+%
+\subsubsection{Objekte in der \protect\postgres\ Datenbank}
+%
+\paragraph{Passiv-persistente Objekte}
+%
+Nach der in \cite[\citepage{12}]{bib:ro87} angegebenen Konzeption soll
+zwischen LISP- und \postgres-Typen eine Abbildung festgelegt werden
+k\"{o}nnen.  Diese Abbildung sollte persistent in der Datenbank gehalten
+werden; f\"{u}r die beschriebenen Konvertierungen
+war geplant, typabh\"{a}ngig die Namen von zwei Funktionen abzulegen, die
+Objektzust\"{a}nde zwischen den \representationforms\ von \cl\ und
+\postgres\ konvertieren (\tablename~\ref{tab:sohcltopg}).%
+%
+\begin{figure}[htbp]\centering%
+%
+\begin{minipage}{\textwidth}\centering%
+\let\footnoterule\relax% Kein Trennungsstrich fuer Fussnoten
+%
+\begin{\figurefontsize}%
+\begin{tabular}{|p{9em}|l|p{18em}|}
+\hline
+\tabularheader{\cl}
+        &\tabularheader{POSTGRES}
+                &\tabularheader{Beschreibung}\\
+\hline\hline
+fixnum
+        &int4
+                &4 Byte Ganzzahl.\\
+\hline
+float
+        &float
+                &4 Byte Flie\ss{}kommazahl.\\
+\hline
+(simple-array 'char)
+        &char[]
+                &Zeichenkette variabler L\"{a}nge.\\
+\hline
+Symbol
+        &char[]
+                &Eine Zeichenkette, deren Evaluierung das Symbol
+                 ergibt (z.B.\ \lisp{'x}\ f\"{u}r das Symbol \lisp{x}).\\
+\hline
+(passiv-persistente)\footnote{In \soh\ werden passiv-persistente
+Objekte als lokale Objekte bezeichnet.} Objekte
+        &char[]
+                &Eine Zeichenkette, deren Evaluierung das Objekt
+                 ergibt.\\
+\hline
+%
+\end{tabular}%
+\end{\figurefontsize}%
+\end{minipage}%
+%
+\let\figurename\tablename%
+\captionfrom%
+ {Beispiele f\"{u}r die Abbildung zwischen \protect\cl- und
+  \protect\postgres-Typen}%
+ {\protect\cite[\protect\citepage{12}]{bib:ro87}}%
+ \label{tab:sohcltopg}%
+%
+\end{figure}%
+%
+\par{}In der Konzeption wird als Begr\"{u}ndung f\"{u}r die Verwendung einer
+relationalen Datenbank als persistenten Speicher \ua\ ausgef\"{u}hrt
+\cite[\citepage{2}]{bib:ro87}:
+%
+\begin{quote}
+A beneficial side-effect is that programs written in a conventional
+programming language can [\ldots] access the data stored in the
+object hierarchy.
+\end{quote}
+%
+Der Zugriff auf den Zustand von Daten, die durch Evaluierung einer
+Zeichenkette generiert werden, bedingt die Existenz einer
+evaluierenden Instanz, die in konventionellen Programmiersprachen
+\ia\ nicht verf\"{u}gbar ist. Die einzige M\"{o}glichkeit,
+konventionellen Programmiersprachen Zugriff auf den Zustand von Daten
+zu verschaffen, besteht darin, die Daten selbst und keine sie
+generierenden Ausdr\"{u}cke im persistenten Speicher zu repr\"{a}sentieren.
+%
+\par{}Realisiert wurde in der Originalversion f\"{u}r Instanzen von
+Basistypen nur die allgemeinste M\"{o}glichkeit der \representation{} als
+Zeichenkette, deren Evaluierung das Datum generiert (\handle,
+\citepage{\pageref{sec:handle}}). Die Notwendigkeit dieser
+Vorgehensweise resultiert aus dem Gegensatz der geforderten statischen
+Typisierung der Attribute zu der dynamischen Typisierung von LISP
+Objekten. Durch die Typisierung auf Zeichenketten wird erreicht,
+da\ss{} das Attribut beliebige S-Ausdr\"{u}cke enthalten kann; die
+Evaluierung eines S-Ausdrucks kann dann ein dynamisch typisiertes LISP
+Objekt in der transienten LISP Umgebung erzeugen. In diese
+\representationform{} sind auch implizit die Referenzen auf andere
+Objekte eingebettet; die in relationalen Datenbanken \"{u}bliche Art und
+Weise der Referenz zwischen zwei Objekten \"{u}ber den in jeweils einem
+Attribut enthaltenem gleichen Wert wurde nicht realisiert.
+%
+\paragraph{Aktiv-persistente Instanzen}%
+\label{sec:sohapi}%
+%
+Aktiv-persistente Objekte in \soh\ werden wie
+bereits in Abschnitt \ref{sec:rdbpr} (\citepage{\pageref{sec:rdbpr}})
+beschrieben repr\"{a}sentiert. Die die \Slt[s]\/ repr\"{a}sentierenden
+Attribute werden in der Originalversion grunds\"{a}tzlich auf den Typ
+\class{Zeichenkette}\ typisiert; der
+\Slt\/-Zustand eines persistenten Objektes wird in der
+\postgres\ Datenbank in einer Zeichenkette gespeichert, deren
+Evaluierung den \Slt\/-Zustand im transienten Speicher
+wiederherstellt.
+%
+\par{}Im transienten Speicher wird die Identit\"{a}t eines
+aktiv-persistenten Objektes durch ein Tupel
+({\it\lt{}Relationsname\gt\/} {\it\lt{}objid\gt\/}) repr\"{a}sentiert
+\cite[\citepage{10}]{bib:ro87}. Der
+{\it\lt{}Relationsname\gt\/} ist der Name der f\"{u}r die Speicherung
+der aktiv-persistenten Instanzen angelegten Datenbankrelation. Die
+{\it\lt{}objid\gt\/} wird entweder beim Speichern des
+aktiv-persistenten Objektes vergeben oder auf die \objid\/ gesetzt,
+mit der das aktiv-persistente Objekt aus der Datenbank geladen wurde.
+\soh\ verwendet damit typstrukturierte Bezeichner zur
+Identit\"{a}tsrepr\"{a}sentation von aktiv-persistenten Instanzen
+(Abschnitt~\ref{enu:stridtyp}, \citepage{\pageref{enu:stridtyp}}) und
+ber\"{u}cksichtigt damit nicht die von \clos\ gegebene M\"{o}glichkeit der
+\"{A}nderung der Klassenzugeh\"{o}rigkeit eines Objektes.
+%
+\paragraph{Listen, die von einem aktiv-persistenten Objekt
+referenziert werden}
+%
+Listen werden in der Originalversion je nach Art ihrer Referenzierung
+unterschiedlich gespeichert. Eine Liste, die vom \Slt\/ eines
+aktiv-persistenten Objektes referenziert wird, wird als Zeichenkette
+in ihrer \gande{Druckrepr\"{a}sentation}{print representation}\ in das
+den \Slt\/-Zustand repr\"{a}sentierende Attribut geschrieben.
+%
+\paragraph{Aktive Objekte und Listen, die nicht von einem
+aktiv-persistenten Objekt referenziert werden}
+%
+\def\store{\lisp{store}}%
+%
+In der Konzeption von \soh\ wurde urspr\"{u}nglich festgelegt, da\ss{}
+lediglich aktiv-persistente Instanzen und Objekte einiger
+Basisklassen persistent werden k\"{o}nnen \cite[\citepage{9,
+12}]{bib:ro87}. In der Originalversion
+wurde \soh\ um das nur zum Teil in \soh\ integrierte Subsystem
+\store\ erweitert, um aktive Objekte und Listen, die nicht von einem
+aktiv-persistenten Objekt referenziert werden, persistent zu halten.
+Das Subsystem \store\ f\"{u}hrt eine eigene, von \soh\ unabh\"{a}ngige
+Verwaltung von persistenten Listen und Objekten durch. Eine Konsequenz
+daraus ist, da\ss{} Referenzen innerhalb von Listen oder aktiven Objekten
+auf aktiv-persistente Objekte nicht identit\"{a}tserhaltend gespeichert
+werden k\"{o}nnen. Sowohl die \representationform{} in der Datenbank als
+auch die Identit\"{a}tsrepr\"{a}sentation unterscheidet sich von der f\"{u}r
+aktiv-persistente Objekte. Die \representations{} aller Instanzen, die
+vom Subsystem \store\ gespeichert werden, befinden sich in der
+Relation \relation{local}.
+%
+\begin{figure}[hbtp]\centering%
+\begin{\figurefontsize}%
+\begin{tabular}{|l|l|l|}%
+\hline
+\tabularheader{LISP Ausdruck}
+        &\tabularheader{\attr{local}{loid}}
+                &\tabularheader{\attr{local}{make}}\\
+\hline\hline
+        &\lisp{CONS4711}
+                &\lisp{(let ((c (list 1)))}\\
+                &&\lisp{\ \ (register-object 'CONS4711 c)}\\
+                &&\lisp{\ \ (rplacd c (load-object 'CONS4712))}\\
+                &&\lisp{\ \ c)} \\
+\hline
+        &\lisp{CONS4712}
+                &\lisp{(let ((c (list 2)))}\\
+                &&\lisp{\ \ (register-object 'CONS4712 c)}\\
+                &&\lisp{\ \ c)}\\
+\hline
+\lisp{(make-instance}
+        &\lisp{FOO4713}
+                &\lisp{(let ((o (make-instance 'foo)))}\\
+\lisp{\ \ 'foo}
+                &&\lisp{\ \ (register-object 'FOO4713 o)}\\
+\lisp{\ \ :slot-1 'a}
+                &&\lisp{\ \ (setf (slot-value o 'slot-1) 'a)}\\
+\lisp{\ \ :slot-2}
+                &&\lisp{\ \ (setf (slot-value o 'slot-2)}\\
+\lisp{\ \ '(1 2))}
+                &&\lisp{\ \ \ \ \ \ \ \ (load-object 'CONS4711))}\\
+                &&\lisp{\ \ o)}\\
+\hline
+\end{tabular}%
+\end{\figurefontsize}%
+%
+\let\figurename\tablename%
+\caption%
+ [Beispiele Relation \protect\rglq{}local\protect\rgrq]%
+ {Beispiele Relation \protect\relation{local}}%
+\label{tab:bsplocal}%
+\end{figure}%
+%
+\subparagraph{Die Relation \protect\relation{local}}
+%
+In der ausschlie\ss{}lich vom Subsystem \store\ genutzten Relation
+\relation{local}\ entspricht ein Tupel genau einem gespeichertem
+referenzierbarem \cl\ Datum; sie hat zwei Attribute.
+\begin{description}
+%
+\item[Attribut \protect\attr{local}{loid}]
+Das Attribut \gande{\attr{local}{loid}}{local objid}\ enth\"{a}lt die vom
+Subsystem \store\ benutzte Identit\"{a}tsrepr\"{a}sentation des persistenten
+Objektes. Sie besteht aus einer Konkatenation des Klassennamens des
+persistenten Objektes mit einer Nummer (typstrukturierter
+Bezeichner, Abschnitt~\ref{enu:stridtyp},
+\citepage{\pageref{enu:stridtyp}}). In der Realisierung
+wird f\"{u}r die Generierung der {\em local} \objid\/ die
+\fn\ \stfn{gensym}\ \stcite{245}\ benutzt, die keine Eindeutigkeit
+\"{u}ber mehrere LISP Prozesse hinweg garantiert.
+%
+\item[Attribut \protect\attr{local}{make}]
+Im Attribut \attr{local}{make}\ wird ein
+\gande{S-Ausdruck}{S-expression}\ abgelegt, dessen
+Evaluierung die transiente \representation{} des persistenten Objektes
+regeneriert. Der S-Ausdruck ist so aufgebaut, da\ss{} die transienten
+\representations{} der transitiv referenzierten Objekte im Verlauf der
+Evaluierung geladen und anschlie\ss{}end in das referenzierende Objekt
+eingetragen werden.
+%
+\end{description}
+%
+Das Beispiel in \tablename~\ref{tab:bsplocal} %
+%
+zeigt, wie eine aktive Instanz der Klasse \class{foo}\ in der Relation
+\relation{local}\ gespeichert wird. Die Funktion
+\stfn{load-object}\ l\"{a}d die transiente \representation{} eines
+persistenten Objektes entweder aus dem \cache\/ oder, wenn sie dort nicht
+gefunden wurde, aus der Relation \relation{local}; ein Aufruf der
+Funktion \stfn{register-object}\ tr\"{a}gt die transiente Repr\"{a}sentation
+in den \cache\/ ein.
+%
+\paragraph{Sonstige Daten}
+%
+Alle Instanzen von bisher nicht erw\"{a}hnten Typen werden von
+\soh\ in der \postgres\ Datenbank durch einen S-Ausdruck
+repr\"{a}sentiert, dessen Evaluierung die transiente Repr\"{a}sentation
+regeneriert (siehe auch die letzte Zeile von
+\tablename~\ref{tab:sohcltopg}, \citepage{\pageref{tab:sohcltopg}}).
+%
+\subsubsection{\protect\representation\ von persistenten Objekten im transienten
+Speicher}
+%
+Die Konzeption macht keine Angaben zur \representation{} von
+persistenten Objekten im transienten Speicher.
+%
+\ifbuch%
+\begin{figure}[htbp]%
+\centerline{\psfig{figure=twelvept/clolout.eps}}%
+\caption{Transiente \protect\representation\ von aktiv-persistenten Objekten}%
+\label{fig:clolout}%
+\end{figure}%
+\fi%
+%
+\paragraph{Aktiv-persistente Objekte}%
+\label{sec:sohaor}%
+%
+In der Originalversion greift die \representation{} von
+ak\-tiv-per\-si\-sten\-ten Objekten im transienten Speicher in die
+Interna des Objektsystems ein (\figurename~\ref{fig:clolout}). %
+%
+\ifbuch\else%
+\begin{figure}[htbp]%
+\centerline{\psfig{figure=tenpt/clolout.eps}}%
+\caption{Transiente \protect\representation\ von aktiv-persistenten Objekten}%
+\label{fig:clolout}%
+\end{figure}%
+\fi%
+%
+Instanzen werden in \clos\ durch ein Tupel ({\it\lt{}class
+wrapper\gt\/} {\it\lt{}state vector\gt\/}) repr\"{a}sentiert. Der
+{\it\lt{}state vector\gt\/} enth\"{a}lt den Zustand des Objektes; die
+L\"{a}nge des Vektors entspricht der Anzahl der \Slt[s]. Um \"{A}nderungen
+der durch das
+\clsmo\ festgelegten Struktur einer Instanz detektieren zu k\"{o}nnen,
+verweist die Instanz \oi\ nicht direkt auf das \clsmo\ \ovi,
+sondern auf einen {\em Class Wrapper} \ov, der einen Verweis auf das
+\clsmo\ sowie eine minimale Strukturdefinition bestehend aus einer
+Liste der \Slt\/-Namen enth\"{a}lt. Bei einer \"{A}nderung der im
+\clsmo\ \ovi\ enthaltenen Strukturdefinition wird von \clos\ im
+\clsmo\ ein neuer {\em Class Wrapper\/} eingetragen \ovii; eine
+\"{A}nderung der Strukturdefinition wird beim n\"{a}chsten Zugriff auf den
+Objektzustand dadurch detektiert, da\ss{} der von der Instanz
+referenzierte {\em Class Wrapper\/} \ov\ und der im \clsmo\ abgelegte
+{\em Class Wrapper\/} \ovii\ nicht identisch sind. Die im {\em Class
+Wrapper\/} der Instanz enthaltene minimale Strukturdefinition wird
+benutzt, um den Zustandsvektor des Objektes an die neue
+Strukturdefinition anzupassen.
+%
+\par{}In \soh\ wird die Allozierungs-\mtd\ f\"{u}r aktiv-persistente
+Objekte spezialisiert; sie ersetzt den Zustandsvektor durch einen
+Vektor mit konstanter L\"{a}nge, der \ua\ die \objid\/ sowie ein
+zun\"{a}chst auf \lispnil\ gesetztes Element enth\"{a}lt \oii. Beim
+ersten Zugriff auf den Objektzustand wird von den in
+\soh\ \spc[n]\ Zugriffs-\mtd[n]\ die transiente \representation{} des
+Objektes \oiv\ nachgeladen und in dieses Element
+eingetragen; die Zugriffe auf den Objekzustand werden auf die
+nachgeladene \representation{} \rglq{}umgelenkt\rgrq. Der \Slt\/ mit der
+\objid\/ wird nicht in der nachgeladenen Instanz repr\"{a}sentiert;
+die \spc[n]\ Zugriffs-\mtd[n]\ referenzieren f\"{u}r diesen
+\Slt\/ die im Zustandsvektor \oii\ bzw.\ \oiii\ enthaltene \objid.
+%
+\par{}Diese L\"{o}sung nutzt die Interna des zur Realisierung von
+\soh\ benutzten Objektsystems \pcl\ aus; sie ist daher weder portabel
+noch \mop-konform. Die Portierung bereitete aber kaum Probleme, da
+\clos\ aus der Weiterentwicklung des Objektsystems \pcl\ hervorging
+und sich die Interna nur relativ wenig ge\"{a}ndert haben.
+Inzwischen bietet das \mop\ vollst\"{a}ndig die M\"{o}glichkeit, die
+Instanzdaten eines Objektes selbst zu verwalten \amopcite{99}, ohne
+Interna des Objektsystems benutzen zu m\"{u}ssen; diese M\"{o}glichkeit
+wurde in der portierten \soh\ Version nicht realisiert.
+%
+\subsection{Schnitt zwischen Objekten}
+%
+Ein Schnitt war in der urspr\"{u}nglichen Konzeption nicht vorgesehen und
+wurde in der Originalversion nicht realisiert; um zumindestens das
+Speichern zuvieler transienter \clsmo[e]\ zu verhindern, werden in der
+portierten Version beim Start von \soh\ alle \clsmo[e], die nicht
+aktiv-persistente Klassen repr\"{a}sentieren, in den \cache\/ eingetragen
+und damit als \rglq{}gespeichert\rgrq\ markiert
+(Abschnitt~\ref{sec:sohtcyc}, \citepage{\pageref{sec:sohtcyc}}).
+%
+\subsection{Protokolle}%
+\label{sec:sohpr}%
+%
+\subsubsection{Definition von aktiv-persistenten Klassen}%
+%
+In der Konzeption wird auf die Art und Weise der Definition von
+aktiv-persistenten Klassen nicht eingegangen.  In der Originalversion
+von \soh\ werden aktiv-persistente Klassen durch das Makro
+\stmcr{defdbclass}\ \cite[\citepage{5-77}]{bib:scha90} definiert; die
+dort realisierte Funktionalit\"{a}t wurde in der portierten Version in
+die Initialisierung des die aktiv-persistente Klasse
+repr\"{a}sentierenden \clsmo[es]\ verschoben.  Die Definition einer
+aktiv-persistenten Klasse erfolgt jetzt \"{u}ber die Klassenoption
+\lisp{(:metaclass dbclass)}.
+%
+\par{}Im Verlauf der Initialisierung des \clsmo[es]\ wird es in der
+Datenbank gespeichert, d.h.\ es wird die sich aus der
+Klassendefinition ergebene Relation zur Ablage der Instanzen in
+der Datenbank angelegt. Aus dem vorliegenden Code der Originalversion
+ist ersichtlich, da\ss{} dieser Vorgang \"{u}ber den an das Makro
+\stmcr{defdbclass}\ \"{u}bergebenen Schl\"{u}sselwort-Parameter 
+\lisp{creation-mode}\ beeinflu\ss{}bar ist; in der portierten Version
+sollte diese Aufgabe die zus\"{a}tzliche Klassenoption
+\lisp{:creation-mode}\ \"{u}bernehmen.
+%
+\par{}Urspr\"{u}nglich von mir geplant war, da\ss{} in der portierten
+Version bei der Initialisierung 
+eines \clsmo[es]\ einer aktiv-persistenten Klasse au\ss{}er den
+\std-Klassen- und \Slt\/-Optionen \stcite{822, 823}\ von
+\soh\ zus\"{a}tzliche Optionen ausgewertet werden. Da bereits im Verlauf
+der Portierung klar wurde, da\ss{} \soh\ die gestellten Anforderungen
+nicht erf\"{u}llen kann, wurde zwar eine Auswertung von zus\"{a}tzlichen
+Klassen- und \Slt\/-Optionen realisiert, die Ergebnisse der Auswertung
+werden aber nicht weiter verwendet; die hier f\"{u}r die Auswertung
+erstellten \spc[n]\ \mtd[n]\ werden in modifizierter Form in dem von mir
+realisierten persistenten System im Protokoll~\ref{pro:defclass}
+\stfn{(defclass)}\ (\citepage{\pageref{pro:defclass}}) eingesetzt. Die
+folgenden beiden Abschnitte erl\"{a}utern trotzdem die zus\"{a}tzlich
+geplanten Optionen.
+%
+\paragraph{Zus\"{a}tzliche Klassenoption \protect\lisp{:creation-mode}}
+%
+Mit der Klassenoption \lisp{:creation-mode}\ k\"{o}nn\-te die Art der
+Schemaentwicklung f\"{u}r aktiv-persistente Klassen ausgew\"{a}hlt werden:
+\begin{description}
+%
+\item[Klassenoption \protect\lisp{(:creation-mode always-create)}]
+Bei der Initialisierung des transienten \clsmo[es]\ wird die Relation
+zur Speicherung der persistenten \representations{} von Instanzen der
+aktiv-persistenten Klasse immer in der Datenbank angelegt; eine
+eventuell bereits vorhandene Relation wird \"{u}berschrieben.
+%
+\item[Klassenoption \protect\lisp{(:creation-mode never-recreate)}]
+Bei der Initialisierung des transienten \clsmo[es]\ wird die aus dem
+\clsmo\ bestimmte Relation zur Speicherung der persistenten
+\representations{} von Instanzen der aktiv-persistenten Klasse mit der
+in der Datenbank vorgefundenen Relation gleichen Namens verglichen;
+sind sie nicht gleich, wird ein Fehler signalisiert.
+%
+\item[Klassenoption \protect\lisp{(:creation-mode rename-create)}]
+Die Relation wird wie bei der Klassenoption \lisp{(:creation-\lb{}mode
+always-\lb{}create)}\ erl\"{a}utert angelegt, eine eventuell bereits 
+vorhandene Relation wird aber nicht gel\"{o}scht sondern umbenannt.
+%
+\end{description}
+%
+\paragraph{Zus\"{a}tzliche \protect\Slt-Option \protect\lisp{:transient}}
+%
+Mit dieser Option k\"{o}nnte f\"{u}r den definierten \Slt\/ sein Zustand f\"{u}r
+alle Instanzen der aktiv-persistenten Klasse als transient deklariert
+werden, d.h.\ der \Slt\/-Zustand w\"{a}re nicht in der Datenbank
+repr\"{a}sentiert worden.
+%
+%\subsubsection{Passiv-persistente Klassen}
+%
+%werden in ihrer Print-Form gespeichert.
+%
+%\subsubsection{Speichern eines \protect\clsmo}
+%
+%\subsubsection{Speichern eines transienten Objektes}
+%
+%\subsubsection{Laden eines persistenten Objektes}
+%
+\subsubsection{Erzeugen von aktiv-persistenten Instanzen}
+%
+In der Originalversion wird f\"{u}r eine aktiv-persistente Instanz bei
+ihrer Erzeugung im transienten Speicher eine minimale transiente
+\representation{} alloziert, die zun\"{a}chst nur \soh-interne
+Informationen zur Referenzierung der persistenten \representation{} des
+Objektes sowie einige an das Objekt gebundene Statusinformationen
+enth\"{a}lt.  Wurde die transiente \representation{} im Verlauf einer
+Lokalisierung des Objektes (Abschnitt~\ref{sec:sohloc},
+\citepage{\pageref{sec:sohloc}}) erzeugt, exisitiert bereits eine
+persistente \representation{} des Objektes; in diesem Fall wird
+in die transiente \representation{} die \objid\/ der persistenten
+\representation{} eingetragen. Entstand die transiente Repr\"{a}sentation
+nicht im Verlauf einer Lokalisierung, wird abh\"{a}ngig vom dem bei der
+Erzeugung angegebenen
+\gande{Repr\"{a}sentationsmodus}{update mode}\ gegebenenfalls eine
+persistente \representation{} alloziert und dessen \objid\/ in die
+transiente \representation{} eingetragen.
+%
+\paragraph{Repr\"{a}sentationsmodus von aktiv-persistenten Instanzen}
+%
+In der Konzeption wurde festgelegt, da\ss{} bei der Erzeugung einer
+aktiv-persistenten Instanz aus mehreren M\"{o}glichkeiten f\"{u}r ihre
+\representationform{} und das daran gekoppelte Verhalten bei Zugriff
+auf den Zustand ausgew\"{a}hlt werden kann
+\cite[\citepage{17}]{bib:ro87}; dies wurde in der Originalversion
+auch realisiert. Der Repr\"{a}sentationsmodus bezieht sich
+auf den gesamten Zustand genau eines Objektes; er kann nicht auf
+Klassenebene f\"{u}r den Zustand aller Instanzen einer aktiv-persistenten
+Klasse oder f\"{u}r die Zust\"{a}nde einzelner \Slt[s]\/ angegeben werden.
+%
+\begin{description}
+%
+\item[Modus \lisp{local-copy}]
+Der Zustand des Objektes wird nur im transienten Speicher
+repr\"{a}sentiert; es wird keine persistente \representation{} alloziert.
+Zustands\"{a}nderungen wirken sich daher nur auf die transiente
+\representation{} aus.
+%
+\item[Modus \lisp{direct-update}]
+Der Zustand des Objektes wird im transienten und im persistenten
+Speicher repr\"{a}sentiert; Zustands\"{a}nderungen der transienten
+\representation{} werden sofort in die persistente Repr\"{a}sentation
+propagiert. In der Konzeption war vorgesehen, da\ss{}
+Zu\-stands\-\"{a}n\-de\-run\-gen der persistenten Re\-pr\"{a}\-sen\-ta\-tion
+durch andere Prozesse ebenfalls in die transiente
+Re\-pr\"{a}\-sen\-ta\-tion propagiert werden; eine Realisierung dessen
+erfolgte nicht.
+%
+\item[Modus \lisp{deferred-update}]
+Der Zustand des Objektes wird im transienten und im persistenten
+Speicher repr\"{a}sentiert; Zustands\"{a}nderungen wirken sich zun\"{a}chst nur
+auf die transiente \representation{} aus, bis die BenutzerInnen explizit
+eine \"{U}bertragung des Zustands von der transienten in die persistente
+\representation{} anfordern.
+%
+%\item[Modus \lisp{object-update}]
+%Dieser Modus wurde nicht realisiert.
+%
+\end{description}
+%
+An die objekt-erzeugende Funktion \stfn{make-instance}\ wird der
+Repr\"{a}sentationsmodus als das
+\gande{Ini\-tia\-li\-sie\-rungs-Schl\"{u}s\-sel\-wort-Ar\-gu\-ment}%
+{initarg}\ \lisp{:dbmode}\ \"{u}bergeben.
+%
+\subsubsection{Zugriff auf den Objektzustand}
+%
+In der Konzeption wird auf den Zugriff auf den Zustand von
+persistenten Objekten nicht eingegangen.
+%
+\paragraph{Passiv-persistente Objekte}
+%
+In der Originalversion wird auf passiv-persistente Objekte mit
+\swizzling\ zugegriffen.  Die transiente \representation{} eines
+passiv-persistenten Objektes wird entweder explizit durch einen Aufruf
+einer entsprechenden Funktion geladen oder implizit erzeugt, wenn das
+passiv-persistente Objekt von einer zu ladenden Instanz referenziert
+wird. Auf die transienten \representations{} kann mit den \"{u}blichen
+\cl\ Funktionen zugegriffen werden. Der Abgleich zwischen der
+transienten und persistenten \representation{} eines
+passiv-persistenten Objektes erfolgt explizit durch Aufruf einer
+entsprechenden Funktion.
+%
+\paragraph{Aktiv-persistente Instanzen}
+%
+F\"{u}r Instanzen von aktiv-persistenten Klassen erfolgt der Zugriff auf
+den Objektzustand in der Originalversion \"{u}ber Methoden der
+\gfn[n]en\ \stfn{slot-\ldots-using-class}, die auf die
+\clsmc\ \class{dbclass}\ spezialisiert sind.
+Die transiente \representation{} mit dem Zustand des Objektes wird
+beim ersten Zugriff auf den Objektzustand alloziert; f\"{u}r lokalisierte
+Objekte wird der Zustand aus der persistenten in 
+die transiente \representation{} kopiert (Abschnitt~\ref{sec:sohaor},
+\citepage{\pageref{sec:sohaor}}). Die
+\spc[n]\ Zugriffs-\mtd[n]\ referenzieren je nach
+Repr\"{a}sentations-Modus der Instanz die transiente oder persistente
+\representation.
+%
+\subsection{Lokalisierung}%
+\label{sec:sohloc}%
+%
+\subsubsection{Passiv-persistente Objekte}
+%
+In der Originalversion k\"{o}nnen lediglich die vom Subsystem
+\store\ verwalteten pas\-siv-per\-si\-sten\-ten Objekte mit der dort
+vergebenen \objid\/ lokalisiert werden.
+%
+\subsubsection{Aktiv-persistente Instanzen}
+%
+In \soh\ k\"{o}nnen aktiv-persistente Instanzen inhaltsorientiert
+lokalisiert werden. Realisiert ist in der Originalversion die
+M\"{o}glichkeit, alle Objekte einer aktiv-persistenten Klasse mit einem
+bestimmten \Slt-Zustand zu suchen.
+%
+%\subsection{Speicherr\"{u}ckgewinnung}
+%
+%\soh\ bietet im Moment keine Freigabe von persistenten Objekten an; ein
+%einmal persistent gemachtes Objekt kann nicht durch \soh\ direkt
+%aus der Datenbank entfernt werden. Aus diesem Grund hat \soh\ auch
+%keine garbage collection f\"{u}r persistente Objekte.
+%
+\subsection{Datenbank-Konzepte in \protect\soh}
+%
+Durch die Verwendung von \postgres\ als persistenten Speicher w\"{u}rden
+sich prinzipiell umfangreiche M\"{o}glichkeiten zur Datenmanipulation
+ergeben; die Originalversion nutzt weder die angebotenen
+M\"{o}glichkeiten noch werden sie den BenutzerInnen von \soh\ zur
+Verf\"{u}gung gestellt.
+%
+%\subsubsection{Konsistenz}
+%
+%\subsubsection{Konkurrenter Zugriff}
+%
+%
+%\subsubsection{Komplexe Anfragen}
+%
+%
+%\subsubsection{Schemaentwicklung}
+%
+%\"{A}nderungen an \clsmo[en]\ werden von \soh\ nicht unterst\"{u}tzt;
+%zwar bietet sich die M\"{o}glichkeit, ein ge\"{a}ndertes \clsmo\ erneut
+%in der Datenbank abzuspeichern; die entsprechenden Instanz-Relationen
+%werden aber nicht ver\"{a}ndert, d.h.\ durch eine \"{A}nderung an einem
+%\clsmo\ wird die Datenbank inkonsistent.
+%
+%\par Dieser Umstand entsteht in erster Linie aus den Schwierigkeiten,
+%die eine relationale Datenbank mit dem Hinzuf\"{u}gen oder L\"{o}schen von
+%Attributen in eine Relation hat.
+%
+\section{Zusammenfassung und Bewertung}
+%
+\soh\ realisiert Persistenz f\"{u}r \cl\ Objekte unter Verwendung der
+er\-wei\-tert-re\-la\-tio\-na\-len Datenbank \postgres.  Die in
+\cite{bib:ro87} vorgestellte Konzeption und die vorliegende
+Originalversion unterscheiden sich zum Teil betr\"{a}chtlich;
+insbesondere wurde die in der Konzeption vorgeschlagene Nutzung der
+M\"{o}glichkeiten von \postgres\ nicht realisiert. Die in der Konzeption
+nur andeutungsweise erl\"{a}uterte Verarbeitung von passiv-persistenten
+Instanzen wird durch das nur zum Teil in \soh\ integrierte Subsystem
+\store\ realisiert.
+%
+\par{}Meine abschlie\ss{}ende Feststellung ist, da\ss{} \soh\ in der
+vorliegenden Realisierung f\"{u}r den beabsichtigten Einsatz nicht
+geeignet ist:
+\begin{itemize}
+%
+\item Durch die \representation{} von \Slt[s]\/ durch statisch typisierte
+Attribute in der Datenbank m\"{u}ssen in aktiv-persistenten Objekten die
+\Slt[s]\/ ebenfalls statisch typisiert werden.
+%
+\item Passiv-persistente Objekte werden als unevaluierte S-Ausdr\"{u}cke
+gespeichert; die Generierung der S-Ausdr\"{u}cke und ihre \"{U}bertragung in
+die Datenbank ist sehr aufwendig. Von mir durchgef\"{u}hrte Messungen
+ergaben eine \"{U}bertragungsrate von ca.\ 50~Byte/Sekunde. Damit dauert
+das Speichern einer durch 84 Zeichen repr\"{a}sentierten {\em
+cons\/}-Zelle (\tablename~\ref{tab:bsplocal}, Zeile \attr{local}{loid}\
+CONS4711, \citepage{\pageref{tab:bsplocal}}) bereits 1,68~Sekunden.
+%
+\item Die Referenzen eines Objektes sind bei passiv-persistenten
+Objekten implizit in den das Objekt repr\"{a}sentierenden unevaluierten
+S-Ausdruck eingebettet; die Aufl\"{o}sung einer Referenz bedingt die
+Materialisierung des Objektes im transienten Speicher. Durch die damit
+beanspruchten Ressourcen kann das Traversieren gro\ss{}er Objektgraphen
+(z.B.\ zur Speicherr\"{u}ckgewinnung von passiv-persistenten Objekten
+\"{u}ber Erreichbarkeit durch ak\-tiv-""per\-si\-sten\-te Objekte)
+unm\"{o}glich werden.
+%
+\item Die gew\"{a}hlte \representationform{} f\"{u}r Objekte \"{u}ber die
+Evaluierung von S-Ausdr\"{u}cken macht eine sinnvolle Nutzung der von der
+Datenbank angebotenen Manipulationskriterien unm\"{o}glich; da in einer
+Objektrepr\"{a}sentation in der relationalen Datenbank nicht der
+Objektzustand selbst, sondern seine \rglq{}Umschreibung\rgrq\ enthalten
+ist, kann die Datenbank nicht nach dem Objektzustand selbst suchen.
+Die in \cite[\citepage{2}]{bib:ro87} gef\"{u}hrte Argumentation der
+Nutzung der Datenbankfunktionalit\"{a}ten ist damit hinf\"{a}llig.
+%
+\end{itemize}
+Die vorliegende Originalversion wurde mit dem Objektsystem
+\pcl\ erstellt, aus dem sp\"{a}\-ter \clos\ hervorging.
+Es wird oft auf \pcl\ Interna zur\"{u}ckgegriffen; eine
+vollst\"{a}ndige Anpassung an den \clos\ \std\ w\"{a}re nur durch eine
+erneute Realisierung der in \cite{bib:ro87} geschilderten Konzepte
+m\"{o}glich gewesen. Da ich die Probleme der Integration einer
+relationalen Datenbank in ein persistentes System f\"{u}r \cl\ Objekte
+f\"{u}r gr\"{o}\ss{}er halte als die sich ergebenden Vorteile, verfolgte ich
+diesen Weg nicht weiter.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

@@ -1,0 +1,73 @@
+%	This is -*-LaTeX-*-
+%
+% 10.8.94
+%
+\input{diagdefs}%
+%
+\newsavebox{\oibox}\sbox{\oibox}{\oi}%
+%
+\newlength{\colw}\setlength{\colw}{2em}%
+\newlength{\lineh}\setlength{\lineh}{\ht\oibox}%
+\setlength{\lineh}{0.8\lineh}%
+\def\colsep{2ex}
+%
+\def\rlineh{\rule{0em}{\lineh}}%
+% Um die drei Punkte aus jeder Box zu entfernen, folgende Zeile
+% auskommentieren ...
+\def\etcetc{\text{\textrm{\ldots}}}
+% ... und folgende aktivieren:
+%\def\etcetc{}
+%
+\def\mkbox#1#2{%
+\makebox[\colw]{\rlineh#1}
+\save\go[#2,0]\merge\framed<5pt>\restore}%
+\def\hr{\makebox[\colw]{%
+\rlineh%
+\hrulefill}}
+%
+\def\ptr#1{%
+\makebox[\colw]{%
+\rlineh%
+\hspace*{\fill}\raisebox{0.25\lineh}{$\bullet$}}%
+\save\go[0,0]+<\cR,0ex>#1+<-1.3\stdomargin,0ex>\restore}%
+%
+\def\begptr{\ptr{\xline}}%
+\def\dotptr{\ptr{\xdotted}}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{\colsep}%
+\objectmargin{\stdomargin}%
+%
+\begin{diagram}%
+%
+\mkbox{\noi}{3}%
+	&&\mkbox{}{4}%
+		&&\etcetc\\
+\hr%
+	&&\hr\\
+\begptr\xto'[0,1]+<0ex,0em>'[-2,1]+<0ex,0em>[-2,2]%
+	&&\dotptr\xdotted'[0,1]+<0ex,0em>'[-2,1]+<0ex,0em>[-2,2]|>\tip
+		&&&&\mkbox{\noii}{2}\\
+\etcetc%
+	&&\begptr\xto[0,2]%
+		&&\mkbox{}{4}
+			&&\hr&\\
+\save\Drop{\rule{0em}{2ex}\text{\textrm{\footnotesize{}Wurzel}}}\restore%
+	&&\etcetc%
+		&&\hr
+			&&\etcetc\\
+		&&&&\begptr\xto'[0,1]+<0ex,0em>'[-3,1]+<0ex,0em>[-3,2]
+			&&\\
+		&&&&\dotptr\xdotted'[0,1]+<0ex,0em>'[1,1]+<0ex,0em>[1,2]|>\tip
+			&\\
+		&&&&\etcetc
+			&&\etcetc&\\
+\rule{0em}{2ex}\\
+\save\go[0,0]+<15em,0ex>\Drop{\parbox{30em}{\footnotesize{}%
+\oi: Wurzelobjekt\quad\oii: Lokalisiertes Objekt\\[\smallskipamount]
+$\rightarrow$: Lokalisierungspfad
+}}\restore%
+\end{diagram}%

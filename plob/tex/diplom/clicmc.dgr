@@ -1,0 +1,94 @@
+%       This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\newlength{\colsep}\setlength{\colsep}{3em}
+\newlength{\coliw}\setlength{\coliw}{5em}
+\newlength{\coliiw}\setlength{\coliiw}{9.5em}
+\newlength{\coliiiw}\setlength{\coliiiw}{10.5em}
+\def\classof{{\footnotesize class-of}}
+%
+\newlength{\blskip}\setlength{\blskip}{\baselineskip}%
+%
+\newsavebox{\cleg}\sbox{\cleg}{\mkcleg}%
+%
+\newlength{\ctxtw}
+\setlength{\ctxtw}{\coliw}%
+\addtolength{\ctxtw}{2\colsep}%
+\addtolength{\ctxtw}{4\stdomargin}%
+\addtolength{\ctxtw}{\coliiw}%
+\addtolength{\ctxtw}{\coliiiw}%
+\addtolength{\ctxtw}{1em}%
+\addtolength{\ctxtw}{-\wd\cleg}%
+\newsavebox{\ctxt}\sbox{\ctxt}{\parbox{\ctxtw}{\small%
+%
+Struktur und Verhalten einer Instanz \oi\ wird durch ihr
+\clsmo\ \oii\ festgelegt; es enth\"{a}lt \ua\ eine Liste der
+\slt[s]\ \oiii, eine Klassen-Pr\"{a}zedenzliste \oiv\ und eine Liste der
+Methoden \ov. Die Struktur der Klasse \oii\ selbst wird durch ihr
+\clsmo\ \ovi\ definiert. Sie enth\"{a}lt \ua\ ebenfalls eine Liste der
+\slt[s]\ \ovii, eine Klassen-Pr\"{a}zendenzliste \oiix\ und eine Liste
+der Methoden \oix.%
+%
+}}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{\colsep}%
+\objectmargin{\stdomargin}%
+%\objectwidth{\smltxtw}%
+%
+\newlength{\templ}
+\def\bracenl{%
+\settowidth{\templ}{{\rm\oi\ }(}\\{}\hspace*{\templ}}
+%
+\begin{diagram}
+%
+\parbox{\coliw}{\centering\makebox[0em]{\oi\ \class{employee}}}%
+\save\go[4,0]\merge\framed<5pt>\restore%
+        &\parbox{\coliiw}{\centering\oii\ \class{standard-class}}
+         \save\go[6,0]\merge\framed<5pt>\restore%
+                &\parbox{\coliiiw}{\centering\ovi\ \class{standard-class}}%
+                 \save\go[6,0]\merge\framed<5pt>\restore%
+                 \stolu^{\Text{\textrm{\classof}\\{}\rule{0em}{1.4\blskip}}}\\
+\makebox[\coliw]{\hrulefill}
+\save\go+<\cR,0em>\xto[0,1]!<-\cL,0em>_{\text{\textrm{\classof}}}\restore%
+        &\makebox[\coliiw]{\hrulefill}
+         \save%
+         \go+<\cR,0em>\xto[0,1]!<-\cL,0em>_{\text{\textrm{\classof}}}%
+         \restore%
+                &\makebox[\coliiiw]{\hrulefill}\\
+\parbox{\coliw}{\centering\lisp{\dq\nameii\dq}}
+        &\parbox{\coliiw}{\oiii\ \lisp{(name salary)}}
+                &\parbox{\coliiiw}{\ovii\ \lisp{(slots super-\bracenl%
+                                                 classes methods)}}\\
+\makebox[\coliw]{\dotfill}
+        &\makebox[\coliiw]{\dotfill}
+                &\makebox[\coliiiw]{\dotfill}\\
+\parbox{\coliw}{\centering\tt{}3000}
+        &\parbox{\coliiw}{\oiv\ \lisp{(employee\bracenl%
+                                       std-obj t)}}
+                &\parbox{\coliiiw}{\oiix\ \lisp{(standard-class\bracenl%
+                                                 class std-obj t)}}\\
+        &\makebox[\coliiw]{\dotfill}
+                &\makebox[\coliiiw]{\dotfill}\\
+\text{\textrm{Instanz}}
+        &\parbox{\coliiw}{\ov\ \lisp{(print-object)}}
+                &\parbox{\coliiiw}{\oix\ \lisp{(make-instance)}}\\
+\\
+        &\Text{\textrm{\std-\clss-}\\{}\textrm{\mo}}
+                &\Text{\textrm{\std-\clss-}\\{}\textrm{\mo}}\\
+\rule{0em}{1em}\\
+%
+% Erlaeuterungen:
+\rule{0em}{\ht\ctxt}%
+\save\go+<-0.5\coliw,0em>+<-\stdomargin,0em>+<0.5\ctxtw,0em>%
+\Drop{\usebox{\ctxt}}\restore
+% Legende:
+                &&\save%
+                  \go+<+0.5\coliiiw,0em>+<\stdomargin,0em>%
+                  +<-0.5\wd\cleg,0em>%
+                  \Drop{\usebox{\cleg}}\restore
+%
+\end{diagram}

@@ -1,0 +1,180 @@
+% This is -*-LaTeX-*-
+%
+\ifbericht
+\title{%
+Persistenz in der objekt-orientierten
+Programmiersprache \clos\ am Beispiel
+des \plob\ Systems}
+\else\ifbuch
+\title{%
+{\large Heiko Kirschke}\\[1.5em]%
+Persistenz in objekt-orientierten
+Programmier-\\
+sprachen am Beispiel von \clos}
+\else
+\title{%
+Persistenz in objekt-orientierten
+Programmier-\\
+sprachen am Beispiel von \clos%
+\\[\bigskipamount]
+{\rm\large Diplomarbeit}}
+\fi\fi
+%
+\ifbuch\else\author{%
+Heiko Kirschke\ifbericht\else%
+%\\Beim Alten Sch\\"{u}tzenhof 4\\22083 Hamburg%
+\\[3em]
+%
+Betreuung:\\[\smallskipamount]
+Prof.\ Dr.\ Leonie Dreschler-Fischer\\
+Universit\"{a}t Hamburg\\
+Fachbereich Informatik\\
+Arbeitsbereich Kognitive Systeme\\[\smallskipamount]
+%
+und\\[\smallskipamount]
+%
+Dr.\ Volker Haarslev\\
+Universit\"{a}t Hamburg\\
+Fachbereich Informatik\\
+Arbeitsbereich Kognitive Systeme\\[\bigskipamount]
+%
+\vfill%
+{\small Universit\"{a}t Hamburg $\bullet$
+Fachbereich Informatik $\bullet$
+Vogt-K\"{o}lln-Stra\ss{}e 30 $\bullet$
+22527 Hamburg}\fi}
+\fi%\ifbuch
+%
+\maketitle
+%
+\thispagestyle{empty}\clearpage%
+%
+\ifbuch\else\par\noindent\centerline{\textbf{\Large Zusammenfassung}}
+%
+\vspace*{\smallskipamount}\par
+Die bisher gebr\"{a}uchliche Methode zum Speichern von langlebigen,
+strukturierten Daten ist die Benutzung einer Datenbank, die den
+BenutzerInnen Datentypen und Operationen \"{u}ber die abgelegten Daten
+zur Verf\"{u}gung stellt. Neben der Anfragesprache bietet eine Datenbank
+oft eine Schnittstelle zu einer Programmiersprache an. Diese
+Schnittstelle stellt lediglich die Funktionalit\"{a}t der Datenbank zur
+Verf\"{u}gung, richtet sich \ia\ jedoch nicht nach den Konzepten der
+Programmiersprache, die die Datenbank verwendet.  Eine L\"{o}sung dieses
+Problems besteht darin, die Trennung zwischen Datenbank und
+Programmiersprache aufzuheben, d.h.\ die Datenbankkonzepte m\"{o}glichst
+vollst\"{a}ndig in eine Programmiersprache zu integrieren. In diesem
+Bericht wurde der Ansatz untersucht und realisiert, das
+\cl\ Object System um Persistenz zu erweitern.
+%
+\vspace*{2\bigskipamount}%
+\par\noindent\centerline{\textbf{\Large Abstract}}
+%
+\vspace*{\smallskipamount}\par
+The common approach used for storing longlived structured data is to
+employ a relational database which provides its users with types for
+structuring data and operations to manipulate them. Along with its
+data definition and manipulation language, a database often offers an
+interface to a general programming language. This interface is a
+possibility to access the database's functionality, but it neglects
+the concepts of the programming language using the database.  A
+solution of this problem is to remove the dichotomy between a database
+and a programming language, i.e.\ to integrate the concepts of a
+database into the general programming language. This report presents
+research done on persistency and a realization of extending the
+\cl\ Object System by persistency.
+%
+\vspace*{2cm}%
+%
+\par\noindent\textit{Schl\"{u}sselw\"{o}rter}\ --
+Persistenz, objekt-orientierte Datenbank, persistente Objekte,
+persistente \clos-Objekte.
+%
+\vspace*{\smallskipamount}%
+%
+\par\noindent\textit{Index Terms}\ --
+Persistency,
+object-oriented database,
+persistent objects,
+persistent \clos\ objects.
+%
+\vspace*{3cm}
+%
+\begin{small}%
+\ifbericht\else
+\par\noindent%
+Eine leicht gek\"{u}rzte Fassung dieser Diplomarbeit ist als Bericht
+FBI-HH-B-\thisreportnumber/95 beim Fachbereich Informatik der
+Universit\"{a}t Hamburg erh\"{a}ltlich.\\[\medskipamount]
+\fi%
+\par\noindent%
+EMail-Adresse des Autors:
+\texttt{kirschke@informatik.uni-hamburg.de}
+\par\noindent%
+World Wide Web:
+\texttt{http://lki-www.informatik.uni-hamburg.de/%
+\td{}kirschke/home.html}
+\end{small}
+\thispagestyle{empty}\clearpage%
+\fi%\ifbuch
+%
+% 13.09.93: Der Lichtenberg-Spruch wird nur ausgegeben, wenn \nothink
+% eingeschaltet ist, d.h. wenn ein Text ohne Kommentare erzeugt werden
+% soll.
+\ifdothink\else%
+%
+\thispagestyle{empty}\cleardoublepage%
+%
+\vspace*{\fill}
+\begin{fortune}
+Es ist fast mit der Mathematik wie mit der Theologie. So wie die der
+letzteren Beflissenen, zumal wenn sie in \"{A}mtern stehen, Anspruch auf
+einen besonderen Kredit von Heiligkeit und eine n\"{a}here Verwandschaft
+mit Gott machen (obgleich sehr viele darunter wahre Taugenichtse sind),
+so verlangt sehr oft der sogenannte Mathematiker f\"{u}r einen tiefen
+Denker gehalten zu werden, ob es gleich darunter die gr\"{o}\ss{}ten
+Plunderk\"{o}pfe gibt, die man nur finden kann, untauglich zu irgendeinem
+Gesch\"{a}ft, das Nachdenken erfordert, wenn es nicht unmittelbar durch
+jene leichte Verbindung von Zeichen geschehen kann, die mehr das Werk
+der Routine als des Denkens sind.
+%\from{Georg Christoph Lichtenberg \cite[S.\ 46]{li50}}
+\from{Georg Christoph Lichtenberg}
+\end{fortune}
+%
+\fi
+\ifbericht\else\ifbuch\else%
+\thispagestyle{empty}\clearpage%
+%
+\vspace*{100pt}\par\noindent Die Erstellung dieser Arbeit w\"{a}re ohne die
+Liebe und das Vertrauen meiner Frau Nicola nicht m\"{o}glich gewesen; ihr
+ist diese Arbeit gewidmet.
+%
+\bigskip\par\noindent Danken m\"{o}chte ich meiner Betreuerin Frau
+Prof.\ Dr.\ Leonie Dreschler-Fischer f\"{u}r die Anregung zum Thema
+dieser Arbeit; mein Dank gilt Herrn Dr.\ Volker Haarslev f\"{u}r die
+\"{U}bernahme der Zweitbetreuung.
+%
+\par Herr Carsten Schr\"{o}der hat mir durch seine kompetente
+Un\-ter\-st\"{u}t\-zung sehr geholfen; dies begann mit den ersten
+Hinweisen auf interessante Literatur und setzte sich fort mit der
+Un\-ter\-st\"{u}t\-zung bei der Einarbeitung in das Thema und die
+verwendeten Systeme. Seine konstruktiven Rat\-schl\"{a}\-ge flossen an
+vielen Stellen sowohl in die schriftliche Darstellung meiner Konzepte
+in dieser Arbeit als auch in deren Realisierung ein. Daf\"{u}r bin ich
+ihm zu gro\ss{}em Dank verpflichtet.
+%
+\par Viele andere Mitarbeiter des Fachbereichs Informatik haben mich
+ebenfalls unterst\"{u}tzt; danken m\"{o}chte ich Herrn Harald Lange f\"{u}r die
+Durchsicht meines ersten Entwurfs und Herrn Ralf M\"{o}ller f\"{u}r die
+Hinweise, die er mir zukommen lie\ss{}. Last but not least m\"{o}chte ich
+mich bei Frau Ingeborg Heer-M\"{u}ck und Herrn J\"{o}rn Tellkamp f\"{u}r den
+reibungslosen Betrieb der Rechner des Arbeitsbereiches Kognitive
+Systeme bedanken.
+%
+\fi\fi%
+\thispagestyle{empty}\clearpage%
+\thispagestyle{empty}\cleardoublepage
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

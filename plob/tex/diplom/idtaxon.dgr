@@ -1,0 +1,74 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\def\Nultext#1{\save\Drop{\Text{#1}}\restore}
+\def\Xtext#1{\save\go!<0ex,1em>\Drop{\Text{#1}}\restore}
+\def\vbar{\left|\right.}%
+%
+\newlength{\rowsep}
+\newlength{\colsep}
+%
+%\setlength{\rowsep}{3.5em}%
+\setlength{\rowsep}{4em}%
+%\setlength{\colsep}{7.5ex}%
+\setlength{\colsep}{8.5ex}%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramrows{\rowsep}
+\spreaddiagramcolumns{-2pc}
+\spreaddiagramcolumns{\colsep}
+\objectmargin{0em}
+%
+\begin{diagram}
+%
+&\Nultext{\textsc{Zustands-}\\{}\textsc{Unabh\"{a}ngigkeit}}
+ &&&\save%
+    \Drop{\parbox{3\colsep}{\footnotesize\raggedleft%
+     Transiente\\Identit\"{a}tsrepr.}}%
+    \restore%
+  &&&\save
+     \Drop{\parbox{3\colsep}{\footnotesize\raggedright%
+      Persistente\\Identit\"{a}tsrepr.}}%
+     \restore\\
+%
+\Nultext{\textrm{V\"{o}llig}\\{}\textrm{unab-}\\{}\textrm{h\"{a}ngig}}
+ &\Nultext{\textrm{---}}
+  &\Nultext{\textrm{Phys.}\\{}\textrm{Adres-}\\{}\textrm{se}}
+   &\Nultext{\textrm{Virt.}\\{}\textrm{Adres-}\\{}\textrm{se}}
+    &\Nultext{\textrm{Indir.}\\{}\textrm{phys.}\\{}\textrm{Adr.}}
+     &\Nultext{\textrm{Indir.}\\{}\textrm{virt.}\\{}\textrm{Adr.}}
+      &\Nultext{\textrm{Struk-}\\{}\textrm{turier-}\\{}\textrm{te
+                Be-}\\{}\textrm{zeichner}}
+       &\Nultext{\textrm{Objekt}\\{}\textrm{Sur-}\\{}\textrm{rogate}}\\
+%
+\Nultext{\textrm{Zustandsun-}\\{}\textrm{abh.,\ z.T.\ %
+struk}\\{}\textrm{turabh\"{a}ngig}}
+ &\Nultext{\textrm{---}}
+  &&&&&&\Nultext{\textrm{Tupel-}\\{}\textrm{Surrogate}}\\
+%
+%\Nultext{\textrm{Zustands-}\\{}\textrm{unabh.,}\\{}\textrm{Struktur-}\\{}\textrm{abh\"{a}ngig}}
+\Nultext{\textrm{Zustandsun-}\\{}\textrm{abh., struk-}\\{}\textrm{turabh\"{a}ngig}}
+ &\Nultext{\textrm{---}}
+  &&&&&&\Nultext{\textrm{Tupel-}\\{}\textrm{Bezeichner}}\\
+%
+\Nultext{\textrm{Zustands-}\\{}\textrm{abh.,\ struk-}\\{}\textrm{turabh\"{a}ngig}}
+ &\Nultext{\textrm{---}}
+  &&&&&&\Nultext{\textrm{Benutzer-}\\{}\textrm{definierte}\\{}\textrm{Bezeichner}}\\
+%
+&\xto[-5,0]+<0ex,-2em>%
+ \xto[0,7]+<-6ex,0em>
+ &\vbar&\vbar&\vbar
+  &\vbar\save\go+<0.5\colsep,-0.5em>\xdotted[-5,0]+<0.5\colsep,1em>\restore
+   &\vbar&\vbar
+    &\Nultext{\textsc{Umgebungs-}\\{}\textsc{unabh\"{a}n-}\\{}\textsc{gigkeit}}\\
+%
+&&\Xtext{\textrm{Nicht}\\{}\textrm{ver-}\\{}\textrm{schieb-}\\{}\textrm{bar}\\{}\ }
+  &\Xtext{\textrm{Seite}\\{}\textrm{in}\\{}\textrm{virt.}\\{}\textrm{Adre\ss{}-}\\{}\textrm{raum}}
+   &\Xtext{\textrm{Objekt}\\{}\textrm{in}\\{}\textrm{phys.}\\{}\textrm{Adre\ss{}-}\\{}\textrm{raum}}
+    &\Xtext{\textrm{Objekt}\\{}\textrm{in}\\{}\textrm{virt.}\\{}\textrm{Adre\ss{}-}\\\textrm{raum}}
+     &\Xtext{\textrm{Objekt}\\{}\textrm{auf}\\{}\textrm{Platte}\\{}\textrm{oder}\\{}\textrm{Rechner}}
+      &\Xtext{\textrm{V\"{o}llig}\\{}\textrm{unab-}\\{}\textrm{h\"{a}ngig}\\{}\
+      \\{}\ }
+%
+\end{diagram}

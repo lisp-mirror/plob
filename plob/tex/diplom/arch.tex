@@ -1,0 +1,839 @@
+% This is -*-LaTeX-*-
+%
+\chapter{Architekturkonzepte von persistenten Objektsystemen}%
+\label{chap:arch}
+%
+\begin{fortune}
+Beware of the Turing tar-pit in which everything is possible but
+nothing of interest is easy.
+\from{A.\ J.\ Perlis: Epigrams on Programming}
+% SIGPLAN Notices, Sept. 1982, S. 7-13
+\end{fortune}
+%
+In diesem Kapitel werden verschiedene Architekturkonzepte von
+persistenten Objektsystemen er\-l\"{a}u\-tert. Die verschiedenen
+M\"{o}glichkeiten zum Gesamtaufbau eines persistenten Systems werden
+erkl\"{a}rt und es werden die letztendlich im weiteren Verlauf
+\ifbericht dieses Berichtes \else\ifbuch dieses Buches \else der
+Arbeit \fi\fi betrachteten Architekturen von persistenten
+Objektsystemen in \clos\ festgelegt; f\"{u}r diese Architekturen
+werden verschiedene, im Zusammenhang mit \cl\ wichtige Konzepte
+vorgestellt.
+%
+\section{Systemarchitektur}
+%
+F\"{u}r die Systemarchitektur von persistenten Systemen gibt es je nach
+Anforderung verschiedene Realisierungsans\"{a}tze.
+%
+\subsection{Verwendung von getrennten Subsystemen}
+%
+Der oft verwendete Weg zur Herstellung von Persistenz besteht darin,
+innerhalb einer Applikation zus\"{a}tzlich zu einem
+transienten Objektsystem einen persistenten Speicher einzubinden
+(\figurename~\ref{fig:hperlay}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/hperlay.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/hperlay.eps}}%
+\fi%
+\caption{Aufbau eines persistenten Systems mit getrennten
+Subsystemen}\label{fig:hperlay}%
+\end{figure}%
+%
+Dabei werden f\"{u}r die Komponenten der untersten Schicht bereits
+vorhandene Systeme verwendet. Die komplette Verwaltung der
+persistenten Datenobjekte liegt in der Applikationsschicht. Dort
+m\"{u}ssen die beiden Subsysteme integriert werden und erfordern
+\ia\ f\"{u}r jede einzelne Applikation eine aufwendige spezielle
+L\"{o}sung, insbesondere da sich oft die Konzepte von Objektsystem und
+Applikation einerseits und persistentem Speicher andererseits nicht
+decken.
+%
+\par{}Der Vorteil dieser L\"{o}sung ist die schnelle Verf\"{u}gbarkeit der
+verwendeten unteren Komponenten, da sie bereits vorhanden sind. Die
+Qualit\"{a}t der in der Applikationsschicht vorzunehmenden Integration
+der beiden Subsysteme ist in erster Linie von der Erfahrung des
+Applikationserstellers abh\"{a}ngig. Ebenso ist sie sowohl auf die
+jeweilige Applikation als auch auf das f\"{u}r den persistenten Speicher
+verwendete Subsystem spezialisiert.
+%
+\par{}Beispiele f\"{u}r diese Art von persistenten Systemen sind die
+Verwendung von \cpp\ oder \clos\ als transientes Objektsystem und
+einer Datei oder Datenbank als persistenten Speicher. In
+Programmiersprachen
+\gande{eingebettete Datenbanksprachen}{embedded database
+languages}\ fallen ebenfalls unter diese Kategorie; sie bieten aber
+bereits eine teilweise Integration in die verwendete
+Programmiersprache an.
+%
+\par{}In den meisten unter \unix\ realisierten \cl-Systemen gibt es
+als Hilfsmittel f\"{u}r Persistenz die M\"{o}glichkeit, den \gande{aktuellen
+Zustand des laufenden \cl-Prozesses in einer (meist sogar direkt
+ausf\"{u}hrbaren) Datei zu sichern}{workspace dump}; in dieser Datei
+befinden sich s\"{a}mtliche Objekte des gesicherten Prozesses im Zustand
+zum Zeitpunkt der Sicherung. Diese Datei kann dann zu einem sp\"{a}teren
+Zeitpunkt wieder geladen werden; damit werden auch die gesicherten
+Objekte wiederhergestellt. Diese Art der Sicherung umfa\ss{}t immer alle
+im laufenden Proze\ss{} vorhandene Objekte; einzelne Speicherungen sind
+nicht m\"{o}glich. Selektionsm\"{o}glichkeiten \"{u}ber Objekte in dieser Datei
+sind nicht gegeben.
+%
+\par{}Die durch Verwendung von getrennten Subsystemen erreichte
+Persistenz ist weder orthogonal noch transparent; Funktionalit\"{a}ten
+\"{u}ber persistente Objekte m\"{u}ssen f\"{u}r jede Applikation neu
+erstellt werden. Insgesamt gesehen scheidet damit diese Art der
+Persistenz f\"{u}r den im Rahmen \ifbericht dieses Berichtes
+\else\ifbuch dieses Buches \else dieser Arbeit \fi\fi beabsichtigten
+Zweck aus.
+%
+\subsection{Vollst\"{a}ndig integrierte Systeme}%
+\label{sec:arcis}%
+%
+Vollst\"{a}ndig integrierte Systeme (\figurename~\ref{fig:operlay}) bieten
+Persistenz auf einem hohen Niveau. Eine auf einem solchen System
+erstellte Applikation ist von oberer Sicht aus nicht auf spezielle
+Hilfsmittel f\"{u}r persistente Objekte angewiessen.
+%
+\begin{figure}[hbtp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/operlay.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/operlay.eps}}%
+\fi%
+\caption{Aufbau eines vollst\"{a}ndig integrierten persistenten
+Systems}\label{fig:operlay}%
+\end{figure}%
+%
+Die Verwaltung der persistenten Objekte befindet sich nicht mehr wie
+beim ersten Ansatz in der Applikationsschicht, sondern wurde in die
+unteren beiden Schichten verlagert. Damit entf\"{a}llt auch die
+Notwendigkeit, f\"{u}r jede Applikation eine spezielle L\"{o}sung zu
+erstellen.
+%
+\par{}Ein Nachteil ist der hohe Aufwand f\"{u}r die Erstellung eines
+vollst\"{a}ndig persistenten Objektsystems. Eine effiziente Realisierung
+wird \ia\ auch nur dann erreicht, wenn auf Persistenz
+spezialisierte Rechnerarchitekturen verwendet werden.
+%
+\par{}Um den Aufwand f\"{u}r die Erstellung eines solchen Systems zu
+verringern, k\"{o}nnte beispielsweise ein transientes Objektsystem
+f\"{u}r eine Rechnerarchitektur mit nicht-fl\"{u}chtigem Speicher (wie
+CMOS-RAM mit autarker Stromversorgung) angepa\ss{}t werden. Ebenso lie\ss{}e
+sich in ein transientes System ein persistenter Objektspeicher
+integrieren (siehe z.B.\ \cite[\citepage{12}]{bib:mu91}). Da
+viele der bisher realisierten Objektsysteme nicht f\"{u}r Persistenz
+ausgelegt sind, ist ein optimales System nur durch einen kompletten
+Neuentwurf m\"{o}glich.
+%
+\par{}Damit scheidet dieser Ansatz ebenfalls aus, da ein bereits
+vorhandenes \clos-System um Persistenz erweitert werden soll; die
+vollst\"{a}ndige Integration von Persistenz wie in
+\cite[\citepage{12}]{bib:mu91} geschildert ist hier nicht
+durchf\"{u}hrbar, da ein derartiger Ansatz die Modifikation der unteren
+Schichten des Systems voraussetzt, in das Persistenz integriert werden
+soll, und dies f\"{u}r das vorgegebene \clos-System nicht m\"{o}glich ist.
+%
+\subsection{Teilweise integrierte Systeme}
+%
+Teilweise integrierte Systeme verbinden die beiden ersten Ans\"{a}tze.
+Sie bestehen aus einem persistenten
+Objektsystem, das seinerseits wieder auf einem transienten
+Objektsystem beruht. Als Hilfsmittel zur Herstellung von Persistenz
+wird ein nicht-fl\"{u}chtiger Speicher benutzt
+(\figurename\ \ref{fig:rperlay}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/rperlay.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/rperlay.eps}}%
+\fi%
+\caption{Aufbau eines teilweise integrierten persistenten
+Systems}\label{fig:rperlay}%
+\end{figure}%
+%
+Das persistente Objektsystem ist kein eigenst\"{a}ndiges System, sondern
+erweitert das vorhandene transiente System. Deswegen kann f\"{u}r
+fl\"{u}chtige Objekte von einer Applikation weiterhin direkt das
+transiente Objektsystem verwendet werden. Ebenso stehen die im
+transienten Objektsystem realisierten Konzepte auch f\"{u}r persistente
+Objekte zur Verf\"{u}gung. Die Verwaltung der
+persistenten Objekte erfolgt wie beim zweiten Ansatz nicht in der
+Applikationsschicht, sondern im persistenten Objektsystem.
+%
+\par{}Es ergeben sich f\"{u}r teilweise integrierte Systeme die gleichen
+Vorteile wie bei den vollst\"{a}ndig integrierten Systemen. Zus\"{a}tzlich
+l\"{a}\ss{}t sich der Aufwand f\"{u}r die Realisierung eines solchen Systems
+relativ klein halten, da man f\"{u}r das transiente Objektsystem und den
+persistenten Speicher bereits vorhandene Komponenten verwenden kann.
+Um eine hohe Orthogonalit\"{a}t zwischen dem transienten und persistenten
+Objektsystem zu erhalten, wird das persistente System meist in der
+gleichen Programmiersprache wie das transiente System realisiert.
+%
+\par{}Alle in \ifbericht diesem Bericht \else\ifbuch diesem Buch
+\else dieser Arbeit \fi\fi betrachteten Systeme beruhen auf diesem
+Ansatz. Als transientes Objektsystem wird \clos\ verwendet. Das
+persistente Objektsystem ist ebenfalls in \clos\ realisiert; einige
+Systeme benutzen hier zus\"{a}tzlich in anderen Programmiersprachen
+verfa\ss{}te Subsysteme. Der persistente Speicher ist je nach System
+unterschiedlich; einige benutzen komplexe Subsysteme, wie relationale
+und objekt-orientierte relationale Datenbanken (wie beispielsweise
+\pclos\ \cite{bib:pa91a} und \soh\ \cite{bib:ro87}), andere verwenden
+Objektspeicher und einfache Dateien (wie beispielsweise \wood\ 
+\cite{bib:wo93} und \plob\ [\citepage{\pageref{chap:plob}}]).
+%
+\section{Persistenter Speicher}
+%
+Die im Rahmen \ifbericht dieses Berichtes \else\ifbuch dieses Buches
+\else dieser Arbeit \fi\fi betrachteten persistenten Systeme verwenden
+entweder eine relationale Datenbank oder einen Objektspeicher als
+persistenten Speicher.
+%
+\subsection{Relationale Datenbank als persistenter Speicher}
+%
+Relationale Datenbanken sind im Bereich der Speicherung und
+Manipulation von Daten sehr m\"{a}chtig; viele Realisierungen von
+persistenten Objektsystemen vertreten daher den Ansatz, als
+persistenten Speicher eine relationale Datenbank zu verwenden
+(\figurename~\ref{fig:hlsecst}).
+%
+\begin{figure}[hbtp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/hlsecst.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/hlsecst.eps}}%
+\fi%
+\caption{Persistentes Objektsystem mit relationaler
+Datenbank}\label{fig:hlsecst}%
+\end{figure}%
+%
+\par{}Im Rest dieses Abschnittes werden die Argumente f\"{u}r und gegen
+diese Vorgehensweise diskutiert. Die hier getroffenen Aussagen sind
+generell gehalten; auf spezielle Aspekte wird sp\"{a}ter in diesem
+Kapitel eingegangen.
+%
+\subsubsection{Einfache Abbildung zwischen Objektsystem- und
+Da\-ten\-bank-Kon\-zep\-ten}%
+%
+Die Hoffnung bei dieser Vorgehensweise ist zum einen, die im
+transienten Objektsystem realisierten Konzepte m\"{o}glichst einfach auf
+entsprechende Datenbank-Konzepte abbilden zu k\"{o}nnen und zum anderen
+die von der Datenbank angebotenen M\"{o}glichkeiten auch f\"{u}r das
+persistente Objektsystem verf\"{u}gbar zu machen.
+%
+\par{}Die Konzepte von \clos\ einerseits und relationalen Datenbanken
+andererseits unterscheiden sich stark. Aus den in
+Abschnitt~\ref{sec:rdb} (\citepage{\pageref{sec:rdb}}) geschilderten
+Eigenheiten einer relationalen Datenbank folgt, da\ss{} die \"{U}bertragung
+des Objektmodells von \clos\ auf das relationale Datenmodell
+Schwierigkeiten bieten wird, sofern orthogonale Persistenz angestrebt
+wird.
+%
+\par{}Reale Entit\"{a}ten werden in relationalen Datenbanken zu
+Relationen und in \clos\ zu Klassen abstrahiert; damit ergeben sich
+die in \tablename~\ref{tab:objvsdb} %
+%
+\begin{figure}[htbp]\centering%
+\begin{\figurefontsize}%
+\begin{tabular}{|c|c|}%
+\hline
+\tabularheader{Objektsystem}
+                &\tabularheader{Relationale Datenbank}\\
+\hline\hline
+\cls            & Relation      \\
+Instanz         & Tupel         \\
+Effektiver \Slt & Attribut      \\
+\hline
+\end{tabular}%
+\end{\figurefontsize}%
+\let\figurename\tablename%
+\caption{Datenstrukturen in Objektsystem und Datenbank}%
+\label{tab:objvsdb}%
+\end{figure}%
+%
+dargestellten Zusammenh\"{a}nge. Der \Slt\/-Zustand eines \clos-Objektes
+kann einen Wert oder ein dynamisch typisiertes Objekt referenzieren;
+in relationalen Datenbanken ist nur genau ein einfacher, auf Werte
+festgelegter Bereich f\"{u}r ein Attribut erlaubt.  Deswegen sollte der
+\Slt\/-Zustand so in einem Attribut repr\"{a}sentiert werden, da\ss{} aus
+der Repr\"{a}sentation dynamisch der Typ des repr\"{a}sentierten Objektes
+hervorgeht und so \ua\ eine Unterscheidung zwischen referenziertem
+Wert und referenzierter Instanz m\"{o}glich wird.  Eine derartige
+\representationform{} kann dazu f\"{u}hren, da\ss{} der Zustand des
+repr\"{a}sentierten Objektes so konvertiert werden mu\ss{}, da\ss{} er von der
+relationalen Datenbank in seiner urspr\"{u}nglichen Bedeutung nicht mehr
+erfa\ss{}t werden kann und deswegen ihre Manipulationsm\"{o}glichkeiten f\"{u}r
+persistente Objekte nicht vern\"{u}nftig genutzt werden k\"{o}nnen. Dies
+kann nur vermieden werden, wenn der Objektzustand selbst und keine aus
+einer Konvertierung hervorgangene Repr\"{a}sentation daf\"{u}r in der
+Datenbank abgelegt wird. Da Attribute statisch auf einfache Bereiche
+festgelegt werden m\"{u}ssen, wirkt sich dies auf persistente Objekte
+r\"{u}ckwirkend dahingehend aus, da\ss{} ihre \Slt[s]\/ ebenfalls statisch
+auf einen einfachen Basistyp typisiert werden m\"{u}ssen, der zu einem
+einfachen Bereich des Datenbanksystems korrespondiert; damit geht
+allerdings die Orthogonalit\"{a}t des persistenten Systems verloren.
+%
+\par{}Eine Abbildung der Konzepte ist entweder nur mit sehr
+hohem Aufwand m\"{o}glich oder zieht Einschr\"{a}nkungen nach sich, die f\"{u}r
+einzelne Applikationen dazu f\"{u}hren k\"{o}nnen, da\ss{} die Verwendung eines
+derartig realisierten persistenten Objektsystems ausscheidet
+\cite[\citepage{305}]{bib:broe89} \cite[\citepage{52}]{bib:ni88}.
+%
+\subsubsection{Verlagerung des {\em impedance mismatch}}%
+%
+In jeder Applikation, die eine relationale Datenbank direkt benutzt,
+mu\ss{} ein Teil des Codes nur erstellt werden, um den {\em impedance
+mismatch\/} zwischen Applikation einerseits und relationaler Datenbank
+andererseits auszugleichen. Bei der Verwendung eines persistenten
+Objektsystems unter Benutzung einer relationalen Datenbank als
+persistenten Speicher wird der {\em impedance mismatch\/} von allen
+Applikationen in das persistente Objektsystem verlagert, so da\ss{} er
+f\"{u}r die BenutzerInnen des persistenten Systems weitestgehend
+verschwindet; lediglich die AutorInnen des persistenten Objektsystems
+m\"{u}ssen sich um eine L\"{o}sung des Problems bem\"{u}hen.
+%
+\par{}Eine hinreichend generelle L\"{o}sung dieses Problems innerhalb des
+persistenten Objektsystems mu\ss{} sowohl definiert als auch (m\"{o}glichst
+effizient) realisiert werden; der Aufwand daf\"{u}r kann sehr hoch
+werden.
+%
+\subsubsection{Effizienz}%
+%
+Die Entwicklung von relationalen Datenbanken ist weit fortgeschritten;
+inzwischen sind relationale Datenbanken erh\"{a}ltlich, die zum einen der
+Definition nach Codd gen\"{u}gen und au\ss{}erdem \"{u}ber effiziente
+M\"{o}glichkeiten der Daten-Haltung und -Manipulation verf\"{u}gen. Damit
+wird zum einen die Realisierung eines persistenten Objektsystems
+beschleunigt (da eine vorhandene Datenbank benutzt wird) und zum
+anderen k\"{o}nnen die persistenten Instanzen effektiv manipuliert
+werden.
+%
+\par{}Dies funktioniert nur, wenn die \og[en]\ Einschr\"{a}nkungen
+akzeptabel sind, die aus der Abbildung zwischen
+\clos- und Datenbank-Konzepten resultieren.
+%
+\subsection{Objektspeicher und Datei als persistenter Speicher}%
+\label{sec:objstore}
+%
+Ein Objektspeicher bietet Persistenz auf \rglq{}niedrigem\rgrq\ Niveau
+(\figurename~\ref{fig:llsecst}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/llsecst.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/llsecst.eps}}%
+\fi%
+\caption{Persistentes Objektsystem mit
+Objektspeicher}\label{fig:llsecst}%
+\end{figure}%
+%
+Er ist lediglich in der Lage, \cl-Daten in einer Datei abzulegen und
+auf diese mit im Vergleich zu einer relationalen Datenbank sehr
+bescheidenen Konstrukten zuzugreifen. Die M\"{o}glichkeit zur Typbildung
+wie in relationalen Datenbanken ist nicht vorhanden; die im
+Objektspeicher enthaltenen Daten sind auf Objektspeicherebene nicht
+typisiert. Ein Objektspeicher wird oft auch als persistenter
+\heap\ bezeichnet, da er \"{a}hnlich wie ein transienter
+\heap\ realisiert wird.
+%
+\subsubsection{Referenzen zwischen Objekten}%
+%
+Innerhalb des Objektspeichers werden Objekte durch Datens\"{a}tze
+repr\"{a}sentiert. Dem Objektspeicher wird mitgeteilt, welche
+Bestandteile eines Datensatzes als Referenz auf (andere) Datens\"{a}tze
+und welche als Werte zu interpretieren sind; die Aufteilung in
+Referenzen und Werte wird aus der Strukturbeschreibung des Objektes
+abgeleitet.  Damit sind wie in transienten Objektsystemen Referenzen
+zwischen denen durch die Datens\"{a}tze repr\"{a}sentierten Objekte
+innerhalb des Objektspeichers m\"{o}glich. Durch die explizite
+Repr\"{a}sentation von Referenzen gen\"{u}gt ein Objektspeicher nicht dem
+relationalen Modell.
+%
+\subsubsection{Effizienz}%
+%
+Der Aufwand f\"{u}r die Konvertierung eines Objektzustands in eine Form,
+die vom Objektspeicher verarbeitet werden kann, ist \ia\ gering.
+Objektzust\"{a}nde k\"{o}nnen teilweise unver\"{a}ndert zwischen
+Objektspeicher und persistentem Objektsystem ausgetauscht werden;
+lediglich f\"{u}r Referenzen m\"{u}ssen Konvertierungen vorgenommen werden.
+%
+\par{}Die im Objektspeicher abgelegten Daten werden bis auf die
+Referenzen nicht weiter interpretiert oder besonders verarbeitet.
+%
+\subsubsection{Wahl der Strukturen im Objektspeicher}%
+%
+Da die Zust\"{a}nde der Datens\"{a}tze vom Objektspeicher nicht weiter
+interpretiert werden, lassen sie sich mit beliebigen Strukturen
+anlegen; insbesondere k\"{o}nnen die Strukturen so gew\"{a}hlt werden, da\ss{}
+sie sich an dem transientem System orientieren, das den Objektspeicher
+benutzt. Damit kann der {\em impedance mismatch\/} bez\"{u}glich der
+Datenrepr\"{a}sentation zwischen \clos\ und Objektspeicher vermieden
+werden, da f\"{u}r Zust\"{a}nde innerhalb des Objektspeichers die jeweilige
+Repr\"{a}sentation des \cl-Systems verwendet werden kann. Eine
+direkte \"{U}bernahme der Zust\"{a}nde bedeutet aber, da\ss{} ebenfalls die
+Interpretation der Zust\"{a}nde, so wie sie im  verwendeten \cl-System
+festgelegt ist, implizit mit \"{u}bernommen wird; wenn an den
+persistenten Speicher verschiedene persistente Objektsysteme
+angebunden werden sollen, mu\ss{} die jeweilige Interpretation des
+Zustands den verschiedenen Systemen bekannt sein.
+%
+\subsubsection{Speicherr\"{u}ckgewinnung}%
+\addglossary{Speicherr\"{u}ckgewinnung}[garbage collection]%
+[Freigabe des Speicherplatzes von nicht-erreichbaren Objekten.]
+Da Objektspeicher Referenzen zwischen den in ihnen enthaltenen
+Datens\"{a}tzen erm\"{o}glichen, l\"{a}\ss{}t sich innerhalb eines Objektspeichers
+eine auf Erreichbarkeit basierende Speicherr\"{u}ckgewinnung realisieren
+(siehe Abschnitt~\ref{sec:gc}).
+%
+\subsubsection{Typfreiheit der Daten innerhalb des Objektspeichers} Ein
+Objektspeicher schreibt dem benutzenden
+System keine bestimmten Typisierungskonzepte vor. Die fehlenden Konzepte
+k\"{o}nnen auf einer h\"{o}heren Ebene (hier im persistenten Objektsystem)
+realisiert werden, die dann dem benutzenden System (hier \clos)
+angepa\ss{}t werden k\"{o}n\-nen.
+%
+%
+\section{Lebensdauer von Objekten}
+%
+Die Definition der Lebensdauer von Objekten erfolgt analog zu der
+Festlegung in \cl\ \stcite{43}, da\ss{} jedes Objekt eine unendlich lange
+Lebensdauer hat. Wenn das (persistente) System beweisen kann, da\ss{} ein
+Objekt nicht transitiv von einem Wurzelobjekt aus erreichbar ist, darf
+es gel\"{o}scht werden (\figurename~\ref{fig:reachabl}). %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/reachabl.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/reachabl.eps}}%
+\fi%
+\captionfrom%
+ {Erreichbarkeit von Objekten}%
+ {\cite[\citepage{245}]{bib:th90}}%
+ \label{fig:reachabl}%
+\end{figure}%
+%
+Ein erreichbares Objekt \rglq{}wird noch gebraucht\rgrq\ und darf vom
+System nicht gel\"{o}scht werden.
+%
+\subsection{Lebensdauer in relationalen Datenbanken}
+%
+Innerhalb einer rein relationalen Datenbank kann die Lebensdauer von
+Daten nicht \"{u}ber ihre Erreichbarkeit definiert werden, da die
+Datenbank die in ihr enthaltenen Referenzen zwischen den Tupeln nicht
+explizit repr\"{a}sentiert. Das L\"{o}schen von Tupeln in relationalen
+Datenbanken ist nur \"{u}ber explizite Aufrufe entsprechender Funktionen
+durch die BenutzerInnen m\"{o}glich; zus\"{a}tzlich mu\ss{} dabei von den
+BenutzerInnen sichergestellt werden, da\ss{} keine
+\gande{ung\"{u}ltigen Referenzen}{dangling references}%
+\addglossary{Ung\"{u}ltige Referenz}[dangling reference][Eine
+un\-g\"{u}l\-ti\-ge Referenz ist eine
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion, die kein g\"{u}ltiges Objekt
+referenziert.]\ auf bereits gel\"{o}schte Objekte
+entstehen. Beispielsweise k\"{o}nnen in dem auf einer relationalen
+Datenbank basierendem persistenten Objektsystem \pclos\ Objekte
+explizit ge\-l\"{o}scht werden, das System \"{u}berpr\"{u}ft aber nicht, ob auf
+das gel\"{o}schte Objekt noch Referenzen existieren
+\cite[\citepage{18}]{bib:pa91a}.
+%
+\subsection{Speicherr\"{u}ckgewinnung}%
+\label{sec:gc}%
+%
+\begin{fortune}[11cm]
+\hfill\begin{tabular}{lp{9cm}}
+Don:    & I didn't know you had a cousin Penelope, Bill!  Was she
+          pretty?\\
+W.\ C.: & Well, her face was so wrinkled it looked like seven miles of
+          bad road.  She had so many gold teeth, Don, she use
+% Aus /usr/games/lib/fortunes.dat; da steht wirklich ,,use'', nicht
+% das korrekte ,,used''
+          {\em (sic!)\/} to have to sleep with her head in a safe.
+          She died in Bolivia.\\
+Don:    & Oh Bill, it must be hard to lose a relative.\\
+W.\ C.: & It's almost impossible.
+\end{tabular}
+\from{W.\ C.\ Fields: %
+ \rglqq{}The Further Adventures of Larson
+ E.\ Whipsnade and other Tarradiddles\rgrqq}
+\end{fortune}
+%
+Die Speicherr\"{u}ckgewinnung hat die Aufgabe, nicht erreichbare Objekte
+zu finden und den von ihnen allozierten Speicherplatz freizugeben.
+Aktiviert wird sie durch Eintritt einer Vorbedingung, wie z.B.\ bei
+einem bestimmten F\"{u}llungsgrad des Speichers oder w\"{a}hrend
+\gande{Freizeiten}{idle times}%
+\addglossary{Freizeiten}[idle time]%
+[Zeitabschnitte, in denen kein Proze\ss{} aktiv ist.]\ des Systems.
+Damit ein System feststellen kann, ob ein Objekt erreichbar ist oder
+nicht und damit gel\"{o}scht werden kann, mu\ss{} es Referenzen zwischen den
+in ihm enthaltenen Objekten explizit repr\"{a}sentieren k\"{o}nnen.  Bei der
+Begrenzung der Lebensdauer von Objekten \"{u}ber ihre Erreichbarkeit
+sollte zur Vermeidung von inkonsistenten Referenzen auf eine nach
+au\ss{}en zur Verf\"{u}gung gestellte explizite L\"{o}schoperation f\"{u}r Objekte
+verzichtet werden; ein Objekt wird durch nicht-referenzieren f\"{u}r das
+Objektsystem als zu l\"{o}schendes Objekt gekennzeichnet.
+%
+\par{}Eine Speicherr\"{u}ckgewinnung f\"{u}r persistente Objekte mu\ss{}
+innerhalb des persistenten Objektsystems oder des persistenten
+Speichers realisiert werden, da \ia\ die
+Spei\-cher\-r\"{u}ck\-ge\-win\-nung des transienten Objektsystems nicht
+f\"{u}r persistente Objekte genutzt werden kann.
+%
+\par{}Die in \ifbericht diesem Bericht \else\ifbuch diesem Buch \else
+dieser Arbeit \fi\fi betrachteten persistenten Objektsysteme haben
+entweder keine Speicherr\"{u}ckgewinnung oder realisieren sie
+ebenfalls mittels Erreichbarkeit. Realisierte Vorgehensweisen f\"{u}r
+R\"{u}ckgewinnung von persistentem Speicher lassen sich nach dem
+Zeitpunkt ihres Geschehens in zwei Gruppen einteilen. Bei der ersten
+Gruppe findet eine R\"{u}ckgewinnung von persistentem Speicher zur
+\online\ Zeit statt, w\"{a}hrend der der persistente Speicher durch
+ein persistentes Objektsystem benutzt wird. Die zweite Gruppe
+f\"{u}hrt eine R\"{u}ckgewinnung zur \offline\ Zeit durch, w\"{a}hrend
+der der persistente Speicher nicht genutzt wird.
+%
+\subsection{Keine R\"{u}ckgewinnung von persistentem Speicher}
+%
+Das Fehlen einer Speicherr\"{u}ckgewinnung ist oft durch die Konzepte des
+zur Realisierung verwendeten persistenten Speichers begr\"{u}ndet. Bei
+Verwendung einer relationalen Datenbank als persistenten Speicher
+stellt sich das Problem, da\ss{} die Datenbank keine Referenzen der in
+ihr enthaltenen Daten explizit re\-pr\"{a}\-sen\-tie\-ren kann; damit
+m\"{u}ssen Referenzen zwischen persistenten Objekten auf einer h\"{o}heren
+Ebene innerhalb des persistenten Objektsystems realisiert
+werden. Daf\"{u}r werden Konstrukte gew\"{a}hlt, die zwar sehr effizient ein
+persistentes Objekt mit allen von ihm referenzierten Objekten
+materialisieren k\"{o}nnen, bei denen aber die Ermittlung der von einem
+persistenten Objekt lediglich referenzierten Objekte eben genau diese
+Materialisierung bedingt.
+%
+Eine R\"{u}ckgewinnung von persistentem Speicher wurde aus diesen
+Gr\"{u}nden bei den in \ifbericht diesem Bericht \else\ifbuch diesem
+Buch \else dieser Arbeit \fi\fi betrachteten Systemen, die eine
+Datenbank als persistenten Speicher nutzen, nicht realisiert.
+%
+% Alter Text; von A. Gawecki mit dem Attribut ,,naiv'' belegt:
+%Bei einer Speicherr\"{u}ckgewinnung w\"{u}rden also alle im persistenten
+%Speicher abgelegten Objekte in den transienten Speicher geladen
+%werden; da der persistente Speicher oft wesentlich gr\"{o}\ss{}er als der
+%zur Verf\"{u}gung stehende transiente Speicher ist, wird eine
+%Speicherr\"{u}ckgewinnung unm\"{o}glich.
+%
+\subsection{R\"{u}ckgewinnung von persistentem Speicher zur
+\online\ Zeit}
+%
+Eine R\"{u}ckgewinnung zur Laufzeit einer Applikation hat den Vorteil
+einer hohen Verf\"{u}gbarkeit des persistenten Speichers, da es keine
+Ausfallzeiten gibt. Nicht erreichbare Objekte werden noch zur Laufzeit
+als freier Speicher erkannt; damit wird eine gute Ausnutzung des
+persistenten Speichers erreicht.
+%
+\par{}Persistente Objektsysteme lassen aus Effizienzgr\"{u}nden oft
+direkte Referenzen von Variablen oder Objekten des transienten Systems
+auf persistente Objekte zu; damit kann es bei einer
+Speicherr\"{u}ckgewinnung zu Problemen kommen, wenn ein persistentes
+Objekt zwar von einer transienten Variablen bzw.\ einem transienten
+Objekt referenziert wird, diese Rerefenz aber nicht im Wurzelobjekt
+\rglq{}eingetragen\rgrq\ ist (\figurename~\ref{fig:gctrpe}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/gctrpe.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/gctrpe.eps}}%
+\fi%
+\caption{Erreichbarkeit eines persistenten Objektes \"{u}ber eine Variable
+des transienten Systems}\label{fig:gctrpe}%
+\end{figure}%
+%
+Eine vom persistenten Objektsystem durch\-ge\-f\"{u}hr\-te R\"{u}ckgewinnung
+von persistentem Speicher w\"{u}rde in diesem Beispiel die Objekte
+\ov\ und \ovi\ als nicht erreichbare Objekte markieren und als freien
+Speicher erneut zur Verf\"{u}gung stellen, obwohl sie von der
+(transienten) Variablen \lisp{P}\ referenziert werden.
+%
+\par{}Zur Vermeidung einer solchen Situation mu\ss{} das persistente
+Objektsystem eine Konvention oder ein Protokoll f\"{u}r seine
+Speicherr\"{u}ckgewinnung festlegen. Eine Konvention k\"{o}nnte so aussehen,
+da\ss{} solche Referenzen unber\"{u}cksichtigt bleiben. Ein Protokoll w\"{u}rde
+z.B.\ festlegen, da\ss{} die Speicherr\"{u}ckgewinnung explizit und synchron
+durch die BenutzerInnen aktiviert wird; in diesem Beispiel f\"{u}hrt eine
+R\"{u}ckgewinnung von persistentem Speicher zur \online\ Zeit durch das
+von den BenutzerInen einzuhaltende Protokoll zu einer verringert
+transparenten Persistenz.
+%
+\subsection{R\"{u}ckgewinnung von persistentem Speicher zur
+\offline\ Zeit}
+%
+Diese Art der Speicherr\"{u}ckgewinnung kann nur dann durchgef\"{u}hrt
+werden, wenn keine Applikation den persistenten Speicher benutzt.
+Dies setzt voraus, da\ss{} es solche Zeiten \"{u}berhaupt gibt. Au\ss{}erdem
+ist der persistente Speicher w\"{a}hrend der Speicherr\"{u}ckgewinnung nicht
+verf\"{u}gbar.
+%
+\par{}Nicht erreichbare Objekte werden zur Laufzeit einer
+Applikation nicht als freier persistenter Speicher zur
+Verf\"{u}gung gestellt; damit kann ein \"{U}berlauf des persistenten
+Speichers auftreten, obwohl gen\"{u}gend nicht erreichbare
+Objekte vorhanden sein k\"{o}nnten.
+%
+\par{}Vorteilhaft ist, da\ss{} bei dieser Art der Speicherr\"{u}ckgewinnung
+keine Probleme mit Referenzen des transienten Systems auf persistente
+Objekte auftreten k\"{o}nnen; ein Protokoll zwischen transientem und
+persistentem Objektsystem ist nicht notwendig. Der Zeitpunkt der
+Spei\-cher\-r\"{u}ck\-ge\-win\-nung kann so gelegt werden, da\ss{} die zur
+Verf\"{u}gung stehenden Ressourcen besser oder intensiver genutzt werden
+k\"{o}nnen.  Insbesondere verbraucht sie dann keine Ressourcen, die
+ansonsten einer Applikation zugute kommen w\"{u}rden. Damit kann sie
+neben ihrer eigentlichen Aufgabe auch Optimierungen innerhalb des
+persistenten Speichers vornehmen, wie z.B.\ \gande{nahe Gruppierung
+von Objekten bei ihren referenzierten Objekten}{clustering}[Nahe
+Gruppierung von Objekten bei ihren referenzierten Objekten.].
+%
+\section{Typisierung der \protect\objid}
+%
+F\"{u}r \immval[s]\/ kann eine \objid\/ den gesamten Objektzustand selbst
+enthalten.  F\"{u}r alle anderen Objekte existiert eine \objid\/ nur in
+Verbindung mit einem Datenobjekt, da sie ausschlie\ss{}lich zur
+Identit\"{a}tsrepr\"{a}sentation des dazugeh\"{o}rigen Objektes dient. In
+beiden F\"{a}llen hat eine \objid\/ selbst den Charakter eines
+Wertes,\footnote{Als Identit\"{a}tsrepr\"{a}sentation nehme man
+beispielsweise die Speicheradresse eines Objektes an. Der erste Fall
+entspricht der Situation, da\ss{} ein \immval\/ keine Adresse hat. Im
+zweiten Fall wird ausgesagt, da\ss{} nur existierende Objekte eine
+Adresse haben und da\ss{} diese Adresse selbst keine Adresse hat.}
+allerdings keines \rglq{}gew\"{o}hnlichen\rgrq\ Wertes im Sinne einer
+Instanz der in einem Objektsystem angebotenen Typen oder Klassen,
+sondern eine \objid\/ wird als Repr\"{a}sentation f\"{u}r die Identit\"{a}t
+eines Datums interpretiert. Diese Eigenschaft sollte sich soweit
+m\"{o}glich in der tats\"{a}chlich gew\"{a}hlten Repr\"{a}sentation f\"{u}r
+\objid[s]\ selbst wiederfinden. Im Sinne eines Objektsystems mit
+Identit\"{a}tsrepr\"{a}sentation sollte damit
+der Typ f\"{u}r \objid[s]\ \rglq{}neben\rgrq\ allen anderen Typen
+bzw.\ Klassen stehen. In \cite[\citepage{325}]{bib:be87} wird
+der Benutzung von \objid[s]\ die Bedeutung einer
+\gande{\rglq{}Meta-Ebene\rgrq}{metalevel}\ zugewiesen.
+%
+\par{}Bei Realisierung eines persistenten Systems mittels eines
+vorhandenen transienten Systems ist man f\"{u}r die Wahl einer
+geeigneten Repr\"{a}sentation f\"{u}r \objid[s]\ selbst auf die
+M\"{o}glichkeiten des transienten Systems angewiesen. Ein solches System
+bietet zum einen \rglq{}eingebaute\rgrq\ Basistypen und -klassen, deren
+Instanzen z.T.\ Werte oder \immval[s]\/ sind, und
+zum anderen die M\"{o}g\-lich\-keit, \rglq{}h\"{o}here\rgrq\ Typen oder
+Klassen zu definieren.
+%
+\par{}Kennzeichnend f\"{u}r Basisklassen, deren Instanzen als Werte oder
+\immval[s]\/ angesehen werden, ist, da\ss{} jede von ihnen f\"{u}r ihre
+Instanzen eine eigene, sehr spezielle Datenrepr\"{a}sentation hat. Ebenso
+fehlt den Basisklassen im Gegensatz zu den \rglq{}h\"{o}heren\rgrq\ Klassen
+die M\"{o}glichkeit zur Subklassenbildung. Vorteilhaft ist die hohe
+Effizienz ihrer Instanzen bez\"{u}glich Speicherplatz und Verarbeitung.
+Bei allen \rglq{}h\"{o}heren\rgrq\ Klassen hingegen werden einander
+\"{a}hn\-li\-che In\-stanz\-re\-pr\"{a}\-sen\-ta\-tio\-nen verwendet, bei
+denen ein Teil allen Instanzen aller Klassen gemeinsam ist und der
+restliche Teil aus der Stellung der jeweiligen Klasse in der
+Klassenhierarchie abgeleitet wird.
+%
+\par\Objid[s]\ sollten m\"{o}glichst effizient realisiert werden. Damit
+bietet es sich an, den Typ f\"{u}r \objid[s]\ innerhalb des persistenten
+Objektsystems aus den bereits vorhandenen Basistypen f\"{u}r Werte oder
+\immval[s]\/ des transienten Systems abzuleiten. Da eine
+Subklassenbildung nicht in Frage kommt,
+wird aus den Basistypen eine m\"{o}glichst einfache Struktur als Typ f\"{u}r
+\objid[s]\ festgelegt.  Die aus diesem Typ gebildeten
+\objid[s]\ m\"{u}ssen f\"{u}r das Objektsystem als solche erkennbar sein,
+d.h.\ sie m\"{u}ssen sich entweder von \rglq{}normalen\rgrq\ Werten von
+Basistypen unterscheiden oder aus dem Kontext, in dem sich der Wert
+befindet, mu\ss{} hervorgehen, da\ss{} er als \objid\/ oder als
+\rglq{}normaler\rgrq\ Wert verstanden werden soll.  Wenn als Typ f\"{u}r
+\objid[s]\ z.B.\ Zeichenketten verwendet werden (siehe auch letztes
+Beispiel in \tablename~\ref{tab:exhandle},
+\citepage{\pageref{tab:exhandle}}), mu\ss{} entweder aus einer
+Zeichenkette hervorgehen, ob sie als \rglq{}normale\rgrq{} Zeichenkette
+oder als \objid\/ verstanden werden soll oder die Zeichenkette mu\ss{}
+sich in einem Kontext befinden, in dem ihre Bedeutung festgelegt ist.
+%
+\section{Strukturbeschreibungen}
+%
+Um den Zustand eines Objektes im persistenten Speicher abzulegen, mu\ss{}
+die Struktur des Objektes bekannt sein. F\"{u}r m\"{o}glichst transparente
+Persistenz sollte diese Information nicht beim Ablegen des Objektes im
+persistenten Speicher f\"{u}r jede Instanz explizit angegeben werden
+m\"{u}ssen, sondern sie sollte aus der die Struktur des Objektes
+definierenden Klasse bestimmt werden. Bei Realisierung eines
+persistenten Systems, das auf einem vorhandenem transientem System
+beruht, sollten daher Informationen \"{u}ber die Klasse der persistent zu
+haltenden Objekte verf\"{u}gbar sein. Programmiersysteme lassen sich
+nach Verf\"{u}gbarkeit und Art von Strukturbeschreibungen einteilen.
+%
+\subsection{Keine Verf\"{u}gbarkeit der Strukturbeschreibungen}%
+%
+In den klassischen Programmiersprachen wie \pascal\ und
+\clogo\ sowie den darauf zum Teil basierenden objekt-orientierten
+Sprachen wie \cpp\ und \eiffel\ werden Strukturbeschreibungen
+ausschlie\ss{}lich vom \gande{\"{U}bersetzer}{compiler}[]\ generiert und
+benutzt. Zur Laufzeit kommen diese transienten Systeme mit sehr
+marginalen Typmerkmalen aus, wie z.B.\ der Gr\"{o}\ss{}e der Instanzen f\"{u}r
+Allozierung von Objekten auf dem \heap\/; weitere Informationen sind
+nicht notwendig und werden demzufolge auch nicht repr\"{a}sentiert.
+%
+\subsection{Statische Strukturbeschreibungen}%
+%
+Statische Strukturbeschreibungen werden w\"{a}hrend der \"{U}bersetzung
+erzeugt. Sie werden haupt\-s\"{a}ch\-lich in Objektsystemen verwendet,
+die eine der \og[en]\ klassischen Sprachen mit typisierten Variablen
+und nur eingeschr\"{a}nkt typisierten Datenobjekten um Persistenz
+erweitern.
+%
+\par{}Einige \"{U}bersetzer bieten die M\"{o}glichkeit, die intern erzeugten
+Strukturbeschreibungen \rglq{}nach au\ss{}en hin\rgrq\ verf\"{u}gbar zu machen
+und zus\"{a}tzlich die Datenobjekte zu typisieren.  Die generierten
+Strukturbeschreibungen werden dann zur Laufzeit vom persistenten
+Objektsystem eingelesen und erm\"{o}glichen in Verbindung mit der
+Typisierung der Datenobjekte eine Ermittlung ihrer
+Strukturbeschreibung und damit eine Zerlegung der Instanzen in ihre
+Komponenten. Ein Beispiel f\"{u}r diese Vorgehensweise ist das
+Texas-System \cite[\citepage{147}]{bib:skw93}, das von
+\gnu\ \cpp\ erzeugte Typinformationen und typisierte Datenobjekte
+benutzt.
+%
+\par{}Diese Erweiterung erm\"{o}glicht zwar typisierte Datenobjekte und
+Strukturbeschreibungen, gleich\-zei\-tig treten damit aber
+Inkonsistenzen mit der urspr\"{u}nglich definierten Sprachsemantik
+auf. Der Typ eines Objektes geht in diesem Fall nicht mehr wie bisher
+aus der Variablendeklaration zur \"{U}bersetzungszeit, sondern aus der
+Typinformation des Datenobjektes zur Laufzeit hervor; diese
+Bedeutungs\"{a}nderung wird von solchen Erweiterungen \ia\ nicht
+ber\"{u}cksichtigt.
+%
+\par{}Andere auf den \og[en]\ Sprachen basierende persistente
+Objektsysteme verwenden
+\gande{\protect\mbox{(Vor-)}\"{U}bersetzer}{(pre-)compiler}, die die
+ben\"{o}tigten Strukturbeschreibungen aus dem Quellcode ermitteln.
+Zus\"{a}tzlich modifizieren oder erweitern sie den Quellcode f\"{u}r
+den nachfolgenden \"{U}bersetzerlauf so, da\ss{} die in diesen
+Sprachen urspr\"{u}nglich fehlende Laufzeitunterst\"{u}tzung f\"{u}r
+Persistenz durch das persistente Objektsystem m\"{o}glich wird.
+Beispiele f\"{u}r diese Art von Persistenz sind {\em E\/}
+\cite[\citepage{175, 181}]{bib:ri89} und OBST \cite{bib:uhl93}.
+%
+\par{}Kennzeichnend bei diesen Systemen ist, da\ss{} die statischen
+Strukturbeschreibungen nicht in die verwendete Programmiersprache
+integriert sind; in vielen persistenten Systemen werden die
+Strukturbeschreibungen auch nicht zur Laufzeit explizit benutzt oder
+repr\"{a}sentiert, sondern finden sich lediglich implizit wieder,
+z.B.\ durch von einem Vor\"{u}bersetzer vorgenommene \"{A}n\-de\-run\-gen
+oder Erweiterungen des Quellcodes. 
+%
+\par{}Die so erreichte Persistenz verlangt eine strenge Disziplin beim
+Erstellen von Quellcodes, die das persistente Objektsystem benutzen,
+da sich aus der Verwendung von statisch typisierten
+Variablenbezeichern zur Repr\"{a}sentation von dynamisch typisierten
+Datenobjekten Widerspr\"{u}che oder Versionskonflikte ergeben k\"{o}nnen. Je
+nach verwendeter Programmiersprache d\"{u}rfen einige Konstrukte f\"{u}r
+persistente Daten nicht benutzt werden, da sie die f\"{u}r das
+persistente Objektsystem ermittelten statischen Typ-Informationen
+invalidieren w\"{u}rden (z.B.\ \gande{Typwandlungen}{type casts}\ und
+\gande{variante Verbunde}{unions}\ in derartig um Persistenz
+erweitertem \cpp; diese Konstrukte erm\"{o}glichen es einem Objekt, bei
+statisch ermittelter Typinformation den Typ zur Laufzeit zu wechseln
+und sind damit widerspr\"{u}chlich).
+%
+\subsection{Dynamische Strukturbeschreibungen}%
+%
+In Systemen mit typisierten Datenobjekten werden oft auch ihre Klassen
+explizit repr\"{a}sentiert, da sie zur Laufzeit die Realisierung von
+Sprachkonzepten (wie Polymorphie, \"{A}nderungen innerhalb der
+Klassenhierarchie zur Laufzeit) unterst\"{u}tzen oder sonstige Vorteile
+bieten, wie z.B.\ einfachere Introspektionsm\"{o}glichkeiten f\"{u}r
+Datenobjekte. Ein persistentes Objektsystem kann damit die vom
+transienten System verwalteten Typinformationen benutzen, um den
+Zustand von Instanzen in seine Bestandteile zu zerlegen.
+%
+\subsection{Strukturbeschreibungen von \protect\cl\ Daten}%
+%
+In reinem \cl\ sind zwar die Datenobjekte typisiert, im Gegensatz zu
+\clos\ liegen aber keine expliziten Strukturbeschreibungen von
+\cl\ Daten vor, sondern sie sind in das jeweilige System
+\rglq{}eingebaut\rgrq. Direkte Informationen \"{u}ber diese
+Strukturbeschreibungen sind damit im \cl-System nicht vorhanden; dies
+bedeutet, da\ss{} sie anderweitig beschafft werden m\"{u}ssen, z.B.\ durch
+entsprechende \cl\ Spezifikationen wie in
+\cite{bib:st90}, Auswertung der Funktionen f\"{u}r den Zugriff auf den
+Objektzustand, Offenlegung der Strukturbeschreibungen durch die
+AutorInnen des \cl-Systems oder, schlimmstenfalls, durch Untersuchung
+einer der verwendeten \representationforms\ von Instanzen eines Typs
+mit Ableitung der ben\"{o}tigten Informationen daraus. Beispiele f\"{u}r
+verschiedene \cl\ Daten und ihre Strukturbeschreibungen sind:
+%
+\begin{description}
+%
+\item[{\em cons\/}-Zelle] Eine {\em cons\/}-Zelle besteht aus
+zwei Referenzen {\em car\/} und {\em cdr}.
+%
+\item[Symbol] Ein Symbol besteht aus einer Referenz auf seine externe
+Repr\"{a}sentation (Namen), einer Referenz auf seinen Wert, einer
+Referenz auf sein Funktionsobjekt und einer Referenz auf seine
+{\em Property\/}-Liste.
+%
+\item[Felder] Fast alle relevanten Informationen \"{u}ber
+\gande{Felder}{arrays}\ k\"{o}nnen \"{u}ber
+\gande{Feld-In\-for\-ma\-tions\-funk\-tio\-nen}%
+{array information functions}\ erfragt werden; aus den von diesen
+Funktionen zur\"{u}ckgegebenen Werten kann daher implizit eine
+Strukturbeschreibung f\"{u}r Felder generiert werden.
+%
+\end{description}
+%
+Die derartig erlangten Strukturbeschreibungen von reinen \cl\ Daten
+sind statisch; da nicht zu erwarten ist, da\ss{} sich die in
+\cite{bib:st90} gegebenen Definitionen von Basistypen signifikant
+\"{a}ndern werden,  sind keine Inkompatibilit\"{a}ten der
+Sturkturbeschreibungen \"{u}ber die Zeit zu bef\"{u}rchten.
+%
+\subsection{Strukturbeschreibungen von \clos-Instanzen}
+%
+Die Klassen von \clos-Instanzen werden zur Laufzeit durch
+\clsmo[e]\ repr\"{a}sentiert, von denen alle notwendigen
+Informationen f\"{u}r die Ablage ihrer Instanzen im Objektspeicher
+erhalten werden k\"{o}nnen.  \clsmo[e]\ entsprechen dynamischen
+Strukturbeschreibungen.
+%
+\section{Zusammenfassung}
+%
+F\"{u}r die Integration von Persistenz in \clos\ gibt es die beiden
+Ans\"{a}tze, als persistenten Speicher eine relationale Datenbank oder
+einen Objektspeicher zu verwenden.
+%
+\par{}Bei Verwendung einer relationalen Datenbank erh\"{a}lt das
+persistente System bei entsprechender Realisierung m\"{a}chtige
+M\"{o}glichkeiten zur Datenmanipulation; bei der Realisierung eines
+persistenten Systems ist aber zu beachten, da\ss{} die von der Datenbank
+vorgegebene Datenmodellierung insbesondere durch die statische
+Festlegung der Attribute auf einfache Bereiche und die fehlende
+explizite Repr\"{a}sentation von Referenzen gegen\"{u}ber LISP eine
+Einschr\"{a}nkung darstellt. Das persistente System sollte intern
+entsprechende Konvertierungen realisieren, die allerdings dazu f\"{u}hren
+k\"{o}nnen, da\ss{} die Manipulationsm\"{o}glichkeiten der Datenbank nur
+teilweise genutzt werden k\"{o}nnen.
+%
+\par{}Objektspeicher erm\"{o}glichen f\"{u}r die Realisierung eines
+persistenten Systems die \"{U}bernahme der in \cl\ verwendeten
+Datenmodellierung in den persistenten Speicher. Ein Objektspeicher
+bietet \ia\ nur einfachste M\"{o}glichkeiten zur Datenmanipulation; ein
+persistentes System sollte je nach Einsatzgebiet zus\"{a}tzliche
+M\"{o}glichkeiten realisieren.
+%
+\par{}Um ein transientes Objekt in einem persistentem Speicher ablegen
+zu k\"{o}nnen, mu\ss{} die Struktur des Objektes bekannt sein. In \cl\ sind
+Strukturbeschreibungen f\"{u}r Objekte der Basisklassen statisch;
+f\"{u}r \clos-Instanzen kann aus ihrer Klasse dynamisch eine
+Strukturbeschreibung bestimmt werden.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

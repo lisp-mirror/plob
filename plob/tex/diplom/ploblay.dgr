@@ -1,0 +1,63 @@
+%	This is -*-LaTeX-*-
+%
+% 15.09.93
+%
+\newsavebox{\diskfile}\sbox{\diskfile}{\psfig{figure=diskfile.eps}}%
+%
+\input{diagdefs}%
+%
+\def\lheight{18pt}%	% Zeilenhoehe
+\def\fwidth{\smltxtw}%
+%
+\spreaddiagramrows{-1pc}
+\objectmargin{0pt}
+%
+\def\nfrbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\save\Drop{\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}}\restore%
+}%
+\def\frbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}%
+}%
+%
+\def\frtxt#1{\frbox{\fwidth}{#1}}%
+\def\nfrtxt#1{\nfrbox{\fwidth}{#1}}%
+%
+\begin{diagram}%
+%
+\save\Drop{\text{\textrm{Schicht}}}\restore
+  & \rule{8ex}{0ex} & \rule{2em}{0ex}\\
+%
+4 & \save\Drop{\Text{\textrm{Applikations-}\\{}\textrm{schicht}}}\restore
+	&&\nfrtxt{Sitzung}
+			&&\nfrtxt{Sitzung}\\
+%
+		&&&\drto|<{\rotate\tip}
+		&&\dlto|<{\rotate\tip}\\
+%
+3 
+		&&&&\frtxt{\plob}\\
+%
+  & \save\Drop{\Text{\textrm{Persistentes}\\{}\textrm{Objektsystem}}}\restore
+			&&&&\save\go+<0.5\fwidth,0em>\Drop{%
+			      \text{\textrm{\small%
+			       Transaktions-UNDO-{\em Logs}}}}\restore\\
+%
+2 &
+		&&&\uuto|<{\rotate\tip}%
+		   \frtxt{C-\plob}%
+		   \rto|<{\rotate\tip}%
+			&\usebox{\diskfile}&\usebox{\diskfile}\\
+%
+\\
+%
+1 & \save\Drop{\Text{\textrm{Persistenter}\\{}\textrm{Speicher}}}\restore
+		&&&\uuto|<{\rotate\tip}%
+		   \frtxt{POSTORE}%
+		   \rto|<{\rotate\tip}%
+			&\usebox{\diskfile}%
+				&\save\Drop{%
+				  \text{\textrm{\small\sh-Datei}}}\restore
+%
+\end{diagram}%

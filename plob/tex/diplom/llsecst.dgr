@@ -1,0 +1,50 @@
+%	This is -*-LaTeX-*-
+%
+% 03.09.93
+%
+\input{diagdefs}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramrows{2ex}%
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{1em}%
+\objectmargin{0pc}
+%
+\def\nframe{\xline'[0,2]'[2,2]'[2,0][0,0]}%
+%
+\begin{diagram}
+%							% Zeile:
+\xdashed'[0,4]'[9,4]'[9,0][0,0]				%  1
+ &&&&&\xdashed'[0,4]'[9,4]'[9,0][0,0]
+  &&&&&\xdashed'[0,4]'[9,4]'[9,0][0,0]&&&&\\
+&\nframe						%  2
+ &&&&&\nframe&&\\
+&&\text{\textrm{CLOS}}					%  3
+ &\xto[0,3]|<{\rotate\tip}
+  &&&&\Text{\textrm{Persistentes}\\{}\textrm{Objektsystem}}\\
+&&\xto[2,0]|<{\rotate\tip}				%  4
+ &&&&&\xto[2,0]|<{\rotate\tip}
+  &\\
+\rule{0em}{1ex}\\					%  5
+&\nframe						%  6
+ &&&&&\nframe
+  &&&&&\nframe&&\\
+&&\Text{\textrm{Common}\\{}\textrm{LISP}}		%  7
+ &\xto[0,3]|<{\rotate\tip}
+  &&&&\Text{\textrm{Objekt-}\\{}\textrm{Speicher}}
+   &\xto[0,3]|<{\rotate\tip}
+    &&&&\text{\textrm{Datei}}\\
+&&&&&&&&&&&&&&\\					%  8
+&&\Text{\textrm{\footnotesize{}Transientes}\\{}%	%  9
+\textrm{\footnotesize{}Objektsystem}}
+ &&&&&\Text{\textrm{\footnotesize{}Persistentes}\\{}%
+\textrm{\footnotesize{}Objektsystem}}
+  &&&&&\Text{\textrm{\footnotesize{}Persistenter}\\{}%
+\textrm{\footnotesize{}Speicher}}\\
+&&&&&&&&&&&&&&\\					% 10
+&&&&&&&&&&&						% 12
+ &\rule{0em}{2ex}%
+  \save\Drop{\text{\textrm{\footnotesize{}$\leftrightarrow$
+  Datenflu\ss{}}}}\restore
+%
+\end{diagram}%

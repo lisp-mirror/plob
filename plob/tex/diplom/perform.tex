@@ -1,0 +1,452 @@
+% This is -*-LaTeX-*-
+%
+\pfsection{Performanz}\label{chap:perf}
+%
+\begin{fortune}[6cm]%
+Don't let the sun go down on me.
+\from{Elton John}
+\end{fortune}%
+%
+\ifx\pfsection\chapter%
+Dieses Kapitel \else Dieser Abschnitt\fi\ enth\"{a}lt
+verschiedene Messungen der Performanz von
+\plob. Gemessen wurden die elementaren Funktionen, wie Allozieren und
+Zugriff auf den Zustand von persistenten Objekten, sowie Einf\"{u}gen und
+Lesen von aktiv-persistenten Instanzen, bei denen ein Index f\"{u}r einen
+\Slt\/ deklariert wurde. Die Tabellen geben in der Spalte 
+\rglq{}LISP\rgrq\ die Zeit an, die \lw\ f\"{u}r die Ausf\"{u}hrung der Aktion
+ben\"{o}tigte; in der Spalte \rglq{}BS\rgrq\ findet sich die Zeit, die
+das Betriebssystem mit der Ausf\"{u}hrung der Aktion besch\"{a}ftigt
+war. Die insgesamt von \plob\ ben\"{o}tigte Zeit ergibt sich aus der
+Summe der in der Spalten
+\rglq{}LISP\rgrq\ und \rglq{}BS\rgrq\ aufgef\"{u}hrten Zeiten.  Die Einheiten
+sind in eckigen Klammern in der
+Spalten\"{u}berschrift angegeben; [s] steht f\"{u}r Sekunden und [ms] f\"{u}r
+Millisekunden.  Bei Ladevorg\"{a}ngen wurde f\"{u}r die Messungen darauf
+geachtet, da\ss{} die Objekte tats\"{a}chlich aus dem persistenten Speicher
+und nicht aus dem \cache\/ geladen wurden; bei der Benutzung von
+\plob\ wird man
+\ia\ daher eine wesentlich bessere Performanz als hier angegeben
+erhalten. Die f\"{u}r die Messung benutzte Rechnerkonfiguration ist in
+\cite{bib:ki94b}\ im Abschnitt \rglq{}Installation\rgrq\ beschrieben.
+%
+\newlength{\perfw}\setlength{\perfw}{0.6\textwidth}%
+\newlength{\smallperfw}\setlength{\smallperfw}{0.45\textwidth}%
+\newlength{\perfh}\setlength{\perfh}{\medskipamount}%
+%
+\pfsubsection{Transaktionen}
+%
+Die ermittelte Zeit ist der Verwaltungsaufwand f\"{u}r das Starten und
+Beenden einer Transaktion:\\[\perfh]%
+%
+\begin{tabular}{|p{\perfw}|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{Erkl\"{a}rung}
+        &\multicolumn{2}{|c}{\tabularheader{LISP [ms]}}
+                &\multicolumn{2}{|c|}{\tabularheader{BS [ms]}}\\
+\hline\hline
+\parbox[t]{\perfw}{%
+Transaktion mit leerer Anweisung:\\
+{\small\tt(with-transaction nil)}}\smallskip
+        & 0&250  & 0&0\\
+\hline
+\end{tabular}
+%
+\pfsubsection{Sperren}
+%
+Bei den nachfolgenden Messungen wurde ein Vektor mit 1000
+\immval[s]\/ benutzt:
+%
+\begin{listing}%
+(setf *v* (make-array 1000 :initial-element
+                           {\rm\it\lt\rm\immval\it\gt\/}))
+\end{listing}%
+%
+\noindent Auf die transiente \representation{} wurde mit
+\swizzling\ (Zugriffsart~1) sowie der direkten Manipulation der
+persistenten \representation{} (Zugriffsarten~2--4)
+schreibend (1.~Tabelle) und lesend (2.~Tabelle) zugegriffen. Die
+Zugriffsarten unterscheiden sich in der Anzahl der Transaktionen und
+der Anzahl der gesetzten Sperren, die f\"{u}r den Zugriff ausgef\"{u}hrt
+wurden; die Spalten \rglq{}Tr.\rgrq\ bzw.\ \rglq{}Sp.\rgrq\ geben die
+Anzahl der durchgef\"{u}hrten Transaktionen bzw.\ Sperren
+an:\\[\perfh]
+%
+\begin{tabular}{|c|p{\smallperfw}|r|r|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{Nr}
+ &\tabularheader{Erkl\"{a}rung}
+  &\tabularheader{Tr.}
+   &\tabularheader{Sp.}
+    &\multicolumn{2}{|c}{\tabularheader{LISP [s]}}
+     &\multicolumn{2}{|c|}{\tabularheader{BS [s]}}\\
+\hline\hline
+1&
+\parbox[t]{\smallperfw}{%
+Speichern des transienten Vektors \lisp{*v*}:\\
+{\small\tt(setf *objid* (store-object *v*))}}\smallskip
+        & 1 & 1
+                & 0&290  & 0&0\\
+\hline
+2&
+Schreiben eines \immval[s]\/ in jede Komponente 
+von \lisp{*objid*}\ mit einer Transaktion f\"{u}r alle
+Schreibzugriffe und einer Sperre auf Vektorebene f\"{u}r
+alle Schreibzugriffe
+        & 1 & 1
+                & 0&320  & 0&010\\
+\hline
+3&
+Schreiben eines \immval[s]\/ in jede Komponente
+von \lisp{*objid*}\ mit einer Transaktion f\"{u}r alle
+Schreibzugriffe und einer Sperre auf Elementebene pro
+Schreibzugriff
+        & 1 & 1000
+                & 4&020  & 0&020\\
+\hline
+4&
+Schreiben eines \immval[s]\/ in jede Komponente
+von \lisp{*objid*}\ mit einer Transaktion pro
+Schreibzugriff und einer Sperre auf Elementebene pro
+Schreibzugriff
+        & 1000 & 1000
+                & 15&470 & 0&050\\
+\hline
+\end{tabular}\\[\perfh]%
+%
+Die Me\ss{}werte zeigen, da\ss{} die Kosten des Zugriffs auf den Zustand
+eines persistenten Objektes \"{u}berwiegend bei der
+Transaktionsverarbeitung und beim Sperrprotokoll liegen.  Die
+Zugriffsart~2 entspricht vom Zeitaufwand her der Zugriffsart~1;
+Zugriffsart~3 lohnt sich f\"{u}r den schreibenden Zugriff bei bis zu
+$\frac{\mbox{0,290}}{\mbox{4,020}/\mbox{1000}}$\,$\approx$\,72
+Elementen, Zugriffsart~4 bei bis zu
+$\frac{\mbox{0,290}}{\mbox{15,470}/\mbox{1000}}$\,$\approx$\,19
+Elementen, d.h.\ ab der jeweils genannten Zahl wird der Aufwand f\"{u}r
+das Sperrprotokoll so gro\ss{}, da\ss{} es sich lohnt, auf den Vektor nur
+mit
+\swizzling\ zuzugreifen.
+\\[\perfh]
+%
+\begin{tabular}{|c|p{\smallperfw}|r|r|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{Nr}
+ &\tabularheader{Erkl\"{a}rung}
+  &\tabularheader{Tr.}
+   &\tabularheader{Sp.}
+    &\multicolumn{2}{|c}{\tabularheader{LISP [s]}}
+     &\multicolumn{2}{|c|}{\tabularheader{BS [s]}}\\
+\hline\hline
+1&
+\parbox[t]{\smallperfw}{%
+Laden des persistenten Vektors \lisp{*objid*}:\\
+{\small\tt(setf *v* (load-object *objid*))}}\smallskip
+        & 1 & 1
+                & 0&280  & 0&0\\
+\hline
+2&
+Lesen jeder Komponente von \lisp{*objid*}\ mit einer Transaktion f\"{u}r
+alle Lesezugriffe und einer Sperre auf Vektorebene f\"{u}r
+alle Lesezugriffe
+        & 1 & 1
+                & 0&280  & 0&030\\
+\hline
+3&
+Lesen jeder Komponente von \lisp{*objid*}\ mit einer Transaktion f\"{u}r
+alle Lesezugriffe und einer Sperre auf Elementebene pro
+Lesezugriff
+        & 1 & 1000
+                & 4&230  & 0&010\\
+\hline
+4&
+Lesen jeder Komponente von \lisp{*objid*}\ mit einer Transaktion pro
+Lesezugriff und einer Sperre auf Elementebene pro Lesezugriff
+        & 1000 & 1000
+                & 15&580 & 0&250\\
+\hline
+\end{tabular}\\[\perfh]%
+%
+Auch hier wird der Gesamtzeitbedarf in erster Linie durch das
+Sperrprotokoll bestimmt; die eigentliche \"{U}bertragung des Zustands
+f\"{a}llt kaum ins Gewicht. Die Zugriffsarten~2 und 1 sind vom
+Zeitaufwand her gleich; Zugriffsart~3 lohnt sich f\"{u}r den
+lesenden Zugriff bei bis zu
+$\frac{\mbox{0,280}}{\mbox{4,230}/\mbox{1000}}$\,$\approx$\,66
+Elementen, Zugriffsart~4 bei bis zu
+$\frac{\mbox{0,280}}{\mbox{15,580}/\mbox{1000}}$\,$\approx$\,18
+Elementen.
+%
+\pfsubsection{Listen}
+%
+\begin{tabular}{|p{\perfw}|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{Erkl\"{a}rung}
+        &\multicolumn{2}{|c}{\tabularheader{LISP [ms]}}
+                &\multicolumn{2}{|c|}{\tabularheader{BS [ms]}}\\
+\hline\hline
+Speichern einer einelementigen Liste
+\lisp{'({\rm\it\lt\rm\immval\it\gt\/})}
+        & 14&890  & 0&020\\
+\hline
+Laden einer einelementigen Liste
+\lisp{'({\rm\it\lt\rm\immval\it\gt\/})}
+        & 15&200  & 0&020\\
+\hline
+\end{tabular}\\[\perfh]%
+%
+Auch beim Speichern und Laden von Listen wird die meiste Zeit
+f\"{u}r das Sperren der persistenten {\em cons\/}-Zellen ben\"{o}tigt.
+%
+\pfsubsection{Felder}
+%
+Bei den nachfolgenden Messungen wurde ein Feld benutzt, dessen
+Dimensionen in etwa denen eines RGB-Farbbildes entsprechen:
+%
+\begin{listing}%
+(setf *array* \=(make-array \='(256 256 3)\\
+              \>            \>:element-type 'single-float\\
+              \>            \>:initial-element 1.0e0))
+\end{listing}%
+%
+\noindent\begin{tabular}{|p{\perfw}|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{Erkl\"{a}rung}
+        &\multicolumn{2}{|c}{\tabularheader{LISP [ms]}}
+                &\multicolumn{2}{|c|}{\tabularheader{BS [ms]}}\\
+\hline\hline
+\parbox[t]{\perfw}{%
+Erzeugen des transienten Feldes \lisp{*array*}:\\
+{\small\tt(setf *array*
+                (make-array {\rm\it\lt{}siehe
+                oben\gt\/}))}}\smallskip
+        &  35&0  &   6&0\\
+\hline
+\parbox[t]{\perfw}{%
+Speichern des transienten Feldes \lisp{*array*}:\\
+{\small\tt(setf *objid* (store-object *array*))}}\smallskip
+        & 222&0  & 366&0\\
+\hline
+\parbox[t]{\perfw}{%
+Erzeugen der transienten \representation{} und Laden des persistenten
+Feldes \lisp{*objid*}:\\
+{\small\tt(setf *array* (load-object *objid*))}}\smallskip
+        &  97&0  &  59&0\\
+\hline
+\end{tabular}\\[\perfh]%
+%
+Das Feld besteht aus \immval[s]\/ des Typs \class{single-float}; daher
+wird der Zustand der Feldelemente sowohl in der transienten als auch
+in der persistenten \representation{} in einem {\em ivector\/}
+abgelegt (\figurename~\ref{fig:plexarr},
+\citepage{\pageref{fig:plexarr}}). Bei der \"{U}bertragung des Feldes
+zwischen transientem und persistentem Speicher wird der Zustand des
+{\em ivectors\/} unkonvertiert zwischen den Umgebungen kopiert; damit
+erkl\"{a}rt sich die relativ hohe Betriebssystemzeit bei der \"{U}bertragung.
+F\"{u}r das Kopieren des Feldzustands wird die
+\clogo\ \fn\ \stfn{memcpy}\ benutzt, die wahrscheinlich byteweise
+kopiert; in diesem Fall w\"{u}rde ein Ersetzen der
+\Std-\clogo-\fn\ \stfn{memcpy}\ durch eine selbst realisierte
+Kopierfunktion, die wortweise arbeitet,
+einen erheblichen Effizienzgewinn bringen.
+%
+\pfsubsection{Aktiv-persistente Instanzen}
+%
+Die \Slt\/-Namen und -Lebensdauern in der Definition der zur Messung
+verwendeten ak\-tiv-""per\-si\-sten\-ten Klasse
+\class{p-example-class}\ wurden so gew\"{a}hlt, da\ss{} sie zu
+\ifbericht der in \cite[\citepage{120}]{bib:ki94a} gezeigten
+\figurename \else \figurename~\ref{fig:extent}
+(\citepage{\pageref{fig:extent}})\fi\ passen.  Transiente Instanzen
+der Klasse \class{t-example-class}\ werden zu Vergleichsmessungen
+benutzt.
+%
+\begin{listing}%
+(d\=efclass p-example-class ()\\
+  \>(\=(slot-4\ \ :initform nil :extent :transient)\\
+  \> \>(slot-6\ \  :initform nil :extent :cached)\\
+  \> \>(slot-8\ \  :initform nil :extent :cached-write-through)\\
+  \> \>(slot-10\  :initform nil :extent :persistent))\\
+  \>(:metaclass persistent-metaclass))\\
+\pagebreak[3]\\
+(d\=efclass t-example-class ()\\
+  \>(\=(slot-3 :initform nil) (slot-5 :initform nil)\\
+  \> \>(slot-7 :initform nil) (slot-9 :initform nil)))
+\end{listing}
+%
+\pfsubsubsection{Erzeugung von aktiv-persistenten Instanzen}
+%
+\noindent\begin{tabular}{|p{\perfw}|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{Erkl\"{a}rung}
+        &\multicolumn{2}{|c}{\tabularheader{LISP [ms]}}
+                &\multicolumn{2}{|c|}{\tabularheader{BS [ms]}}\\
+\hline\hline
+Erzeugen einer (rein transienten) Instanz der Klasse
+\class{t-example-class}
+        & 0&090 & 0&0\\
+\hline
+Erzeugen einer persistenten Instanz der Klasse
+\class{p-example-class}
+        & 45&810 & 0&770\\
+\hline
+Laden einer persistenten Instanz der Klasse
+\class{p-example-class}
+        & 38&610 & 0&240\\
+\hline
+\end{tabular}\\[\perfh]%
+%
+Die Werte in der ersten Zeile zeigen zum Vergleich die Werte der
+Erzeugung einer Instanz f\"{u}r eine rein transiente Klasse.
+%
+\pfsubsubsection{Zugriff auf den Zustand von aktiv-persistenten
+Instanzen}
+%
+Bei der folgenden Messung wurde jeder \Slt\/-Zustand einmal auf ein
+\immval\/ gesetzt.
+%
+\begin{listing}
+(setf *objid* (make-instance 'p-example-class))\\
+(setf (slot-value *objid* {\rm\it\lt{}Slot-Name\gt\/})
+      {\rm\it\lt{}Immediate\gt\/})
+\end{listing}
+%
+\noindent\begin{tabular}{|l|l|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{\Slt\/-Name}
+ &\tabularheader{\Slt\/-Lebensdauer}
+  &\multicolumn{2}{|c}{\tabularheader{LISP [ms]}}
+   &\multicolumn{2}{|c|}{\tabularheader{BS [ms]}}\\
+\hline\hline
+\lisp{slot-3} & \Slt\/ aus \class{t-example-class}
+        & 0&007 & 0&0\\
+\lisp{slot-4} & \lisp{:transient}
+        & 0&430 & 0&0\\
+\lisp{slot-6} & \lisp{:cached}
+        & 0&440 & 0&0\\
+\lisp{slot-8} & \lisp{:cached-write-through}
+        & 1&340 & 0&0\\
+\lisp{slot-10} & \lisp{:persistent}
+        & 1&280 & 0&0\\
+\hline
+\end{tabular}\\[\perfh]%
+%
+Wie sich zeigt, ist die Performanz schlechter als bei rein
+transienten Klassen, auch bei der \Slt\/-Lebensdauer
+\lisp{:transient}\ des \Slt[s]\/ \stslt{slot-4}\ der aktiv-persistenten
+Klasse \class{p-example-class}. Dies
+ist darin begr\"{u}ndet, da\ss{} die entsprechenden \Slt\/-Lebensdauern aus
+dem im \clsdo\ enthaltenen \sltdo\ gelesen werden; offensichtlich ist
+die Ermittlung des \sltdo[es]\ relativ zeitintensiv.
+%
+\par{}F\"{u}r die \Slt\/-Lebensdauer \lisp{:cached-write-through}\ wird
+der \Slt\/-Zustand auch in die transiente \representation{} propagiert;
+damit ist der schreibende Zugriff langsamer als bei der
+\Slt\/-Lebensdauer \lisp{:persistent}.
+%
+\par{}Bei der folgenden Messung wurde jeder \Slt\/-Zustand 
+einmal gelesen.
+%
+\begin{listing}
+(slot-value *objid* {\rm\it\lt{}Slot-Name\gt\/})
+\end{listing}
+%
+\noindent\begin{tabular}{|l|l|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{\Slt\/-Name}
+ &\tabularheader{\Slt\/-Lebensdauer}
+  &\multicolumn{2}{|c}{\tabularheader{LISP [ms]}}
+   &\multicolumn{2}{|c|}{\tabularheader{BS [ms]}}\\
+\hline\hline
+\lisp{slot-3} & \Slt\/ aus \class{t-example-class}
+        & 0&006 & 0&0\\
+\lisp{slot-4} & \lisp{:transient}
+        & 0&390 & 0&0\\
+\lisp{slot-6} & \lisp{:cached}
+        & 0&400 & 0&0\\
+\lisp{slot-8} & \lisp{:cached-write-through}
+        & 0&400 & 0&0\\
+\lisp{slot-10} & \lisp{:persistent}
+        & 1&170 & 0&0\\
+\hline
+\end{tabular}\\[\perfh]%
+%
+Erwartungsgem\"{a}\ss{} unterscheiden sich die Zeiten f\"{u}r das \Slt\/-Lesen
+und -Schreiben signifikant bei der \Slt\/-Lebensdauer
+\lisp{:cached-write-through}\ des \Slt[s]\/ \stslt{slot-8}\ der
+aktiv-persistenten Klasse \class{p-example-class}; Schreibzugriffe auf
+den \Slt\/ werden sowohl in die transiente als auch in die persistente
+\representation{} des persistenten Objektes propagiert, w\"{a}hrend
+Lesezugriffe immer die transiente \representation{} referenzieren.
+%
+\pfsubsubsection{Indexdeklarationen f\"{u}r aktiv-persistente Klassen}
+%
+F\"{u}r die letzte Messung wurde eine aktiv-persistente Klasse mit einem
+Index benutzt. Der \Slt\/ \stslt{slot-i}, f\"{u}r den der Index
+\lisp{(btree :test equal)}\ deklariert wurde, wurde bei der
+Objekterzeugung initialisiert; damit wurde die Assoziation vom
+\Slt\/-Zustand auf das Objekt im Verlauf der Erzeugung der
+aktiv-persistenten Instanz aufgebaut:%
+%
+\begin{listing}%
+(d\=efclass p-example-index-class ()\\
+  \>(\=(slot-i \=:initarg :slot-i\\
+  \> \>        \>:index (btree :test equal)\\
+  \> \>        \>:extent :persistent))\\
+  \>(:metaclass persistent-metaclass))
+\end{listing}%
+%
+\newlength{\onespace}%
+\noindent\begin{tabular}{|p{\perfw}|r@{,}l|r@{,}l|}
+\hline
+\tabularheader{Erkl\"{a}rung}
+        &\multicolumn{2}{|c}{\tabularheader{LISP [ms]}}
+                &\multicolumn{2}{|c|}{\tabularheader{BS [ms]}}\\
+\hline\hline
+\parbox[t]{\perfw}{%
+Erzeugung einer Instanz der Klasse \class{p-example-index-class}:\\
+{\tt\small\settowidth{\onespace}{\ }%
+(make-instance\\
+\hspace*{\onespace}'p-example-index-class\\
+\hspace*{\onespace}:slot-i \dq{}Slot-I with string
+                               {\rm\it\lt{}Nummer\gt\/}\dq)}}\smallskip
+        & 114&800 & 0&970\\
+\hline
+\parbox[t]{\perfw}{%
+Laden einer Instanz  der Klasse \class{p-example-index-class}:\\
+{\tt\small\settowidth{\onespace}{\ }%
+(p-select 'p-example-index-class\\
+\hspace*{10\onespace}:where 'slot-i)}}\smallskip
+        & 64&490 & 0&250\\
+\hline
+\end{tabular}\\[\perfh]%
+%
+Im Verlauf der Objektinitialisierung wird die Zeichenkette
+abgespeichert und die Assoziation vom \Slt\/-Zustand auf das Objekt
+in die Indextabelle eingetragen; damit ergibt sich ein h\"{o}herer
+Zeitbedarf.
+%
+\pfsubsection{Bewertung der Performanz}
+%
+Wie insbesondere die erste Messung zeigt, ist der Zeitbedarf f\"{u}r das
+Sperrprotokoll in Relation zur eigentlichen Zustands\"{u}bertragung recht
+hoch. In der 2.~Schicht  k\"{o}nnten noch Optimierungen durchgef\"{u}hrt
+werden, da dort im Moment das Sichern des Zustands der
+\postore-Vektoren in die UNDO-{\em Log\/}-Datei mit den relativ
+ineffizienten {\em Stream\/}-Funktionen der \std-\clogo-Bibliothek
+erfolgt.
+%
+\par{}In der 3.~Schicht lie\ss{}e sich eine Verbesserung der Performanz
+beim Zugriff auf \Slt[s]\/ von aktiv-persistenten Instanzen durch
+Optimierung der \spc[n]\ \mtd[n]\ der \gfn[n]\ 
+\stfn{make-accessor-lambda}\ \ifbericht
+\cite[\citepage{111}]{bib:ki94a} \else (Protkoll~\ref{pro:defclass}
+\stfn{(defclass)}, Schritt~\ref{enu:dcmcr},
+\citepage{\pageref{enu:dcmcr}})\fi\ erreichen. Sofern Wert auf
+Performanz gelegt wird, sollten in der 4.~Schicht Transaktionen
+m\"{o}glichst gro\ss{}e Bl\"{o}cke umfassen.
+%
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

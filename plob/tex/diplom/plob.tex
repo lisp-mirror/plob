@@ -1,0 +1,3340 @@
+% This is -*-LaTeX-*-
+%
+\chapter{Persistente LISP Objekte}%
+\label{chap:plob}%
+%
+Die Zielsetzung f\"{u}r die Entwicklung von \plob\ ({\em P\/}ersistente
+{\em L\/}ISP {\em Ob\/}jekte) besteht in einem Einsatz des Systems im
+Rahmen des Projekts \oscar\ zur langlebigen Speicherung von LISP
+Objekten, die unter Umst\"{a}nden sehr gro\ss{}e Daten referenzieren, wie
+z.B.\ Satellitenbilder hoher Aufl\"{o}sung; ebenso kann die Anzahl der zu
+speichernden Objekte sehr gro\ss{} werden. Aus diesem Grund soll das
+persistente System auch eine Speicherr\"{u}ckgewinnung haben. Da ein Teil
+der persistenten Instanzen geografische Objekte repr\"{a}sentiert, sollen
+persistente Objekte assoziativ m\"{o}glichst mit mehrdimensionalen
+Schl\"{u}sseln gesucht werden k\"{o}n\-nen.
+%
+\par{}Die Anforderungen an ein persistentes System im Rahmen
+\ifbericht dieses Berichtes \else\ifbuch dieses Buches \else dieser
+Arbeit \fi\fi werden von den von mir betrachteten vorhandenen Systemen
+{\em Shared Object Hierarchy\/} (\soh\ifbericht\ 
+\cite[\citepage{67}]{bib:ki94a}\ \else, Kapitel~\ref{chap:soh},
+\citepage{\pageref{chap:soh}}\fi) und {\em Persistent \clos-Objects\/}
+(\pclos\ \cite{bib:pa91a}) nicht erf\"{u}llt.
+%; statt dessen wurden die in diesen Systemen vorgefundenen und
+%f\"{u}r positiv gehaltenen Konzepte in das von mir realisierte System
+%integriert.
+%
+\section{\"{U}berblick}%
+%
+Das System \plob\ bietet orthogonale Persistenz f\"{u}r den Zustand fast
+aller in einem
+\cl-System vorkommenden Daten mit Ausnahme von Funktionscode. Durch
+Orthogonalit\"{a}t wird eine hohe Transparenz erreicht. Das System nimmt
+zun\"{a}chst an, da\ss{} beim Speichern eines Objektes grunds\"{a}tzlich alle
+davon referenzierten Instanzen ebenfalls persistent gehalten werden
+sollen. Es werden hierarchische, auf Modularisierungsebene geordnete
+Deklarationen benutzt, um festzustellen, welche referenzierten
+Instanzen tats\"{a}chlich persistent gehalten werden sollen; damit kann
+die Anzahl der persistent gehaltenen Objekte begrenzt werden. Die
+angebotenen Datenbankfunktionalit\"{a}ten k\"{o}n\-nen ebenfalls deklarativ
+eingebunden werden.
+%
+\par{}F\"{u}r Instanzen der Basistypen wird Persistenz \"{u}ber Funktionen
+zur Verf\"{u}gung gestellt; die  Namen der Funktionen wurden aus dem in
+\cite{bib:st90} spezifizierten \cl\ \std\ f\"{u}r transiente Objekte
+abgeleitet.
+%
+\par{}Die Struktur eines persistenten Objektes wird ebenfalls als
+persistentes Objekt repr\"{a}sentiert; \plob\ sorgt daf\"{u}r, da\ss{} sich
+beim Abspeichern eines transienten Objektes seine aus der \cls\ des
+Objektes abgeleitete Strukturrepr\"{a}sentation ebenfalls im persistenten
+Speicher befindet.
+%
+\par{}Au\ss{}er Persistenz wurden noch zu\-s\"{a}tz\-li\-che als n\"{u}tzlich
+angesehene Funktionalit\"{a}ten in \plob\ integriert:
+\begin{description}
+%
+\item[Sitzungen]
+Auf persistente Objekte kann gleichzeitig durch mehrere Sitzungen
+zugegriffen werden.\footnote{F\"{u}r Mehr-BenutzerInnen-Zugriff siehe
+Abschnitt~\ref{sec:plsac}, \citepage{\pageref{sec:plsac}}.}
+%
+\item[Transaktionen]
+Alle Zugriffe auf persistente Objekte laufen innerhalb einer an ihre
+Sitzung gebundenen Transaktion ab.
+%
+\item[{\gande{Objektsperren}{locking}}]
+Ein persistentes Objekt wird transaktionsgebunden durch die lesende
+bzw.\ modifizierende Sitzung gesperrt; Konflikte durch mehrere auf
+ein gesperrtes Objekt zugreifende Sitzungen werden erkannt und
+aufgel\"{o}st.
+%
+\item[B-B\"{a}ume]
+Zum assoziativen Zugriff auf persistente Objekte wurden persistente
+B-B\"{a}ume realisiert; diese k\"{o}n\-nen \"{a}hn\-lich wie \hashtbl{}n
+verwendet werden.
+%
+\item[Indizes \"{u}ber {\Slt[s]}; assoziativer Zugriff]
+F\"{u}r einen \Slt\/ von aktiv-persistenten Instanzen kann deklarativ
+ein Index definiert werden, mit dem assoziativ auf aktiv-persistente
+Instanzen zugegriffen werden kann.
+%
+\item[\gande{Modifikationen an Klassen-Metaobjekten}{schema
+evolution}]
+\"{A}nderungen an einer transienten \cls[n]definition werden in den
+persistenten Speicher propagiert; die Struktur der betroffenen
+persistenten Objekte wird nach den \"{u}blichen \clos\ Regeln auf den
+Stand der neuen \cls[n]definition gebracht.
+%
+\end{description}
+%
+Der folgende Text erl\"{a}utert die oben aufgef\"{u}hrten Punkte im
+Einzelnen.
+%
+\section{Entwurfsprinzipien}
+%
+Beim Entwurf des Gesamtsystems wurden die folgenden Prinzipien
+ber\"{u}cksichtigt.
+%
+\subsection{\protect\cl-gem\"{a}\ss{}e Semantik}
+%
+Um eine m\"{o}glichst einfache Schnittstelle zu \cl\ zu erhalten, wurde
+dessen Datenmodellierung \"{u}bernommen. An einigen Stellen ergaben sich
+durch die Erweiterung der Lebensdauer von Objekten \"{u}ber den transienten
+LISP Proze\ss{} hinaus Probleme mit der Semantik; dies betrifft in erster
+Linie Klassen, deren Instanzen von LISP als eindeutig angesehen
+werden, wie Symbole und Pakete. F\"{u}r diese Klassen wurde eine
+entsprechende Semantik definiert.
+%
+\subsection{Schichtenmodell}
+%
+Das Gesamtsystem ist in aufeinander aufbauende Schichten gegliedert;
+die verschiedenen Abstraktionsebenen sind damit klar getrennt. Ebenso
+lassen sich untere Schichten austauschen, ohne die dar\"{u}ber
+angesiedelten Schichten \"{a}ndern zu m\"{u}ssen.
+%
+\subsection{Portabilit\"{a}t}
+%
+Aus interner Sicht war Portabilit\"{a}t sowohl der System-Quelltexte als
+auch der im persistenten Speicher abgelegten Objekte ein wichtiges
+Grundprinzip.
+%
+\subsubsection{Portabler Code}
+%
+Der C Code wurde nach ANSI \std\ erstellt \cite{bib:ker88}. Der
+\cl\ Code h\"{a}lt sich soweit m\"{o}glich an die in \cite{bib:st90} und
+\cite{bib:amop91} gegebenen Spezifikationen; systemspezifischer
+LISP Code wurde, soweit sinnvoll, in einem einzigen Modul
+zusammengefa\ss{}t. Da bisher keine system\"{u}bergreifende
+Standardisierung einer Schnittstelle zwischen \cl\ und C erfolgte,
+wurde darauf geachtet, zwischen \cl\ und C nur
+einfache Daten, d.h.\ Instanzen einiger wenigen Basistypen,
+auszutauschen. Ausnahmen erfolgten lediglich dann, wenn eine
+Transformation in eine f\"{u}r den Austausch geeignete Instanz einen
+unverh\"{a}ltnism\"{a}\ss{}ig hohen Effizienzverlust bedeutet h\"{a}tte.
+%
+\subsubsection{Portable persistente Objekte}
+%
+Um auf die im persistenten Speicher enthaltenen persistenten Objekte
+mit verschieden realisierten Applikationsschichten zugreifen zu k\"{o}n\-nen,
+wurde darauf Wert gelegt, bereits in den unteren Schichten eine
+vollst\"{a}ndige Typisierung der persistenten Objekte einzuf\"{u}hren; jedes
+persistente Objekt ist entweder Instanz eines Basistyps oder enth\"{a}lt
+eine Referenz auf eine (persistente) Beschreibung seiner \cls.
+\clsdo[e]\ selbst sind auch persistente Objekte.
+Die im persistenten Speicher enthaltenen Objekte sind damit
+selbstbeschreibend (Abschnitt~\ref{sec:ocls},
+\citepage{\pageref{sec:ocls}}).
+%
+\subsection{Objekt-orientierte Programmierung}%
+\label{sec:ploopr}%
+%
+Die Vorteile objekt-orientierter Programmierung wurden bereits in
+anderen Arbeiten ausf\"{u}hrlich geschildert \cite{bib:go89}; aus
+diesen Gr\"{u}nden wurde in der in C realisierten 2.~Schicht (siehe
+nachfolgender Abschnitt~\ref{sec:arplob}) ein einfaches, nur in dieser
+Schicht benutztes Objektsystem realisiert, das direkt auf den
+\representations{} der persistenten Objekte arbeitet. Dieses
+Objektsystem erg\"{a}nzt die C-typische statische Typisierung von
+Datenobjekten zur \"{U}bersetzungszeit um eine dynamische \cls[n]bindung
+der persistenten Objekte zur Laufzeit.
+%
+\par{}Durch dieses Objektsystem k\"{o}n\-nen einige erstellte Komponenten
+mehrfach verwendet werden; so werden beispielsweise die in der
+2.~Schicht realisierten persistenten B-B\"{a}ume sowohl f\"{u}r
+verschiedene interne Tabellen genutzt als auch den BenutzerInnen
+extern zur Verf\"{u}gung gestellt.
+%
+\par{}Ein anderer pragmatischer Aspekt war, da\ss{} durch die
+\cl-C-Kopplung kein \gande{Programm zur
+Fehlersuche}{debugger}[Programm zur Fehlersuche; kontrolliert den
+Ablauf des zu untersuchenden Programms und f\"{a}ngt dessen
+Laufzeitfehler ab.]\ in der 2.~Schicht verwendet werden konnte; durch
+die dynamische \cls[n]bindung k\"{o}n\-nen beispielsweise Typpr\"{u}fungen von
+Objekten vorgenommen werden, um bei einem unerwartetem Typ
+kontrolliert einen Fehler signalisieren zu k\"{o}n\-nen.
+%
+%\subsection{Performanz; Effizienz}
+%
+% Argumentation in \cite[\citepage{30}]{bib:sto89}, da\ss{} \cl\ Code
+% mindestens 2 mal langsamer ist als C Code.
+%
+\subsection{Objektspeicher als persistenter Speicher}%
+\label{sec:plobjs}%
+%
+Die Verwendung eines Objektspeichers als persistenter Speicher
+resultiert aus den bisher in \ifbericht diesem Bericht \else\ifbuch
+diesem Buch \else dieser Arbeit \fi\fi dargelegten Einschr\"{a}nkungen
+bei Verwendung einer relationalen Datenbank; sie ergeben sich aus der
+unterschiedlichen Datenmodellierung von \cl\ und relationalen
+Datenbanken:
+\begin{itemize}
+%
+\item In \cl\ wird die Identit\"{a}t von Objekten repr\"{a}sentiert;
+bei einer relationalen Datenbank mu\ss{} eine \representation{} der
+Objektidentit\"{a}t durch das persistente System auf h\"{o}\-he\-ren
+Schichten realisiert werden. Die Datenbank selbst hat keine Kenntnis
+von dieser Identit\"{a}tsrepr\"{a}sentation und kann damit keine Referenzen
+aufl\"{o}sen.
+%
+\item Die Typinformation eines Objektes ist in \cl\ an das Objekt
+gebunden. In relationalen Datenbanken ist das Konzept eines Objektes
+im Sinne der objekt-orientierten Programmierung unbekannt; bei der
+in persistenten Systemen mit einer relationalen Datenbank benutzten
+Abbildung zwischen den Objektsystem- und Datenbank-Strukturen
+m\"{u}s\-sen \ia\ die die \Slt\/-Zust\"{a}nde repr\"{a}sentierenden
+Attribute statisch typisiert werden.
+%
+\item Innerhalb einer relationalen Datenbank werden Tupel als Werte
+und nicht als \rglq{}echte\rgrq\ Objekte aufgefa\ss{}t. Die Identit\"{a}t
+eines Tupels ergibt sich damit aus seinem Zustand. In \cl\ hingegen
+ist die Identit\"{a}t eines Objektes un\-ab\-h\"{a}n\-gig von seinem
+Zustand; es kann sowohl Werte oder Objekte referenzieren als auch
+selber referenziert werden. \soh\ und \pclos\ umgehen dieses Problem
+durch Konvertierung von Referenzen zwischen \cl\ Daten in
+Datenbankwerte, die zur Aufl\"{o}sung der Referenz wiederum evaluiert
+oder konvertiert werden m\"{u}ssen; damit sind die Referenzen zwischen
+Objekten in der relationalen Datenbank aber nur noch implizit
+erkennbar.
+%
+\par{}Referenzen zwischen transienten \cl\ Objekten werden \"{u}ber ihre
+transiente Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion (Adresse)
+hergestellt; daraus folgte f\"{u}r meinen Entwurf, da\ss{} Referenzen
+zwischen Objekten im persistenten Speicher auch \"{u}ber ihre dortige
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion (\objid\/) hergestellt werden
+sollen.
+%
+\item Die von \soh\ und \pclos\ vorgenommenen Konvertierungen zwischen
+der transienten und der persistenten \representationform{} f\"{u}hren
+meist dazu, da\ss{} die persistente Re\-pr\"{a}\-sen\-ta\-tions\-form
+wesentlich ineffizienter als die transiente Form ist
+\ifbericht\else(siehe z.B.\ \tablename~\ref{tab:bsplocal}, Zeile
+\attr{local}{loid}\ CONS4711,
+\citepage{\pageref{tab:bsplocal}})\fi\ und die Konvertierung relativ
+viel Ressourcen verbraucht.
+%
+\par{}Aus diesem Grund pa\ss{}te ich die \representationform{} von
+persistenten Objekten im Objektspeicher soweit m\"{o}glich an die im
+transienten  LISP vorgefundenen transienten \representationforms\ an;
+damit wird der Aufwand f\"{u}r Konvertierungen wesentlich geringer.
+%
+\end{itemize}
+%
+Um den Zeitaufwand f\"{u}r die Entwicklung des Systems zu begrenzen,
+wurde festgelegt, f\"{u}r den Objektspeicher ein fertiges Subsystem zu
+verwenden. Eine ausf\"{u}hrliche Analyse mehrerer in Frage kommender
+Subsysteme findet sich in \cite[\citepage{15--83}]{bib:mu91}.
+\ifbericht Im Rahmen dieses Berichtes \else\ifbuch Im Rahmen dieses
+Buches \else In dieser Arbeit \fi\fi wurde auf einen erneuten
+Vergleich verzichtet; als einzige M\"{o}glichkeit der in
+\cite[\citepage{85--87}]{bib:mu91} getroffenen Auswahl des
+Objektspeichers blieb auch \ifbericht im Rahmen dieses Berichtes
+\else\ifbuch im Rahmen dieses Buches \else f\"{u}r diese Arbeit \fi\fi
+das System \postore\ ({\em p\/}ersistent {\em o\/}bject {\em store\/})
+\"{u}brig.
+%
+\section{Architektur}\label{sec:arplob}
+%
+\figurename~\ref{fig:ploblay} %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/ploblay.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/ploblay.eps}}%
+\fi%
+\caption{\protect\plob\ Schichtenmodell}%
+\label{fig:ploblay}%
+\end{figure}%
+%
+zeigt ein Schichtenmodell des \plob\ Systems. Die 1.~Schicht wird aus
+dem \"{u}ber\-nom\-me\-nen System \postore\ gebildet. Bei der Aufteilung
+der \"{u}brigen Schichten wurden alle Basisfunktionalit\"{a}ten, wie
+Transaktionen sowie Allozieren, Deallozieren oder Sperren von
+persistenten Objekten, in der 2.~Schicht realisiert. Die Konzeption
+erfolgte so, da\ss{} die Operationen \"{u}ber persistente Objekte oberhalb
+der 2.~Schicht die in
+\cite[\citepage{6, 166}]{bib:gr93} definierten \acid%
+\footnote{Von der deutschen \"{U}bersetzung {\sc uksb} wird hier Abstand
+genommen.}%
+\addglossary{ACID}[{Abk\"{u}rzung f\"{u}r die vier Eigenschaften einer
+Datenbank-Transaktion:
+\protect\gande{\protect\see{Un\-teil\-bar\-keit}}%
+{atomicity},
+\protect\gande{\protect\see{Kon\-si\-stenz}}%
+{consistency},
+\protect\gande{\protect\see{Se\-ria\-li\-sier\-bar\-keit}}%
+{isolation}\ und
+\protect\gande{\protect\see{Be\-st\"{a}n\-dig\-keit}}%
+{durability}.}]\ genannten
+Eigenschaften f\"{u}r Transaktionen erf\"{u}llen:
+\begin{quote}%
+%
+\def\acidprop#1#2#3#4{%
+\item[{\gande{#1}{#2}[][{Die #3.\ Eigenschaft der \protect\acid-Eigenschaften
+f\"{u}r Da\-ten\-bank-Trans\-ak\-tio\-nen: #4}]:}] {\let\see\relax #4}}
+%
+\begin{description}\label{ref:acid}%
+%
+%\item[Atomicity.] A transaction's changes to the state are
+%atomic:\ either all happen or none happen. %
+%% These changes include database changes, messages, and actions on
+%% transducers.
+%[\ldots]
+\acidprop%
+ {Unteilbarkeit}%
+ {atomicity}%
+ {1}%
+ {Die von einer Transaktion vorgenommenen
+  Zu\-stands\-\"{a}n\-de\-run\-gen sind unteilbar. 
+  %Entweder alles oder nichts passiert.%
+  }\ [\ldots]%
+%
+%\item[Consistency.] A transaction is a correct transformation of the
+%state. The actions taken as a group do not violate any of the
+%integrity constraints associated with the state.
+%%This requires that the transaction be a correct program.
+%[\ldots]
+%
+\acidprop%
+ {Konsistenz}%
+ {consistency}%
+ {2}%
+ {Eine Transaktion ist eine korrekte Zu\-stands\-\"{a}n\-de\-rung. Die zu
+  einer Gruppe zusammengefa\ss{}ten Aktionen verletzen keinerlei
+  In\-te\-gri\-t\"{a}ts\-be\-schr\"{a}n\-kun\-gen des Zustands.}\ [\ldots]%
+%
+%\item[Isolation.] Even though transactions execute concurrently, it
+%appears to each transaction, {\it T}, that others executed
+%either before {\it T} or after {\it T}, but not both.
+%
+\acidprop%
+ {Serialisierbarkeit}%
+ {isolation}%
+ {3}%
+ {Auch bei gleichzeitig laufenden Transaktionen sieht es f\"{u}r jede
+  Transaktion {\it T} so aus, als ob andere Transaktionen entweder vor
+  {\it T} oder nach {\it T} ausgef\"{u}hrt w\"{u}r\-den.}%
+%
+%\item[Durability.] Once a transaction completes successfully
+%(commits), its changes to the state survive failures.
+%
+\acidprop%
+ {Best\"{a}ndigkeit}%
+ {durability}%
+ {4}%
+ {Nach \protect\gande{Ende einer Transaktion}%
+  {\protect\see{commit}}\ \"{u}berstehen die
+  Zu\-stands\-\"{a}n\-de\-run\-gen Systemausf\"{a}lle.}%
+\addglossary{Ende einer Transaktion}[commit][Damit gilt der aus den
+ w\"{a}hrend der Transaktion erfolgten Modifikationen hervorgegangene
+ Gesamtzustand der Datenbank als konsistent.]%
+%
+\end{description}%
+\end{quote}%
+%
+\par{}Die 3.~Schicht stellt unter Benutzung der
+Basisfunktionalit\"{a}ten der 2.~Schicht die Verbindung zu den
+transienten Objekten in den Sitzungen der 4.~Schicht her; so wird
+in der 3.~Schicht z.B.\ beim Abspeichern eines transienten Objektes
+aus der 4.~Schicht die transitiv referenzierte H\"{u}lle des Objektes
+traversiert und mit abgespeichert.
+%
+\par{}In den nachfolgenden Abschnitten werden die extern sichtbaren
+Konzepte der einzelnen Schichten erl\"{a}utert.
+%
+\section{Schicht 1: Die \postore\ Schicht}
+%
+\par{}Das System \postore\ \cite{bib:br92}
+\cite[\citepage{63--83}]{bib:mu91} realisiert einen persistenten
+\heap\ (Abschnitt~\ref{sec:objstore},
+\citepage{\pageref{sec:objstore}}). Die Implementation erfolgte in C
+nach Kernighan \& Ritchie- (d.h.\ nicht-\mbox{ANSI-)} \std\ auf SUN
+Arbeitsplatzrechnern unter SunOS.
+%
+\par{}In \cite[\citepage{63--83}]{bib:mu91} wird das System
+\postore\ sehr ausf\"{u}hrlich beschrieben und analysiert; die rein
+funktionale Schnittstelle wird vom Autor des Systems selbst in
+\cite{bib:br92} nur sehr knapp beschrieben. An dieser Stelle werden
+lediglich die zum weiteren Verst\"{a}ndnis wichtigen Konzepte
+geschildert.
+%
+\par{}Als persistenter \heap\ bietet \postore\ die M\"{o}glichkeit, einen
+persistenten Speicherbereich zu allozieren und zu modifizieren; ein
+solcher Speicherbereich wird im folgenden \postore-Vektor genannt.
+Ein allozierter \postore-Vektor ist genau dann persistent, wenn er
+erreichbar ist, d.h.\ wenn er transitiv vom Wurzelobjekt des
+\postore\ referenziert wird. \figurename~\ref{fig:pvec} %
+%
+\begin{figure}[htbp]%
+\centering%
+\def\coliw{5em}%
+\def\coliiw{9em}%
+\begin{\figurefontsize}%
+\begin{tabular}{|p{\coliw}|p{\coliw}||p{\coliiw}|p{\coliiw}|}%
+\hline
+\parbox{\coliw}{\centering\it m}
+ &\parbox{\coliw}{\centering\it n}
+  &\parbox{\coliiw}{\centering\smallskip%
+                    {\it m} Worte Referenzen\smallskip}
+   &\parbox{\coliiw}{\centering\smallskip%
+                     ({\it n}\,--\,{\it m}\,--\,2) Worte
+                     Werte\smallskip}\\
+\hline
+\multicolumn{1}{c}{\parbox{\coliw}{%
+\centering\smallskip\small Anzahl\\ \makebox[0pt]{Referenzen}}}
+ &\multicolumn{1}{c}{\parbox{\coliw}{%
+\centering\smallskip\small Vektor-\\gr\"{o}\ss{}e}}
+  &\multicolumn{1}{c}{\smallskip\small Referenzfeld}
+   &\multicolumn{1}{c}{\smallskip\small Wertefeld}
+\end{tabular}%
+\end{\figurefontsize}%
+\caption{\protect\postore-Vektor}\label{fig:pvec}%
+\end{figure}%
+%
+zeigt die Struktur eines \postore-Vektors. \postore\ benutzt 2~Worte
+zu je 32~Bit Kopf\mbox{}informationen. Danach folgen die frei zu
+belegenden Worte, die sich in einen Bereich mit {\it m} Referenzen auf
+andere \postore-Vektoren und einen Bereich mit ({\it n}\,--\,{\it
+m}\,--\,2) Worten uninterpretierten Werten aufteilen. Referenziert wird
+ein \postore-Vektor \"{u}ber seine 32~Bit \objid, die bei der
+Allozierung des Vektors vergeben wird; die \objid\/ selbst enth\"{a}lt
+keinerlei Informationen \"{u}ber die repr\"{a}sentierten Instanzen und ist
+damit nach der in Abschnitt~\ref{sec:ovidrepr}
+(\citepage{\pageref{sec:ovidrepr}}) gegebenen
+\"{U}bersicht ein Surrogat. Die in dieser Schicht vergebene
+\objid\/ wird zur Unterscheidung der in h\"{o}heren Schichten verwendeten
+\sobjid\/ hier als \lobjid\/ bezeichnet.
+%
+\par{}Es werden verschiedene Funktionen zum Zugriff auf einen
+\postore-Vektor angeboten. Die in \cite[\citepage{63}]{bib:mu91}
+erw\"{a}hnte generische Architektur von \postore\ macht sich in dieser
+Schicht auch dadurch bemerkbar, da\ss{} die Zugriffsfunktionen keinerlei
+G\"{u}ltigkeitspr\"{u}fungen ihrer Argumente durchf\"{u}hren. Konkurrenter
+Zugriff kann durch Setzen einer Schreibsperre %
+%
+\addglossary{Schreibsperre}[Markierung eines Objektes als
+\protect\rglq{}gesperrt\protect\rgrq, um anderen zugreifenden Instanzen
+zu signalisieren, da\ss{} der Objektzustand schreibend referenziert
+wird.]%
+%
+synchronisiert werden. Die Auswertung, ob ein \postore-Vektor
+schreibgesperrt ist oder nicht, mu\ss{} in einer h\"{o}heren Schicht
+erfolgen; \postore\ f\"{u}hrt bei schreibenden Zugriffen keinerlei
+Pr\"{u}fungen in dieser Hinsicht durch.
+%
+\par{}Als Hilfsmittel f\"{u}r Persistenz benutzt \postore\ die \sh-Datei,
+in der die Zust\"{a}nde der persistenten Objekte abgelegt
+werden.\footnote{Die \sh-Datei wird \"{u}ber den Aufruf der
+Betriebssystemfunktion \lisp{mmap}\ als virtueller Speicher in
+den Adre\ss{}raum des \unix\ Prozesses eingeblendet
+\cite[\citepage{81}]{bib:mu91} \cite[\citepage{666}]{bib:gr93}
+\cite{bib:mmap}; die \postore-Vektoren werden dann
+direkt in diesem virtuellen Adre\ss{}raum alloziert und
+modifiziert.} Modifikationen an den \postore-Vektoren wirken sich
+nicht sofort auf die \sh-Datei aus; alle \"{A}nderungen der Vektoren
+sind tempor\"{a}r, bis sie durch den Aufruf einer Stabilisierungsfunktion
+in die \sh-Datei \"{u}bertragen werden.
+%
+\par{}Im \postore\ ist eine Speicherr\"{u}ckgewinnung realisiert, die
+nicht vom Wurzelobjekt referenzierte \postore-Vektoren freigibt; die
+R\"{u}ckgewinnung wird nicht automatisch ausgel\"{o}st, sondern mu\ss{} durch
+einen expliziten Aufruf der entsprechenden Funktion veranla\ss{}t werden
+\cite[\citepage{65}]{bib:mu91}.
+%
+\subsection{Zusammenfassung der 1.\ Schicht}
+%
+Da das System \postore\ als generisches System konzipiert wurde,
+bietet es keine Transaktionsverarbeitung f\"{u}r einzelne
+\postore-Vektoren; die Transaktionsverarbeitung wird statt dessen f\"{u}r
+den persistenten Speicher als gesamte Einheit durchgef\"{u}hrt, d.h.\ eine
+Transaktionsverarbeitung betrifft alle \postore-Vektoren. Ebenso ist
+die Transaktionsverarbeitung nicht transparent, da die entsprechenden
+Funktionen explizit aufgerufen werden m\"{u}ssen.  Damit k\"{o}n\-nen h\"{o}here
+Schichten eine eigene Transaktionsverarbeitung realisieren.
+\begin{description}
+%
+\item[Unteilbarkeit]
+Die angebotenen Schreibsperren sind als Semaphoren
+\cite[\citepage{143}]{bib:je87} realisiert; in Verbindung mit auf
+h\"{o}heren Schichten emulierten Lesesperren
+\cite[\citepage{73}]{bib:mu91} \cite[\citepage{2}]{bib:br92} kann
+Unteilbarkeit erreicht werden. Die Sperrung eines \postore-Vektors
+durch einen Semaphor mu\ss{} von den BenutzerInnen beachtet werden,
+d.h.\ das \postore-be\-nut\-zen\-de Programm mu\ss{} selbst pr\"{u}fen, ob
+der Semaphor gesetzt ist und gegebenenfalls darauf warten, da\ss{} er
+wieder freigegeben wird.
+%
+\item[Konsistenz]
+Ein konsistenter Zustand des Gesamtsystems wird \postore\ durch Aufruf
+der Stabilisierungsfunktion signalisiert; das System \postore\ stellt
+dann sicher, da\ss{} der tem\-po\-r\"{a}\-re Zustand aller modifizierter
+\postore-Vektoren in die \sh-Datei \"{u}bertragen wird.
+%
+\par{}Bei Auftreten eines Fehlers wird der persistente Speicher beim
+n\"{a}chsten \"{O}ffnen in den Zustand nach der letzten erfolgreichen
+Stabilisierung zur\"{u}ckgesetzt; diese R\"{u}cksetzung kann simuliert, aber
+nicht explizit veranla\ss{}t werden.
+%
+\item[Serialisierbarkeit]
+Serialisierbarkeit kann erreicht werden, sofern der Zugriff auf die
+\postore-Vektoren von den BenutzerInnen entsprechend organisiert
+wird, indem z.B.\ alle Zugriffe innerhalb einer
+\twophasetr\ stattfinden. \postore\ bietet alle Hilfsmittel
+(Schreibsperren) zur Realisierung dieses Konzeptes; eine konkrete
+Realisierung mu\ss{} aber auf einer h\"{o}heren Schicht erfolgen.
+%
+\par{}Nach der in \cite[\citepage{401}]{bib:gr93} angegebenen
+\"{U}bersicht realisiert \postore\ eine Serialisierbarkeit von
+0$^{\circ}$.
+%
+\item[Best\"{a}ndigkeit]
+Die \postore-Vektoren werden in der \sh-Datei gesichert. Damit h\"{a}ngt
+die Best\"{a}ndigkeit des Gesamtsystems von der Best\"{a}ndigkeit dieser
+Datei ab; eine Er\-h\"{o}\-hung derselben lie\ss{}e sich auf
+Betriebssystemebene erreichen (z.B.\ durch Sichern oder Spiegeln der
+\sh-Datei).
+%
+\end{description}
+%
+Der folgende Abschnitt fa\ss{}t noch einmal kurz die Funktionalit\"{a}ten
+der \postore\ Schicht aus der Sicht der n\"{a}chsth\"{o}heren 2.~Schicht
+zusammen.
+\begin{description}
+%
+\item[Allozieren eines \postore-Vektors]
+Bei der Allozierung wird die Gesamtgr\"{o}\ss{}e {\it m} des Vektors
+angegeben; zur\"{u}ckgegeben wird die zur Referenzierung des Vektors
+n\"{o}tige \lobjid.
+%
+\item[Zugriff auf den Zustand von \postore-Vektoren]
+Es werden Funktionen zum un\-ge\-pr\"{u}f\-ten Zugriff auf
+einzelne oder mehrere Worte innerhalb eines \postore-Vektors
+angeboten.
+%
+\item[Wurzelobjekt]
+Die Struktur und der Zustand des \postore-Wurzelobjektes werden
+innerhalb der 1.~Schicht definiert und verwaltet; es kann nicht
+explizit gelesen oder \"{u}berschrieben werden au\ss{}er der frei
+zugreifbaren Komponente, die die \lobjid\/ des Wurzelobjektes der
+n\"{a}chsth\"{o}heren Schicht enth\"{a}lt (\figurename~\ref{fig:plroots},
+\citepage{\pageref{fig:plroots}}).
+%
+\item[Speicherr\"{u}ckgewinnung]
+Bei der Speicherr\"{u}ckgewinnung wird der Speicher der nicht transitiv
+vom Wurzelobjekt referenzierten persistenten Objekte wieder
+freigegeben. Die Speicherr\"{u}ckgewinnung mu\ss{} explizit veranla\ss{}t
+werden.
+%
+\end{description}
+%
+\section{Schicht 2: Die C-\protect\plob\ Schicht}
+%
+Die Implementation der 2.~Schicht erfolgte in ANSI-C unter
+zu\-s\"{a}tz\-li\-cher Benutzung eines ebenfalls von mir erstellten
+minimalen Objektsystems. Diese Schicht realisiert
+transaktionsgesicherten, durch das Sperrprotokoll unteilbaren Zugriff
+auf dynamisch typisierte, selbstbeschreibende Objekte und stellt die
+f\"{u}r eine Indexverwaltung notwendigen Hilfsmittel zur Verf\"{u}gung.
+%
+\subsection{\"{U}berlegungen zur Performanz und Datenabstraktion}%
+\label{sec:plpeda}%
+%
+Eine hohe Performanz kann erreicht werden, wenn wie in
+\wood\ \cite{bib:wo93} die transienten LISP Daten auf ihrer
+niedrigsten Abstraktionsebene verarbeitet werden, d.h.\ wenn die
+\"{U}ber\-tra\-gung eines Objektes zwischen dem transienten und dem
+persistenten Speicher innerhalb der 2.~Schicht erfolgen w\"{u}rde und
+dazu die transiente \representation{} des Objektes ausgenutzt werden
+w\"{u}rde. Dies w\"{a}re mit folgenden Schwierigkeiten verbunden:
+\begin{itemize}
+%
+\item Die dazu notwendigen Informationen \"{u}ber die Struktur der
+transienten Objekte auf dieser niedrigen Ebene sind nur schwierig zu
+erhalten, da sie von den AutorInnen des verwendeten LISP-Systems
+festgelegt wurden und \ia\ von diesen nicht \"{o}ffentlich zug\"{a}nglich
+gemacht werden (siehe z.B.\ \cite{bib:sn93}); weiterhin w\"{a}re das
+persistente System bei einer derartigen Festlegung auf ein transientes
+System nicht portabel, d.h.\ es ist nicht ohne weiteres m\"{o}glich, die
+h\"{o}heren Schichten des Systems gegen ein anderes Objektsystem
+auszutauschen. In \wood\ stellten sich diese Probleme nicht, da zum
+einen sein Autor an der Entwicklung des zur Realisierung von
+\wood\ verwendeten Macintosh \cl\ (MCL) direkt beteiligt ist und zum
+anderen das Format des persistenten Speichers nach seinen Worten mit
+der folgenden Absicht erstellt wurde \cite{bib:wo93}:
+\begin{quote}
+\rglqq It is not intended to be compatible with anything.\rgrqq
+\end{quote}
+%
+\item Ein transientes Datenobjekt enth\"{a}lt au\ss{}er dem Objektzustand
+noch unbekannte systeminterne Informationen zu seiner Verwaltung.
+F\"{u}r die \representation{} eines persistenten Objektes im transienten
+Speicher mu\ss{} gegebenenfalls eine transiente \representation{} alloziert
+und mit den systeminternen Informationen initialisiert werden;
+ferner kann die Allozierung auch zu ber\"{u}cksichtigende Seiteneffekte
+nach sich ziehen.
+%
+\item \cl\ Daten sind oft sehr redundant (beispielsweise enth\"{a}lt ein
+\clsmo\ eine Liste mit den \clsmo[en]\ der Subklassen). Auf
+der LISP Ebene der 3.~Schicht ist die Bedeutung eines Datums oft
+bekannt; damit k\"{o}n\-nen die Redundanzen eines transienten Objektes bei
+seiner \"{U}bertragung in den persistenten Speicher weggelassen und bei
+der R\"{u}ck\"{u}bertragung wieder hinzugef\"{u}gt werden. Dieses Wissen um die
+Bedeutung fehlt in der 2.~Schicht.
+%
+\item Bei der \"{U}bertragung eines Objektzustands auf einer niedrigen
+Abstraktionsebene kann die Bedeutung des Objektes f\"{u}r die h\"{o}heren
+Ebenen verloren gehen. F\"{u}r die Rekonstruktion eines solchen Objektes
+reicht eine blo\ss{}e Erzeugung der transienten \representation{} und die
+\"{U}bertragung des Zustands nicht aus, sondern es mu\ss{} zu\-s\"{a}tz\-lich
+die Bedeutung des Objektes mit ber\"{u}cksichtigt werden.  In \lw\ werden
+beispielsweise \gande{Pakete}{packages}\ durch Instanzen einer
+Strukturklasse repr\"{a}sentiert; eine Rekonstruktion mu\ss{} das
+wiederhergestellte Paket dem LISP-System auch als Paket bekannt
+machen.
+%
+\end{itemize}
+%
+\"{A}hnliche Feststellungen wurden auch bei der Realisierung des
+persistenten Objektsystems \zeitgeist\ \cite[\citepage{35}]{bib:fo88}
+gemacht. Aus den genannten Gr\"{u}nden wird die \"{U}bertragung von
+Objektzust\"{a}nden von der 3.~Schicht aus durchgef\"{u}hrt.
+%
+\subsection{Typisierung der \protect\lobjid[s]\ f\"{u}r
+\protect\immval[s]}%
+%
+Das System \postore\ garantiert, da\ss{} die vergebenen \lobjid[s]\ immer
+ganzzahlige Vielfache von 8 sind, d.h.\ die untersten 3~Bit sind immer
+0. Zus\"{a}tzlich werden die im Referenzfeld eines \postore-Vektors
+abgelegten \lobjid[s]\ von \postore\ nur als Referenz angesehen, wenn
+sie ganzzahlige Vielfache von 8 sind; andere Werte werden
+niemals dereferenziert. Dies wurde benutzt, um \lobjid[s]\ zu
+typisieren: die untersten 3~Bit der \lobjid[s]\ werden als
+\gande{Typkennung}{type tag}[][Numerischer Wert, der den Typ
+eines Objektes eineindeutig identifiziert.]\ benutzt. Die
+Belegung ist in \tablename~\ref{tab:typetags} %
+%
+\begin{figure}[htbp]%
+\centering%
+\begin{\figurefontsize}%
+\begin{tabular}{|r@{\ldots}l|c|c|c|c|r@{\ldots}l|l|}%
+\cline{1-6}
+\multicolumn{5}{|c|}{\tabularheader{Bit-Position}}
+        &\tabularheader{Ken-}\\
+\cline{7-9}
+31 & 3 & 2 & 1 & 0  & \tabularheader{nung}
+        & \multicolumn{2}{|c|}{\tabularheader{Zustand in}}
+                &\tabularheader{Beschreibung}\\
+\hline\hline
+&& 0 & 0 & 0 & 0    & Bit 31 & 3 & \lobjid\/ als Referenz auf Objekt\\
+&& . & 0 & 1 & 1, 5 & Bit 31 & 2 & Instanz der \cls\ \class{fixnum}\\
+&& 0 & 1 & 0 & 2    & Bit 31 & 3 & Instanz der \cls\ \class{short-float}\\
+&& 0 & 1 & 1 & 3    & Bit 31 & 3 & Instanz der \cls\ \class{character}\\
+&& 1 & 0 & 0 & 4    & Bit 31 & 3 & [Instanz der \cls] Markierung\\
+\multicolumn{2}{|c|}{}
+ &   &   &   & 6, 7 & \multicolumn{2}{c|}{}
+                                 & Zur Zeit unbenutzte Typkennungen\\
+\hline
+\end{tabular}%
+\end{\figurefontsize}%
+%
+\let\figurename\tablename%
+\caption{Typkennungen der typisierten \protect\lobjid[s]}%
+\label{tab:typetags}%
+\end{figure}%
+%
+wiedergegeben. Eine \lobjid\/ ist damit entweder eine Referenz auf
+einen \postore-Vektor (Kennung~0 in \tablename~\ref{tab:typetags})
+oder enth\"{a}lt den Zustand einer Instanz der in den Zeilen~2--5 in
+\tablename~\ref{tab:typetags} aufgef\"{u}hrten Basisklassen.
+F\"{u}r \immval[s]\/ enth\"{a}lt eine \lobjid\/ damit den Zustand des
+repr\"{a}sentierten Objektes; f\"{u}r alle anderen Objekte ist eine
+\lobjid\/ ein \rglq{}echtes\rgrq\ Surrogat ohne Informationen \"{u}ber das
+repr\"{a}sentierte Objekt. Die hier realisierten typisierten
+\lobjid[s]\ sind Surrogate mit nicht vollst\"{a}ndig kanonischer Form
+(Abschnitt~\ref{sec:idsur}, \citepage{\pageref{sec:idsur}}).
+%
+\subsubsection{Markierungen}
+%
+In \cl\ werden \"{u}blicherweise ausgezeichnete Objekte als Markierungen
+f\"{u}r bestimmte singul\"{a}re Eigenschaften oder Bedingungen verwendet,
+wie z.B.\ in der \closette\ Implementation das in der Variablen
+\lisp{secret-unbound-value}\ enthaltene Objekt
+als \representation{} der Eigenschaft \rglq{}ungebundener \Slt\/\rgrq\
+verwendet wird \amopcite{28}.  In \plob\ gibt es f\"{u}r Markierungen eine
+eigene \rglq\cls\rgrq\ (Kennung~4 in \tablename~\ref{tab:typetags});
+sie sind damit disjunkt zu allen anderen Daten. Markierungen werden
+durch Instanzen der \rglq\cls\rgrq\ Markierung repr\"{a}sentiert.
+%
+\subsubsection{\protect\representation\ von \protect\objid[s]}
+%
+Aus Effizienzgr\"{u}nden sollen die in den nachfolgenden Schichten
+verwendeten \objid[s]\ f\"{u}r ihre \representation{} m\"{o}glichst wenig
+Speicherplatz ben\"{o}tigen; deswegen werden in den in \cl\ realisierten
+h\"{o}heren Schichten zu ihrer \representation{} Instanzen des Typs
+\class{fixnum}\ verwendet. Diese \representation{} be\"{o}tigt damit
+wesentlich weniger Speicherplatz als beispielsweise die in
+\soh\ \ifbericht\cite[\citepage{67}]{bib:ki94a}\fi\ realisierte
+\representation{} von \objid[s]\ als typstrukturierte Bezeichner
+\ifbericht%
+\cite[\citepage{72}]{bib:ki94a}%
+\else%
+(Abschnitt~\ref{sec:sohapi}, \citepage{\pageref{sec:sohapi}})\fi.
+%
+\par{}Da drei der 32~Bit einer \lobjid\/ f\"{u}r die
+Typisierung verwendet werden, kann eine \lobjid\/ 2$^{(32-3)}$ =
+512~{\it M} Objekte adressieren. Instanzen des Typs
+\class{fixnum}\ werden im 
+verwendeten \lwcl\ durch 30~Bit repr\"{a}sentiert. Eine \lobjid\/ in einer
+der h\"{o}heren Schichten h\"{a}tte dann 2$^{(30-3)}$ = 128~{\it M} Objekte
+adressieren k\"{o}n\-nen. Um die Anzahl der adressierbaren Objekte
+m\"{o}glichst hoch zu halten, werden daher die \lobjid[s]\ beim Austausch
+mit der 3.~Schicht durch Weglassen der Typkennung in ein k\"{u}rzeres
+29~Bit Format, die \sobjid[s], konvertiert. Die Typkennung
+wird, falls n\"{o}tig, von der 3. in die 2.~Schicht mit
+einem zu\-s\"{a}tz\-li\-chen Funktionsparameter \"{u}bergeben und von der
+2. in die 3.~Schicht als zus\"{a}tzlicher R\"{u}ckgabewert eines
+Funktionsaufrufs zur\"{u}ckgegeben.
+%
+\subsubsection{Allozierung von persistenten Objekten}
+%
+Jeder Basistyp wird im Code durch einen Datensatz beschrieben, der
+die Gr\"{o}\ss{}e und Struktur seiner Instanzen festlegt; alle anderen
+Klassen werden explizit durch \clsdo[e]\ beschrieben.
+F\"{u}r die Allozierung eines persistenten Objektes wird nicht wie
+in der 1.~Schicht seine Speichergr\"{o}\ss{}e, sondern seine Typkennung
+angegeben.
+%
+\subsection{\protect\representation\ von persistenten Objekten}%
+\label{sec:plrpr}%
+%
+In Gegensatz zu relationalen Datenbanken definiert der Objektspeicher
+\postore\ keine feste Menge von Basistypen und M\"{o}glichkeiten zur
+Typbildung aus diesen Basistypen, sondern bietet ein
+generisches Objektformat zur Festlegung benutzerInnen-definierter
+Datentypen an. Die von mir gew\"{a}hlte \representationform{} f\"{u}r
+persistente Objekte orientiert sich daher an der in \lw\ vorgefundenen
+\representationform{} f\"{u}r transiente Objekte, erweitert um
+datenbank-spezifische Komponenten.
+%
+\begin{figure}[htbp]%
+\centering%
+\def\coliw{4em}%
+\def\coliiw{5em}%
+\begin{\figurefontsize}%
+\begin{tabular}{%
+|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}||p{\coliiw}|p{\coliiw}|}%
+\hline
+\parbox{\coliw}{\centering {\it m}}
+ &\parbox{\coliw}{\centering {\it n}}
+  &\parbox{\coliw}{\centering\smallskip Kennung, {\em [Flags]}\smallskip}
+   &\parbox{\coliw}{\centering\smallskip Lock-Info\smallskip}
+    &\parbox{\coliiw}{\centering\smallskip%
+                      ({\it m}\,--\,2) Referenzen\smallskip}
+     &\parbox{\coliiw}{\centering\smallskip%
+                       ({\it n}\,--\,{\it m}\,--\,2) Werte\smallskip}\\
+\hline
+\multicolumn{1}{c}{\parbox{\coliw}{%
+\centering\smallskip\small Anzahl\\ \makebox[0pt]{Referenzen}}}
+ &\multicolumn{1}{c}{\parbox{\coliw}{%
+\centering\smallskip\small Vektor-\\gr\"{o}\ss{}e}}
+  &\multicolumn{2}{}{}
+   &\multicolumn{1}{c}{\smallskip\small Referenz\-feld}
+    &\multicolumn{1}{c}{\smallskip\small Werte\-feld}
+\end{tabular}%
+\end{\figurefontsize}%
+\caption{\protect\representation\ eines persistenten Objektes}%
+\label{fig:povec}%
+\end{figure}%
+%
+\par{}In der 2.~Schicht werden direkt hinter die von
+\postore\ benutzten Kopf\mbox{}informationen weitere 2~Worte mit
+Kopf\mbox{}informationen angef\"{u}gt (\figurename~\ref{fig:povec}). Die
+einzelnen Objektkomponenten werden folgenderma\ss{}en genutzt:
+\begin{description}
+%
+\item[Kennung]
+Das Feld Kennung enth\"{a}lt eine zu den bereits in
+\tablename~\ref{tab:typetags} (\citepage{\pageref{tab:typetags}})
+vergebenen Typkennungen disjunkte numerische
+Typkennung in Form einer auf die \cls\ \class{fixnum}\ typisierten
+\lobjid, die die Basisklasse des persistenten Objektes angibt.
+F\"{u}r jeden \cl\ Basistyp wurde ein entsprechender Basistyp mit
+\"{a}hn\-li\-cher Struktur in \plob\ definiert. Wie auch in transienten
+LISP-Systemen werden die Basistypen als
+\rglq{}eingebaut\rgrq\ angesehen; sie unterliegen damit den gleichen
+Einschr\"{a}nkungen.
+%
+\item[{\em Flags}]
+Die angedeuteten \gande{Statusvariablen}{flags}\ sind zwar
+realisiert, werden aber im Moment nicht genutzt.
+%
+\item[Lock-Info]
+Das Feld Lock-Info enth\"{a}lt eine Referenz auf die Objekte, die zur
+\representation{} des aktuellen Sperrzustands benutzt werden.
+%
+\item[Referenzfeld]
+Das Referenzfeld umfa\ss{}t ({\it m}\,--\,2) typisierte \lobjid[s], die,
+wie im vorigen Abschnitt erl\"{a}utert, entweder Verweise auf persistente
+Objekte oder den Zustand von Instanzen der in
+\tablename~\ref{tab:typetags} aufgef\"{u}hrten Basistypen enthalten.
+%
+\item[Wertefeld]
+Das Wertefeld mit ({\it n}\,--\,{\it m}\,--\,2) Worten wird f\"{u}r
+persistente Werte benutzt, wie z.B.\ Zeichenketten oder Bit-Vektoren.
+%
+\end{description}
+%
+\subsubsection{\protect\representation\ eines persistenten Feldes}%
+%
+\figurename~\ref{fig:plexarr} %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/plexarr.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/plexarr.eps}}%
+\fi%
+\caption{Beispiel f\"{u}r die \protect\representation\ eines persistenten Feldes}%
+\label{fig:plexarr}%
+\end{figure}%
+%
+zeigt beispielhaft die \representation{} eines persistenten
+\gande{Feldes}{array}\ mit den Dimensionen \lisp{(3 4)} (im Vergleich
+zur \figurename~\ref{fig:povec} ist die Darstellung der
+Objektkomponenten um 270$^{\circ}$ gedreht).
+%
+\par{}Das Referenzfeld teilt sich auf in einem
+Bereich mit konstanter Gr\"{o}\ss{}e (Komponenten {\em data-vector\/} bis
+{\em array-rank\/}) und einen Bereich mit variabler Gr\"{o}\ss{}e
+(Komponenten {\em 0.\ dimension\/} bis {\em 1.\ dimension\/}).  Die
+Gr\"{o}\ss{}e des variablen Bereichs (in diesem Beispiel 2) ist die Anzahl
+der Dimensionen des persistenten Feldes und wird bei der Allozierung
+angegeben. Das Wertefeld ist f\"{u}r persistente Felder immer leer.
+%
+\par{}Die Bedeutungen der Komponenten {\em fill-pointer\/}
+\stcite{455}, {\em adjustable-array\/} \stcite{452}\ und
+{\em array-rank\/} \stcite{448}\ entsprechen dem in \cite{bib:st90}
+definierten \std\ f\"{u}r LISP Felder. Die Komponenten
+{\em 0.\ dimension\/} und {\em 1.\ dimension\/} enthalten die
+\gande{Dimensionen des Feldes}{array dimensions}\ \stcite{449}.
+%
+\par Die Komponente {\em data-vector\/} enth\"{a}lt einen persistenten
+Vektor mit den Feldelementen. Die Anzahl der Elemente des Vektors ist
+gleich der Anzahl der Feldelemente. Der Typ des Vektors {\em
+data-vector\/} ergibt sich aus dem Elementtyp, auf den das Feld
+spezialisiert ist:
+\begin{description}
+%
+\item[Elementtyp \lispt] Der persistente Vektor {\em
+data-vector\/} ist eine Instanz des \rglq{}normalen\rgrq\ persistenten
+Vektortyps, d.h.\ des Vektortyps, dessen Instanzen Elemente des Typs
+\lispt\ enthalten.
+%
+\item[Elementtyp \lisp{(unsigned-byte 1)}] Der Vektor {\em
+data-vector\/}  ist ein persistenter Bitvektor.
+%
+\item[Elementtyp \lisp{float}, \lisp{(unsigned-byte {\rm\it n\/})},
+{\rm\it n}\,$>$\,1] In diesem Fall ist der Vektor {\em data-vector\/}
+ein persistenter {\em ivector\/} ({\em i\/}mmediate {\em vector\/}),
+der nur Werte genau eines Basistyps enthalten kann. Der {\em ivector\/}
+wird auf den jeweiligen Elementtyp spezialisiert.
+%
+\end{description}
+Der Elementtyp, auf den das persistente Feld spezialisiert ist,
+l\"{a}\ss{}t sich damit aus dem Typ der Komponente {\em data-vector\/}
+bestimmen.
+%
+\par{}Die Komponente {\em displaced-offset\/} enth\"{a}lt 
+f\"{u}r ein \gande{Feld, das nicht Elemente eines anderen Feldes
+referenziert}{non-displaced array}\ \stcite{444},
+das persistente Symbol \lispnil. Sofern das \gande{Feld
+Elemente eines anderen Feldes referenziert}{displaced array}, enth\"{a}lt
+die Komponente {\em dis\-pla\-ced-""off\-set\/} den Index, ab dem das
+andere Feld referenziert wird. In diesem Fall verweist die Komponente
+{\em data-vector\/} f\"{u}r ein referenzierendes \gande{Feld variabler
+Gr\"{o}\ss{}e}{adjustable array}\ nicht auf einen persistenten Vektor,
+sondern auf das referenzierte persistente Feld; bei einem
+referenzierendem \gande{Feld mit
+konstanter Gr\"{o}\ss{}e}{non-adjustable array}\ enth\"{a}lt die Komponente
+{\em data-vector\/} des referenzierenden Feldes direkt die Komponente
+{\em data-vector\/} des referenzierten Feldes.
+%
+\par{}Persistente Felder entstehen \ia\ aus der Speicherung
+eines transienten Feldes; aus dem transienten Feld werden mit den
+\gande{Feld-Informationsfunktionen}{array information functions}\ die
+entsprechenden Parameter gelesen und in das persistente Feld
+eingetragen.  Der Elementtyp des persistenten Feldes
+wird beim Speichern eines transienten Feldes aus dem bei der Erzeugung
+des transienten Feldes mit dem Schl\"{u}sselwort-Parameter
+\lisp{:element-type}\ \stcite{443}\ \"{u}bergebenen Elementtyp bestimmt,
+f\"{u}r den das transiente Feld spezialisiert wurde. F\"{u}r transiente
+Felder, deren Elementtyp bei der Erzeugung nicht spezialisiert wurde,
+wird der Elementtyp \lispt\ verwendet.
+%
+\subsubsection{\protect\representation\ von Struktur- und
+\protect\clos-Objekten}%
+%
+F\"{u}r persistente Struktur- und \clos-Instanzen gibt es jeweils
+noch eine gesonderte Typkennung; die Kopf\mbox{}information wird um ein
+weiteres Wort erweitert, das eine Referenz auf eine persistente
+Struktur- bzw.\ Klassen-Beschreibung enth\"{a}lt
+(Abbildungen~\ref{fig:pivec} und \ref{fig:pcivec}). Das Wertefeld ist
+f\"{u}r persistente Struktur- und \clos-Instanzen immer leer.
+%
+\begin{figure}[htbp]%
+\centering%
+\def\coliw{4em}%
+\def\coliiw{5em}%
+\begin{\figurefontsize}%
+\begin{tabular}{%
+|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliiw}||p{\coliiw}|}%
+\hline
+\parbox{\coliw}{\centering {\it m}}
+ &\parbox{\coliw}{\centering ({\it m}\,+\,2)}
+  &\parbox{\coliw}{\centering\smallskip \lisp{\#x38}\\
+                   {\em [Flags]}\smallskip}
+   &\parbox{\coliw}{\centering\smallskip Lock-Info\smallskip}
+    &\parbox{\coliiw}{\centering\smallskip Strukturbe-\\schreibung\smallskip}
+     &\parbox{\coliiw}{\centering\smallskip%
+                       ({\it m}\,--\,3) Referenzen\smallskip}\\
+\hline
+\multicolumn{1}{c}{\parbox{\coliw}{%
+\centering\smallskip\small Anzahl\\ \makebox[0pt]{Referenzen}}}
+ &\multicolumn{1}{c}{\parbox{\coliw}{%
+\centering\smallskip\small Vektor-\\gr\"{o}\ss{}e}}
+  &\multicolumn{3}{}{}
+   &\multicolumn{1}{c}{\smallskip\small Referenz\-feld}
+\end{tabular}%
+\end{\figurefontsize}%
+\caption{\protect\representation\ eines persistenten Strukturobjektes}%
+\label{fig:pivec}%
+\end{figure}%
+%
+\paragraph{Persistente Strukturobjekte}%
+%
+Alle Strukturobjekte haben die einheitliche Typkennung \lisp{\#x38};
+die Klasse des Strukturobjektes geht aus der referenzierten
+Strukturbeschreibung hervor. Die Strukturbeschreibung selbst ist
+ebenfalls ein Strukturobjekt.  Die Gr\"{o}\ss{}e des Referenzfeldes
+entspricht der Anzahl der Struktur-\Slt[s]
+(\figurename~\ref{fig:pivec}).
+%
+\paragraph{Persistente \protect\clos-Instanzen}%
+%
+Da die Klasse einer \clos-Instanz  bei Erhalt ihrer Identit\"{a}t
+ge\-\"{a}n\-dert werden kann, werden \clos-Instanzen anders als
+Strukturobjekte repr\"{a}sentiert. Die \Slt\/-Zust\"{a}nde werden
+nicht direkt in einer persistenten \clos-Instanz repr\"{a}sentiert,
+sondern durch einen referenzierten persistenten Zustandsvektor; die
+Anzahl der Elemente des Zustandsvektors ergibt sich aus der Anzahl der
+\Slt[s]. Der Zustandsvektor ist eine Instanz des Basistyps
+persistenter Vektor mit der in \figurename~\ref{fig:povec}
+(\citepage{\pageref{fig:povec}}) gezeigten \representation.
+Persistente \clos-Instanzen haben immer die Typkennung
+\lisp{\#x48}; die Klasse der \clos-Instanz geht aus der
+referenzierten Klassenbeschreibung hervor. Die Klassenbeschreibung
+selbst ist auch eine persistente \clos-Instanz
+(\figurename~\ref{fig:pcivec}).%
+%
+\begin{figure}[htbp]%
+\centering%
+\def\coliw{4em}%
+\def\coliiw{5em}%
+\begin{\figurefontsize}%
+\begin{tabular}{%
+|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliiw}|p{\coliiw}|}%
+\hline
+\parbox{\coliw}{\centering 4}
+ &\parbox{\coliw}{\centering 6}
+  &\parbox{\coliw}{\centering\smallskip \lisp{\#x48}\\
+                   {\em [Flags]}\smallskip}
+   &\parbox{\coliw}{\centering\smallskip Lock-Info\smallskip}
+    &\parbox{\coliiw}{\centering\smallskip \cls[n]be-\\schreibung\smallskip}
+     &\parbox{\coliiw}{\centering\smallskip Zustands-\\vektor\smallskip}\\
+\hline
+\multicolumn{1}{c}{\parbox{\coliw}{%
+\centering\smallskip\small Anzahl\\ \makebox[0pt]{Referenzen}}}
+ &\multicolumn{1}{c}{\parbox{\coliw}{%
+\centering\smallskip\small Vektor-\\gr\"{o}\ss{}e}}
+  &\multicolumn{3}{}{}
+   &\multicolumn{1}{c}{\smallskip\small Referenz\-feld}
+\end{tabular}%
+\end{\figurefontsize}%
+\caption{\protect\representation\ einer persistenten \protect\clos-Instanz}%
+\label{fig:pcivec}%
+\end{figure}%
+%
+\subsection{Bedeutung von Objekten und Portabilit\"{a}t}%
+\label{sec:plmap}%
+%
+In diesem Abschnitt wird die Bedeutung von Objekten in Bezug auf
+Portabilit\"{a}t untersucht. Portabilit\"{a}t meint den Austausch der
+3.~Schicht gegen ein anderes, nicht auf \clos\ basierendes
+Objektsystem.
+%
+\subsubsection{Bedeutung der Objekte von Basisklassen}
+%
+Basisklassen sind grundlegende Klassen eines Programmsystems mit einer
+von den AutorInnen in das System fest
+\gande{\rglq{}eingebauten\rgrq}{built in}\ Struktur und einem fest 
+eingebautem Verhalten. Da die Bedeutung ihrer Instanzen allgemein
+bekannt ist, bereitet eine Nutzung keine Schwierigkeiten.  Ein
+Beispiel ist die Bedeutung von {\em cons\/}-Zellen, f\"{u}r die
+festgelegt wurde, das sie ausschlie\ss{}lich Paare repr\"{a}sentieren. Aus
+dieser festgelegten Bedeutung erschlie\ss{}t sich auch das Verhalten
+einer {\em cons\/}-Zelle; so k\"{o}nnen die beiden Elemente manipuliert
+werden.
+%
+\par{}Da \ua\ die Struktur der Instanzen von Basisklassen
+festgelegt ist und damit ihre \representationform{} konstant bleibt,
+kann intern der Zugriff auf den Zustand einer Basisklasse
+auf einer niedrigen Abstraktionsebene realisiert werden, bei der die
+Bedeutung des \Slt[s], auf den zugegriffen wird, klar definiert ist.
+%
+\subsubsection{Bedeutung von \protect\clos-Instanzen und
+\protect\mo[en]}
+%
+Dieser Abschnitt betrachtet (transiente) \clos-Instanzen mit Struktur
+und Verhalten.  F\"{u}r eine \clos-Instanz ergibt sich ihre Bedeutung
+aus ihrer Klasse, die alle Informationen \"{u}ber Struktur und Verhalten
+enth\"{a}lt. Anders als bei Basisklassen ist eine \clos\ Klasse nicht als
+\rglq{}eingebaut\rgrq\ festgelegt, sondern kann dynamisch erzeugt und
+ver\"{a}ndert werden. Nur f\"{u}r die AutorInnen einer Klasse erschlie\ss{}t
+sich die vollst\"{a}ndige Bedeutung der Objekte selbst, d.h.\ welche
+realen Dinge oder Sachverhalten zu Objekten abstrahiert wurden.
+%
+\par{}Klassen werden wiederum durch Objekte, genauer \clsmo[e],
+repr\"{a}sentiert. F\"{u}r \clos\ selbst mu\ss{} die Bedeutung der
+\clsmo[e]\ und der von ihnen referenzierten weiteren \mo[e]\ bekannt
+sein, um sie nutzen zu k\"{o}n\-nen. Zu diesem Zweck wird die Bedeutung der
+\mo[e]\ in \cite{bib:amop91} ausschlie\ss{}lich \"{u}ber ihr Verhalten 
+festgelegt; eine Festlegung f\"{u}r die Strukturen der
+\mo[e]\ ist im Rahmen der Normierung unn\"{o}tig und l\"{a}\ss{}t
+den AutorInnen eines \clos-Systems Freiheit in der Auswahl der
+Strukturen.
+%
+\par{}Da die Struktur von \clos-Objekten nicht von vornherein
+festgelegt ist und sich ihre \representationform{} aus den im
+\clsmo\ abgelegten Informationen ergibt, erfolgt der Zugriff auf den
+Zustand eines \clos-Objektes intern auf einer relativ hohen
+Abstraktionsebene \"{u}ber das Verhalten des \clsmo[es].
+%
+\subsubsection{Bedeutung von persistenten \protect\mo[en]}
+%
+Da die Bedeutung von \mo[en]\ wie im letzten Abschnitt
+erl\"{a}utert ausschlie\ss{}lich \"{u}ber ihr Verhalten definiert wird und das
+persistente System nur Struktur, aber kein Verhalten speichern kann,
+ist es in der 2.~Schicht nicht m\"{o}glich, die Bedeutung von
+persistenten \mo[en]\ zu kennen.
+%
+\subsubsection{Folgerungen f\"{u}r die Bedeutung von Objekten und
+Portabilit\"{a}t}%
+%
+\begin{fortune}[6cm]%
+Wir k\"{o}n\-nen auch anders!
+\from{Detlev Buck}
+\end{fortune}%
+\nopagebreak[4]%
+%
+Bei einem Austausch der 3.~Schicht gegen ein nicht auf
+\clos\ basierendes Objektsystem w\"{a}re es vorteilhaft, \"{u}ber die im
+persistenten Speicher befindlichen Objekte Aussagen auf Klassenebene
+treffen zu k\"{o}n\-nen, z.B.\ wie der Name der Klasse ist oder welche
+\Slt[s]\/ eine persistente \clos-Instanz hat. F\"{u}r persistente 
+Instanzen von Basistypen stellt dies kein Problem dar, da ihre
+Bedeutung \"{a}hn\-lich wie in einem \cl-System in das persistente
+System \rglq{}eingebaut\rgrq\ wurde. Bei persistenten \clos-Instanzen
+mu\ss{} f\"{u}r Aussagen auf Klassenebene die Bedeutung der
+Klassenbeschreibung (\figurename~\ref{fig:pcivec},
+\citepage{\pageref{fig:pcivec}}) bekannt sein; wie im letzten
+Abschnitt gezeigt, k\"{o}n\-nen persistente \mo[e]\ diese Bedingung nicht
+erf\"{u}llen.
+%
+\paragraph{Verzicht auf Portabilit\"{a}t}%
+%
+Sofern Portabilit\"{a}t nicht ben\"{o}tigt wird, besteht eine L\"{o}sung darin,
+die Klassenbeschreibungen ausschlie\ss{}lich den h\"{o}heren Schichten zu
+\"{u}berlassen; deren Bedeutung ist dann auch nur dort
+bekannt. Vorteilhaft ist, da\ss{} v\"{o}llige Freiheit in der Wahl der
+Klassenbeschreibung besteht und damit keine bestimmte
+Datenmodellierung f\"{u}r persistente Objekte von der 2.~Schicht
+vorgeschrieben wird. Der Nachteil ist, da\ss{} Portabilit\"{a}t nicht
+gew\"{a}hrleistet werden kann, da die Bedeutung einer Klassenbeschreibung
+auf eine konkrete h\"{o}here Schicht spezialisiert ist.
+%
+\paragraph{Integration von \protect\clos}%
+%
+Eine radikale L\"{o}sung best\"{a}nde in der Integration von \clos\ in
+die 2.~Schicht, damit die Bedeutung der Klassenbeschreibung wieder
+\"{u}ber ihr Verhalten definiert werden k\"{o}nnte; dies w\"{u}rde
+allerdings den in Abschnitt~\ref{sec:arcis}
+(\citepage{\pageref{sec:arcis}}) erl\"{a}uterten Architekturansatz
+realisieren, der aus den dort genannten Gr\"{u}nden im Rahmen
+\ifbericht dieses Berichtes \else\ifbuch dieses Buches \else dieser
+Arbeit \fi\fi ausscheidet.
+%
+\paragraph{Festlegung der Klassenbeschreibungen in der 2.\ Schicht}%
+%
+Ein moderater Ansatz besteht darin, Klassenbeschreibungen
+nicht durch \clsmo[e]\ und die von ihnen referenzierten \mo[e]\ zu
+repr\"{a}sentieren, deren Bedeutung \"{u}ber ihr Verhalten definiert
+wird, sondern stattdessen \clsdo[e]\ und von ihnen referenzierte
+\deo[e]\ zu benutzen, deren Bedeutung ausschlie\ss{}lich \"{u}ber ihre
+Struktur festgelegt wird. Die Struktur der \deo[e]\ wird durch das in
+den h\"{o}heren Schichten 
+benutzte Objektsystem (in diesem Fall \clos) bestimmt und 
+anschlie\ss{}end in der 2.~Schicht festgelegt; f\"{u}r die
+h\"{o}heren Schichten wird die Konvention eingef\"{u}hrt, beim Speichern einer
+persistenten \clos-Instanz sicherzustellen, da\ss{} seine
+Klassenbeschreibung g\"{u}ltig ist.
+Die Klassen der \deo[e]\ k\"{o}n\-nen sinnvollerweise aus den \mc[n]\ von
+\clos\ abgeleitet werden (siehe Abschnitt~\ref{sec:mopdescr},
+\citepage{\pageref{sec:mopdescr}}); dabei k\"{o}n\-nen durch Auslassen der
+f\"{u}r ein \deo\ nicht ben\"{o}tigten \Slt[s]\/ der \mo[e]\ die in
+Abschnitt~\ref{sec:plpeda} (\citepage{\pageref{sec:plpeda}})
+erw\"{a}hnten Redundanzen vermieden werden, beispielsweise indem in
+\clsdo[en]\ die Liste der Subklassen oder der direkten \mtd[n]\ nicht
+repr\"{a}sentiert werden.
+%
+\par{}Nachteilig ist, da\ss{} durch die Festlegung der \dec[n]\ \"{u}ber
+ihre Struktur Abstraktion verloren geht; die Struktur jeder \dec\ mu\ss{}
+in der 2.~Schicht verbindlich festgelegt werden. Damit werden
+\dec[n]\ zu Basisklassen des persistenten Systems. Ebenso m\"{u}ssen bei
+Einhaltung der \og[en]\ Konvention die \deo[e]\ von der 3.~Schicht aus
+aufgebaut werden, da die vorhandenen \mo[e]\ selbst nicht verwendet
+werden d\"{u}rfen. Implizit wird durch diese Vorgehensweise f\"{u}r
+persistente Objekte ihre Datenmodellierung auf die von
+\clos\ festgelegt; f\"{u}r h\"{o}here Schichten folgt daraus, f\"{u}r
+persistente Objekte ebenfalls die Datenmodellierung von
+\clos\ \"{u}bernehmen zu  m\"{u}ssen.  Dies kann insbesondere f\"{u}r h\"{o}here
+Schichten mit Objektsystemen ohne ein in die Sprache integriertes
+\mo-Protokoll (wie z.B.\ \cpp) schwierig werden, da in diesem Fall ein
+\mo-Protokoll (wenn auch nicht so umfangreich wie das \mop\ von \clos)
+zur h\"{o}heren Schicht hinzugef\"{u}gt werden mu\ss{}.%
+\footnote{Die in Abschnitt~\ref{sec:ocls}
+(\citepage{\pageref{sec:ocls}}) erw\"{a}hnte angenehme Eigenschaft der
+Selbstbeschreibung eines Systems bedingt zu\-s\"{a}tz\-lich ein
+\mo-Protokoll \cite[\citepage{12}]{bib:we90}.}
+%
+\paragraph{Realisierte L\"{o}sung}%
+\label{sec:plpsol}%
+%
+Nach Abw\"{a}gung der Vor- und Nachteile entschied ich mich f\"{u}r
+den letztgenannten Ansatz, \dec[n]\ zu realisieren und in der
+3.~Schicht die \og[e]\ Konvention zu befolgen, um Portabilit\"{a}t
+sicherzustellen; eine genaue Erl\"{a}uterung der \dec[n]\ folgt in
+Abschnitt~\ref{sec:mopdescr} (\citepage{\pageref{sec:mopdescr}}). Ein
+weiterer Vorteil dieses Vorgehens ist, da\ss{} bereits
+die 2.~Schicht mit Kenntnis der Bedeutung umfangreiche
+Pr\"{u}fungen zur Fehlersuche vornimmt; bei auftretenden
+Laufzeitfehlern in der 2.~Schicht werden die Fehlermeldungen
+aussagekr\"{a}ftiger gestaltet.  Die hier getroffenen Aussagen und
+Schlu\ss{}folgerungen f\"{u}r \clos-Instanzen gelten sinngem\"{a}\ss{} auch f\"{u}r
+Strukturobjekte.
+%
+\subsection{Sitzungen}%
+%
+Eine \gande{Sitzung}{session}[][Eine Folge von zeitlich
+disjunkten Da\-ten\-bank-Trans\-ak\-tio\-nen sowie einem Proze\ss{}, der
+innerhalb einer Transaktion auf persistente Objekte zugreifen
+kann.]\ besteht aus  einer Folge von zeitlich disjunkten Transaktionen
+sowie einem Proze\ss{}, der innerhalb einer Transaktion auf persistente
+Objekte zugreifen kann. Ein an eine Sitzung gebundener Proze\ss{} ist
+kein \unix\ Proze\ss{}, sondern ein \lw\ {\em lightweight\/}-Proze\ss{}.
+%
+\par{}Vor Beginn einer Transaktion wird der Gesamtzustand aller
+persistenten Objekte als konsistent angenommen; innerhalb einer
+Transaktion d\"{u}rfen Objekte modifiziert werden, bis die Transaktion
+entweder beendet oder abgebrochen wird. Bei einem Ende gilt der aus
+den \"{A}n\-de\-run\-gen hervorgegangene Zustand als neuer konsistenter
+Gesamtzustand; bei einem \gande{Abbruch}{abort}[Abbbruch einer
+Transaktion][Damit gilt der aus den w\"{a}hrend der Transaktion
+erfolgten Modifikationen hervorgegangene Gesamtzustand der Datenbank
+als inkonsistent; der Gesamtzustand wird daher \protect\gande{auf den
+letzten konsistenten Stand bei Beginn der Transaktion
+zur\"{u}ckgebracht}{\protect\see{rollback}}.]\ wird angenommen, da\ss{} der
+Gesamtzustand durch die erfolgten \"{A}n\-de\-run\-gen inkonsistent ist
+und der \gande{letzte konsistente Gesamtzustand (bei Beginn der
+Transaktion) wiederhergestellt werden soll}{rollback}[Zur\"{u}cksetzen
+der Datenbank auf den Zustand bei Beginn der Transaktion nach Abbruch
+einer Datenbank-Transaktion.]\ (\figurename~\ref{fig:sttrans}). %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/sttrans.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/sttrans.eps}}%
+\fi%
+\captionfrom%
+ {S/T-Diagramm einer Transaktion aus Applikationssicht}%
+ {\cite[\citepage{181}]{bib:gr93}}%
+\label{fig:sttrans}%
+\end{figure}%
+%
+Eine Transaktion ist damit die Realisierung eines Konzepts f\"{u}r den
+\"{U}ber\-gang des Gesamtsystems von einem konsistentem Zustand in den
+n\"{a}chsten konsistenten Zustand. Die Aufgabe des persistenten Systems
+dabei ist, diesen \"{U}bergang als unteilbar erscheinen zu lassen.
+%
+\par{}Die Zustands\"{a}nderungen werden von dem an die Sitzung gebundenen
+Proze\ss{} durchgef\"{u}hrt. Bei mehreren beteiligten Sitzungen und damit
+Prozessen mu\ss{} jede Sitzung f\"{u}r schreibenden Zugriff die persistenten
+Objekte alleine im Zugriff haben; bei lesendem Zugriff sollten
+schreibende Zugriffe durch andere Sitzungen gesperrt werden.  Das
+persistente System mu\ss{} also daf\"{u}r sorgen, da\ss{} Zugriffe auf die
+Objekte ausschlie\ss{}lich durch Sperren derselben erm\"{o}glicht
+werden.
+%
+\par{}Sitzungen werden durch Instanzen des Basistyps
+\class{persistent-heap}\ repr\"{a}sentiert; ihre Verwendung ist
+schicht-abh\"{a}ngig:
+\begin{description}
+%
+\item[Oberhalb der 2.~Schicht]
+In den oberen Schichten wird eine Sitzung f\"{u}r den
+trans\-ak\-tions\-ge\-steu\-er\-ten Zugriff auf alle im persistenten
+Speicher enthaltenen persistenten Objekte benutzt. Ihre Aufgabe
+besteht darin, die f\"{u}r das Sperrprotokoll notwendigen Transaktionen
+zur Verf\"{u}gung zu stellen.
+%
+\par{}Sitzungen werden damit \"{a}hn\-lich benutzt wie die Instanzen der
+in \pclos\ definierten
+\cls\ \class{protector}\ \cite[\citepage{9}]{bib:pa91a}.
+%
+\item[Innerhalb der 2.~Schicht]
+Hier werden Sitzungen als \representation{} des (zur Zeit noch) implizit
+an die Sitzung gebundenen Prozesses angesehen (zur expliziten
+\representation{} von Prozessen siehe Abschnitt~\ref{sec:expiil},
+\citepage{\pageref{sec:expiil}}). Beispielsweise werden 
+sie in diesem Sinne beim Sperrprotokoll als sperrendes Objekt
+benutzt; Sperrkonflikte werden der Sitzung signalisiert, um
+den daran gebundenen Proze\ss{} zum passiven Warten zu veranlassen.
+%
+\end{description}
+%
+\iffalse
+\par{}Die Wahl des Namens \class{persistent-heap}\ f\"{u}r die
+sitzungs-repr\"{a}sentierende \cls\ hat historische Gr\"{u}nde. Bei Beginn
+der Systementwicklung hatte genau eine Instanz der
+\cls\ \class{persistent-heap}\ in der 3.~und 4.~Schicht die Aufgabe,
+den gesamten persistenten Speicher zu repr\"{a}sentieren. Sp\"{a}ter wurde
+dann diese \cls\ im Hinblick auf den Zugriff durch mehrere Sitzungen
+erweitert, ohne allerdings den Namen der \cls\ zu \"{a}ndern.
+\fi
+%
+\par{}Das hier realisierte Sitzungskonzept lehnt sich an das in
+\cite[\citepage{269}]{bib:ki89} \cite[\citepage{20}]{bib:it91}
+\cite[\citepage{29}]{bib:ah91} f\"{u}r die Datenbank \orion\ (jetzt
+\itasca) vorgestellte Konzept an. Transaktionen wurden in der
+2.~Schicht als \gande{{\protect\twophasetrs[]}}{two-pha\-sed
+trans\-ac\-tions}\ realisiert. F\"{u}r
+\gande{nicht-wohlgeformte Transaktionen}{non-well-formed
+transactions}%
+\addglossary{Wohlgeformte Transaktion}[well-formed transaction]%
+[{In einer wohlgeformten Transaktion sind die Objekte f\"{u}r den Zugriff
+auf ihren Zustand durch die dereferenzierende Instanz
+(\protect\ia\ eine \protect\see{Sit\-zung}) gesperrt. Damit in einer
+Transaktion \protect\see{Se\-ria\-li\-sier\-bar\-keit}\ gew\"{a}hrleistet
+wird, mu\ss{} die Transaktion wohlgeformt
+sein.}]\ \cite[\citepage{385}]{bib:gr93}\ wird
+ein Fehler signalisiert. Wie bei der Datenbank \orion\ wurde kein
+vollst\"{a}ndiges DO-UNDO-REDO-Protokoll \cite[\citepage{538}]{bib:gr93}
+realisiert; es wird lediglich eine UNDO-{\em Log\/}-Datei pro Sitzung
+gef\"{u}hrt, in der die Zust\"{a}nde der modifizierten Objekte vor der
+Modifikation abgelegt werden \cite[\citepage{272}]{bib:ki89}
+\cite[\citepage{21}]{bib:it91}. Bei Ende einer Transaktion wird der
+Gesamtzustand des persistenten Speichers mittels eines Aufrufs der
+Stabilisierungsfunktion aus der 1.~Schicht gesichert; damit ist eine
+Mitf\"{u}hrung der neuen Objektzust\"{a}nde in einer REDO-{\em Log\/}-Datei
+unn\"{o}tig.  Bei einem Abbruch werden die Objektzust\"{a}nde aus der
+UNDO-{\em Log\/}-Datei restauriert.
+%
+\par{}Durch den Fortfall der REDO-{\em Log\/}-Datei halbiert sich
+ferner die Datenmenge, die sonst pro Schreibzugriff auf ein Objekt in
+den {\em Log\/}-Dateien vermerkt werden m\"{u}\ss{}te.
+%
+\par{}In \orion\ kann eine Sitzung von mehreren Prozessen
+(dort {\em windows\/} genannt) genutzt werden
+\cite[\citepage{269}]{bib:ki89} \cite[\citepage{20}]{bib:it91}. Dies ist
+in \plob\ nicht m\"{o}glich; eine Sitzung entspricht genau einem Proze\ss{}.
+Die in \cite[\citepage{270}]{bib:ki89} \cite[\citepage{29}]{bib:ah91}
+erl\"{a}uterten hypothetischen Transaktionen,%
+\addglossary{Hypothetische Transaktion}%
+[Eine hypothetische Transaktion ist eine Transaktion, die bei Ende
+immer abgebrochen wird; sie kann z.B.\ f\"{u}r Entwicklungsarbeiten
+genutzt werden, deren Ergebnisse niemals persistent gehalten werden
+sollen.]%
+\ d.h.\ Transaktionen, die
+bei Ende immer abgebrochen werden, wurden von mir nicht
+realisiert.\footnote{Offensichtlich wurden hypothetische
+Transaktionen im \orion-Nachfolger \itasca\ ebenfalls nicht mehr
+realisisert, da sie in \cite{bib:it91} nicht mehr erw\"{a}hnt werden.}
+%
+\subsection{Objektsperren}%
+\addglossary{Objektsperre}[locking][{Vor der Dereferenzierung des
+Objektzustands wird das Objekt
+mit einem der \protect\gande{\protect\see{nicht-ex\-klu\-si\-ven
+Sperrmodi}}{shared
+mode}\ \protect\gande{Nur-Lesen}{read-only},
+\protect\gande{Lesen}{read}\ oder dem
+\protect\gande{\protect\see{exklusivem Sperrmodus}}{exclusive
+mode}\ \protect\gande{Schreiben}{write}\ durch ein
+sperrendes Objekt (\protect\ia\ eine \protect\see{Sitzung})
+f\"{u}r den Zugriff durch andere Instanzen gesperrt.}]%
+%
+Die in der 1.~Schicht angebotenen Schreibsperren werden in der
+2.~Schicht lediglich benutzt, um den konkurrenten Zugriff auf das Feld
+mit der Sperrinformation zu synchronisieren. In diesem Feld befindet
+sich, sofern das persistente Objekt gesperrt ist, eine Referenz auf
+ein persistentes Objekt mit dem aktuellen Sperrzustand.
+%
+\subsubsection{Hierarchisches Sperrprotokoll}
+%
+Realisiert wurde ein \gande{hierarchisches pessimistisches
+Sperrprotokoll}{tree locking}[Hierarchisches
+Sperrprotokoll][{Das hierarchische Sperrprotokoll impliziert mit dem
+\protect\see{Sperren}\ eines Objektes auf einer Ebene mit einem Modus
+denselben Sperrmodus f\"{u}r alle Unterebenen. Wenn beispielsweise die
+Sperrebenen \protect\rglq{}Speicher\protect\rgrq\ --
+\protect\rglq{}Vektor\protect\rgrq\ -- \protect\rglq{}Komponente eines
+Vektors\protect\rgrq\ gegeben sind, impliziert eine Lesesperre auf der
+Ebene \protect\rglq{}Speicher\protect\rgrq\ Lesesperren f\"{u}r alle
+weiteren unteren Ebenen \protect\rglq{}Vektor\protect\rgrq\ (d.h.\ f\"{u}r
+{\protect\em alle\/} Vektoren) und \protect\rglq{}Komponente eines
+Vektors\protect\rgrq.}]\ nach \cite[\citepage{406}]{bib:gr93} f\"{u}r die
+hierarchisch geordneten Ebenen {\em Speicher\/} (gesamter persistenter
+Speicher mit allen persistenten Objekten), {\em Vektor\/} (ein
+persistentes Objekt) und {\em Element\/} (ein Element, d.h.\ ein Wort
+innerhalb eines persistenten Objektes) mit den extern verf\"{u}gbaren,
+\gande{nicht-exklusiven Modi}{shared modes}%
+\addglossary{Nicht-exklusiver Sperrmodus}[shared mode]%
+[Ein Modus, der mehreren sperrenden Objekten Zugriff auf eine
+gesperrte Instanz erlaubt.]\ \gande{Nur-Lesen}{read-only},
+\gande{Lesen}{read}\ und dem
+\gande{exklusiven Modus}{exclusive mode}[Exklusiver
+Sperrmodus][Ein Modus, der nur einem sperrenden
+Objekt Zugriff auf eine gesperrte Instanz
+erlaubt.]\ \gande{Schreiben}{write}\ sowie den intern benutzten Modi
+\gande{Nur-Lese-Absicht}{read-only-intent},
+\gande{Leseabsicht}{read-intent}\ und
+\gande{Schreibabsicht}{write-intent}.
+Beim hierarchischen Sperrprotokoll impliziert das Sperren eines
+Objektes auf einer h\"{o}heren Ebene mit einem Modus den gleichen
+Sperrmodus f\"{u}r alle unteren Ebenen. Die intern benutzten
+\gande{Absichtssperren}{intent locks}%
+\addglossary{Absichtssperre}[intent lock]%
+[{Eine Absichtssperre repr\"{a}sentiert beim
+\protect\see{hierar\-chi\-schem Sperrprotokoll}\ die Absicht eines
+sperrenden Objektes, auf einer tieferen Ebene eine entsprechende
+Sperre vornehmen zu wollen. Wenn beispielsweise die
+Sperrebenen \protect\rglq{}Speicher\protect\rgrq\ --
+\protect\rglq{}Vektor\protect\rgrq\ -- \protect\rglq{}Komponente eines
+Vektors\protect\rgrq\ gegeben sind, wird mit einer
+Leseabsichtssperre auf der Ebene
+\protect\rglq{}Speicher\protect\rgrq\ die Absicht angezeigt, auf einer
+der Ebenen \protect\rglq{}Vektor\protect\rgrq\ oder
+\protect\rglq{}Komponente eines Vektors\protect\rgrq\ eine
+Lesesperre setzen zu wollen.}]\ repr\"{a}sentieren die
+Absicht eines sperrenden Objektes, auf einer tieferen Ebene eine
+entsprechende Sperre vornehmen zu wollen.
+%
+\par{}An einem Sperrvorgang sind immer zwei persistente
+Objekte beteiligt: eine sperrende und eine zu sperrende Instanz.
+F\"{u}r die Modi Leseabsicht, Lesen, Schreiben und Schreibabsicht
+re\-pr\"{a}\-sen\-tiert das sperrende Objekt als Instanz der
+\cls\ \class{persistent-heap}\ die benutzende Sitzung. An das
+sperrende Objekt ist eine Transaktion gebunden, in der die
+Sperre vermerkt wird. Bei Transaktionsende sorgt eine auf die
+\cls\ \class{persistent-heap}\ spezialisierte Methode daf\"{u}r, da\ss{}
+alle innerhalb der Transaktion vorgenommenen Sperren aufgehoben
+werden.  Bei den Modi Nur-Lesen und Nur-Lese-Absicht sind das
+sperrende und das zu sperrende Objekt identisch; sie k\"{o}n\-nen daher
+nur explizit aufgehoben werden. \tablename~\ref{tab:lockconfl} %
+%
+\begin{figure}[htbp]%
+\centering%
+\def\coliw{3em}%
+\def\pbox#1{\parbox{\coliw}{\centering#1}}%
+\def\vvbox{\pbox{\checked}}%
+\def\XXbox{\pbox{\crossed}}%
+\begin{\figurefontsize}%
+\begin{tabular}{%
+|c|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}|}
+\cline{2-7}
+\multicolumn{1}{c|}{\parbox{8em}{%
+ \hspace*{\fill}Gesetzt ist$\rightarrow$\\[\smallskipamount]%
+ Angefordert wird$\downarrow$\hspace*{\fill}}}
+ &\pbox{\tabularheader{RO-Intent}}
+  &\pbox{\tabularheader{Read-Only}}
+   &\pbox{\tabularheader{Read-Intent}}
+    &\pbox{\tabularheader{Read}}
+     &\pbox{\tabularheader{Write-Intent}}
+      &\pbox{\tabularheader{Write}}\\ \hline
+%
+%                  ROI     RO      RI      R       WI      W
+\tabularheader{Read-Only-Intent}
+        &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox\\ \hline
+\tabularheader{Read-Only}
+        &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox\\ \hline
+\tabularheader{Read-Intent}
+        &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox &\XXbox\\ \hline
+\tabularheader{Read}
+        &\vvbox &\vvbox &\vvbox &\vvbox &\XXbox &\XXbox\\ \hline
+\tabularheader{Write-Intent}
+        &\vvbox &\vvbox &\vvbox &\XXbox &\vvbox &\XXbox\\ \hline
+\tabularheader{Write}
+        &\vvbox &\XXbox &\XXbox &\XXbox &\XXbox &\XXbox\\ \hline
+%
+\multicolumn{7}{r}{%
+\checked\ $\equiv$\ Kompatible Sperrmodi\quad
+\crossed\ $\equiv$\ Inkompatible Sperrmodi}
+\end{tabular}%
+\end{\figurefontsize}%
+%
+\let\figurename\tablename%
+\caption{Kompatibilit\"{a}tsmatrix f\"{u}r Sperrmodi}%
+\label{tab:lockconfl}%
+\end{figure}%
+%
+zeigt die Kompatibilit\"{a}tsmatrix der realisierten Sperrmodi. Eine
+Sperre wird zugelassen, wenn der angeforderte Sperrmodus
+kompatibel zu allen bisher auf das Objekt gesetzten Sperrmodi
+ist. Zus\"{a}tzlich zu den in
+\tablename~\ref{tab:lockconfl} gezeigten F\"{a}llen ist eine
+Sperre auch dann kompatibel, wenn das sperrende Objekt bereits eine
+Sperre mit einem beliebigem anderen Modus erhielt und kein
+inkompatibler Sperrmodus zur Sperre eines anderen sperrenden Objektes
+besteht; alle Sperren eines einzigen sperrenden Objektes sind
+un\-ab\-h\"{a}n\-gig vom Modus kompatibel zueinander.
+%
+\subsubsection{Sperrkonflikte}
+%
+Kann eine Sperre nicht erteilt werden, mu\ss{} diejenige Instanz
+(d.h.\ Sitzung), die die Sperre zuletzt anforderte, passiv warten, bis
+die bestehenden Sperren, deren Modi inkompatibel zum Modus der
+angeforderten Sperre sind, von den anderen sperrenden Objekten
+(d.h.\ Sitzungen) aufgehoben werden. F\"{u}r eine m\"{o}glichst schnelle
+Aktualisierung der Daten werden wartende Instanzen mit Anforderungen
+f\"{u}r Schreibsperren vor wartenden Instanzen mit Anforderungen f\"{u}r
+Lesesperren aktiviert \cite[\citepage{189}]{bib:je87}.
+%
+\subsubsection{Verklemmungen}
+%
+Da \gande{Verklemmungen}{deadlocks}%
+\addglossary{deadlock}[Verklemmung.]\ relativ selten auftreten, wird
+auf eine explizite Detektion verzichtet; statt dessen wird die in
+\cite[\citepage{424}]{bib:gr93} vorgeschlagene Technik benutzt,
+nach \gande{Ablauf einer bestimmten Wartezeit}{time out}[]\ f\"{u}r ein
+sperrendes Objekt anzunehmen, da\ss{} seine Sperranforderung
+eine Verklemmung verursachte. Die Anforderung wird in diesem Fall mit
+einer entsprechenden Fehlermeldung abgebrochen.
+%
+\subsubsection{Zugriff auf den Zustand von persistenten Objekten}
+%
+Sowohl lesender als auch schreibender Zugriff aus den h\"{o}heren
+Schichten auf ein persistentes Objekt bedingen eine
+Sperre. Bei jedem Aufruf einer Zugriffsfunktion f\"{u}r ein
+persistentes Objekt wird von der h\"{o}heren Schicht die Sitzung mit
+\"{u}bergeben;  sofern eine Sperre noch nicht erfolgte, wird sie
+vor dem eigentlichen Zugriff von der 2.~Schicht f\"{u}r die angegebene
+Sitzung angefordert.
+%
+\subsection{Persistente B-B\"{a}ume}%
+\label{sec:plbtr}%
+%
+Persistente B-B\"{a}ume \cite[\citepage{851--858}]{bib:gr93} werden
+benutzt, um Eintr\"{a}ge bestehend aus einem persistentem Datenobjekt
+assoziiert zu einem persistentem Schl\"{u}sselobjekt zu speichern. Sie
+werden \"{a}hn\-lich wie \hashtbl{}n \stcite{435--441}\ verwendet. Von
+Vorteil ist zum einen, da\ss{} die Verwaltung sehr gro\ss{}er Datenmengen
+effizienter als bei \hashtbl{}n ist und zum anderen die Schl\"{u}ssel
+sortiert abgelegt werden; damit k\"{o}n\-nen die zu einem Schl\"{u}sselbereich
+assoziierten Daten effizient gesucht werden.
+%
+\par{}Repr\"{a}sentiert werden sie durch Instanzen des Basistyps
+\class{persistent-btree}. Die realisierten
+Ordnungskriterien f\"{u}r Schl\"{u}sselobjekte sind:
+\begin{description}
+%
+\item[Ordnungskriterium \lisp{eq}\ oder \lisp{eql}]
+Als Ordnungskriterium werden die Identit\"{a}ten, d.h.\ die numerischen
+Werte der \lobjid[s], der Schl\"{u}sselobjekte benutzt.
+%
+\item[Ordnungskriterium \lisp{equal}]
+Bei diesem Ordnungskriterium werden die Eintr\"{a}ge nach dem Zustand
+ihrer Schl\"{u}sselobjekte aufsteigend sortiert. Die Festlegung eines
+B-Baumes auf einen bestimmten Schl\"{u}sseltyp erfolgt implizit mit dem
+Einf\"{u}gen des ersten Schl\"{u}ssels. Als nachfolgende Objekte k\"{o}n\-nen nur
+Schl\"{u}ssel eingef\"{u}gt werden, f\"{u}r deren Typ eine Vergleichsmethode
+mit den Typen aller bereits im B-Baum befindlichen Schl\"{u}ssel
+exisitiert; andernfalls wird ein Fehler signalisiert.
+%
+\end{description}
+%
+\par{}Der in \cite[\citepage{283--287}]{bib:wi83} angegebene
+Code wurde \"{u}bernommen und auf das in der 2.\ Schicht verwendete
+Objektsystem angepa\ss{}t; ferner werden alle Operationen in
+das Sperrprotokoll eingebettet.
+%
+\subsection{Das C-\protect\plob\ Wurzelobjekt}
+%
+Die 1., 2.\ und 3.~Schicht haben jeweils eigene Wurzelobjekte; ein
+Wurzelobjekt einer h\"{o}heren Schicht wird transitiv von allen
+Wurzelobjekten der niedrigeren Schichten referenziert. Zur leichteren
+Unterscheidung werden die Wurzelobjekte im folgenden Text mit der
+Nummer ihrer Schicht-""Ebe\-ne versehen,
+z.B.\ bezeichnet \rglq{}2.~Wurzelobjekt\rgrq\ das Wurzelobjekt der
+2.\ Schicht (\figurename\ \ref{fig:plroots}).%
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/plroots.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/plroots.eps}}%
+\fi%
+\caption{Wurzelobjekte der Schichten 1--3}%
+\label{fig:plroots}%
+\end{figure}%
+%
+\par{}Das 2.~Wurzelobjekt wird als einziges Objekt vom 1.~Wurzelobjekt
+referenziert. Es enth\"{a}lt folgende Komponenten:
+\begin{description}
+%
+\item[Drittes Wurzelobjekt]
+Innerhalb des 2.~Wurzelobjektes gibt es eine Referenz auf das
+Wurzelobjekt der 3.~Schicht.
+%
+\item[Versionsnummer]
+Sie gibt an, mit welcher Version das 2.~Wurzelobjekt in den
+persistenten Speicher geschrieben wurde; \"{u}ber die Versionsnumer
+k\"{o}n\-nen Inkompatibilit\"{a}ten zwischen der Struktur des im persistenten
+Speicher befindlichen 2.~Wurzelobjektes und ihrer Strukturdefinition
+im Code detektiert und aufgel\"{o}st werden.
+%
+\item[Transaktionsz\"{a}hler]
+Jede Transaktion erh\"{a}lt zur Identifikation eine eindeutige Nummer;
+innerhalb des 2.~Wurzelobjektes wird diese Nummer durch Inkrementieren
+des Trans\-ak\-tions\-z\"{a}h\-lers generiert.
+%
+\item[Liste von freien Objekten]
+Persistente Instanzen bestimmter \cls[n]\ werden bei expliziter
+Freigabe in eine Freiliste eingeordnet; solange die Freiliste nicht
+leer ist, werden dann Objekte nicht neu alloziert, sondern aus der
+Freiliste entfernt und wiederverwendet. Damit entf\"{a}llt f\"{u}r diese
+Objekte der Aufruf der Allozierungsfunktion aus der 1.~Schicht.
+%
+\item[Warteschlange mit passiv wartenden Sitzungen]
+In der Warteschlange befinden sich nach Prio\-ri\-t\"{a}\-ten geordnete
+Sitzungen, die eine inkompatible Sperranforderung stellten und
+daher passiv warten m\"{u}ssen, bis entweder ihre Wartezeit abgelaufen
+ist oder ihre Sperranforderung erf\"{u}llt werden kann.
+%
+\item[Sperrzustand des gesamten persistenten Speichers]
+Der Sperrzustand f\"{u}r die Ebene {\em Speicher\/} wird im
+2.~Wurzelobjekt repr\"{a}sentiert.
+%
+\item[Z\"{a}hler f\"{u}r die Anzahl der Aufrufe der Speicherr\"{u}ckgewinnung]
+Nach einer Spei\-cher\-r\"{u}ck\-ge\-win\-nung haben sich durch die in
+der letzten Phase durchgef\"{u}hrte Kompaktierung des persistenten
+Speichers die \lobjid[s]\ der persistenten Objekte unter Umst\"{a}nden
+verschoben. Der Z\"{a}h\-ler f\"{u}r die Anzahl der Aufrufe der
+Spei\-cher\-r\"{u}ck\-ge\-win\-nung wird benutzt, um durch Vergleich mit
+einem Referenzwert einen zwischenzeitlichen Aufruf der
+Spei\-cher\-r\"{u}ck\-ge\-win\-nung und damit eine m\"{o}gliche Verschiebung
+der \lobjid[s]\ zu detektieren. Diese Detektion wird f\"{u}r persistente
+B-B\"{a}ume mit dem Ordnungskriterium \lisp{eq}\ genutzt, um nach einer
+Spei\-cher\-r\"{u}ck\-ge\-win\-nung die B-B\"{a}ume neu aufzubauen.
+%
+\end{description}
+%
+Innerhalb der 2.~Schicht wird auch bereits die \representationform{}
+des 3.~Wurzelobjektes festgelegt, um verschieden realisierten
+3.~Schichten einen konsistenten Zugriff auf die persistenten Objekte
+\"{u}ber die 2.~Schicht zu gew\"{a}hrleisten. Das 3.~Wurzelobjekt
+hat \ua\ folgende Komponenten:
+%
+\begin{description}
+%
+\item[Liste der Sitzungen]
+Alle Sitzungen befinden sich in einer Liste, damit sie gegebenenfalls
+von der 2.~Schicht aus benachrichtigt werden k\"{o}n\-nen.
+%
+\item[Zeitpunkt der Formatierung]
+Bei der Formatierung werden die \clsdo[e]\ aller \dec[n]\ in den
+persistenten Speicher geschrieben; diese Komponente enth\"{a}lt den
+Zeitpunkt der letzten Formatierung in \cl\ {\em Universal Time}.
+%
+\item[Pakettabelle]
+Die \gande{Pakettabelle}{package table}\ wird durch einen persistenten
+B-Baum re\-pr\"{a}\-sen\-tiert, der ein persistentes Paket zu einen
+\gande{Paketnamen}{package name}\ in Form einer Zeichenkette
+assoziiert. Innerhalb des persistenten Pakets befindet sich eine
+Tabelle seiner internen persistenten Symbole, die durch einen
+persistenten B-Baum repr\"{a}sentiert wird, der ein persistentes Symbol
+zu seinem Namen in Form einer Zeichenkette assoziiert.
+%
+\item[Klassentabelle]
+Die persistente Klassentabelle wird durch einen persistenten B-Baum
+re\-pr\"{a}\-sen\-tiert, der ein persistentes \clsdo\ zu einem
+Klassenamen in Form eines persistenten Symbols assoziiert.
+%
+\item[{\deo[e]}]
+Schlie\ss{}lich enth\"{a}lt das 3.~Wurzelobjekt die \objid[s]\ der
+\clsdo[e]\ aller \dec[n]\ (Abschnitt~\ref{sec:mopdescr},
+\citepage{\pageref{sec:mopdescr}}).
+%
+\end{description}
+%
+\subsection{Fehlerbehandlung}
+%
+Wie bereits in 
+Abschnitt~\ref{sec:ploopr} (\citepage{\pageref{sec:ploopr}}) erw\"{a}hnt,
+konnte f\"{u}r die Fehlersuche in
+der 2.~Schicht kein \debugger\/ verwendet werden; schlimmer noch war
+der Umstand, da\ss{} die Laufzeitfehler im C~Code nicht vom LISP-System
+abgefangen werden konnten und ohne weitere Warnung zur Terminierung
+des LISP Prozesses f\"{u}hrten. Der C~Code wurde daher so erstellt, da\ss{}
+m\"{o}glichst viele der Bedingungen, die zu einem Laufzeitfehler f\"{u}hren,
+kontrolliert erkannt werden; bei einem derartig erkannten Fehler wird
+mit einer entsprechenden Meldung eine Funktion der 3.~Schicht
+aufgerufen, die den Fehler wiederum dem LISP \debugger\/ signalisiert.
+Die Fehlerbehandlung ist die einzige Funktion der 2.~Schicht, die
+direkt in die 3.~Schicht verzweigt.
+%
+\subsection{Zusammenfassung der 2.\ Schicht}
+%
+Die 2.~Schicht erf\"{u}llt die \acid\ Eigenschaften
+(\citepage{\pageref{ref:acid}}) folgenderma\ss{}en:
+\begin{description}%
+%
+\item[Unteilbarkeit]
+Unteilbarkeit wird durch das realisierte hierarchische Sperrprotokoll
+erreicht. Sperren sind an Transaktionen gebunden; bei Ende einer
+Transaktion werden alle an sie gebundenen Sperren aufgehoben.
+%
+\item[Konsistenz]
+Zust\"{a}nds\"{a}nderungen, die einen tempor\"{a}r inkonsistenten Gesamtzustand
+zur Folge haben, m\"{u}ssen der 2.~Schicht durch Starten einer
+Transaktion mitgeteilt werden. Bei Ende der Transaktion wird der neue
+Gesamtzustand als konsistent angenommen; bei einem Abbruch wird der
+letzte konsistente Gesamtzustand wiederhergestellt.
+%
+\item[Serialisierbarkeit]
+Die in der 2.~Schicht realisierten \twophasetrs\ stellen
+Serialisierbarkeit sicher \cite[\citepage{163}]{bib:je87}.
+%
+\par{}Nach der in \cite[\citepage{401}]{bib:gr93} angegebenen
+\"{U}bersicht realisiert die 2.~Schicht eine Serialisierbarkeit von
+3$^{\circ}$.
+%
+\item[Best\"{a}ndigkeit]
+F\"{u}r die Best\"{a}ndigkeit gibt es keinen Unterschied zur 1.~Schicht.
+%
+\end{description}%
+%
+Der folgende Abschnitt fa\ss{}t noch einmal kurz die Funktionalit\"{a}ten
+der 2.~Schicht aus der Sicht der n\"{a}chsth\"{o}heren 3.~Schicht zusammen.
+\begin{description}
+%
+\item[Typisierung der persistenten Objekte]
+Alle persistenten Objekte sind dynamisch typisiert.
+%
+\item[Allozieren eines persistenten Objektes]
+Das Allozieren eines persistenten Objektes erfolgt anhand seiner
+Typkennung; zur\"{u}ckgegeben wird die zur Referenzierung des
+persistenten Objektes n\"{o}tige \sobjid. Das erzeugte Objekt ist
+bereits typisiert.
+%
+\item[Zugriff auf den Zustand von persistenten Objekten]
+Zugriffe auf persistente Objekte werden immer in an Transaktionen
+gebundene Sperren eingebettet ({\em Lock-Commit\/}-Modell
+\cite[\citepage{38}]{bib:ca88}); ferner wird beim Zugriff auf einzelne
+Worte gepr\"{u}ft, ob sie innerhalb des Referenz- bzw.\ Wertefeldes
+liegen.
+%
+\item[Wurzelobjekt]
+Struktur und Zustand des 2.~Wurzelobjektes werden innerhalb der
+2.~Schicht definiert und verwaltet; es kann nicht explizit gelesen
+oder \"{u}berschrieben werden au\ss{}er der frei zugreifbaren Komponente,
+die die \sobjid\/ des Wurzelobjektes der 3.~Schicht ent\-h\"{a}lt.
+%
+\item[Speicherr\"{u}ckgewinnung]
+Wie in der 1.~Schicht mu\ss{} die Speicherr\"{u}ckgewinnung explizit
+veranla\ss{}t werden.
+%
+\end{description}
+%
+\section{Schicht 3: Die \plob\ Schicht}
+%
+F\"{u}r die Realisierung der dritten Schicht wurde \lwcl\ benutzt; eine
+Portierung nach \allegrocl\ ist geplant.
+%
+\par{}\figurename~\ref{fig:pldflow} %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/pldflow.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/pldflow.eps}}%
+\fi%
+\caption{Zugriff auf persistente Objekte}%
+\label{fig:pldflow}%
+\end{figure}%
+%
+zeigt einen Gesamt\"{u}berblick, wie eine Sitzung Zugriff auf persistente
+Objekte erh\"{a}lt. Die Aufgabe der 3.~Schicht besteht darin, die von der
+Sitzung kommenden Anfragen (Funktionsaufrufe) zu bearbeiten und unter
+Benutzung der 2.~Schicht den Zugriff auf die persistenten Objekte zu
+erm\"{o}glichen. Ein persistentes Objekt erh\"{a}lt zu\-s\"{a}tz\-lich zu
+seiner persistenten eine transiente \clos\ representation, auf die
+die Sitzung transparent zugreifen kann. Zus\"{a}tzlich kann eine Sitzung
+auch direkt die persistente \representation{} eines persistenten
+Objektes manipulieren.
+%
+\subsection{Der \protect\cache}
+%
+Der \cache\/ ist als assoziativer transienter Zwei-Wege-Speicher in der
+3.~Schicht realisiert; er bildet sowohl die innerhalb des persistenten
+Speichers zur Identita"tsrepr\"{a}sentation verwendeten \objid[s]\ auf
+die Identit\"{a}tsrepr\"{a}sentation der transienten \representation{} eines
+persistenten Objektes ab als auch umgekehrt. Da der Zustand eines
+\immval[s]\/ bereits in seiner Identit\"{a}tsrepr\"{a}sentation enthalten
+ist, wird f\"{u}r \immval[s]\/ kein Speicher zu ihrer Repr\"{a}sentation
+alloziert; damit entf\"{a}llt auch die Notwendigkeit, in den
+\cache\/ Referenzen auf \immval[s]\/ einzutragen.
+%
+\subsubsection{Effizienzsteigerung}
+%
+Eine Referenz auf die transiente \representation{} eines persistenten
+Objektes werden assoziiert zur \sobjid\/ in den \cache\/ eingetragen;
+f\"{u}r nachfolgende Zugriffe auf die transiente Re\-pr\"{a}\-sen\-ta\-tion
+desselben persistenten Objektes werden so erneute Aufrufe der unteren
+Schichten unn\"{o}tig.
+%
+\subsubsection{Identit\"{a}tserhaltung}
+%
+Soweit m\"{o}glich, sollte die transiente \representation{} eines
+persistenten Objektes die Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion
+(d.h.\ die \sobjid\/) der persistenten \representation{} enthalten;
+damit kann  die f\"{u}r ein Objekt vergebene \sobjid\/ aus der
+transienten \representationform{} des Objektes selbst ermittelt
+werden. Die \representationform{} der Instanzen von Basistypen kann
+nicht zur zur Aufnahme der Identit\"{a}tsrepr\"{a}sentation erweitert
+werden;  mit der Umkehrabbildung des \cache\/ wird eine Abbildung der
+Identit\"{a}t der transienten \representation{} (d.h.\ der Adresse) auf die
+Identit\"{a}t der persistenten \representation{} (d.h.\ die \sobjid\/)
+eines persistenten Objektes einer Basisklasse realisiert.
+%
+\par{}F\"{u}r \immval[s]\/ ergibt sich ihre Identit\"{a}tsrepr\"{a}sentation
+un\-ab\-h\"{a}n\-gig von ihrer Umgebung aus ihrem Zustand; damit wird
+ihre Identit\"{a}t durch den Zustand selbst erhalten.
+%
+\subsubsection{Speicherr\"{u}ckgewinnung des transienten Systems}
+%
+Da die Referenzen auf die transienten \representations{} aller
+dereferenzierten persistenten Objekte in den \cache\/ eingetragen
+werden, sind sie f\"{u}r das LISP-System erreichbar; damit werden sie bei
+einer Speicherr\"{u}ckgewinnung des LISP-Systems nicht freigegeben, auch
+wenn sie ausschlie\ss{}lich durch den \cache\/ referenziert werden.
+%
+\par{}Die L\"{o}sung besteht darin, f\"{u}r die Referenzen auf die
+transienten \representations{} im \cache\/ schwache Referenzen zu
+verwenden. Leider stehen diese in dem zur Realisierung verwendetem
+\lwcl\ nicht zur Verf\"{u}gung; statt dessen mu\ss{} der \cache\/ falls
+n\"{o}tig von den BenutzerInnen durch Aufruf einer entsprechenden
+Funktion gel\"{o}scht werden. Bei der Wahl des Zeitpunktes mu\ss{}
+ber\"{u}cksichtigt werden, da\ss{} durch das L\"{o}schen der \cache\/ nicht
+l\"{a}nger identit\"{a}tserhaltend wirkt.
+%
+\subsubsection{Konsistenz}%
+\label{sec:plcon}
+%
+Im \cache\/ befinden sich die transienten \representations{} von
+persistenten Objekten ohne eine feste Kopplung an die persistente
+\representation. Sofern mehrere Sitzungen gleichzeitig modifizierend
+auf die persistenten Objekte zugreifen, kann es passieren, da\ss{} die
+Zust\"{a}nde der transienten \representation{} im \cache\/ und der
+persistenten \representation{} nicht mehr \"{u}ber\-ein\-stim\-men.
+%
+\par{}Bei der Modifikation eines persistenten Objektes sollten daher
+alle Sitzungen, die eine transiente \representation{} dieses Objektes im
+\cache\/ stehen haben, benachrichtigt werden, da\ss{} sich der Zustand
+ge\-\"{a}n\-dert hat \cite[\citepage{17--21}]{bib:ro87}. Realisiert werden
+kann dies durch einen Sperrmodus, der lediglich anzeigt, da\ss{} das
+gesperrte Objekt im \cache\/ einer Sitzung eingetragen ist; bei
+Zustands\"{a}nderungen werden dann alle Sitzungen, die diese Sperre
+gesetzt haben, benachrichtigt und k\"{o}n\-nen ihren
+\cache\/ aktualisieren
+(\gande{Benachrichtigungssperre}{notify lock}\ %
+\cite[\citepage{342}]{bib:fe89}). Die Realisierung dieses 
+Sperrmodus erfolgte bisher nicht; sie ist f\"{u}r eine sp\"{a}tere
+Programmversion vorgesehen.
+%
+\subsection{Datentypen}
+%
+Dieser Abschnitt beschreibt die realisierten Strukturen verschiedener
+Datentypen, die benutzt werden, um transiente LISP Objekte persistent
+zu halten.
+%
+\subsubsection{Instanzen von Basistypen}
+%
+Der Zustand von Instanzen von LISP Basistypen wird in eine
+entsprechende Instanz eines in der 2.~Schicht definierten Basistyps
+abgebildet.
+%
+\subsubsection{Klassenbeschreibungen von
+\protect\clos\ \protect\cls[n]}%
+\label{sec:mopdescr}%
+%
+Bei der Verwendung von relationalen Datenbanken als persistenter
+Speicher werden Klassen oft nicht explizit gespeichert, sondern ihre
+Strukturdefinition geht lediglich implizit in die Festlegung der zur
+Instanzrepr\"{a}sentation verwendeten Relationen ein
+(Abschnitt~\ref{sec:rdbpr}, \citepage{\pageref{sec:rdbpr}}). Ein
+Objektspeicher hingegen bietet die M\"{o}glichkeit, auch Klassen
+\"{a}hn\-lich wie \clsmo[e]\ explizit zu repr\"{a}sentieren.
+%
+\par{}In \clos\ werden \clsmo[e]\ zur \representation{} von
+\cls[n]\ verwendet; sie enthalten alle Informationen \"{u}ber die
+Struktur und das Verhalten der Instanzen der repr\"{a}sentierten
+\cls\ (\figurename~\ref{fig:clicmc}).
+%
+\begin{figure}[htbp]%[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/clicmc.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/clicmc.eps}}%
+\fi%
+\caption{\protect\clos-Instanz und \protect\clsmo}\label{fig:clicmc}%
+\end{figure}%
+%
+\clos-Objekte sind damit selbstbeschreibend.
+Die im persistenten System enthaltenen Objekte sind durch ihre
+\representationform{} (Abbildungen~\ref{fig:pivec},
+\citepage{\pageref{fig:pivec}}\ und \ref{fig:pcivec},
+\citepage{\pageref{fig:pcivec}}) ebenfalls selbstbeschreibend.
+In der 3.~Schicht wurden wie in Abschnitt~\ref{sec:plpsol}
+(\citepage{\pageref{sec:plpsol}}) erkl\"{a}rt \clsdc[n]\ f\"{u}r
+Klassenbeschreibungen von persistenten Instanzen definiert, die
+Informationen \"{u}ber die Struktur
+der beschriebenen Instanzen enthalten (Abschnitt~\ref{sec:ocls},
+\citepage{\pageref{sec:ocls}}). Wegen der in Abschnitt~\ref{sec:fnmtd}
+(\citepage{\pageref{sec:fnmtd}}) genannten Restriktionen wird das
+Verhalten von persistenten Instanzen nicht in einem \clsdo\ mit
+abgelegt. Der Begriff \rglq{}Beschreibung\rgrq\ wurde
+somit gew\"{a}hlt, um zu verdeutlichen, da\ss{} ein \clsdo\ im Gegensatz zu
+einem \clsmo\ nicht alle Informationen \"{u}ber die repr\"{a}sentierte
+Klasse enth\"{a}lt.
+%
+\par{}Aufgrund der \"{A}hnlichkeit zwischen \clsmo[en]\ und der f\"{u}r
+\clsdo[e]\ geforderten Eigenschaften in Bezug auf die Repr\"{a}sentation
+von Informationen \"{u}ber die Struktur von Instanzen wurden die Klassen
+der von einem \clsdo\ referenzierten \deo[e]\ aus den in
+\cite{bib:amop91} gegebenen Spezifikationen f\"{u}r
+\std-\mc[n]\ abgeleitet. Die Spezifikation in \cite{bib:amop91}
+vermeidet allerdings eine Festlegung der
+Struktur der \std-\mc[n], sondern legt ausschlie\ss{}lich ihre Stellung
+innerhalb der \mc[n]hierarchie und ihr Verhalten fest; die
+spezifizierten
+\gande{generischen {\protect\std[]}-Lese-Funktionen}%
+{standard reader generic functions}%
+\addglossary{Generische Standard-Lese-Funktion}%
+[standard reader generic function]%
+[{Alle in\protect\\%
+\protect\amopcite{212--224}\ definierten
+generischen \protect\Std-Lese-\protect\fn[en].}]\ gaben
+% Die Dinger heissen tatsaechlich `reader generic functions';
+% siehe z.B. [AMOP 91], S. 212 oben. Der Praefix `standard' wurde von
+% mir hinzugefuegt, da ich die in [AMOP 91] definierten generischen
+% Lese-Funktionen meine.
+aber indirekt Hinweise auf
+die Festlegung ihrer Struktur, d.h.\ f\"{u}r jede generische
+\std-Lese-Funktion wurde ein entsprechender \Slt\/ innerhalb der
+\dec\ definiert.  Es ergibt sich ein \"{a}hn\-li\-cher Zusammenhang wie
+f\"{u}r \std-\mc[n]\ (\figurename~\ref{fig:plicmc}).
+%
+\begin{figure}[hbtp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/plicmc.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/plicmc.eps}}%
+\fi%
+\caption{Persistente Instanz und \protect\clsdo}%
+\label{fig:plicmc}%
+\end{figure}%
+%
+\par{} Um Portabilit\"{a}t der persistenten Objekte zu erm\"{o}glichen,
+wurden nach der Bestimmung der \dec[n]\ ihre Strukturen in der
+2.~Schicht festgelegt (Abschnitt~\ref{sec:plpsol},
+\citepage{\pageref{sec:plpsol}}). Nachtr\"{a}gliche \"{A}nderungen an
+\dec[n]\ in der 3.~Schicht m\"{u}ssen dementsprechend in ihre
+Strukturdefinitionen in der 2.~Schicht propagiert werden.
+%
+\subsubsection{Klassenbeschreibungen von Strukturklassen}%
+\label{sec:strdescr}%
+%
+Die \representation{} von Strukturklassen ist im
+Gegensatz zu \clos\ \cls[n]\ nur teilweise definiert; in
+\stcite{800}\ wird zwar definiert, da\ss{} eine Strukturklasse durch
+ein \clsmo\ repr\"{a}sentiert wird, es wird aber nicht weiter festgelegt,
+welche Informationen \"{u}ber die Strukturklasse von ihrem \clsmo\ erfragt
+werden k\"{o}n\-nen. Wegen der \"{A}hnlichkeit zwischen Struktur- und
+\clos-\cls[n]\ orientiert sich die letztendlich gew\"{a}hlte
+\representation{} der Beschreibung von Strukturklassen ebenfalls an dem
+in \cite{bib:amop91} definiertem \std.
+%
+\subsubsection{Objekte und Klassen}
+%
+Die Struktur eines persistenten Objektes wird im
+persistenten Speicher durch sein \clsdo\ und die von ihm
+referenzierten \deo[e], speziell \sltdo[e], festgelegt; die im
+persistenten \clsdo\ und den \sltdo[en]\ enthaltenen Informationen
+stammen aus dem \clsmo\ des transienten Objektes sowie aus den
+davon referenzierten \sltmo[en].
+Es wird nur die Struktur eines persistenten Objektes beschrieben, da
+der Funktionscode von Methoden aus den in Abschnitt~\ref{sec:fnmtd}
+(\citepage{\pageref{sec:fnmtd}}) genannten Gr\"{u}nden nicht gespeichert
+werden kann. Die Hierarchie der definierten \dec[n]\ zeigt
+\figurename~\ref{fig:pltlcls}. %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/pltlcls.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/pltlcls.eps}}%
+\fi%
+\caption{\protect\dec[n]-Hierarchie f\"{u}r \protect\clos\ Klassen}%
+\label{fig:pltlcls}%
+\end{figure}%
+%
+Wie bereits in Abschnitt~\ref{sec:mopdescr}
+(\citepage{\pageref{sec:mopdescr}}) erl\"{a}utert, wurden die Strukturen
+der \dec[n]\ aus den Strukturen der \std-\mc[n]\ abgeleitet
+(\tablename~\ref{tab:mopdescr}). %
+%
+\begin{figure}[hbtp]%
+\centering%
+%                  #1  #3 tauschen, falls noetig
+\def\makline#1#2#3{#1#2#3}%
+\def\oneline#1#2{\makline{\class{#1}}{&}{\class{#2}}}%
+\def\acls{%                             Kennzeichen abstrakte Klasse
+%{\usefont{OT1}{pzd}{m}{n}\char111}%
+{\usefont{U}{pzd}{m}{n}\char111}%
+}%
+%
+\begin{minipage}{\textwidth}\centering% \minipage wg. Fussnote
+\let\footnoterule\relax% Kein Trennungsstrich fuer Fussnoten
+%
+\begin{\figurefontsize}%
+\begin{tabular}{|cc|c|}%
+\hline
+      & \makline {\tabularheader{\std-\mc}}
+                 {&}{\tabularheader{\dec}}\\
+\hline\hline
+\acls & \oneline {metaobject}
+                 {plob-description}\\
+      & \oneline {standard-class}
+                 {class-description}\\
+\acls & \oneline {slot-definition}
+                 {slot-description}\\
+      & \oneline {direct-slot-definition}
+                 {direct-slot-description}\\
+      & \oneline {effective-slot-definition}
+                 {effective-slot-description}\\
+      & \oneline {standard-method}
+                 {method-description}%
+\footnote{Die \dec\ \class{method-description}\ wird zur Zeit nicht
+weiter benutzt.}\\
+\hline
+\multicolumn{3}{r}{\acls\ $\equiv$\ Abstrakte Superklasse}
+\end{tabular}%
+\end{\figurefontsize}%
+\end{minipage}%
+%
+\let\figurename\tablename%
+\caption{Gegen\"{u}berstellung von
+ \makline{\protect\mc[n]}{\ und\ }{\protect\dec[n]}}%
+\label{tab:mopdescr}%
+\end{figure}%
+%
+F\"{u}r das Lesen der \Slt\/-Zust\"{a}nde der \deo[e]\ wurden
+\mtd[n]\ der generischen \std-Lese-Funktionen auf die entsprechenden
+\dec[n]\ spezialisiert, so da\ss{} sich \deo[e]\ \"{a}hn\-lich wie
+\mo[e]\ verhalten.
+%
+\paragraph{Die Struktur der
+\protect\clsdc\ \protect\class{class-description}}
+Eine Instanz der \clsdc\ \class{class-description}\ beschreibt eine
+Klasse; sie enth\"{a}lt \ua\ folgende aus dem transienten
+\clsmo\ ermittelten Informationen:
+\begin{itemize}
+%
+\item Den Namen der Klasse.
+%
+\item Die Superklassen und die Klassen-Pr\"{a}zedenzliste als Liste von
+Instanzen der \clsdc\ \class{class-description}.
+%
+\item Die Liste der direkten bzw.\ effektiven \Slt[s]\/ als Liste von
+Instanzen der \sltdc[n]\ \class{direct-slot-description}%
+\ bzw.\ \class{effective-slot-de\-scrip\-ti\-on}.
+%
+\end{itemize}
+%
+Zus\"{a}tzlich werden \ua\ noch folgende Informationen abgelegt:
+%
+\begin{itemize}
+%
+\item Das \clsdo\ der Klasse, deren Namen in der Klassendefinition im
+Makro \lisp{defclass}\ der beschriebenen Klasse mit der Klassenoption
+\lisp{:metaclass}\ angegebenen wurde. Fehlt diese Klassenoption, wird
+das \clsdo\ der Klasse \class{standard-class}\ abgelegt.
+%
+\item Die Art der \gande{Schemaentwicklung}{schema evolution}, die f\"{u}r
+die Klasse benutzt werden soll.
+%
+\item Der Name einer Konstruktor-Funktion. Sofern der Name
+\nonnil\ ist, wird die an den Namen gebundene Funktion zur Erzeugung
+der transienten \representation{} eines persistenten Objektes der
+beschriebenen Klasse aufgerufen, ansonsten wird die Funktion
+\stfn{make-instance}\ aufgerufen.
+%
+\end{itemize}
+%
+\paragraph{Die Struktur der
+\protect\sltdc\ \protect\class{slot-description}}
+Eine Instanz der \sltdc\ \class{slot-description}\ beschreibt einen
+\Slt\/ einer Klasse; sie enth\"{a}lt \ua\ folgende aus dem
+transienten \sltmo\ ermittelten Informationen:
+\begin{itemize}
+%
+\item Den Namen des \Slt[s].
+%
+\item Die Liste der \gande{Initialisierungs-Argumentnamen}%
+{initargs}%
+%
+\addglossary{Initialisierungs-Argumentname}[initarg]%
+[{Ein Initialisierungs-Argumentname wird zur Initialisierung eines
+\protect\Slt[s]\/ bei der Erzeugung eines Struktur- oder
+\protect\clos-Objektes als Schl\"{u}s\-sel eines
+\protect\gande{Schl\"{u}sselwort-Parameters}%
+{\protect\&key parameter}\ zusammen mit dem Initialisierungswert an
+die ob\-jekt-er\-zeu\-gen\-de Funktion \"{u}bergeben.}]%
+\addglossary{Schl\"{u}sselwort-Symbol}[keyword symbol][Jedes
+Schl\"{u}sselwort-Symbol ist per Definition immer global sichtbar und hat
+sich selbst als Wert.],
+%
+den \gande{Initialisierungsausdruck}{initform}%
+%
+[Initialisierungsausdruck][{LISP Ausdruck, dessen Evaluierung im
+Verlauf der Initialisierung eines \protect\Slt[s]\/ eines
+\protect\clos-Objektes als
+Initialisierungswert verwendet wird. Nicht der
+Initialisierungsausdruck selbst wird zur Initialisierung benutzt,
+sondern eine aus ihm durch eine \"{U}bersetzung erzeugte
+\protect\gande{Initialisierungsfunktion}%
+{\protect\see{initfunction}}.}]\ % 
+%
+und die \gande{Initialisierungsfunktion}{initfunction}%
+%
+[Initialisierungsfunktion][{LISP
+Funktion ohne Ar\-gu\-men\-te, deren R\"{u}ck\-ga\-be\-wert im Verlauf
+der Initialisierung eines \protect\Slt[s]\/ eines
+\protect\clos-Objektes als Initialisierungswert verwendet wird. Die
+Initialisierungsfunktion wird w\"{a}hrend der Klasseninitialisierung
+durch eine \"{U}bersetzung aus dem
+\protect\gande{Initialisierungsausdruck}%
+{\protect\see{initform}}\ gewonnen.}].
+%
+\item Die \gande{Allozierungsart}{slot allocation}[{Allozierungsart
+eines \protect\Slt[s]}][{Die Allozierungsart eines
+\protect\Slt[s]\/ bestimmt, wie der \protect\Slt\/-Zustand von
+\protect\clos\ repr\"{a}sentiert werden soll. F\"{u}r die Art 
+\protect\lisp{:in\-stan\-ce}\ wird der \protect\Slt\/-Zustand f\"{u}r
+jede Instanz repr\"{a}sentiert, f\"{u}r die Art \protect\lisp{:class}\ wird
+der \protect\Slt\/-Zustand genau einmal repr\"{a}sentiert, f\"{u}r alle
+anderen Allozierungsarten wird der \protect\Slt\/-Zustand nicht von
+\protect\clos\ repr\"{a}sentiert.}]\ des \Slt[s].
+%
+\end{itemize}
+%
+Zus\"{a}tzlich werden \ua\ noch folgende Informationen abgelegt:
+%
+\begin{itemize}
+%
+\item Die \gande{Lebensdauer}{extent}[]\ des \Slt\/-Zustands.
+%
+\item In einem direkten \sltdo\ befindet sich ein S-Ausdruck, der den
+f\"{u}r den \Slt\/ zu haltenden Index definiert;
+ein effektives \sltdo\ enth\"{a}lt eine daraus generierte Indextabelle,
+die assoziativ jeden Zustand des beschriebenen \Slt[s]\/ auf eine
+dazugeh\"{o}rige persistente \clos-Instanz abbildet. Damit k\"{o}n\-nen
+persistente \clos-Instanzen assoziativ gesucht werden; der
+Suchschl\"{u}ssel ist ein bestimmter \Slt\/-Zustand, das assoziierte Datum
+ist die dazugeh\"{o}rige persistente \clos-Instanz. Als Indextabellen
+werden persisistente B-B\"{a}ume benutzt, die eine Abfrage
+\"{u}ber einen Schl\"{u}sselbereich erm\"{o}glichen.
+%
+\end{itemize}
+%
+\paragraph{Die Struktur der
+\protect\sltdc\ \protect\class{di\-rect-slot-des\-crip\-tion}}
+Eine Instanz der \clsdc\ \class{direct-slot-description}\ beschreibt
+einen direkten \Slt\/ einer Klasse; sie enth\"{a}lt zu\-s\"{a}tz\-lich zu
+den ererbten Informationen eine aus dem transienten direkten
+\sltmo\ ermittelte Liste mit den Namen der generischen
+Zugriffs-\fn[en].
+%
+\paragraph{Die Struktur der
+\protect\sltdc\ \protect\class{ef\-fec\-ti\-ve-slot-des\-crip\-tion}}
+%
+Eine Instanz der \sltdc\ \class{effective-slot-description}\ beschreibt
+einen effektiven \Slt\/ einer Klasse; sie enth\"{a}lt zu\-s\"{a}tz\-lich zu
+den ererbten Informationen eine
+\gande{Po\-si\-tions-In\-for\-ma\-tion}%
+{slot location}. F\"{u}r \Slt[s]\/ mit der Allozierungsart
+\lisp{:instance}\ ist dies die Position des Elementes mit
+dem \Slt\/-Zustand innerhalb des Zustandsvektors
+(\figurename~\ref{fig:pcivec}, \citepage{\pageref{fig:pcivec}}).
+Bei \Slt[s]\/ mit der Allozierungsart
+\lisp{:class}\ wird in der Po\-si\-tions-In\-for\-ma\-tion der Zustand
+des \Slt[s]\/ abgelegt.
+%
+\subsubsection{Strukturobjekte und Strukturklassen}
+%
+\figurename~\ref{fig:pltlscls} zeigt die definierten \dec[n]\ f\"{u}r
+Strukturklassen. Im Gegensatz zu \clos\ Klassen gibt es f\"{u}r
+Strukturklassen keine
+\std[isie\-rung]\ im Sinne des \mop; die in einem Struktur-\clsdo\
+abgelegten Informationen m\"{u}ssen daher anderweitig besorgt werden.
+Abschnitt~\ref{sec:stdiz} (\citepage{\pageref{sec:stdiz}}) erl\"{a}utert
+die gew\"{a}hlte L\"{o}sung.
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/pltlscls.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/pltlscls.eps}}%
+\fi%
+\caption{\protect\dec[n]-Hierarchie f\"{u}r Strukturklassen}%
+\label{fig:pltlscls}%
+\end{figure}%
+%
+\paragraph{Die Struktur der
+\protect\clsdc\ \protect\class{struc\-ture-des\-crip\-tion}}%
+%
+Eine Instanz der
+\clsdc\ \class{struc\-ture-des\-crip\-tion}\ repr\"{a}sentiert eine
+Beschreibung einer Strukturklasse; sie enth\"{a}lt \ua\ folgende
+Informationen:
+\begin{itemize}
+%
+\item Den Namen der Klasse.
+%
+\item Die Liste der effektiven \Slt[s]\/ als Liste von
+Instanzen der \sltdc\ \class{structure-slot-description}.
+%
+\item Die Art der Schemaentwicklung.
+%
+\item Den Namen der Konstruktor-Funktion. 
+%
+\end{itemize}
+%
+\paragraph{Die Struktur der
+\protect\sltdc\ \protect\class{struc\-ture-slot-des\-crip\-tion}}%
+%
+Eine Instanz der
+\sltdc\ \class{struc\-ture-slot-des\-crip\-tion}\ beschreibt einen
+effektiven \Slt\/ einer Strukturklasse; sie enth\"{a}lt \ua\ folgende
+Informationen:
+\begin{itemize}
+%
+\item Den Namen des \Slt[s].
+%
+\item Das Initialisierungs-Schl\"{u}sselwort-Symbol und den
+Initialisierungsausdruck.
+%
+\item Die Lebensdauer des \Slt\/-Zustands.
+%
+\item Die Position des Elementes mit dem \Slt\/-Zustand innerhalb des
+Referenzfeldes (\figurename~\ref{fig:pivec},
+\citepage{\pageref{fig:pivec}}).
+%
+\end{itemize}
+%
+\par{}Da f\"{u}r Strukturklassen keine multiple Vererbung m\"{o}glich ist,
+gibt es hier keine Unterscheidung zwischen direkten und effektiven
+\Slt[s]; sie entsprechen in etwa den effektiven \Slt[s]\/ einer
+\clos\ Klasse.
+%
+\subsubsection{Funktionen}
+%
+Der hier gew\"{a}hlte Ansatz sieht Funktionen als extern-persistente
+Objekte an und erm\"{o}glicht damit eine teilweise Speicherung.  Von
+einer Funktion wird nur der Name gespeichert; der Name einer
+persistenten Funktion wird durch ein persistentes Symbol
+repr\"{a}sentiert. Kann der Name einer transienten Funktion nicht
+ermittelt werden, wird statt der \sobjid\/ einer gespeicherten Funktion
+die \sobjid\/ des Markierungsobjektes \rglq{}nicht speicherbares
+Objekt\rgrq\ als Ergebnis der Speicherung zur\"{u}ckgegeben.
+%
+\par{}Beim Laden wird eine (transiente) Funktion im LISP
+{\em image\/} gesucht, die an das transiente Symbol mit dem durch den
+Namen der persistenten Funktion vorgegebenen persistenten Symbolnamen
+und persistenten Paketnamen gebunden ist.  Damit wird implizit
+angenommen, da\ss{} eine unter dem gleichen Namen im transienten System
+\rglq{}wiedergefundene\rgrq\ Funktion identisch zu der urspr\"{u}nglich
+gespeicherten Funktion ist. Wenn keine Funktion
+gefunden wird, wird stattdessen eine Funktion zur\"{u}ckgegeben, die bei
+einem Aufruf einen Fehler signalisiert.
+%
+%\subsubsection{Extern persistente Objekte}
+%
+% Werden in \plob\ nicht behandelt.
+%
+\subsection{\protect\Spc\ \protect\mc[n]}
+%
+Anders als in \soh\ \cite[\citepage{9}]{bib:ro87} und
+\pclos\ \cite[\citepage{11}]{bib:pa91a} ist in \plob\ die M\"{o}glichkeit
+der Persistenz grunds\"{a}tzlich f\"{u}r alle Objekte un\-ab\-h\"{a}n\-gig von
+ihrer Klasse gegeben; die realisierten \spc[n]\ \mc[n]\ werden
+lediglich als Hilfsmittel benutzt, um transiente Instanzen der aus der
+\spc[n]\ \clsmc\ \class{persistent-metaclass}\ hervorgegangenen
+Klassen mit zu\-s\"{a}tz\-li\-chen Eigenschaften bez\"{u}glich Persistenz zu
+versehen. Die durch ein
+\clsmo\ der
+\spc[n]\ \clsmc\ \class{per\-si\-stent-""me\-ta\-class}\ %
+repr\"{a}sentierten Klassen sind aktiv-persistente Klassen; alle anderen
+Klassen sind pas\-siv-""per\-si\-stent.
+%
+\par{}Aktiv-persistente Klassen haben gegen\"{u}ber passiv-persistenten
+folgende zu\-s\"{a}tz\-li\-che Eigenschaften:
+\begin{itemize}
+%
+\item In der Klassendefinition kann innerhalb einer \Slt\/-Definition
+mit einer \Slt\/-Option ein Index f\"{u}r den \Slt\/ deklariert werden;
+die Verwaltung des Indexes wird vollst\"{a}ndig in der 3.~Schicht
+durchgef\"{u}hrt.
+%
+\item Die Lebensdauer jedes \Slt\/-Zustands kann einfacher deklariert
+werden; die Deklaration kann direkt als \Slt\/-Option in die
+\Slt\/-Definition innerhalb der Klassendefinition eingef\"{u}gt werden.
+F\"{u}r einen \Slt\/ einer passiv-persistenten Instanz mu\ss{} die
+Deklaration \"{u}ber die Lebensdauer seines Zustands \"{u}ber einen
+Funktionsaufruf an das persistente System \"{u}ber\-ge\-ben werden.
+%
+\item F\"{u}r den \Slt\/-Zustand stehen mehr Repr\"{a}sentationsarten zur
+Verf\"{u}gung als bei pas\-siv-""per\-si\-sten\-ten Klassen
+\ifbericht%
+\cite[\citepage{120}]{bib:ki94a}%
+\else%
+(\figurename~\ref{fig:extent}, \citepage{\pageref{fig:extent}})%
+\fi.
+%
+\item Die Art der Schemaentwicklung kann einfacher deklariert
+werden; sie kann direkt als \cls[n]\/-Option in die Klassendefinition
+eingef\"{u}gt werden.  F\"{u}r eine passiv-persistente Klasse mu\ss{} die
+Deklaration f\"{u}r die Schemaentwicklung \"{u}ber einen Funktionsaufruf an
+das persistente System \"{u}bergeben werden.
+%
+\end{itemize}
+%
+Dieser Abschnitt beschreibt zun\"{a}chst die zur Realisierung dieser
+zu\-s\"{a}tz\-li\-chen Eigenschaften festgelegten Strukturen der
+\spc[n]\ \mc[n]; ihr Verhalten wird in 
+\ifbericht%
+\cite[\citepage{111}]{bib:ki94a}%
+\else%
+Abschnitt~\ref{sec:plpr} (\citepage{\pageref{sec:plpr}})
+\fi\ erl\"{a}utert. \figurename~\ref{fig:pltlmcls} zeigt die Hierarchie
+der \spc[n]\ \cls[n]- und \Slt\/-\mc[n].
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/pltlmcls.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/pltlmcls.eps}}%
+\fi%
+\caption{\protect\Spc\ \protect\cls[n]- und
+\protect\Slt\/-\protect\mc[n]}\label{fig:pltlmcls}%
+\end{figure}%
+%
+\subsubsection{Die Struktur der \protect\spc[n]\ \protect\clsmc\ %
+\protect\class{persistent-metaclass}}
+%
+Eine Instanz der \clsmc\ \class{persistent-metaclass}\ repr\"{a}sentiert
+eine ak\-tiv-per\-si\-sten\-te Klasse. Sie enth\"{a}lt \ua\ folgende aus
+den zu\-s\"{a}tz\-li\-chen Klassenoptionen der \lisp{defclass}-Anweisung
+ermittelten Informationen, die zum Aufbau des \clsdo[es]\ benutzt
+werden:
+%
+\begin{description}
+%
+\item[Klassenoption \lisp{:extent}]
+Die auf Klassenebene deklarierte Lebensdauer der
+\Slt\/-Zust\"{a}nde; sie wird standardm\"{a}\ss{}ig f\"{u}r alle \Slt[s]\/ benutzt,
+in deren \Slt\/-Definition keine andere Lebensdauer deklariert wird.
+%
+\item[Klassenoption \lisp{:schema-evolution}]
+Die Art der Schemaentwicklung, die f\"{u}r die Klasse deklariert wurde.
+%
+\item[Klassenoption \lisp{:constructor}]
+Der Name der Konstruktor-Funktion.
+%
+\end{description}
+%
+Zus\"{a}tzlich enth\"{a}lt sie noch folgende Informationen:
+%
+\begin{itemize}
+%
+\item Eine \gande{Statusvariable}{flag}[], die angibt, ob die
+Klassendefinition seit der Speicherung der letzten Version des
+\clsdo[es]\ ge\-\"{a}n\-dert wurde.
+%
+\item Eine Referenz auf die transiente \representation{} des zur Klasse
+geh\"{o}rigen \clsdo[es].
+%
+\item Eine Statusvariable mit der Information, ob die
+\gande{Initialisierung des \protect\clsdo[es]\ endg\"{u}ltig
+abgeschlossen ist}{finalized}[{Endg\"{u}ltig abgeschlossene
+Initialisierung eines \protect\clsmo[es]\ oder \protect\clsdo[es].}].
+%
+\end{itemize}
+%
+\subsubsection{Die Strukturen der
+\protect\spc[n]\ \protect\sltmc[n]\ %
+\protect\class{per\-si\-stent-di\-rect-slot-de\-fi\-ni\-tion}\ und
+\protect\class{per\-si\-stent-ef\-fec\-tive-slot-de\-fi\-ni\-tion}}
+%
+Instanzen der
+\sltdc[n]\ \class{per\-si\-stent-di\-rect-slot-de\-fi\-ni\-tion}\ bzw.\ %
+\class{per\-si\-stent-ef\-fec\-tive-slot-de\-fi\-ni\-tion}\ %
+repr\"{a}sentieren  einen direkten bzw.\ effektiven \Slt\/ einer
+ak\-tiv-""per\-si\-sten\-ten Klasse.
+%
+\par{}Die in einer Instanz der
+\sltdc\ \class{persistent-direct-slot-definition}\ enthaltenen
+Informationen stammen aus den zu\-s\"{a}tz\-li\-chen \Slt\/-Optionen
+einer \Slt\/-Definition; diese Informationen werden zum Aufbau eines
+direkten \sltdo[es]\ benutzt. 
+%
+\begin{description}
+%
+\item[{\Slt\/-Option \lisp{:extent}}]
+Die Lebensdauer des \Slt\/-Zustands.
+%
+\item[{\Slt\/-Option \lisp{:index}}]
+Ein S-Ausdruck mit einer Beschreibung des Indexes, der f\"{u}r den
+\Slt\/ angelegt und verwaltet werden soll.
+%
+\end{description}
+%
+Gleichnamige direkte \Slt[s]\/ werden im Verlauf der
+Klasseninitialisierung zu einem einzigen effektiven
+\Slt\/ zusammengefa\ss{}t\ifbericht\else\ (Protokoll~\ref{pro:fi}
+\stfn{(finalize-inheritance)}, \citepage{\pageref{pro:fi}})%
+\fi. Eine Instanz der
+\sltdc\ \class{persistent-effective-slot-definition}\ enth\"{a}lt 
+au\ss{}erdem noch die urspr\"{u}nglich f\"{u}r den \Slt\/ spezifizierte
+Allozierungsart.
+%
+\subsubsection{Die \protect\spc[n]\ \protect\mtdmc[n]\ %
+\protect\class{per\-si\-stent-rea\-der-me\-thod}\ und
+\protect\class{per\-si\-stent-wri\-ter-me\-thod}}
+%
+F\"{u}r den \Slt\/-Zugriff auf persistente \clos-Instanzen wurden die
+beiden \spc[n]\ \mtdmc[n]\ \class{persistent-reader-method}\ und
+\class{persistent-writer-method}\ definiert
+(\figurename~\ref{fig:pltlacls}); Instanzen dieser
+\spc[n]\ \mtdmc[n]\ ersetzen die \std-Zugriffs-\mtd[n].
+%
+\begin{figure}[htbp]%[tbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/pltlacls.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/pltlacls.eps}}%
+\fi%
+\caption{\protect\Spc\ \protect\mtd[n]-\protect\mc[n]}%
+\label{fig:pltlacls}%
+\end{figure}%
+%
+\subsection{Schnitt zwischen Objekten}
+%
+Beim Transfer eines Objektes zwischen transientem und persistentem
+Speicher werden normalerweise alle transitiv referenzierten Objekte
+mit transferiert; wie sich bei der Evaluierung des Systems
+\soh\ zeigte, kann dies unter Umst\"{a}nden dazu f\"{u}hren, da\ss{} das
+persistente System versucht, den gesamten Zustand des LISP-Systems zu
+\"{u}bertragen. Um die Anzahl der transferierten Objekte zu begrenzen,
+k\"{o}n\-nen die BenutzerInnen daher Hinweise geben, ab wann die transitiv
+referenzierten Objekte nicht mit \"{u}bertragen werden sollen.
+%
+\par{}Bei Instanzen von Basisklassen kann beim Speichern bzw.\ Laden
+ein Parameter angegeben werden, bis zu dem
+\"{u}bertragen werden soll; beispielsweise werden bei einer bestimmten
+Angabe Objekte, die bereits zu einem fr\"{u}heren Zeitpunkt
+gespeichert oder geladen wurden, nicht weiter betrachtet. Andere
+Angaben schr\"{a}nken die Anzahl der Objektbestandteile, die
+gespeichert werden sollen, ein; so kann z.B.\ f\"{u}r ein Symbol
+angegeben werden, da\ss{} nur der Name des Symbols in die
+persistente \representation{} \"{u}bertragen wird.
+%
+\par{}F\"{u}r Struktur- und \clos-Objekte kann deklarativ die
+Lebensdauer eines \Slt\/-Zustands als transient festgelegt werden;
+transiente \Slt[s]\/ werden beim Abspeichern nicht weiter traversiert.
+Deklarationen beziehen sich auf Klassen und gelten dann f\"{u}r alle ihre
+Instanzen.
+%
+\subsection{Protokolle}%
+\label{sec:plpr}%
+%
+\ifbericht%
+%
+\let\nextstep\relax
+In \cite[\citepage{111 ff.}]{bib:ki94a}\ werden die Protokolle, mit
+denen \plob\ Persistenz f\"{u}r \clos\ und LISP Objekte realisiert,
+spezifiziert und erl\"{a}utert.
+%
+\else%
+\def\nextstep{\input{protocol}}%
+\fi%
+\nextstep%
+%
+\subsection{Lokalisierung}
+%
+\subsubsection{Binden von Objekten an persistente Symbole}%
+\label{sec:psym}
+%
+Ein Objekt ist genau dann persistent, wenn es erreichbar ist, d.h.\
+wenn es transitiv vom Wurzelobjekt referenziert wird. In
+\wood\ wird beispielsweise deswegen die M\"{o}glichkeit angeboten, das
+Wurzelobjekt explizit zu setzen \cite{bib:wo93}; seine Struktur mu\ss{}
+von den BenutzerInnen so angelegt und verwaltet werden, da\ss{} alle
+persistenten Objekte \"{u}ber dieses Wurzelobjekt erreichbar sind.
+%
+\par{}In \plob\ wurde ein anderer, LISP-""\"{a}hn\-li\-cher Weg gew\"{a}hlt.
+In LISP k\"{o}n\-nen Symbole \"{u}ber ihren Namen referenziert werden
+\stcite{13, 27}; an ein Symbol kann ein Objekt gebunden werden.
+Analog dazu k\"{o}n\-nen hier persistente Symbole benutzt werden, an die
+ein persistentes Objekt gebunden werden kann. Persistente Symbole
+k\"{o}n\-nen ebenfalls \"{u}ber ihren Namen lokalisiert werden; f\"{u}r die
+Suche kann als Name entweder eine transiente oder persistente
+Zeichenkette oder ein transientes Symbol angegeben werden. Bei Angabe
+eines transienten Symbols wird ein persistentes Symbol mit gleichem
+Namen und Paket gesucht.  F\"{u}r jedes persistente Symbol ist
+garantiert, da\ss{} es erreichbar ist; damit ist auch ein an ein
+persistentes Symbol gebundenes Objekt erreichbar.
+%
+\subsubsection{Indizes \"{u}ber die Zust\"{a}nde eines \protect\Slt[s]}
+%
+F\"{u}r den \Slt\/ einer aktiv-persistenten Klasse mit deklariertem
+Index kann nach den persistenten \clos-Instanzen gesucht
+werden, die in diesem \Slt\/ einen bestimmten Zustand enthalten;
+Abfragen \"{u}ber einen Zustandsbereich sind ebenfalls m\"{o}glich. F\"{u}r die
+Suche werden folgende Parameter angegeben:
+\begin{itemize}
+\item Der Name der aktiv-persistenten Klasse.
+\item Der Name des \Slt[s], \"{u}ber den gesucht werden soll. F\"{u}r diesen
+\Slt\/ mu\ss{} ein Index deklariert worden sein.
+\item Der Zustand oder Zustandsbereich, nach dem gesucht werden soll.
+\end{itemize}
+Als Ergebnis wird eine Liste der passenden Instanzen der Klasse oder
+Superklassen zu\-r\"{u}ck\-ge\-ge\-ben.
+%
+\par{}Durch Erstellen entsprechender Methoden k\"{o}n\-nen relativ einfach
+zu\-s\"{a}tz\-li\-che Indexarten eingebunden werden; genaueres dazu
+findet sich im Referenzhandbuch \cite{bib:ki94b}\ im Abschnitt
+\rglq{}index \ldots\rgrq.
+%
+\subsection{\protect\std[isierung]}\label{sec:stdiz}
+%
+In \plob\ wird eine orthogonale Sichtweise f\"{u}r Persistenz realisiert;
+dies bedeutet, da\ss{} jedes transiente Objekt persistent werden kann.
+Ein transientes Objekt wird persistent, indem sein Zustand bestehend
+aus Referenzen und Werten vollst\"{a}ndig in ein persistentes Objekt
+\"{u}bertragen wird. Daraus ergibt sich die Notwendigkeit, \"{u}ber das
+Verhalten jedes transienten Objektes auf seinen Gesamtzustand
+zugreifen k\"{o}n\-nen zu m\"{u}ssen. Das Verhalten der Instanzen von
+\cl\ Typen wird in \cite{bib:st90} weitestgehend normiert.
+%
+\par{}F\"{u}r fehlende Normierungen gibt es prinzipiell die zwei
+L\"{o}sungen, sie entweder hinzunehmen oder eigene Normierungen
+festzulegen. Die erste L\"{o}sung schr\"{a}nkt die Transparenz oder
+Orthogonalit\"{a}t von Persistenz ein; deswegen wurde hier die zweite
+L\"{o}sung vorgezogen.
+Im folgenden Text werden die Arten der fehlenden Normierungen
+sowie die sich bietenden M\"{o}glichkeiten, doch noch zu einer Normierung
+zu kommen, geschildert.
+%
+\subsubsection{{\protect\rglq}Vergessen{\protect\rgrq}\ einer Norm}
+%
+In diese Kategorie fallen Normierungen, die offensichtlich w\"{a}ren,
+aber trotzdem nicht erfolgten, obwohl der Normierungsproze\ss{}
+abgeschlossen ist.
+%
+\par{}Ein Beispiel daf\"{u}r sind die fehlenden
+\gande{Feld-Informationsfunktionen}
+{array information functions}%
+\addglossary{Feld-Informationsfunktion}[array information function]%
+[{Eine
+Feld-\protect\discretionary{}{}{}In\-for\-ma\-ti\-ons\-funk\-tion
+liefert Informationen \"{u}ber ein LISP Datenobjekt der Klasse
+\protect\gande{Feld}{array}, wie z.B.\ die Anzahl Feldelemente, eine
+Liste der Felddimensionen, den Elementtyp, f\"{u}r den das Feld
+spezialisiert wurde usw.}]\ \stcite{448--452}\ im Zusammenhang mit
+\gande{Feldern, die Elemente anderer Felder referenzieren}{displaced
+arrays}%
+\addglossary{displaced array}%
+[Ein {\protect\em displaced array\/} ist ein Feld, das Elemente eines
+anderen Feldes referenziert. Jeder Zugriff auf ein Feldelement liest
+bzw.\ schreibt ein Element des referenzierten Feldes.]\ \stcite{444};
+f\"{u}r diese Felder gibt es keine Informationsfunktionen, die dar\"{u}ber
+Auskunft geben, zu welchem Feld die referenzierten Elemente geh\"{o}ren
+und ab welchem
+\gande{Index}{displaced index offset}[{Der erste Index f\"{u}r ein
+\protect\gande{Feld, da\ss{} ein anderes Feld
+referenziert}{\protect\see{displaced array}}\ des gemeinsam
+referenzierten Teils.}]\ \stcite{445}\ der gemeinsam referenzierte
+Teil beginnt.
+%
+\subsubsection{Fehlende Norm}
+%
+Fehlende Normen resultieren aus einem noch nicht begonnenem
+Normierungsproze\ss{}.
+%
+\par{}Ein Beispiel ist die fehlende Normierung des Verhaltens
+von Strukturklassen. In \stcite{800}\ wird nur festgelegt, da\ss{}
+Strukturklassen repr\"{a}sentiert werden; eine Festlegung ihres
+Verhaltens erfolgte nicht. In \cite{bib:amop91} werden
+Strukturklassen \"{u}berhaupt nicht erw\"{a}hnt.
+%
+\par{}Eine Normierung f\"{u}r LISP-interne Prozesse erfolgte ebenfalls
+nicht; viele LISP-Systeme, darunter auch \lwcl\ und \allegrocl, halten
+sich aber an den durch die LISP Implementation auf den Maschinen der
+Firma \symbolics\ gegebenen \std.
+%
+\paragraph{L\"{o}sung}
+Das Problem der \rglq{}vergessenen\rgrq\ und fehlenden Normen stellte
+sich bereits den AutorInnen der verschiedenen LISP-Systeme, die
+daf\"{u}r meist untereinander \"{a}quivalente vern\"{u}nftige
+Festlegungen trafen, die als Norm im Rahmen \ifbericht dieses
+Berichtes \else\ifbuch dieses Buches \else dieser Arbeit \fi\fi
+verwendet werden konnten. Es wurde Wert darauf gelegt, die
+entsprechenden, meist systemabh\"{a}ngigen Konstrukte nicht direkt zu
+nutzen, sondern eine dokumentierte Schnittstelle zu schaffen.
+%
+\subsubsection{Unvollst\"{a}ndige oder unklare Norm}
+%
+Unvollst\"{a}ndige oder unklare Normen resultieren aus einem noch nicht
+abgeschlossenem Normierungsproze\ss{}.
+%
+\par{}In \cite{bib:st90}\ wurde beispielsweise keine Normierung des
+\mop\ vogenommen; statt dessen wurde der Hinweis gegeben, da\ss{} die
+dem ANSI Kommitee im Juni 1988 vorgeschlagene \std[isierung]\ des
+\mop\ nicht angenommen wurde \stcite{770}. Die AutorInnen des zur
+Realisierung von \plob\ verwendeten \lwcl\ hatten also zu diesem
+Zeitpunkt keine verbindliche Norm zur Implementation des \mop;
+letztendlich erfolgte sie doch nach der nicht angenommenen
+\std[isierung]\ vom Juni 1988 \cite{bib:sn94}. Im Jahr 1991 erschien
+dann \cite{bib:amop91}, das inzwischen als de-fakto Normierung des
+\mop\ angesehen wird; es unterscheidet sich aber von dem 1988 nicht
+angenommenen \std\ in einigen Punkten, die f\"{u}r die Realisierung von
+transparenter Persistenz f\"{u}r aktiv-persistente \clos-Objekte nicht
+unerhebliche Schwierigkeiten bereiteten.
+%
+\par{}Eine Unklarheit findet sich in
+\cite{bib:amop91} bez\"{u}glich des Protokolls zum Erzeugen des
+effektiven Funktionscodes der \mtdmo[e]\ der generischen
+Zugriffs-\fn[en], deren Namen in einer
+\cls[n]definition in den Argumenten der \Slt\/-Optionen
+\lisp{:reader}, \lisp{:writer}\ oder \lisp{:accessor}\ angegeben
+wurden. Der effektive Funktionscode aller \mtdmo[e]\ wird nach
+\amopcite{207--209}\ \"{u}ber einen Aufruf der
+\gfn[n]\ \stfn{make-method-lambda}\ erzeugt, die u.a.\ den (von den
+BenutzerInnen erstellten) direkten Code der Methode als Argument
+erh\"{a}lt. Das Problem im Zusammenhang mit generischen
+Zugriffs-\fn[en]\ besteht darin, da\ss{} kein expliziter direkter Code
+f\"{u}r ihre Methoden spezifiziert wird, sondern vom LISP-System selbst
+generiert wird. Diese Tatsache wird von \lw\ so
+interpretiert, da\ss{} die \gfn\ \stfn{make-method-lambda}\ nur f\"{u}r
+\mtdmo[e]\ aufgerufen wird, die aus explizit
+% vom Benutzer
+erstellten Methoden erzeugt wurden und nicht f\"{u}r die implizit
+erzeugten \mtdmo[e]\ der Methoden der generischen
+Zugriffs-\fn[en]\ifbericht\else\ (Protokoll~\ref{pro:defclass}
+\stfn{(defclass)}, Schritte~\ref{enu:dcmcl}--\ref{enu:dcmad},
+\citepage{\pageref{enu:dcmcl}})\fi.
+%
+\paragraph{L\"{o}sung}
+Die unklaren oder unvollst\"{a}ndigen Normen resultieren in einem
+unerwartetem Verhalten des LISP-Systems; eine gr\"{u}ndliche
+L\"{o}sung dieses Problems besteht in der Beseitigung der Unklarheiten
+bzw.\ in der Erg\"{a}nzung der Normierung und einer Korrektur des LISP
+Systems. Dies war im Rahmen \ifbericht dieses Berichtes \else\ifbuch
+dieses Buches \else dieser Arbeit \fi\fi nicht m\"{o}glich.
+%
+\par{}Ich vertrete die Meinung, da\ss{}, sofern der Produzent eines
+Systems angibt, einem gewissem \std\ zu gen\"{u}gen, der Produzent auch
+daf\"{u}r zust\"{a}ndig ist, da\ss{} das System den \std\ auch tats\"{a}chlich
+einh\"{a}lt. Deswegen wurde hier darauf verzichtet, f\"{u}r den Ausgleich
+der Inkompatibilit\"{a}ten der LISP-Systeme zum gegebenen
+\std\ zu\-s\"{a}tz\-lich einen \rglq{}Meta\rgrq-\std\ zu definieren; statt
+dessen wurden die Inkompatibilit\"{a}ten durch dokumentierte
+ad-hoc-L\"{o}sungen ausgeglichen.
+%
+\subsubsection{Keine Festlegung von Strukturen}
+%
+Die \std[isierung]\ in \cite{bib:st90} legt keine Strukturen f\"{u}r
+Instanzen der dort definierten Typen und Klassen fest; damit kann
+diese Festlegung von den AutorInnen eines LISP-Systems vorgenommen
+werden und erm\"{o}glicht so beispielsweise Optimierungen. Statt dessen
+wurde ihr Verhalten so normiert, da\ss{} % (bis auf die \og[e]\ Ausnahme)
+dar\"{u}ber auf den Gesamtzustand einer Instanz als Summe ihrer
+Teilzust\"{a}nde zugegriffen werden kann. Bei der Realisation zeigte
+sich, da\ss{} diese \rglq{}Aufsummierung\rgrq\ mit erheblichen
+Effizienzverlusten verbunden sein kann und also unter Umst\"{a}nden
+vermieden werden sollte; es ist dann g\"{u}nstiger, auf den Gesamtzustand
+zugreifen zu k\"{o}n\-nen.  Dies bedingt aber die Verf\"{u}gbarkeit von
+Informationen \"{u}ber die Struktur dieser Instanzen.
+%
+\par{}Beispiele daf\"{u}r sind Zeichenketten und Bit-Vektoren, auf die
+lediglich elementweise zugegriffen werden kann; die \"{U}bertragung
+eines Zustands w\"{a}re in diesem Fall sehr ineffizient.
+%
+\paragraph{L\"{o}sung}
+Die in den verschiedenen LISP-Systemen verwendeten Strukturen sind oft
+\"{a}quivalent; daher wurden ihre internen Zugriffsfunktionen als Norm
+im Rahmen \ifbericht dieses Berichtes \else\ifbuch dieses Buches \else
+dieser Arbeit \fi\fi verwendet. Es wurde Wert darauf gelegt, die
+entsprechenden systemabh\"{a}ngigen Zugriffsfunktionen nicht direkt
+aufzurufen, sondern eine dokumentierte Schnittstelle zu schaffen.
+%
+\subsubsection{System-interne Konstrukte}
+%
+Der \cl\ \std\ verbietet es einem LISP-System selbstverst\"{a}ndlich
+nicht, zu\-s\"{a}tz\-li\-che Konstrukte zu benutzen oder anzubieten,
+solange sie nicht inkompatibel zum \std\ sind. Dies k\"{o}n\-nen
+beispielsweise systemintern definierte Typen sein, deren Instanzen zur
+Re\-pr\"{a}\-sen\-ta\-tion von Instanzen von \std-Typen benutzt werden.
+%
+\paragraph{L\"{o}sung}
+Die systeminternen Konstrukte wurden entweder als Basiskonstrukte zu
+\plob\ hinzugef\"{u}gt oder durch andere Basiskonstrukte nachgebildet.
+%
+\subsection{Zusammenfassung der 3.\ Schicht}
+%
+F\"{u}r die Einhaltung der \acid\ Kriterien (\citepage{\pageref{ref:acid}})
+sorgt die 2.~Schicht; die 3.~Schicht benutzt lediglich die
+dort realisierten Funktionalit\"{a}ten und bietet h\"{o}heren Schichten
+einfache Ein\-bin\-dungs\-m\"{o}g\-lich\-kei\-ten f\"{u}r sie an.
+%
+Der folgende Abschnitt fa\ss{}t noch einmal kurz die Funktionalit\"{a}ten
+der 3.~Schicht aus der Sicht der n\"{a}chsth\"{o}heren 4.~Schicht zusammen.
+\begin{description}
+%
+\item[Abbildung zwischen transienten und persistenten Objekten]
+LISP Objekte werden auf persistente Objekte mit einer der
+transienten Klasse angemessenen Beschreibung abgebildet.
+%
+\item[Orthoghonalit\"{a}t; aktiv-persistente Klassen]
+Jedes transiente LISP Objekt kann persistent werden;
+Instanzen von aktiv-persistenten \clos\ Klassen haben bez\"{u}glich
+Persistenz mehr M\"{o}g\-lich\-kei\-ten als passiv-persistente Instanzen.
+%
+\item[Zugriff auf den Zustand von persistenten Objekten]
+F\"{u}r den Zugriff auf persistente Objekte gibt es die
+M\"{o}glichkeit, die persistente \representation{} eines persistenten
+Objektes auf eine transiente \representation{} abzubilden und auf diese
+zuzugreifen (\swizzling\/). F\"{u}r aktiv-persistente Objekte kann
+auch transparent direkt auf die persistente Repr\"{a}sentation
+zugegriffen werden, f\"{u}r alle anderen Objekte gibt es die M\"{o}glichkeit
+des intransparenten direkten Zugriffs.
+%
+\item[Wurzelobjekt; persistente Symbole]
+Das Wurzelobjekt wird lediglich intern in der 3.~Schicht verwendet;
+damit ein persistentes Objekt vom Wurzelobjekt aus erreichbar wird,
+gen\"{u}gt es, wenn es als Wert an ein persistentes Symbol gebunden wird.
+Persistente Symbole und damit auch der jeweils an sie gebundende Wert
+k\"{o}n\-nen \"{u}ber Namen lokalisiert werden.
+%
+\item[Assoziativer Zugriff]
+F\"{u}r \Slt[s]\/ von aktiv-persistenten Instanzen kann ein Index
+deklariert werden, der persistente \clos-Instanzen zu
+\Slt\/-Zust\"{a}nden assoziiert. Die Verwaltung der Indextabellen erfolgt
+transparent in \spc[n]\ \mtd[n]\ der \gfn[n]en
+\stfn{slot-\ldots-using-class}.
+%
+\end{description}
+%
+Die 3.~Schicht wird ausf\"{u}hrlich im Re\-fe\-renz-Hand\-buch
+\cite{bib:ki94b}\ dokumentiert.
+%
+\section{Schicht 4: Die Sitzungs-Schicht}
+%
+Dieser Abschnitt erl\"{a}utert die zur Verf\"{u}gung gestellten Konzepte und
+zeigt Beispiele f\"{u}r ihre Benutzung.
+%
+\subsection{Konzepte}
+%
+\subsubsection{Persistente Pakete}
+%
+Persistente Pakete dienen zur Gruppierung von persistenten Symbolen.
+Alle persistenten Pakete sind erreichbar und damit immer persistent.
+Zur Manipulation von persistenten Paketen gibt es Funktionen mit
+gleicher Funktionalit\"{a}t wie f\"{u}r transiente Pakete; die
+entsprechenden Funktionsnamen stammen aus \cite{bib:st90} und wurden
+zur Unterscheidung zu den auf transienten Paketen arbeitenden
+Funktionen mit dem Pr\"{a}fix \rglq{}p-\rgrq\ versehen; im einzelnen sind
+dies die Funktionen \stfn{p-find-package},
+\stfn{p-delete-package}\footnote{Da persistente Pakete implizit
+erreichbar sind, gibt es f\"{u}r sie einen expliziten Destruktor.},
+\stfn{p-package-name}\ und \stfn{p-package-internals}.
+%
+\subsubsection{Persistente Symbole}
+%
+Persistente Symbole sind mit Namen versehene persistente Objekte. Sie
+geh\"{o}ren zu genau einem persistenten Paket und sind von diesem
+erreichbar; damit sind sie persistent. Ein an ein persistentes Symbol
+gebundenes Objekt ist, da
+es von einem persistenten Symbol referenziert wird, ebenfalls
+persistent und erreichbar. Aus der Sicht der BenutzerInnen gibt es
+kein explizites Wurzelobjekt; diese Aufgabe haben in
+\plob\ persistente Pakete und speziell die von ihnen erreichbaren
+persistenten Symbole \"{u}bernommen. Dies entspricht vom Konzept her der
+Erreichbarkeit von transienten Symbolen in \cl\ \"{u}ber ihr transientes
+Paket.
+%
+\par{}Zur Manipulation von persistenten Symbolen gibt es Funktionen
+mit gleicher Funktionalit\"{a}t wie f\"{u}r transiente Symbole. Die
+entsprechenden Funktionsnamen stammen aus \cite{bib:st90} und wurden
+zur Unterscheidung zu den auf transienten Symbolen arbeitenden
+Funktionen mit dem Pr\"{a}fix \rglq{}p-\rgrq\ versehen; im einzelnen sind
+dies die Funktionen \stfn{p-boundp}, \stfn{p-fboundp},
+\stfn{p-symbol-function}, \stfn{(setf p-symbol-function)},
+\stfn{p-symbol-package}, \stfn{p-symbol-plist}, 
+\stfn{(setf p-symbol-plist)}, \stfn{p-symbol-name}, 
+\stfn{p-symbol-value}, \stfn{(setf p-symbol-value)},
+\stfn{p-fmakunbound}\ und \stfn{p-mak\-un\-bound}.
+Bei den Manipulationsfunktionen f\"{u}r persistente Symbole kann
+zur Referenzierung des persistenten Symbols das transiente
+Symbol angegeben werden; die Manipulationsfunktionen suchen dann
+das persistente Symbol mit gleichem Namen und Paket. Der Wert des
+persistenten Symbols \lisp{'foo} kann beispielsweise mit dem Ausdruck
+\lisp{(setf (p-symbol-value 'foo) 5)}\ auf den Wert 5 gesetzt werden;
+das transiente Symbol \lisp{'foo}\ dient zur Lokalisierung des
+persistenten Symbols \lisp{'foo}. Das Setzen des Wertes eines
+persistenten Symbols auf ein transientes Objektes impliziert die
+Speicherung des transienten Objektes.
+%
+\par{}Eine der h\"{a}ufigsten Operationen mit Symbolen ist das Setzen
+bzw.\ Abfragen des an das Symbol gebundenen Wertes; dazu gibt es das
+{\em macro-reader\/}-Zeichen%
+%
+\begin{listing}[\tt]%
+\#l{\rm\lt{}symbol-name\gt{}\/}
+\end{listing}%
+%
+\noindent das zu
+%
+\begin{listing}[\tt]%
+(p-symbol-value {\rm\lt{}symbol\gt\/})
+\end{listing}%
+%
+\noindent evaluiert; der Buchstabe \lisp{l}\ ist eine Abk\"{u}rzung f\"{u}r
+\rglq{}load\rgrq.
+%
+\par{}Zur Verwaltung von persistenten Symbolen gibt es die
+Funktionen \stfn{p-find-symbol}, \stfn{p-intern}\ und
+\stfn{p-unintern}\ mit gleicher Funktionalit\"{a}t wie in
+\cite{bib:st90}.
+%
+%\subsubsection{Aktiv-persistente Klassen}
+%
+%Aktiv-persistente Klassen 
+%
+\subsubsection{Deklarationen}
+%
+\"{U}ber Deklarationen kann die Lebensdauer und \representationform{} von
+\Slt\/-Zust\"{a}nden, die Art der Schemaentwicklung f\"{u}r Klassen und die
+f\"{u}r die Erzeugung der transienten \representations{} von persistenten
+Objekten einer Klasse zu benutzende Konstruktor-Funktion festgelegt
+werden. Die M\"{o}glichkeiten der Beeinflussung von Persistenz \"{u}ber
+Deklarationen besteht f\"{u}r alle Klassen, un\-ab\-h\"{a}n\-gig davon, ob
+sie aktiv- oder passiv-persistent sind; lediglich die Art und Weise,
+in der die Deklarationen angegeben werden k\"{o}nnen, ist
+unterschiedlich.
+%
+\par{}F\"{u}r aktiv-persistente Klassen werden die Deklarationen als
+zu\-s\"{a}tz\-li\-che Klassen- und \Slt\/-Optionen in die
+Klassendefinition eingef\"{u}gt. Ihre Auswertung erfolgt im Laufe der
+Initialisierung des die Klasse repr\"{a}sentierenden \clsmo[es].  Aus dem
+\clsmo\ und den davon referenzierten \mo[en]\ werden die Informationen
+in das persistente \clsdo\ und die davon referenzierten \deo[e]\ der
+Klasse \"{u}bernommen.
+%
+\par{}Bei passiv-persistenten Klassen werden die Deklarationen \"{u}ber
+Aufrufe von Funktionen an \plob\ weitergegeben; Deklarationen auf
+Klassenebene werden an das \clsmo\ der Klasse und Deklarationen auf
+\Slt\/-Ebene werden an das \clsmo\ und den Namen des
+\Slt[s]\/ assoziiert.
+%
+\paragraph{Deklaration der Lebensdauer von
+\protect\Slt\/-Zust\"{a}nden}
+%
+Die Deklaration der Lebensdauer von \Slt\/-Zust\"{a}nden beeinflu\ss{}t
+sowohl die Lebensdauer als auch die \representationform{} von
+\Slt\/-Zust\"{a}nden 
+\ifbericht%
+\cite[\citepage{120}]{bib:ki94a}%
+\else%
+(\figurename~\ref{fig:extent},
+\citepage{\pageref{fig:extent}})\fi. Die einzelnen Deklarationswerte
+bedeuten:
+\begin{description}
+%
+\item[Lebensdauer \lisp{:cached-demand-load}]
+Diese Lebensdauer gibt es nur f\"{u}r
+\Slt[s]\/ von Strukturobjekten. Der transiente \Slt\/-Zustand wird bei
+der ersten lesenden Dereferenzierung des \Slt[s]\/ geladen, es sei
+denn, der persistente \Slt\/-Zustand referenziert ein \immval\/ oder
+ein bereits geladenes  Objekt; in diesem Fall wird der transiente
+\Slt\/-Zustand bereits beim Laden des Strukturobjektes gesetzt.
+%
+\par{}Da Strukturobjekte passiv-persistente Instanzen sind, erfolgt
+das Speichern des transienten \Slt\/-Zustands beim Speichern des
+transienten Strukturobjektes.
+%
+\item[Lebensdauer \lisp{:transient}]
+Mit der Deklaration einer transienten Lebensdauer
+wird der \Slt\/ nicht im persistenten Speicher repr\"{a}sentiert;
+demzufolge wird der Zustand eines als transient deklarierten
+\Slt[s]\/ beim Speichern des transienten Objektes auch nicht
+weiter traversiert.
+%
+\item[Lebensdauer \lisp{:cached}]
+Der transiente \Slt\/-Zustand wird nur beim Laden bzw.\ Speichern des
+transienten Objektes \"{u}bertragen.
+%
+\item[Lebensdauer \lisp{:cached-write-through}]
+Diese Lebensdauer gibt es nur f\"{u}r \Slt[s]\/ von aktiv-persistenten
+Instanzen.  Der Zustand des transienten \Slt[s]\/ wird beim Laden auf
+den Zustand des persistenten \Slt[s]\/ gesetzt; Schreibzugriffe werden
+in den \Slt\/ sowohl der transienten als auch der persistenten
+\representation{} propagiert.
+%
+\item[Lebensdauer \lisp{:persistent}]
+Diese Lebensdauer gibt es nur f\"{u}r \Slt[s]\/ von aktiv-persistenten
+Instanzen.  Der \Slt\/ wird nur im persistenten Speicher
+repr\"{a}sentiert; alle Zugriffe finden direkt auf die persistente
+\representation{} statt. 
+%
+\end{description}
+Eine Lebensdauer kann auf einer der Ebenen \rglq\Slt\/\rgrq\ --
+\rglq\cls\rgrq\ -- \rglq{}Paket des
+\cls[n]-Namens\rgrq\  deklariert werden; die Lebensdauer
+des \Slt\/-Zustands ergibt sich aus der ersten Deklaration, die
+in der angebenen Reihenfolge f\"{u}r eine der Ebenen gefunden wird.
+%
+\par{}F\"{u}r aktiv-persistente Klassen erfolgt die Einbindung der
+\og[en]\ Deklarationswerte auf \Slt\/- und Klassen-Ebene mittels der
+zu\-s\"{a}tz\-li\-chen \Slt\/- bzw.\ Klassen-Option
+%
+\begin{listing}[\tt]%
+:extent {\rm\it\lt{}Lebensdauer\gt\/}
+\end{listing}%
+%
+\par{}Bei passiv-persistenten Klassen erfolgt die
+Einbindung der Deklarationswerte auf \Slt\/-Ebene \"{u}ber die
+Evaluierung des Ausdrucks
+%
+\begin{listing}[\tt]%
+(setf \=(slot-extent {\rm\it\lt{}Slot-Name\gt\/}
+                     (find-class {\rm\it\lt{}Klassenname\gt\/}))\\
+      \>{\rm\it\lt{}Lebensdauer\gt\/})
+\end{listing}%
+%
+\noindent und auf Klassenebene \"{u}ber die Evaluierung des Ausdrucks
+%
+\begin{listing}[\tt]%
+(setf (class-extent (find-class {\rm\it\lt{}Klassenname\gt\/}))
+      {\rm\it\lt{}Lebensdauer\gt\/})
+\end{listing}%
+%
+\par{}Auf Paketebene erfolgt die Einbindung der Deklaration einer
+Lebensdauer \"{u}ber die Evaluierung des Ausdrucks
+%
+\begin{listing}[\tt]%
+(setf (package-extent (find-package {\rm\it\lt{}Paketname\gt\/}))
+      {\rm\it\lt{}Lebensdauer\gt\/})
+\end{listing}%
+%
+\noindent Damit k\"{o}nnen alle Klassen, die innerhalb
+eines Paketes definiert werden, mit einer Lebensdauer versehen werden;
+\ia\ wird die Lebensdauer auf Paketebene f\"{u}r Pakete mit
+den Namen von \rglq{}uninteressanten Klassen\rgrq\ auf transient
+gesetzt.
+%
+%\paragraph{Deklaration der Schemaentwicklung}
+%
+%
+%\subsubsection{\"{O}ffnen und Schlie\ss{}en des \protec\postore}
+%
+%
+\subsubsection{Sitzungen und Transaktionen}
+%
+Eine Sitzung wird implizit von \plob\ bei Bedarf f\"{u}r den laufenden
+\lw\ {\em lightweight\/}-Proze\ss{} ge\"{o}ffnet; durch Aufruf der Funktion
+%
+\begin{listing}[\tt]%
+(open-session)
+\end{listing}%
+%
+\noindent kann sie auch explizit ge\"{o}ffnet werden. Die Funktion
+%
+\begin{listing}[\tt]%
+(show-sessions)
+\end{listing}%
+%
+\noindent zeigt alle momentan offenen Sitzungen an.
+%
+\par{}Das Makro \stfn{with-transaction}\ bettet die
+{\it\lt{}Anweisungen\gt\/} in eine an die Sitzung gebundene
+Transaktion ein:
+%
+\begin{listing}[\tt]%
+(with-transaction {\rm\it\{ \lt{}Anweisungen\gt\ \}*\/})
+\end{listing}%
+%
+\noindent Werden die {\it\lt{}An\-wei\-sun\-gen\gt\/} vollst\"{a}ndig
+abgearbeitet, wird die Transaktion \gande{beendet}{committed};
+andernfalls wird sie \gande{abgebrochen}{aborted}. Eine
+nicht-vollst\"{a}ndige Abarbeitung ist durch jeden nicht-""lo\-ka\-len
+Sprung aus den {\it\lt{}Anweisungen\gt\/} heraus in den umfassenden
+Block des Makros gegeben; dies tritt insbesondere bei folgenden
+Ereignissen auf:
+\begin{description}
+%
+\item[Laufzeitfehler]
+Bei Fehlern, die nicht innerhalb der {\it\lt{}Anweisungen\gt\/}
+behandelt werden, ist eine nicht-vollst\"{a}ndige Abarbeitung gegeben.
+%
+\item[\lisp{block}/\lisp{return}-Konstrukte]
+Bei \lisp{block}/\lisp{return}-Konstrukten \stcite{161}\ ist zu
+beachten, da\ss{} bei Einbettung des Makros \stfn{with-transaction}\ in
+einen Block die Ausf\"{u}hrung der Anweisung
+\lisp{return}\ bzw.\ \lisp{return-from}\ eine nicht
+vollst\"{a}ndige Abarbeitung der {\it\lt{}An\-wei\-sun\-gen\gt\/} zur
+Folge hat.
+%
+\item[\lisp{catch}/\lisp{throw}-Konstrukte]
+Die Konstrukte \lisp{catch}\ und \lisp{throw}\ \stcite{187}\ mit der
+Anweisung \lisp{catch}\  im umfassenden Block des Makros
+\stfn{with-transaction}\ und der Anweisung \lisp{throw}\ innerhalb der
+{\it\lt{}Anweisungen\gt\/} f\"{u}hren bei der Ausf\"{u}hrung der Anweisung
+\lisp{throw}\ zu einer nicht vollst\"{a}ndigen Abarbeitung der
+{\it\lt{}Anweisungen\gt}.
+%
+\end{description}
+Beim Auftreten eines der \og[en]\ Ereignisse wird eine Transaktion
+demzufolge abgebrochen.
+%
+\subsubsection{Assoziativer Zugriff}
+%
+F\"{u}r den \Slt\/ einer aktiv-persistenten Instanz kann ein Index
+definiert werden; die Art des Indexes wird \"{u}ber die
+zu\-s\"{a}tz\-li\-che \Slt\/-Option \lisp{:index}\ deklariert:
+%
+\begin{listing}[\tt]%
+:index {\rm\it\lt{}index-definierender S-Ausdruck\gt\/}
+\end{listing}%
+%
+\noindent Der {\rm\it\lt{}index-definierende S-Ausdruck\gt\/}
+definiert den anzulegenden Index; momentan stehen persistente B-B\"{a}ume
+(Abschnitt~\ref{sec:plbtr}, \citepage{\pageref{sec:plbtr}}) als
+\representation{} f\"{u}r Indextabellen zur Verf\"{u}gung. Die \Slt\/-Option
+f\"{u}r Verwendung eines B-Baumes als Indextabelle lautet:
+%
+\begin{listing}[\tt]%
+:index (btree :test {\rm\it\lt{}Ordnungskriterium\gt\/}
+                    :cached {\rm\it\lt{}cached\gt\/})
+\end{listing}%
+%
+\noindent Die m\"{o}glichen {\rm\it\lt{}Ordnungskriterien\gt\/} werden
+in Abschnitt~\ref{sec:plbtr} (\citepage{\pageref{sec:plbtr}})
+erl\"{a}utert. Wenn f\"{u}r die Angabe {\rm\it\lt{}cached\gt\/}
+\nonnil\ angegeben wird, finden alle Einzelanfragen (d.h.\ alle
+Anfragen, die nicht \"{u}ber einen Schl\"{u}sselbereich gehen) auf den
+B-Baum \"{u}ber einen an ihn gebundenen transienten \cache\/ statt; damit
+wird der lesende Zugriff f\"{u}r einzelne Schl\"{u}sselwerte beschleunigt,
+aber gleichzeitig der Speicherbedarf erh\"{o}ht.
+%
+\par{}Die Deklaration eines Indexes hat zwei Seiteneffekte. Der erste
+Seiteneffekt besteht darin, da\ss{} durch die Deklaration eines Indexes
+mit dem Ordnungskriterium \lisp{equal}\ der \Slt\/ auf den Typ des
+ersten \Slt\/-Zustands festgelegt wird, der in den B-Baum eingef\"{u}gt
+wird. Der Grund liegt darin, da\ss{} die Schl\"{u}sselobjekte in einem
+B-Baum mit dem Ordnungskriterium \lisp{equal}\ alle den gleichen Typ
+haben m\"{u}ssen, damit sie sortiert abgelegt werden k\"{o}nnen.
+%
+\par{}Der zweite Seiteneffekt ist, da\ss{} alle Objekte der Klassen,
+bei denen f\"{u}r einen \Slt\/ ein Index definiert wurde, erreichbar sind
+und daher bei einer Speicherr\"{u}ckgewinnung nicht gel\"{o}scht werden
+(\figurename~\ref{fig:adridx}, \citepage{\pageref{fig:adridx}}).
+Damit ein Objekt bei einer Speicherr\"{u}ckgewinnung gel\"{o}scht
+werden kann, darf keine Referenz aus einer Indextabelle auf das Objekt
+existieren. Erreicht wird dies durch Entfernen des Objektes aus den
+Indextabellen, indem die Bindung jedes \Slt[s]\/ des Objektes, f\"{u}r den
+ein Index deklariert wurde, aufgehoben wird.
+%
+\par{}Objekte k\"{o}nnen mit der Funktion
+%
+\begin{listing}[\tt]%
+(p-select {\rm\it\lt{}Klassenname\gt\/}
+          :where {\rm\it\lt{}Slot-Name\gt\/}
+          {\rm\it\lt{}Auswahlkriterien\gt\/})
+\end{listing}%
+%
+\noindent nach einem \Slt\/-Zustand ausgew\"{a}hlt werden. F\"{u}r den durch
+{\rm\it\lt{}Slot-Namen\gt\/} identifizierten \Slt\/ in der durch
+{\rm\it\lt{}Klassenname\gt\/} benannten Klasse mu\ss{} ein Index
+deklariert worden sein. F\"{u}r Einzelheiten der
+{\rm\it\lt{}Auswahlkriterien\gt\/} verweise ich auf das
+Referenzhandbuch \cite{bib:ki94b}, Abschnitt \rglq{}p-select\rgrq.
+%
+\subsubsection{L\"{o}schen von Objekten und Speicherr\"{u}ckgewinnung}
+%
+Der Speicherplatz eines Objektes kann dann und nur dann freigegeben
+werden, wenn keine Referenzen mehr auf das Objekt existieren; ein
+Objekt wird durch nicht-referenzieren als zu l\"{o}\-schen\-des Objekt
+f\"{u}r die n\"{a}chste Speicherr\"{u}ckgewinnung \rglq{}markiert\rgrq{}.
+Eine Speicherr\"{u}ckgewinnung wird durch den Aufruf der Funktion
+%
+\begin{listing}[\tt]%
+(plob-gc)
+\end{listing}%
+%
+\noindent veranla\ss{}t; vor einer Speicherr\"{u}ckgewinnung sollte der
+\postore\ durch einen Aufruf der Funktion
+%
+\begin{listing}[\tt]%
+(plob-close)
+\end{listing}%
+%
+\noindent geschlossen werden, da sich durch die in der letzten Phase
+der Speicherr\"{u}ckgewinnung durchgef\"{u}hrten Kompaktierung des
+\postore\ die \objid[s]\ der persistenten Objekte \"{a}ndern k\"{o}nnen und
+damit bei ge\"{o}ffnetem \postore\ Inkonsistenzen mit den transienten
+\representations{} der persistenten Objekte auftreten k\"{o}nnen.
+%
+\par{}Der Zustand eines Objektes kann explizit mit der Funktion
+%
+\begin{listing}[\tt]%
+(p-destroy {\rm\it\lt{}short objid\gt\/})
+\end{listing}%
+%
+\noindent gel\"{o}scht werden; nach dem Aufruf besteht der Zustand nur
+noch aus \immval[s], die keine weiteren persistenten Objekte
+referenzieren. Bei diesem Aufruf wird auch die Klasse des Objektes auf
+die Klasse \class{Zombie}\ ge\"{a}ndert; eine n\"{a}chste Dereferenzierung
+des persistenten Objektes f\"{u}hrt \ia\ zu einer Fehlermeldung.
+%
+\par{}Beim Abbruch einer Transaktion erhalten alle im Verlauf der
+Transaktion erzeugten Zombies ihre vorherige Klasse und ihren
+vorherigen Zustand zur\"{u}ck.
+%
+\subsection{Beispiele}
+%
+Dieser Abschnitt zeigt anhand von Beispielen die realisierten Konzepte
+von \plob.
+%
+\subsubsection{Anzeigen von \protect\clsdo[en]}
+%
+In \figurename~\ref{fig:odclsdo} werden durch Aufruf der Funktion
+\stfn{p-apropos-classes}\ alle \clsdo[e]\ angezeigt, deren Namen die
+an diese Funktion \"{u}bergebene Zeichenkette
+\lisp{\dq{}des\-crip\-tion\dq}\ enthalten. 
+%
+\begin{listing}%
+\listener\label{enu:odclsdopa}
+{\em(p-apropos-classes \dq{}description\dq)}\\
+\oi\ Er\=ror: The stable heap is not open.\\
+  \>1 (continue) Open it.\\
+  \>2 (abort) Return to level 0.\\
+Type :c followed by a number to proceed\\
+\errlistener\label{enu:odclsdoer} 1 > {\em:c}\\
+; Bootstrap, phase 1: \=Loaded structure description\\
+; \>plob::structure-description, 10/12 slots.\\
+; Bootstrap, phase 1: Loaded structure description\\
+; \>plob::structure-slot-description, 8/10 slots.\\ 
+{\rm usw.\ bis}\\
+; LISP root formatted at 18.07.1994 14:15\\
+plob::\=method-description, data:\ \#<instance class-description\\
+\oii  \>method-description 1.00 slots=5/6 short-objid=8388579>\\
+plob::\=effective-slot-description, data:\ \#<instance class-description\\
+      \>effective-slot-description 1.00 slots=9/10 short-objid=8388581>\\
+{\rm usw.\ bis}\\
+plob::\=structure-description, data:\ \#<structure structure-description\\
+      \>structure-description 1.00 slots=10/12 short-objid=8388602>
+\caption{\"{O}ffnen des \protect\sh\ und Anzeigen der \protect\clsdo[e]}%
+\label{fig:odclsdo}%
+\end{listing}%
+%
+Da der \sh\ vor dem Aufruf geschlossen war, wird er nach R\"{u}ckfrage
+bei den BenutzerInnen ge\"{o}ffnet \oi. Bei der Form der Ausgabe der
+Funktion \stfn{p-apropos-classes}\ (ab \oii) habe ich mich nach der in
+\lw\ realisierten \fn\ \stfn{apropos}\ \stcite{701}\ gerichtet. Vor
+der Angabe \lisp{data:}\ befindet sich der Name der Klasse, dahinter
+die in der 2.~Schicht generierte Druckrepr\"{a}sentation der \clsdo[e];
+sie enth\"{a}lt eine Klasseninformation, den Klassennamen, die
+Versionsnummer, die Anzahl der im persistenten Speicher
+repr\"{a}sentierten sowie der gesamten
+\Slt[s]\/ und die \sobjid\/ des persistenten \clsdo[es].
+%
+\subsubsection{Definition einer aktiv-persistenten Klasse}
+%
+Die Definition der aktiv-persistenten Klasse \class{person}\ zeigt
+\figurename~\ref{fig:depcls}; ak\-tiv-per\-si\-stent wird die Klasse
+durch die Klassenoption \lisp{(:metaclass
+persistent-\lb{}metaclass)}\ \oii.
+%
+\begin{listing}%
+\listener\label{enu:depclsdc}
+{\em(d}\={\em efclass person ()}\\
+       \>{\em(}\={\em(name }\=\em{:initarg :name
+                                  :accessor person-name}\\ 
+\oi    \>      \>           \>{\em :index (btree :test equal))}\\
+       \>      \>{\em(age :initarg :age :accessor person-age))}\\
+\oii   \>{\em(:metaclass persistent-metaclass))}\\
+\#<persistent-metaclass person 100A952C>\\
+\listener\label{enu:depclsmi}
+{\em(setf \#l*p-1* (make-instance 'person
+                                           :name \dq\nameii\dq))}\\ 
+; Stored \#<instance \=class-description person 1.00 slots=2/3\\
+;                    \>short-objid=8384713>.\\
+\#<instance person short-objid=8384679>\\
+\listener\label{enu:depclsmii}
+{\em(setf \#l*p-2* (make-instance 'person :name \dq\namei\dq))}\\
+\#<instance person short-objid=8384672>\\
+\listener\label{enu:depclsps}
+{\em (mapcar }\={\em\#'person-name}\\
+ \>{\em (p-select 'person :where 'name :below \dq{}Sch\dq))}\\
+(\dq\nameii\dq)
+\caption{Definition einer aktiv-persistenten Klasse}%
+\label{fig:depcls}%
+\end{listing}%
+%
+F\"{u}r den \Slt\/ \stslt{name}\ wird \"{u}ber die \Slt\/-Option
+\lisp{:index}\ ein Index definiert \oi. Der Index wird durch einen
+persistenten B-Baum repr\"{a}sentiert (Argument \lisp{btree}\ der
+\Slt\/-Option), der f\"{u}r den  Schl\"{u}sselvergleich die Zust\"{a}nde des
+\Slt[s]\/ \stslt{name}\ benutzt (Argumente \lisp{:test equal}\ der
+\Slt\/-Option).
+%
+\par{}Beim ersten Erzeugen einer Instanz einer aktiv-persistenten
+Klasse wird das \clsdo\ der Klasse erzeugt und gespeichert
+(\lprompt{\ref{enu:depclsmi}}). Der \Slt\/ \stslt{name}\ wird durch das
+Initialisierungs-Schl\"{u}sselwort-Argument \lisp{:name}\ auf den
+\"{u}bergebenen Namen gesetzt; da f\"{u}r den \Slt\/ ein Index definiert ist,
+wird das erzeugte persistente Objekt assoziiert zum Namen in die
+Indextabelle des \Slt[s]\/ eingetragen. In diesem Zusammenhang ist zu
+beachten, da\ss{} die Schl\"{u}ssel einer Indextabelle (d.h.\ die Zust\"{a}nde
+des \Slt[s], f\"{u}r den ein Index deklariert wurde, \"{u}ber alle Instanzen
+einer Klasse) eindeutig sein m\"{u}ssen und damit der \Slt\/ keinen
+Initialisierungsausdruck haben darf, der f\"{u}r jeden Aufruf den
+gleichen Wert zur\"{u}ckgibt. Damit w\"{u}rde im Verlauf der Erzeugung einer
+persistenten Instanz versucht werden, diesen immer gleichen Wert
+assoziiert zur jeweils erzeugten persistenten Instanz in die
+Indextabelle einzutragen; da keine doppelten Schl\"{u}ssel zul\"{a}ssig
+sind, w\"{u}rde ab der zweiten erzeugten Instanz immer ein Fehler
+signalisiert werden. Deswegen sollte der Initialisierungsausdruck
+\ia\ weggelassen werden; damit wird der \Slt\/ nicht implizit
+w\"{a}hrend der Objekterzeugung an einen Wert gebunden und sein Zustand
+wird nicht implizit in die Indextabelle eingetragen.
+%
+\par{}Der Ausdruck \lisp{\#l*p-1*}\ (\lprompt{\ref{enu:depclsmi}})
+referenziert den Wert des persistenten Symbols mit dem Namen
+\lisp{*p-1*}. Zwischen dem transienten und dem persistenten Symbol
+\lisp{*p-1*}\ gibt es bei dieser Art der Zuweisung keine Kopplung der
+Symbolwerte; insbesondere bleibt der Wert des transienten Symbols
+\lisp{*p-1*}\ unver\"{a}ndert.
+%
+\par{}Mit der Funktion \stfn{p-select}\ kann assoziativ nach Instanzen
+gesucht werden (\lprompt{\ref{enu:depclsps}}); in diesem Fall wird
+nach allen Instanzen der Klasse \class{person}\ (oder einer ihrer
+Superklassen) gesucht, deren im \Slt\/ \stslt{name}\ enthaltener
+Zustand literal kleiner als die Zeichenkette \lisp{\dq{}Sch\dq}\ ist.
+%
+\par{}\figurename~\ref{fig:plinesna} %
+%
+\begin{figure}[htbp]%
+\centerline{\psfig{figure=plinesna.eps,width=0.83333\textwidth}}%
+\caption{Beispiel f\"{u}r ein \protect\sltdo}%
+\label{fig:plinesna}%
+\end{figure}%
+%
+zeigt das effektive \sltdo\ des \Slt[s]\/ \stslt{name}\ der Klasse
+\class{person}\ so, wie es vom \lw\ Inspektor visualisiert wird. Der
+\Slt\/ \stslt{plob::p-location}\ gibt die Position des Elementes
+innerhalb des Zustandsvektors von persistenten Instanzen der Klasse
+\class{person}\ an, in dem der \Slt\/-Zustand gespeichert wird
+(\figurename~\ref{fig:pcivec}, \citepage{\pageref{fig:pcivec}}). Die
+im \Slt\/ \stslt{plob::p-extent}\ enthaltene Angabe
+\lisp{:persistent}\ bedeutet, da\ss{} der \Slt\/ \stslt{name}\ lediglich
+in der persistenten \representation{} alloziert wird; es existiert keine
+\representation{} f\"{u}r den \Slt\/-Zustand in der transienten
+\representation{} einer Instanz der Klasse
+\class{person}\ \ifbericht%
+\cite[\citepage{120}]{bib:ki94a}%
+\else%
+(\figurename~\ref{fig:extent},
+\citepage{\pageref{fig:extent}})\fi. Der \Slt\/ \stslt{plob::p-index}\
+enth\"{a}lt die Indextabelle des \Slt[s],
+in diesem Fall ein B-Baum mit den zwei bisher erzeugten Elementen
+(aus \figurename~\ref{fig:depcls}, \citepage{\pageref{fig:depcls}},
+\lprompt{\ref{enu:depclsmi}--\ref{enu:depclsmii}}). Der B-Baum
+enth\"{a}lt im Moment eine Seite mit maximal 680 Elementen vor der
+n\"{a}chsten Vergr\"{o}\ss{}erung.
+%
+\subsubsection{Deklarationen f\"{u}r passiv-persistente Klassen}
+%
+Instanzen von systeminternen Klassen k\"{o}n\-nen lediglich
+passiv-persistent gehalten werden \ifbericht%
+\cite[\citepage{114}]{bib:ki94a}%
+\else%
+(\citepage{\pageref{sec:nrmlp}})\fi.
+Das Problem f\"{u}r diese Klassen besteht darin, da\ss{} ihre Struktur oft
+redundant ist und sehr viele Objekte referenziert. \"{U}ber die
+angebotenen Deklarationen kann 
+%zum einen
+veranla\ss{}t werden, bestimmte
+\Slt[s]\/ der Klasse nicht persistent zu halten.
+%und zum anderen kann erreicht werden, da\ss{} beim Erzeugen der
+%transienten \representation{} eines persistenten Objektes eine von den
+%BenutzerInnen deklarierte Konstruktor-Funktion aufgerufen wird.
+\figurename~\ref{fig:dclpn}
+zeigt die in \lw\ f\"{u}r die Strukturklasse
+\class{logical-path\-name}\ notwendigen Deklarationen:
+%
+\begin{listing}%
+\oi\   (setf \=(class-constructor (find-class 'logical-pathname))\\
+             \>'make-logical-pathname-by-plob)\\
+\oii\  (d\=efu\=n make-logical-pathname-by-plob\\
+         \>   \>(\&key host directory name type version)\\
+         \>(\=system::make-logical-pathname-from-components\\
+         \> \>host directory name type version))\\
+\oiii\ (setf (class-extent (find-class 'logical-pathname))
+             :cached)\\
+\oiv\  (setf \=(slot-extent 'system::device
+                            (find-class 'logical-pathname))\\
+             \>:transient)
+\caption%
+ [Deklarationen f\"{u}r die systeminterne Strukturklasse
+  \protect\rglq{}logical-pathname\protect\rgrq]%
+ {Deklarationen f\"{u}r die systeminterne Strukturklasse
+  \protect\class{logical-pathname}}%
+\label{fig:dclpn}%
+\end{listing}%
+%
+\begin{description}
+%
+\item[Deklaration \oi, Funktion \oii]
+Die Deklaration \oi\ veranla\ss{}t, da\ss{} die in \oii\ definierte Funktion
+f\"{u}r die Erzeugung der transienten \representation{} einer persistenten
+Instanz der Klasse \class{lo\-gi\-cal-""path\-name}\ aufgerufen wird.
+%
+\item[Deklaration \oiii]
+Damit wird die Lebensdauer der Zust\"{a}nde aller \Slt[s]\/ der Klasse
+\class{logi\-cal-path\-name}\ als
+\lisp{:cached}\ \ifbericht%
+\cite[\citepage{120}]{bib:ki94a}%
+\else%
+(\figurename~\ref{fig:extent},
+\citepage{\pageref{fig:extent}})\fi\ deklariert.
+%
+\item[Deklaration \oiv]
+Durch die Deklaration der Lebensdauer \lisp{:transient}\ f\"{u}r die
+Lebensdauer des \Slt[s]\/ \stslt{system::device}\ wird erreicht, da\ss{}
+der \Slt\/ nicht in der persistenten \representation{} des Objektes
+gehalten wird.
+%
+\end{description}
+Die angegebenen Deklarationen f\"{u}r eine Klasse m\"{u}ssen vor dem
+Speichern ihres \clsdo[es]\ evaluiert werden.
+\iffalse
+Weiter Beispiele von
+Deklarationen f\"{u}r systeminterne \lw\ Klassen befinden sich im Modul
+\lisp{lisp-works}; das Modul \lisp{plob-obvius}\ enth\"{a}lt
+Deklarationen, die es erm\"{o}glichen, Objekte des bildverarbeitenden
+Systems {\sc Obvius} persistent zu halten.
+\fi
+%
+\ifbericht%
+\def\nextstep{\relax}%
+\else%
+\def\nextstep{%
+\let\pfsection\section%
+\let\pfsubsection\subsection%
+\let\pfsubsubsection\subsubsection%
+\input{perform}}%
+\fi%
+\nextstep%
+%
+\section{Zusammenfassung und Bewertung}%
+\label{sec:plsac}%
+%
+Realisiert wurde ein persistentes System unter Verwendung eines
+Objektspeichers, dessen Datenmodellierung sich an LISP orientiert.
+Die M\"{o}glichkeit der Persistenz ist f\"{u}r den Zustand aller LISP
+Objekte un\-ab\-h\"{a}n\-gig vom Typ gegeben; insbesondere ist f\"{u}r
+Persistenz von \clos-Objekten nicht die Einbindung einer
+\spc[n]\ \clsmc\ in ihre Klassendefinition notwendig. Die
+Schnittstelle f\"{u}r die Benutzung des persistenten Systems orientiert
+sich soweit m\"{o}glich an den in \cite{bib:st90} dargestellten
+Konzepten; damit wird die Benutzung des Systems sehr einfach und die
+Einbindung in vorhandene Programmodule erleichtert.
+%
+\par{}Durch die realisierte M\"{o}glichkeit, Persistenz deklarativ auch
+f\"{u}r beliebige, im System vorgefundene Klassen beeinflussen zu
+k\"{o}nnen, wird eine hohe Effizienz des Systems erreicht.
+%
+\par{}Die Realisierung von Sitzungen, \twophasetrs,
+des hierarchischen Sperrprotokolls und einer Indexverwaltung f\"{u}r
+eindimensionale Schl\"{u}ssel bietet die grundlegenden
+Funktionalit\"{a}ten einer Datenbank.
+%
+\par{}Insgesamt bietet das hier realisierte System Persistenz mit
+LISP-gem\"{a}\ss{}er Datenmodellierung mit guter Performanz
+\ifbericht(Anhang~\ref{chap:perf},
+\citepage{\pageref{chap:perf}})\fi\ an.
+%
+\par{}Noch nicht realisiert ist assoziativer Zugriff mit
+mehrdimensionalen Schl\"{u}sseln. Ebenso sind die Anfragem\"{o}glichkeiten
+noch sehr einfach gehalten. Echte Mehr-BenutzerInnen-Zugriffe sind
+im Moment nicht m\"{o}glich, da der in der 1.~Schicht verwendete
+Objektspeicher \postore\ nicht {\em reentrant\/}-f\"{a}hig ist.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

@@ -1,0 +1,34 @@
+%	This is -*-LaTeX-*-
+%
+% 01.10.93
+%
+\input{diagdefs}%
+%
+\let\coliw\smltxtw%
+\let\coliiw\smltxtw%
+\let\coliiiw\stdtxtw%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{1ex}%
+\objectmargin{\stdomargin}%
+%
+\begin{diagram}%
+%
+\makebox[\coliw]{\class{DIREKTE\protect\us{}ADR}}%
+\save\go[2,0]\merge\framed\restore%
+		&&&&\makebox[\coliiiw]{\class{ANGESTELLTER}}%
+		    \save\go[3,0]\merge\framed<5pt>\restore\\
+\makebox[\coliw]{\hrulefill}%
+		&&&&\makebox[\coliiiw]{\hrulefill}\\
+\makebox[\coliw]{\tt{}<0x54F7B>}%
+\xto'[0,2]+<0em,0ex>'[-2,2]+<0em,0ex>[-2,4]%
+		&&&&\text{\lisp{NAME=\dq\namei\dq}}\\%
+\rule{0em}{2ex}\parbox{\coliw}{\footnotesize{}Direkte Adresse}%
+		&&&&\text{\lisp{GEHALT=3000}}\\
+		&&&&\rule{0em}{2ex}%
+		    \parbox{\coliiiw}{\footnotesize{}Instanz}
+%
+\end{diagram}%

@@ -1,0 +1,295 @@
+% This is -*-LaTeX-*-
+%
+\chapter{Zusammenfassung und Ausblick}%
+\label{chap:exit}%
+%
+\section{Zusammenfassung}
+%
+Ziel \ifbericht dieser Forschungsarbeit \else\ifbuch der in diesem
+Buch vorgestellten Forschungsarbeit \else dieser Arbeit \fi\fi war die
+Realisierung eines Systems, das \cl\ Datenobjekte un\-ab\-h\"{a}n\-gig
+vom daten-erzeugenden transienten Proze\ss{} persistent h\"{a}lt.
+Wegen des beabsichtigten Einsatzgebietes kann die Anzahl der
+persistent zu haltenden Objekte sehr gro\ss{} werden; ebenso
+k\"{o}n\-nen die Objekte selbst sehr gro\ss{} sein, wie z.B.\ 
+Satellitenbilder hoher Aufl\"{o}sung.
+%
+\par{}Der gew\"{a}hlte Weg bestand zun\"{a}chst darin, die f\"{u}r persistente
+Systeme wichtigen Konzepte zu evaluieren, um sowohl vorhandene Systeme
+bewerten als auch ein eigenes System entwerfen zu k\"{o}nnen:
+\begin{itemize}
+%
+\item \cl\ Datenobjekte haben eine Identit\"{a}t, die explizit
+repr\"{a}sentiert wird; dazu war es zun\"{a}chst n\"{o}tig, den Begriff der
+Identit\"{a}t zu kl\"{a}ren und die verschiedenen
+Re\-pr\"{a}\-sen\-ta\-tions\-for\-men f\"{u}r Identit\"{a}t im Hinblick auf
+Persistenz zu analysieren und zu bewerten, um eine geeignete Wahl f\"{u}r
+die Realisierung treffen zu k\"{o}nnen.
+%
+\item Aus dem beabsichtigten Einsatzzweck des zu realisierenden
+  Systems ergab sich die Konzeption f\"{u}r die Gesamtarchitektur des
+  Systems und die Auswahl der Subkomponenten. Als Speicher f\"{u}r die
+  Ablage von Objektzust\"{a}nden ergaben sich im Rahmen \ifbericht
+  dieses Berichtes \else\ifbuch der Forschungsarbeit \else dieser
+  Arbeit \fi\fi die beiden M\"{o}glichkeiten der Verwendung einer
+  relationalen Datenbank und eines Objektspeichers.  Eine relationale
+  Datenbank hat den Vorteil m\"{a}chtiger
+  Ma\-ni\-pu\-la\-tions\-m\"{o}g\-lich\-kei\-ten; nachteilig ist die
+  f\"{u}r Objekte mit Referenzen ungeeignete Datenmodellierung. Ein
+  Objektspeicher hingegen basiert nicht auf dem relationalen Modell
+  und hat lediglich einfache Zugriffsm\"{o}glichkeiten, bietet aber
+  daf\"{u}r die M\"{o}glichkeit, explizite Referenzen zwischen
+  Objekten zu etablieren.
+%
+\end{itemize}
+%
+Nach der Konzeption folgte die Realisierungsphase:
+\begin{itemize}
+%
+\item Zun\"{a}chst wurde gepr\"{u}ft, ob das mit einer relationalen
+Datenbank als Speicher f\"{u}r die Zu\-st\"{a}n\-de von persistenten
+Objekten realisierte System Shared Object Hierarchy (\soh) f\"{u}r den
+beabsichtigten Zweck geeignet sei. Dazu wurde der Code an das zur
+Verf\"{u}gung stehende LISP-System und an eine neuere Version der
+Datenbank angepa\ss{}t. Im Verlauf der Portierung stellte sich heraus,
+da\ss{} \soh\ die Probleme, die sich bei Verwendung einer Datenbank zur
+Speicherung von Objekten ergeben, nur ungen\"{u}gend l\"{o}st.
+%
+\item Die entwickelten Konzepte und die Erfahrungen mit dem System
+\soh\ m\"{u}ndeten in den Entwurf und die Realisierung des Systems \plob.
+Wegen der prinzipiellen Schwierigkeiten der Repr\"{a}sentation von
+Objektzust\"{a}nden und Referenzen zwischen Instanzen in relationalen
+Datenbanken entschied ich mich daf\"{u}r, einen Objektspeicher f\"{u}r die
+Ablage der Objektzust\"{a}nde zu verwenden.
+%
+\par{}Auf diesen Objektspeicher wurde eine Schicht mit
+Datenbankfunktionalit\"{a}ten aufgesetzt, die Sitzungen, \twophasetrs,
+ein hierarchisches Sperrprotokoll und die f\"{u}r eine Indexverwaltung
+notwendigen Hilfsmittel \"{u}ber persistente Objekte realisiert. 
+Diese Ebene realisiert transaktionsgesicherten und durch das
+Sperrprotokoll unteilbaren Zugriff auf dynamisch typisierte,
+selbstbeschreibende Objekte.
+%
+\par{}Die oberste Ebene realisiert unter Benutzung der Funktionalit\"{a}t
+der n\"{a}chst-niedrigen Schicht transparente und orthogonale
+Persistenz f\"{u}r \cl\ Daten sowie die M\"{o}glichkeit des assoziativen
+Zugriffs auf persistente Objekte.
+%
+\end{itemize}
+%
+Bei der Realisierung zeigten sich die Vorteile von objekt-orientierten
+prozedural-reflektiven Sprachen wie \clos\ bei der Erweiterung der
+Sprache um Persistenz; f\"{u}r \pascalr\
+\cite[\citepage{259}]{bib:schm77} und {\em E\/} \cite{bib:ri89} mu\ss{}ten
+jeweils \"{U}bersetzer modifiziert bzw.\ erstellt werden, w\"{a}hrend f\"{u}r
+die Einbindung von Persistenz in \clos\ eine Modifikation des Systems
+mit Mitteln des Systems selbst m\"{o}glich ist.
+%
+\section{Anwendungen f\"{u}r persistente Systeme}
+%
+\subsection{Softwareentwicklung in einem transienten
+und persistenten \protect\cl-System}
+%
+Das nachfolgende Beispiel zeigt, da\ss{} persistente Objektsysteme f\"{u}r
+Soft\-ware-Ent\-wick\-lungs\-um\-ge\-bun\-gen verwendet werden
+k\"{o}nnen; die persistenten Objekte ersetzen dabei das \"{u}bliche
+Hilfsmittel f\"{u}r Persistenz in transienten Systemen, in diesem
+Beispiel also Dateien mit Quell- und Objekt-Codes. Das hier angegebene
+Beispiel stellt einige prinzipielle M\"{o}glichkeiten eines
+persistenten Systems dar; nicht alle der folgenden Schritte lassen
+sich mit dem aktuellen Entwicklungsstand von
+\plob\ realisieren.\\[\parsep]
+%
+\refstepcounter{figure}%
+\addcontentsline%
+ {lof}%
+ {figure}%
+ {\protect\numberline{\thefigure}{\ignorespaces%
+  Softwareentwicklung in einem transienten
+  und persistenten System}}%
+\begin{longtable}[c]{|rp{5.5cm}|p{5.5cm}|}%
+\hline%
+ &\tabularheader{Transientes \cl}
+  &\tabularheader{Persistentes \cl}\\
+\hline\hline\endhead
+1
+ &Starten des LISP-Systems
+  &Starten des LISP-Systems\\
+\hline
+2
+ &Laden der Pro\-gramm-De\-fi\-ni\-tions\-da\-tei (sie definiert die
+  zum Programm geh\"{o}rigen Module)
+  &Pro\-gramm-De\-fi\-ni\-tions\-da\-tei
+   be\-fin\-det sich im per\-si\-sten\-ten Spei\-cher\\
+\hline
+3
+ &Laden der Programm-Module
+  &Programm-Module be\-fin\-den sich im per\-si\-sten\-ten Spei\-cher\\
+\hline
+4
+ &Sichern des Quellcodes vor Beginn der Modifikationen
+  &Start einer langandauernden Transaktion\\
+\hline
+5
+ &Laden des zu \"{a}n\-dern\-den Quell\-co\-des in den Editor
+  &Quellcode befindet sich im persistenten Speicher\\
+\hline
+6
+ &Lokalisierung und \"{A}nderung einer Klassendefinition im Quellcode
+  &Klassendefinition wird \"{u}ber einen {\em Browser\/} erst selektiert
+   und dann editiert\\
+\hline
+7
+ &\"{U}bersetzen und Testen der ge\"{a}nderten Klasse
+  &\"{U}bersetzen und Testen der ge\"{a}nderten Klasse\\
+\hline
+8
+ &Die Benutzerin stellt fest, da\ss{} ihre \"{A}nderungen falsch waren; sie
+  mu\ss{} den in Schritt~4 gesicherten Quellcode erneut laden
+  &Die Benutzerin stellt fest, da\ss{} ihre \"{A}nderungen falsch waren; sie
+   bricht die in Schritt~4 begonnene langandauernde Transaktion ab.
+   Damit werden alle betroffenen Module \gande{auf den alten Stand
+   zur\"{u}ck gebracht}{rollback}\\
+\hline
+9
+ &Erneutes Lokalisieren, \"{A}ndern (Schritt~6) und Testen (Schritt~7)
+  &Erneutes Selektieren, \"{A}ndern (Schritt~6) und Testen (Schritt~7)\\
+\hline
+10
+ &Die \"{A}nderungen wurden erfolgreich abgeschlossen; die Quellcodes
+  werden gesichert
+  &Die langandauernde Transaktion, die in Schritt 4 gestartet wurde,
+   wird \gande{erfolgreich beendet}{committed}\\
+\hline
+\end{longtable}
+%
+\par{}F\"{u}r das persistente System wird in diesem Beispiel angenommen,
+da\ss{} Persistenz ohne Einschr\"{a}nkung f\"{u}r alle im System auftretenden
+Datentypen zur Verf\"{u}gung steht.  Ebenso wird angenommen, da\ss{} das
+persistente System bereits einige Datenbankfunktionalit\"{a}t beinhaltet,
+wie z.B.\ Transaktionen (Schritt~4 und 10) sowie Introspektions- und
+Selektionsm\"{o}glichkeiten (Schritt~6).
+%
+\par{}Wie das Beispiel zeigt, sind keine Zugriffe auf Dateien n\"{o}tig;
+damit wird die Abgeschlossenheit des Systems erh\"{o}ht. Ebenso lassen
+sich \"{A}nderungen leicht r\"{u}ckg\"{a}ngig machen (Schritt~4 und~8). Sofern
+das System zu\-s\"{a}tz\-lich noch eine Versionskontrolle bietet, lie\ss{}e
+sich ebenfalls ein \"{a}lterer Zustand des Gesamtsystems wiederherstellen.
+%
+\section{Ausblick}
+%
+Dieser Abschnitt enth\"{a}lt Vorschl\"{a}ge, wie das in
+Kapitel~\ref{chap:plob} beschriebene System erweitert werden k\"{o}nnte.
+%
+\subsection{Verlagerung von Funktionen aus der 3.\ in die 2.\ Schicht}
+%
+Einige Funktionalit\"{a}ten der 3.~Schicht sollten in die 2.~Schicht
+verlagert werden; dies erleichtert eine Nutzung des persistenten
+Systems durch nicht-LISP-Systeme. Ebenso w\"{a}re damit eine erh\"{o}hte
+Effizienz des persistenten Systems verbunden.
+%
+\subsubsection{Sitzungsverwaltung}
+%
+Die Sitzungsverwaltung (\"{O}ffnen und Schlie\ss{}en einer Sitzung) sollte
+in die 2.~Schicht verlagert werden.
+%
+\subsubsection{Indexverwaltung}
+%
+Die Verwaltung der \Slt-Indextabellen wird im Moment in der
+3.~Schicht in den \spc[n]\ \mtd[n]\ der
+\gfn[n]en \stfn{slot-\ldots-using-class}\ durchgef\"{u}hrt. Alle
+Informationen zur Indexverwaltung sind in der 2.~Schicht verf\"{u}gbar;
+die Zugriffs-\fn[en]\ der 2.~Schicht k\"{o}nnten dementsprechend die
+Pflege des f\"{u}r einen \Slt\/ deklarierten Index bei Zugriff auf den
+\Slt\/-Zustand \"{u}bernehmen.
+%
+\subsection{Erweiterungen der 2.\ Schicht}%
+\label{sec:expiil}%
+%
+Dieser Abschnitt schl\"{a}gt diverse Erweiterungen f\"{u}r die 2.~Schicht
+vor.
+%
+\subsubsection{Doppelte Schl\"{u}ssel f\"{u}r persistente B-B\"{a}ume}%
+%
+Die momentan realisierten persistenten B-B\"{a}ume k\"{o}nnen keine
+doppelten Schl\"{u}ssel verarbeiten; sie sollten dementsprechend
+erweitert werden. In diesem Zusammenhang w\"{u}rde sich f\"{u}r den
+einfachen Zugriff auf B-B\"{a}ume mit doppelten Schl\"{u}sseln die
+Realisierung von {\em Portals\/} \cite[\citepage{114}]{bib:we93}
+anbieten. In etwa gleichbedeutend ist das {\em Cursor\/}-Konzept von
+SQL \cite[\citepage{220}]{bib:on94}; {\em Portals\/} sind allgemeiner
+als {\em Cursor}, da in ihnen Tupel verschiedener Relationen enthalten
+sein k\"{o}nnen.
+%
+\subsubsection{Transaktionsarten}%
+%
+Momentan wurde nur das einfachste Transaktionsmodell der
+\rglq{}flachen\rgrq\ Transaktionen realisiert; in
+\cite[\citepage{187--210}]{bib:gr93}\ werden verschiedene andere
+Transaktionsmodelle vorgestellt. Meiner Meinung nach w\"{a}re
+insbesondere die Realisierung von \gande{verschachtelten
+Transaktionen}{nested transactions}\ \cite[\citepage{195}]{bib:gr93}
+lohnend, da sie die M\"{o}glichkeit bieten, die Transaktionsverarbeitung
+an die Modulstruktur des persistenten Systems anzupassen.
+%
+%\subsubsection{Erweiterung des Sperrprotokolls}
+%
+%\paragraph{%
+\subsubsection{Zus\"{a}tzliche Sperre}
+%
+Um im Betrieb mit mehreren BenutzerInnen den \cache\/ konsistent zu
+halten, sollte eine zu\-s\"{a}tz\-li\-che, zu allen bisher definierten
+Sperren kompatible Sperre \rglq{\em cached\/}\rgrq\ realisiert
+werden, die im Verlauf der \"{U}bertragung eines Objektzustands zwischen
+persistentem und transientem Speicher auf das \"{u}bertragene Objekt f\"{u}r
+den \"{u}bertragenden Proze\ss{} gesetzt wird. Die 2.\ Schicht kann dann bei
+Modifikation des im persistenten Speicher abgelegten Objektzustands
+durch einen Proze\ss{} an alle Prozesse, die eine \rglq{\em
+cached\/}\rgrq-Sperre auf das Objekt gesetzt haben,
+benachrichtigen, da\ss{} der Zustand der vom \cache\/ referenzierten
+transienten Repr\"{a}sentation des persistenten Objektes ung\"{u}ltig ist
+und nachgeladen werden sollte.
+%
+%\paragraph{Zus\"{a}tzliche Sperrebenen}
+%
+%Res. auf Klassenebene
+%
+\subsubsection{Mehrdimensionale Indizes}
+%
+Persistente B-B\"{a}ume bieten lediglich eindimensionale Schl\"{u}ssel; f\"{u}r
+den angestrebten assoziativen Zugriff auf geografische Daten w\"{a}re die
+Realisierung von mehrdimensionalen Indizes n\"{o}tig.
+%
+\subsubsection{Trennung der Prozesse in einen {\em
+Frontend\/}- und {\em Backend\/}-Proze\ss{}}
+%
+\"{A}hnlich wie in \postgres\ \cite[\citepage{30}]{bib:we93} w\"{a}re eine
+Trennung in einen {\em Backend\/}-Proze\ss{} zur Verwaltung des
+persistenten Speichers und einen benutzenden {\em Frontend\/}-Proze\ss{}
+vorteilhaft. Einfacher zu realisieren w\"{a}re zun\"{a}chst die Bedienung
+aller {\em Frontend\/}-Prozesse durch einen einzigen globalen {\em
+Backend\/}-Proze\ss{}. N\"{o}tig w\"{a}re dazu die Realisierung einer
+Kommunikationsschicht, die zwischen den Schichten~1 und 2 anzusiedeln
+w\"{a}re.
+%
+\par{}Die Bedienung der {\em Frontend\/}-Prozesse durch jeweils einen 
+lokalen, dazugeh\"{o}rigen {\em Backend\/}-Proze\ss{} wie in der
+objekt-orientierten relationalen Datenbank \postgres\ ist im Moment
+nicht realisierbar, da der in der 1.~Schicht verwendete Objektspeicher
+\postore\ nicht mit mehreren Prozessen gleichzeitig auf einen
+persistenten Speicher zugreifen kann \cite[\citepage{1}]{bib:br92}.
+%
+\subsubsection{Explizite Repr\"{a}sentation von Prozessen}
+%
+Benutzende Prozesse werden im Moment durch Instanzen der Klasse
+\class{persistent-heap}\ implizit repr\"{a}sentiert; f\"{u}r Prozesse sollte
+daher in der 2.~Schicht eine Basisklasse definiert werden. Die Klasse
+\class{persistent-heap}\ sollte in diesem Zusammenhang um einen
+\Slt\/ erweitert werden, der auf die Repr\"{a}sentation des benutzenden
+Prozesses verweist; beim \"{O}ffnen einer Sitzung sollte die Referenz
+auf die Proze\ss{}repr\"{a}sentation in diesen \Slt\/ eingetragen werden.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main.tex"
+%%% End: 

@@ -1,0 +1,82 @@
+%	This is -*-LaTeX-*-
+%
+% 20.09.93
+%
+\input{diagdefs}%
+%
+\newlength{\rowh}\setlength{\rowh}{18pt}%	% Zeilenhoehe
+\newlength{\rowht}\setlength{\rowht}{0.1\rowh}%	% Zeilenhoehe / 10
+\newlength{\csep}\setlength{\csep}{18pt}%	% Spaltentrenner
+%
+\fboxsep0pt%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramrows{-\fboxrule}
+\spreaddiagramcolumns{-2pc}
+\spreaddiagramcolumns{-\fboxrule}
+\objectmargin{0pt}
+%
+\def\frbox#1#2{%
+\save\Drop{\text{\textrm{#2}}}\restore%
+\framebox{\rule{0em}{\rowh}\rule{#1}{0ex}}%
+}%
+%
+\def\frtxt#1{\frbox{\smltxtw}{#1}}%
+%
+\def\frsq{%
+\frbox{\rowh}{$\bullet$}%
+}
+%
+\begin{diagram}
+%
+\rule{\csep}{0ex}
+ &\rule{0em}{2ex}%
+  \save\go!<-1em,0ex>\xto'[1,0]+<-1em,0ex>'[1,-1]'[5,-1][5,0]\restore%
+  \save\go!<3.5em,0ex>\xto'[1,0]+<3.5em,0ex>'[1,3]'[5,3][5,4]\restore%
+  \save\go+<5em,0ex>\xdotted'[0,6]+<2em,0ex>%
+        ^{\mbox{\footnotesize{}Identit\"{a}tsrepr\"{a}sentation %
+                $\rightarrow$ %
+                Instanz}}%
+       [8,6]!<2em,0ex>|>{\tip}\restore%
+  \save\Drop{\text{\lisp{<ANGESTELLTER\protect\us{}23>}}}\restore&&&&&&\\
+%
+&&&&&&\rule{0em}{40pt}\\
+%
+&\frtxt{\ldots}&\frsq
+ &&&\\
+%
+&\frtxt{\lisp{ABTEILUNG}}&\frsq
+ &&&\frbox{\ucrtxtw}{\lisp{0}}&\frsq\\
+%
+&\frtxt{\ldots}&\frsq
+ &&&\frbox{\ucrtxtw}{\ldots}&\frsq\\
+%
+&\frtxt{\lisp{ANGESTELLTER}}
+ &\frsq\save\go+<-\rowht,0ex>\xto'[0,1]'[-3,1]'[-3,3][-2,3]\restore%
+ &&&\frbox{\ucrtxtw}{\lisp{23}}%
+  &\frsq\save%
+   \go+<-\rowht,0ex>\xto'[0,1]+<-2em,0ex>[3,1]!<-2em,0ex>\restore&\\
+%
+&\frtxt{\ldots}&\frsq
+ &&&\frbox{\ucrtxtw}{\ldots}&\frsq\\
+%
+\rule{0em}{4ex}
+ &\parbox{\smltxtw}{\footnotesize{}Klassenname $\rightarrow$\\%
+                                   Instanztabelle}
+  &&&&\parbox{\ucrtxtw}{\footnotesize{}Index $\rightarrow$\\%
+                                       Instanz}\\
+%
+&&&&&&\save\go+<2em,0ex>\Drop{\parbox{\smltxtw}{\footnotesize%
+      Instanz}}\restore
+	&\save\go[2,0]\merge\framed<5pt>\restore%
+	 \grow<\stdomargin>{\makebox[\smltxtw]{\class{ANGESTELLTER}}}\\
+%
+&&&&&&&\makebox[\smltxtw]{\dotfill}\\
+%
+&&&&&&&\grow<\stdomargin>{\Text{\lisp{NAME=\dq\namei\dq}\\%
+                                \lisp{GEHALT=3000}}}\\
+%
+ &&&\rule{\csep}{0ex}
+  &\rule{\csep}{0ex}
+%
+\end{diagram}%

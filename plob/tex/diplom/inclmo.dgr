@@ -1,0 +1,13 @@
+%	This is -*-LaTeX-*-
+%
+% inclmo.dgr
+% 5.8.94
+%
+%\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{1em}%
+%
+\begin{diagram}
+\Text{\textrm{Persistente Programmiersprache X'\hspace*{1em}}}%
+\rto|<{\rotate\tip}
+				&\Text{\textrm{\hspace*{1em}Reales System R}}
+\end{diagram}

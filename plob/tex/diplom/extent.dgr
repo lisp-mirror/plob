@@ -1,0 +1,125 @@
+%       This is -*-LaTeX-*-
+%
+% 15.6.94
+%
+\input{diagdefs}%
+%
+\begin{small}%
+%
+\newlength\lheight\lheight18pt%     % Zeilenhoehe
+\def\coliw{7em}%
+\def\colvw{6em}%
+\def\colviw{4em}%
+\def\rowh{8pt}%
+\newlength{\templ}%
+%
+\fboxsep0pt%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramrows{-\fboxrule}
+\spreaddiagramcolumns{-2pc}
+\spreaddiagramcolumns{-\fboxrule}
+\objectmargin{0pt}
+%
+\def\frbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}%
+}%
+%
+\def\frtxt#1{\frbox{\ucrtxtw}{#1}}%
+%
+\begin{diagram}
+%
+&\rule{0em}{8ex}%
+ \rule{2em}{0ex}
+ &\save\Drop{\parbox{\smltxtw}{\centering Transiente\\%
+                                          Repr\"{a}sentation}}\restore
+  &&\save\Drop{\parbox{\smltxtw}{\centering Persistente\\%
+                                            Repr\"{a}sentation}}\restore
+   &\rule{2em}{0ex}
+    &\save\Drop{\parbox{\colvw}{%
+                \lisp{:extent}\\{}\slt-Option}}\restore
+     &\rule{\colviw}{0ex}%
+      \save\Drop{\parbox{\colviw}{\centering%
+                 Struktur-""Klassen}}\restore
+      &\rule{0.5em}{0ex}%
+       &\rule{\colviw}{0ex}%
+        \save\Drop{\parbox{\colviw}{\centering%
+                   \clos-""Klassen}}\restore\\
+%
+\rule{0em}{\rowh}\\
+%
+\parbox{\coliw}{\stfn{slot-value}}
+ &&\frtxt{Slot 1}\ar @{{}{-}{>}} [ll]
+  &&\ar @{{}{-}{>}} [ll]%
+    _{\text{\textrm{\small erster Zugriff}}}%
+    \frtxt{Slot 1'}%
+   &&\save\go+<0pt,-0.5\lheight>\Drop{\parbox{\colvw}{\lisp{\settowidth{\templ}{:}%
+:cached-\\{}\hspace*{\templ}demand-\\{}\hspace*{\templ}load}}}\restore%
+    &\text{\checked}\\
+\parbox{\coliw}{\stfn{(setf slot-value)}}%
+\rrto
+ &&\frtxt{Slot 2}%
+   \rrto%
+   ^{\text{\textrm{\small store-object}}}
+  &&\frtxt{Slot 2'}\\
+%
+\rule{0em}{\rowh}\\
+%
+\parbox{\coliw}{\stfn{slot-value}}
+ &&\frtxt{Slot 3}\ar @{{}{-}{>}} [ll]
+   &\rule{8em}{0ex}
+    &&&\parbox{\colvw}{\lisp{:transient}}%
+     &\text{\checked}
+      &&\text{\checked}\\
+\parbox{\coliw}{\stfn{(setf slot-value)}}%
+\rrto
+ &&\frtxt{Slot 4}\\
+%
+\rule{0em}{\rowh}\\
+%
+\parbox{\coliw}{\stfn{slot-value}}
+ &&\frtxt{Slot 5}\ar @{{}{-}{>}} [ll]
+  &&\ar @{{}{-}{>}} [ll]%
+    _{\text{\textrm{\small load-object}}}%
+    \frtxt{Slot 5'}%
+   &&\parbox{\colvw}{\lisp{:cached}}%
+    &\text{\checked}
+     &&\text{\checked}\\
+\parbox{\coliw}{\stfn{(setf slot-value)}}%
+\rrto%
+ &&\frtxt{Slot 6}%
+   \rrto%
+   ^{\text{\textrm{\small store-object}}}
+  &&\frtxt{Slot 6'}\\
+%
+\rule{0em}{\rowh}\\
+%
+\parbox{\coliw}{\stfn{slot-value}}
+ &&\frtxt{Slot 7}\ar @{{}{-}{>}} [ll]
+  &&\ar @{{}{-}{>}} [ll]%
+    _{\text{\textrm{\small load-object}}}%
+    \frtxt{Slot 7'}%
+   &&\save\go+<0pt,-0.5\lheight>\Drop{\parbox{\colvw}{\lisp{\settowidth{\templ}{:}%
+:cached-\\{}\hspace*{\templ}write-\\{}\hspace*{\templ}through}}}\restore%
+    &&&\text{\checked}\\
+\parbox{\coliw}{\stfn{(setf slot-value)}}%
+\rrto%
+ &&\frtxt{Slot 8}%
+   \rrto%
+   ^{\text{\textrm{\small immer}}}
+  &&\frtxt{Slot 8'}\\
+%
+\rule{0em}{\rowh}\\
+%
+\parbox{\coliw}{\stfn{slot-value}}
+ \xline[0,4]|<{\rotate\tip}^{\text{\textrm{\small immer}}}%
+ &&&&\frtxt{Slot 9}%
+   &&\parbox{\colvw}{\lisp{:persistent}}%
+    &&&\text{\checked}\\
+\parbox{\coliw}{\stfn{(setf slot-value)}}
+ \xto[0,4]^{\text{\textrm{\small immer}}}
+ &&&&\frtxt{Slot 10}
+%
+\end{diagram}%
+\end{small}%

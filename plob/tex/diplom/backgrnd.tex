@@ -1,0 +1,206 @@
+% This is -*-LaTeX-*-
+%
+\chapter{Persistente Systeme}%
+\label{chap:back}%
+%
+Dieser Abschnitt erl\"{a}utert verschiedene bisherige Ans\"{a}tze f\"{u}r
+persistente Systeme und ihre Integration in Programmiersprachen.
+%
+\section{Relationale Datenbanken}%
+\label{sec:rdb}%
+%
+Relationale Datenbanken wurden von Codd Anfang 1970 in erster Linie
+definiert, damit deren BenutzerInnen besser von Details der
+Datenrepr\"{a}sentation abstrahieren k\"{o}nnen. Eine Datenbank ist genau
+dann relational, wenn sie mehrere von Codd aufgestellte Kriterien
+erf\"{u}llt \cite[\citepage{398}]{bib:co79}; an dieser Stelle gehe ich
+nur auf die in Zusammenhang mit persistenten Objekten wichtigen
+Aspekte ein. Die hier wiedergegebenen Definitionen stammen aus
+\cite[\citepage{399}]{bib:co79} und \cite[\citepage{81}]{bib:schl83}.
+%
+\par{}Ein \gande{{\em Bereich\/}}{domain}\ umfa\ss{}t alle Werte mit
+\"{a}hnlichem Typ; ein Bereich ist {\em einfach}, wenn seine Werte atomar
+sind, d.h.\ von einer Datenbank nicht weiter zerlegt werden
+k\"{o}nnen. Einfache Bereiche sind im allgemeinen Zahlen, Datumsangaben,
+Zeichen, Zeichenketten usw.  {\it D}$_1$,\,""{\it
+D}$_2$,\,""\ldots,\,""{\it D}$_n$ mit {\it n}\,$>$\,0 seien nicht
+notwendigerweise unterschiedliche Bereiche; das kartesische Produkt
+{\it D}$_1$\,$\times$\,""{\it
+D}$_2$\,$\times$\,""\ldots\,$\times$\,""{\it D}$_n$ ist die Menge
+aller {\it n\/}-Tupel $\langle$\,{\it t}$_1$,\,""{\it
+t}$_2$,\,""\ldots,\,""{\it t}$_n$\,$\rangle$ mit {\it
+t}$_i$\,$\in$\,{\it D}$_i$ f\"{u}r 1\,$\leq$\,{\it i}\,$\leq$\,{\it
+n}. Eine Teilmenge {\it R} dieses kartesischen Produktes ist eine {\it
+n\/}-stellige Relation. Ein {\it n\/}-Tupel {\it
+x}\,=\,$\langle$\,{\it x}$_1$,\,""{\it x}$_2$,\,\ldots,\,""{\it
+x}$_n$\,$\rangle$ mit {\it x}\,$\in$\,{\it R}, {\it
+x}$_i$\,$\in$\,{\it D}$_i$, 1\,$\leq$\,{\it i}\,$\leq$\,{\it n} wird
+als {\em Tupel der Relation R\/} bezeichnet.
+%
+\par{}Anstatt der Indexmenge
+\{1,\,""2,\,""\ldots,\,""{\it n}\}\ kann auch eine andere ungeordnete
+Menge verwendet werden, vorausgesetzt, da\ss{} zu jeder Tupelkomponente
+nicht nur sein Bereich, sondern auch sein jeweiliger Index assoziiert
+wird; die Elemente dieser Menge hei\ss{}en {\em Attribute}.
+%
+\par{}Repr\"{a}sentiert werden Relationen durch Tabellen; jede Spalte der
+Tabelle entspricht einem Attribut und jede Zeile einem Tupel
+(\figurename~\ref{fig:exrdb}).
+%
+\begin{figure}[htbp]\centering%
+\begin{\figurefontsize}%
+\begin{tabular}{r|c|c|c|l|}%
+\multicolumn{1}{l}{Relation}% \hspace*{1.333em}}
+        &\multicolumn{2}{l}{}
+                &\multicolumn{1}{c}{Attribut}
+                        &\multicolumn{1}{l}{}\\
+\multicolumn{1}{l}{\class{Angestellter}\ $\searrow$}
+        &\multicolumn{2}{l}{}
+                &\multicolumn{1}{c}{$\downarrow$}
+                        &\multicolumn{1}{l}{}\\[\smallskipamount]
+\cline{2-5}
+&\tabularheader{ANG-NR}
+ &\tabularheader{NAME}
+  &\tabularheader{GEHALT}
+   &\tabularheader{ABTEILUNG}\\[0.1\smallskipamount]
+\cline{2-5}%
+Tupel $\rightarrow$
+        & 4711 &\namei & 3000
+        & Marzipankartoffeln\\[0.1\smallskipamount]
+\cline{2-5}
+        & 4712 &\nameii & 6000
+        & Gesch\"{a}ftsf\"{u}hrung\\[0.1\smallskipamount]
+\cline{2-5}
+\end{tabular}%
+\end{\figurefontsize}%
+\caption%
+ [Beispiel Relation \protect\rglq{}Angestellter\protect\rgrq]%
+ {Beispiel Relation \protect\class{Angestellter}}%
+\label{fig:exrdb}%
+\end{figure}%
+%
+Relationen sind Mengen; daher m\"{u}ssen die Tupel einer Relation
+eindeutig sein. Ebenso ist durch den Mengencharakter die Reihenfolge
+der Tupel und Attribute als beliebig anzunehmen; die in einer real
+existierenden relationalen Datenbank etablierte Ordnung der Tupel wird
+ausschlie\ss{}lich aus Effizienzgr\"{u}nden vorgenommen.
+%
+\par{}F\"{u}r relationale Datenbanken wird gefordert, da\ss{} die Bereiche
+der Attribute immer einfach sein m\"{u}ssen; nur dann lassen sich die
+\rglq{}angenehmen\rgrq\ Eigenschaften von relationalen Datenbanken, wie
+die Existenz von Normalformen zur Vermeidung von Redundanzen und
+Anomalien, beweisen. Nicht-einfache Bereiche werden auf Relationen
+abgebildet. Die Relationenalgebra er\-m\"{o}g\-licht es, auf das Konzept
+einer (expliziten) Referenz, so wie sie in allgemeinen
+Programmiersprachen zur Verf\"{u}gung steht, zu verzichten; zwei Tupel
+werden durch den jeweils in einem Attribut enthaltenen gleichen Wert
+kommutativ in Beziehung gesetzt.
+%
+\par{}Die grundlegende Eigenschaft einer relationalen Datenbank ist
+Persistenz aller in ihr enthaltenen Daten; Persistenz ist damit
+orthogonal als auch transparent. Die Relationenalgebra kann gewisse
+Eigenschaften einer relationalen Datenbank garantieren.  Damit
+f\"{u}hrten \"{U}berlegungen \"{u}ber persistente \clos-Objekte bei den
+AutorInnen einiger persistenter Systeme zu dem Ansatz, das relationale
+Modell auch f\"{u}r Persistenz von \clos-Objekten zu benutzen; inwieweit
+dieser Ansatz sinnvoll ist, wird \ua\ in
+Kapitel~\ref{chap:arch} (\citepage{\pageref{chap:arch}}) analysiert.
+%
+\subsection{Eingebettete Datenbank-Sprachen}
+%
+Da relationale Datenbanken normalerweise \"{u}ber keine
+\gande{Datenmanipulationssprache}{DML}\ ver\-f\"{u}\-gen, die m\"{a}chtig
+genug f\"{u}r eine Erstellung von Applikationen ist, bieten sie eine
+Schnittstelle zu einer allgemeinen Programmiersprache an. Die Leistung
+dieser Schnittstellen ersch\"{o}pft sich meist in einer syntaktischen
+Umsetzung der im Programm eingef\"{u}gten Datenbank-Anfragen in die
+Datenmanipulationssprache, ohne da\ss{} die Konzepte der
+Programmiersprache ber\"{u}cksichtigt werden; ebensowenig finden sich in
+der Programmiersprache geeignete Konzepte f\"{u}r die Verarbeitung von
+relationalen Daten. Der bei Verwendung einer solchen Schnittstelle
+entstehende Code besteht damit meist aus einem Gemisch zweier
+Sprachen, der Datenmanipulationssprache und der allgemeinen
+Programmiersprache (siehe z.B.\ {\em Embedded SQL\/}
+\cite[\citepage{201--283}]{bib:on94} oder die
+{\em LIBPQ\/}-Schnittstelle von
+\postgres\ \cite[\citepage{112--126}]{bib:we93}). Persistenz \"{u}ber
+eingebettete Datenbank-Sprachen ist weder orthogonal noch transparent.
+%
+\subsection{\protect\pascalr}
+%
+In \pascalr\ \cite{bib:schm80} \cite{bib:schm77}
+\cite[\citepage{5--6}]{bib:cl91} wurde 
+eine relationale Datenbank in \pascal\ integriert. Die Erg\"{a}nzung
+besteht zum einen in der Erweiterung um die Typen
+\class{relation}\ und \class{database}, deren Instanzen Relationen
+bzw.\ relationale Datenbanken sind, und zum anderen in der
+Bereitstellung von Konstrukten zum Traversieren und Manipulieren von
+Relationen, die vollst\"{a}ndig in die Sprache integriert wurden. Da in
+\pascalr\ ausschlie\ss{}lich Tupel persistent gehalten werden k\"{o}nnen,
+ist Persistenz nicht orthogonal.  Durch die Auswahl und die erfolgte
+Integration der Manipulationsm\"{o}glichkeiten in \pascal\ ist die f\"{u}r
+Tupel angebotene Persistenz weitgehend transparent. Die
+Weiterentwicklung von \pascalr\ f\"{u}hrte zu der auf Modula-2
+basierenden relationalen Programmiersprache
+\mbox{DBPL}\ \cite{bib:ma92a}\ \cite{bib:ma92b}.
+%
+\section{Nicht-relationale Ans\"{a}tze}
+%
+Da die Kopplung einer relationalen Datenbank mit einer allgemeinen
+Programmiersprache wegen der unterschiedlichen Datenmodellierung
+\ia\ dazu f\"{u}hrt, da\ss{} die M\"{o}glichkeiten beider Systeme nicht
+zufriedenstellend genutzt werden k\"{o}nnen, begann ab 1980 eine
+Entwicklung, bei der nicht das relationale Modell in
+eine allgemeine Programmiersprache integriert wurde, sondern umgekehrt
+eine Programmiersprache um Persistenz erweitert wurde.
+%
+\subsection{PS/Algol}
+%
+In PS/Algol \cite[\citepage{16--22}]{bib:cl91}
+\cite[\citepage{55}]{bib:ni88} wird Persistenz erstmals als
+grundlegende Eigenschaft eines Datums unabh\"{a}ngig vom Typ angesehen;
+es handelt sich damit um die erste Programmiersprache mit orthogonaler
+Persistenz. Anders als in \pascalr\ wurden persistente Objekte nicht
+nach dem relationalen Modell realisiert, sondern ihre Zust\"{a}nde werden
+in einem persistenten \heap\ abgelegt; innerhalb dieses
+\heap[s]\ werden Referenzen explizit repr\"{a}sentiert. F\"{u}r die
+Lokalisierung von Objekten wird die M\"{o}glichkeit geboten, sie unter
+einem Namen ablegen und adressieren zu k\"{o}nnen. Der Nachfolger von
+PS/Algol ist die persistente Programmiersprache Napier
+\cite{bib:mo89b} \cite{bib:mo89a}; dort werden
+zus\"{a}tzlich Prozeduren als persistente Objekte aufgefa\ss{}t.
+%
+%\section{PQuest}
+%
+\section{Tycoon}
+%
+Tycoon (Typed Communicating Objects in Open Environments)
+\cite{bib:ma93} \cite{bib:ma92c}\ baut auf den mit \pascalr\
+und \mbox{DBPL}\ gemachten Erfahrungen auf.  Die Tycoon Umgebung sieht
+Persistenz wie PS/Algol als grundlegende Eigenschaft eines Datums an.
+Sie ist in Tycoon vollst\"{a}ndig und transparent von vornherein in die
+Sprache integriert worden. Durch die orthogonale Sichtweise von
+Persistenz wird auf eine Modellierung des verwendeten persistenten
+Speichers und einem direkten Zugriff auf die in ihm realisierten
+Manipulationsm\"{o}glichkeiten innerhalb der Sprache verzichtet; statt
+dessen werden in Tycoon die gew\"{u}nschten Datenbankkonstrukte mittels
+der Sprache selbst realisiert.
+%
+\section{Fazit}
+%
+Das relationale Modell ist konzeptionell sehr elegant und einfach; es
+bietet m\"{a}chtige Manipulationsm\"{o}glichkeiten und mathematisch
+beweisbare \rglq{}angenehme\rgrq\ Eigenschaften. Wie jedoch in
+Abschnitt~\ref{sec:plobjs} (\citepage{\pageref{sec:plobjs}}) gezeigt
+wird, f\"{u}hren die durch das Modell vorgegebenen Kriterien zu
+Einschr\"{a}nkungen, die gegen die Verwendung des relationalen Modells
+f\"{u}r persistente \clos-Objekte im Rahmen \ifbericht dieses
+Berichtes \else\ifbuch dieses Buches \else dieser Arbeit \fi\fi
+sprechen. Statt dessen vertrete ich den Ansatz, f\"{u}r Persistenz den
+durch PS/Algol vorgezeigten L\"{o}sungsweg weiter zu verfolgen.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

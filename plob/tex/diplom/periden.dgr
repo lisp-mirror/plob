@@ -1,0 +1,53 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\def\Nultext#1{\save\Drop{\Text{\textrm{#1}}}\restore}
+\def\ao#1{\Framed{\grow{o_{#1}}}}%
+\def\po#1{\framed{o_{#1}'}}%
+\def\vbar{\left|\right.}%
+\def\tidx#1{\vbar\save\go+<0em,-2.5ex>\Drop{t_{#1}}\restore}%
+%
+\spreaddiagramrows{-0.5pc}%
+\spreaddiagramcolumns{-1.5pc}%
+%
+\begin{diagram}
+%
+&\Nultext{Speicher}\\
+%
+\text{\textrm{Fl\"{u}chtig}}&\Nultext{---}&
+ &\ao{1}\drto_{\text{\textrm{\footnotesize{}speichern}}}
+  &\ao{2}
+   &\ao{3}\drto^{\text{\textrm{\footnotesize{}speichern}}}
+    &&&
+     &\ao{3}
+      &\ao{4}\drto^{\text{\textrm{\footnotesize{}speichern}}}\\
+%
+\Text{\textrm{Nicht-}\\{}\textrm{fl\"{u}chtig}}&\Nultext{---}&
+ &&\po{1}
+  &\po{1}
+   &\ao{3}
+    &{\cdots}
+     &\ao{3}\urto_{\text{\textrm{\footnotesize{}laden}}}
+      &\po{3}
+       &\po{3}
+        &\ao{4}
+         &\cdots\\
+%
+&\xto[-3,0]+<0ex,-1em>
+\xline[0,6]&\tidx{0}&\tidx{1}&\tidx{2}&\tidx{3}&
+\tidx{4}&{\cdots}\xto[0,5]_>{\text{\textrm{\normalsize$t$}}}&
+\tidx{n}&\tidx{n+1}&\tidx{n+2}&
+\tidx{n+3}&\\
+%
+&&\vbar\xto[0,4]_{\text{\textrm{\small{}Proze\ss{} 1}}}&&&&\vbar&&
+\vbar\xto[0,3]_{\text{\textrm{\small{}Proze\ss{} 2}}}&&&\vbar\\
+%
+&&\ao{z}&&%
+\save\go+<3.5ex,0em>%
+\Drop{\text{\textrm{\footnotesize{}Original-Objekt, Zustand $z$}}}\restore%
+&&&&\po{z}&&%
+\save\go+<2.5ex,0em>%
+\Drop{\text{\textrm{\footnotesize{}Objekt-Kopie, Zustand $z$}}}\restore
+%
+\end{diagram}%

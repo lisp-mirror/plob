@@ -1,0 +1,1558 @@
+% This is -*-LaTeX-*-
+%
+In den folgenden Beschreibungen werden die verschiedenen
+\ifbericht von \plob\ \fi im Verlauf
+eines Protokolls durchgef\"{u}hrten Aktivit\"{a}ten in der
+Spezifikationssprache {\sc Infol} ({\em Info\/}rmal {\em L\/}anguage)
+beschrieben. Einger\"{u}ckter Text spezifiziert eine Verfeinerung der in
+seiner \"{U}berschrift genannten Aktivit\"{a}t; da die Sprache informal ist,
+existieren keine weiteren Festlegungen bez\"{u}glich ihrer Syntax oder
+Semantik. Die hier benutzte Beschreibungsform richtet sich nach
+\cite[\citepage{18, 31--33}]{bib:pa91b}.
+%
+\subsubsection{Definition von aktiv-persistenten \protect\cls[n]}
+%
+Im Verlauf der Definition von aktiv-persistenten
+\cls[n]\ werden folgende Aufgaben erledigt:
+\begin{enumerate}
+%
+\item Die Deklarationen der aktiv-persistenten Klassen werden
+ausgewertet; sie befinden sich in der
+\gande{Klassendefinitions}{defclass}-Anweisung:
+\begin{itemize}
+%
+\item Deklarationen auf Klassenebene werden als zu\-s\"{a}tz\-li\-che
+Klassenoptionen spezifiziert und ausgewertet; sie werden in das
+die Klasse repr\"{a}sentierende \clsmo\ eingetragen.
+%
+\item Deklarationen auf \Slt\/-Ebene werden als zu\-s\"{a}tz\-li\-che
+\Slt\/-Optionen spezifiziert und ausgewertet; sie werden in
+die die \Slt[s]\/ der Klasse repr\"{a}sentierenden \sltmo[e]\ eingetragen.
+%
+\end{itemize}
+%
+\item F\"{u}r den Zugriff auf den \Slt\/-Zustand der Instanzen von
+aktiv-persistenten Klassen \"{u}ber die in der
+Klassendefinitions-Anweisung spezifizierten generischen
+\gande{Lese}{:reader}- und \gande{Schreib}{:writer}-Funktionen
+werden \spc\ \mtdmc[n]\ eingebunden, die die verschiedenen m\"{o}glichen
+\Slt\/-\representations{} (\figurename~\ref{fig:extent},
+\citepage{\pageref{fig:extent}}) korrekt verarbeiten.
+%
+\end{enumerate}
+In \soh\ wurde bei jeder Evaluierung einer Klassendefinition die
+Relation zur \representation{} der Instanzen in der Datenbank angelegt;
+dies f\"{u}hrte dazu, da\ss{} diese Evaluierung relativ viel Zeit in
+Anspruch nahm. In \plob\ wird daher das die Klasse beschreibende
+\clsdo\ nicht im Verlauf der Definitionsevaluierung, sondern zum
+sp\"{a}testm\"{o}glichen Zeitpunkt (d.h.\ beim n\"{a}chsten Dereferenzieren des
+Zustands einer Instanz der Klasse) im Speicher abgelegt.
+%
+% Neuer Schritt im Vergleich zu \cite[\citepage{31}]{bib:pa91b}:
+\def\addeditemchar{%
+%{\usefont{OT1}{pzd}{m}{n}\char58}%
+{\usefont{U}{pzd}{m}{n}\char58}%
+}%
+%
+% Implementationsspezifischer (d.h. \lwcl) Schritt:
+\def\lwclitemchar{%
+%{\usefont{OT1}{pzd}{m}{n}\char54}%
+{\usefont{U}{pzd}{m}{n}\char54}%
+}%
+%
+\def\plobmtdchar{$\uparrow$}%
+%
+\def\addeditem{~\hfill{\small\addeditemchar}}
+\def\lwclitem{~\hfill{\small\lwclitemchar}}
+%
+\begin{infol}
+%
+\captionfrom%
+ {Protokoll f\"{u}r die Definition einer aktiv-persistenten Klasse}%
+ {\cite[\citepage{31}]{bib:pa91b}}%
+ [(defclass)]%
+ \label{pro:defclass}%
+\nopagebreak[4]%
+%
+\item\label{enu:dcsynt} Syntaxpr\"{u}fung.
+%
+\item Das \clsmo\ wird ermittelt:\\
+\stfn{(ensure-class), (ensure-class-using-class)}
+%
+\begin{block}
+%
+\item Suche das \clsmo; wird es nicht gefunden, erzeuge ein
+\clsmo\ als Instanz der \clsmc, dessen Name mit der Klassenoption
+\lisp{:metaclass}\ angegeben wurde:%
+\footnote{F\"{u}r aktiv-persistente Klassen ist der Wert der
+Klassenoption \lisp{:metaclass}\ immer
+\class{persistent-metaclass}\ oder der Name einer Subklasse der Klasse
+\class{persistent-metaclass}.}\\
+\stfn{(make-instance (find-class %
+{\usefont{OT1}{\rmdefault}{m}{n}\it\lt{}Wert der Klassenoption
+\lisp{:metaclass}\gt\/}))}
+%
+\item Die Klassenoptionen werden in eine kanonische Form gebracht:%
+\footnote{Dieser Schritt wird nur in \lw\ an dieser Stelle
+ausgef\"{u}hrt; nach \cite[\citepage{31}]{bib:pa91b} befindet er sich
+normalerweise hinter Schritt~\ref{enu:dcsynt}.}%
+\lwclitem\\
+\stfn{(clos::canonicalize-class-options)}
+%
+\item\label{enu:dcinit} (Re)initialisiere das \clsmo:\\
+\stfn{((re)initialize-instance)}
+\item[\plobmtdchar] Bei der Initialisierung werden die Klassenoptionen
+als Ini\-tia\-li\-sie\-rungs-Schl\"{u}s\-sel\-wort-Pa\-ra\-me\-ter an die
+Methode \stfn{(re)initialize-instance}\ \"{u}bergeben und im
+\clsmo\ gespeichert.
+\par{}Die Liste der Superklassen wird um die Klasse
+\class{persistent-clos-object}\ erweitert; damit wird an die
+definierte Klasse u.a.\ ein \Slt\/ vererbt, der f\"{u}r jede Instanz der
+definierten Klasse die \sobjid\/ der persistenten Repr\"{a}sentation
+enth\"{a}lt.
+%
+\begin{block}
+%
+\item Nicht \"{u}bergebene Initialisierungs-Schl\"{u}sselwort-Parameter
+werden mit \std[\-wer\-ten]\ versehen; die
+Initialisierungs-Schl\"{u}sselwort-Parameter werden auf Konsistenz
+gepr\"{u}ft.
+%
+\item Es wird gepr\"{u}ft, ob die Superklassen kompatibel sind:\\
+\stfn{(validate-superclasses)}
+\item[\plobmtdchar] Die Klassen \class{persistent-metaclass}\ und
+\class{standard-class}\ sind kompatibel; die Methode gibt daher immer
+\lispt\ zur\"{u}ck.
+%
+\item Die Superklassen werden zum \clsmo\ assoziiert.
+% Die Liste der Superklassen wird in das \clsmo\ eingetragen.
+%
+\item Bestimme die \sltmc\ der direkten \Slt[s]:\\
+\stfn{(direct-slot-definition-class)}
+\item[\plobmtdchar] Die direkten \Slt[s]\/ einer aktiv-persistenten
+Klasse werden durch die \spc\ \sltmc\ %
+\class{persistent-direct-slot-definition}\ repr\"{a}sentiert; sie
+enth\"{a}lt im Vergleich zur
+\std-\sltmc\ \class{stan\-dard-""di\-rect-""slot-""de\-fi\-ni\-tion}\ %
+zu\-s\"{a}tz\-li\-che \Slt[s]\/ zur Speicherung der \Slt\/-Optionen.
+%
+\item Die \Slt\/-Optionen werden in eine kanonische Form
+gebracht:\lwclitem\\
+\stfn{(clos::canonicalize-defclass-slot)}
+%
+\item Die direkten \sltmo[e]\ werden erzeugt und initialisiert:\\
+\stfn{(make-instance), (initialize-instance)}
+\item[\plobmtdchar] Bei der Initialisierung werden die \Slt\/-Optionen
+als Ini\-tia\-li\-sie\-rungs-Schl\"{u}s\-sel\-wort-Pa\-ra\-me\-ter an die
+Methode \stfn{initialize-instance}\ \"{u}bergeben und im direkten
+\sltmo\ gespeichert.
+%
+\item Die direkten \sltmo[e]\ werden zum \clsmo\ assoziiert.
+%
+\item Die
+\gande{\std-Ini\-tia\-li\-sie\-rungs-Ar\-gu\-men\-te}%
+{default initargs}\ werden zum \clsmo\ assoziiert.
+%
+\item Die Klasse wird in die Subklassenliste aller Superklassen
+eingetragen:\\
+\stfn{(add-direct-subclass), (remove-direct-subclass)}
+%
+\item Falls m\"{o}glich, wird die Vererbungs-Initialisierung wie in
+Protokoll~\ref{pro:fi}
+\stfn{(finalize-inheritance)}\ (\citepage{\pageref{pro:fi}}) angegeben
+endg\"{u}ltig abgeschlossen:\\
+\stfn{(finalize-inheritance)}
+%
+\item\label{enu:dcmcl} Bestimme die \mtdmc\ der
+Zugriffs-\mtd[n]:\addeditem\\
+\stfn{(reader-method-class), (writer-method-class)}
+\item[\plobmtdchar] Die auf
+\class{persistent-metaclass}\ \spc\ \mtd\ der
+\gfn[n]\ \stfn{rea\-der-""me\-thod-""class}\ gibt das
+\mtdmo\ der \spc[n]\ \mtdmc\ %
+\class{per\-si\-stent-""rea\-der-""me\-thod},
+die auf \class{per\-si\-stent-""me\-ta\-class}\ \spc\ \mtd\ der
+\gfn[n]\ \stfn{wri\-ter-""me\-thod-""class}\ gibt das \mtdmo\ der
+\spc[n]\ \mtdmc\ \class{per\-si\-stent-""wri\-ter-""me\-thod}\ %
+zur\"{u}ck;
+damit werden diese \mtdmc[n]\ f\"{u}r die Generierung der
+Zugriffs-\mtd[n]\ benutzt.
+%
+\item\label{enu:dcmcr} Die \mtdmo[e]\ der Zugriffs-\mtd[n]\ werden
+erzeugt und initialisiert:\addeditem\\
+\stfn{(make-instance), (initialize-instance) [, (make-method-lambda)]}
+\item[\plobmtdchar] Da die $\lambda$-Liste der in \lw\ realisierten
+\gfn[n]\ \stfn{ma\-ke-""me\-thod-""lamb\-da}\ nicht mit dem in
+\amopcite{207}\ definierten \std\ \"{u}ber\-ein\-stimmt, wurde die
+\gfn\ \stfn{make-accessor-lambda}\ definiert. Ihre
+Methoden erzeugen die $\lambda$-Ausdr\"{u}cke der Zugriffs-\mtdmo[e]; sie
+werden \"{u}ber\-setzt und im Verlauf der Aufrufe der generischen
+Zugriffs-\fn[en]\ ausgef\"{u}hrt. Die erzeugten $\lambda$-Ausdr\"{u}cke sind
+im Moment so aufgebaut, da\ss{} sie immer die
+\gfn\ \stfn{slot-value-using-class}\ aufrufen;  
+in einer sp\"{a}teren Programmversion k\"{o}n\-nen optimierte
+$\lambda$-Ausdr\"{u}cke f\"{u}r den \Slt\/-Zugriff auf persistente Instanzen
+erzeugt werden.
+%
+\item\label{enu:dcmad} Die \mtdmo[e]\ der Zugriffs-\mtd[n]\ werden zum
+\clsmo\ assoziiert:\addeditem\\
+\stfn{(add-direct-method)}
+%
+\end{block}\end{block}
+%
+\vspace{1ex}\hspace{-\leftmargin}\parbox{\textwidth}{%
+ \footnotesize%
+%
+ \plobmtdchar:~Beschreibung der realisierten Methode%
+ \hspace*{\fill} System-(d.h.\ \mbox{\lw-)} spezifischer
+ Schritt:~\lwclitemchar\\
+%
+ \hspace*{\fill} Hinzugef\"{u}gter oder ge\"{a}nderter Schritt im Vergleich
+ zu \cite[\citepage{31}]{bib:pa91b}:~\addeditemchar}
+%
+\end{infol}
+%
+Das in \cite[\citepage{31}]{bib:pa91b} angegebene Protokoll ist wegen
+einiger fehlender Schritte nicht voll\-st\"{a}n\-dig \mop-konform.
+Der hinzugef\"{u}gte Schritt~\ref{enu:dcmcl} l\"{a}\ss{}t sich
+aus den Definitionen der
+\gfn[n]en \stfn{rea\-der-me\-thod-class}\ \amopcite{224}\ und
+\stfn{wri\-ter-me\-thod-class}\ \amopcite{242}\ herleiten.
+F\"{u}r die neuen Schritte~\ref{enu:dcmcr} und \ref{enu:dcmad} findet
+sich keine direkte Begr\"{u}ndung in \cite{bib:amop91}. Ich habe sie aus
+der Tatsache hergeleitet, da\ss{} in \cite{bib:amop91} nicht zwischen
+\rglq{}normalen\rgrq\ be\-nut\-zer\-In\-nen-de\-fi\-nier\-ten Methoden
+und aus der Klassendefinition generierten
+Zugriffs-\mtd[n]\ unterschieden wird; demzufolge sollten auch sie wie
+normale Methoden behandelt werden. Leider wird diese Ansicht (noch)
+nicht von den Autoren des \lwcl\ geteilt, da das dort realisierte
+\mop\ die Schritte~\ref{enu:dcmcl}--\ref{enu:dcmad} nicht befolgt;
+statt dessen werden die \mtdmo[e]\ der Zugriffs-\mtd[n]\ im
+Verlauf der Initialisierung des \clsmo[es]\ erzeugt und
+eingetragen, ohne da\ss{} weitere \gfn{}en dazu aufgerufen
+werden. Um trotzdem die Zugriffs-\mtd[n]\ durch Instanzen
+der \mtdmc[n]\ \class{persistent-reader-method}\ bzw.\ %
+\class{persistent-writer-method}\ repr\"{a}sentieren zu k\"{o}n\-nen, werden
+die vom System erzeugten \mtdmo[e]\ nach ihrer Generierung ersetzt;
+sinngem\"{a}\ss{} wird wie in Protokoll~\ref{pro:defclass}
+\stfn{(defclass)}, Schritt~\ref{enu:dcmcl}--\ref{enu:dcmad},
+spezifiziert vorgegangen.
+%
+\begin{infol}
+%
+\captionfrom%
+ {Protokoll f\"{u}r den endg\"{u}ltigen Abschlu\ss{} der
+  Vererbungs-Initialisierung}%
+ {\cite[\citepage{32}]{bib:pa91b}}%
+ [(finalize-inheritance)]%
+ \label{pro:fi}%
+\nopagebreak[4]%
+%
+\item Die Klassen-Pr\"{a}zedenzliste wird berechnet:\\
+\stfn{(compute-class-precedence-list)}
+%
+\item Konflikte zwischen gleichnamigen ererbten \Slt[s]\/ werden
+aufgel\"{o}st:
+%
+\begin{block}
+%
+\item Bestimme die \sltmc\ der effektiven \Slt[s]:\\
+\stfn{(effective-slot-definition-class)}
+\item[\plobmtdchar] Die effektiven \Slt[s]\/ einer
+aktiv-persistenten Klasse werden durch die \spc\ \sltmc\ %
+\class{persistent-effective-slot-definition}\ repr\"{a}sentiert; sie
+enth\"{a}lt im Vergleich zur
+\std-\sltmc\ %
+\class{standard-effective-slot-definition}\ zu\-s\"{a}tz\-li\-che
+\Slt[s]\/ zur Speicherung der aus den direkten \Slt[s]\/ abgeleiteten
+Informationen.
+%
+\item Die effektiven \sltmo[e]\ werden erzeugt:\\
+\stfn{(make-instance)}
+%
+\item Die effektiven \sltmo[e]\ werden initialisiert:\\
+\stfn{(initialize-instance), (compute-effective-slot-definition)}
+\item[\plobmtdchar] Gleichnamige direkte
+\Slt[s]\/ werden in der Methode
+\stfn{compute-effective-slot-definition}\ zu einem effektiven
+\Slt\/ zusammengefa\ss{}t.
+%
+\item Die effektiven \sltmo[e]\ werden zum \clsmo\ assoziiert.
+%
+\end{block}
+%
+\end{infol}
+%
+In der Methode \stfn{compute-effective-slot-definition}\ wird die
+Lebensdauer des \Slt\/-Zustands bestimmt; dazu werden hierarchische
+Deklarationen ausgewertet. Eine Lebensdauer kann auf einer der Ebenen
+\rglq\Slt\/\rgrq\ -- \rglq\cls\rgrq\ -- \rglq{}Paket des
+\cls[n]-Namens\rgrq\  deklariert werden; die Lebensdauer
+des \Slt\/-Zustands ergibt sich aus der ersten Deklaration, die
+in der angebenen Reihenfolge f\"{u}r eine der Ebenen gefunden wird. Wurde
+keine Deklaration gefunden, wird f\"{u}r die Lebensdauer des
+\Slt\/-Zustands der in der Konstanten
+\stvar{+de\-fault-clos-slot-ex\-tent+}\ enthaltene
+\std[wert]\ \lisp{:cached}\ benutzt. 
+%
+\subsubsection{Passiv-persistente \protect\clos- und
+Struktur-\protect\cls[n]}%
+\label{sec:nrmlp}
+%
+Die M\"{o}glichkeiten des \mop, Zustand und Verhalten eines
+\clsmo[es]\ im  Verlauf seiner Definition wie in
+Protokoll~\ref{pro:defclass}
+\stfn{(defclass)}\ (\citepage{\pageref{pro:defclass}}) angegeben \"{u}ber
+spezialisierte \mtd[n]\ der vom
+\mop\ aufgerufenen \gfn[n]en zu modifizieren, ist zum einen an die
+Form (Spezifikation der Klassenoption \lisp{:metaclass}) und zum
+anderen an die Evaluierung der Klassendefinition gebunden.
+F\"{u}r Klassen, deren Definition bereits evaluiert wurde, besteht daher
+nicht die M\"{o}glichkeit, ihr \clsmo\ wie in Protokoll~\ref{pro:defclass}
+\stfn{(defclass)}\ angegeben zu beeinflussen. Um unvorhersehbare
+Seiteneffekte auszuschlie\ss{}en, verzichtete ich darauf, diese Klassen
+bei Bedarf neu zu definieren, um eine Modifikation zu erreichen. Statt
+dessen sind die M\"{o}glichkeiten dieser passiv-persistenten Klassen
+eingeschr\"{a}nkt:
+\begin{itemize}
+%
+\item Da die Zugriffs-\mtd[n]\ der Klasse nicht ver\"{a}ndert
+werden, kann auf den Objektzustand nur \"{u}ber \swizzling\ zugegriffen
+werden.
+%
+\item Aus dem gleichen Grund kann f\"{u}r \Slt[s]\/ von
+passiv-persistenten Klassen kein Index definiert werden.
+%
+\item Da keine zu\-s\"{a}tz\-li\-chen \cls[n]- oder \Slt\/-Optionen
+spezifiziert werden k\"{o}n\-nen, m\"{u}ssen Deklarationen bez\"{u}glich
+Persistenz bei passiv-persistenten Klassen \"{u}ber Aufrufe
+entsprechender Funktionen erfolgen, die die Deklarationen
+in Tabellen speichern.
+%
+\end{itemize}
+%
+Die eingeschr\"{a}nkten M\"{o}glichkeiten gelten sowohl f\"{u}r
+passiv-persistente \clos\ Klassen als auch f\"{u}r
+Strukturklassen.
+%
+\subsubsection{Abgleich zwischen einer Klassendefinition und
+seiner Klassenbeschreibung}
+%
+Der Abgleich sorgt daf\"{u}r, da\ss{} die aktuelle Klassendefinition im
+transienten System durch eine \"{a}quivalente Klassenbeschreibung im
+persistenten Speicher repr\"{a}sentiert wird. Der Abgleich erfolgt immer
+vor der \"{U}bertragung des Zustands eines Struktur- oder \clos-Objektes
+zwischen dem transienten und persistenten Speicher f\"{u}r die
+Klasse der zu \"{u}bertragenden Instanz. F\"{u}r Instanzen von Basistypen
+ist dieser Abgleich nicht notwendig, da ihre Strukturen als
+un\-ver\-\"{a}n\-der\-lich festgelegt sind.
+%
+\begin{infol}%
+%
+\acaption%
+ {Protokoll f\"{u}r den Abgleich einer transienten
+  \protect\clos\ Klassendefinition mit seiner
+  persistentenKlassenbeschreibung}%
+ [\protect\enscldescr]%
+ \label{pro:escl}%
+%
+\item\label{enu:ensdmo} Unter dem Namen der Klasse
+wird das dazugeh\"{o}rige \clsmo\ gesucht:\\
+\stfn{(find-class)}
+%
+\item\label{enu:ensddo} In der persistenten Klassentabelle
+wird unter dem Namen der Klasse nach einem bereits existierendem
+\clsdo\ gesucht:\\
+\stfn{(p-find-class)}
+%
+\item Falls in Schritt~\ref{enu:ensddo} ein \clsdo\ gefunden wurde:
+%
+\begin{block}%
+%
+\item Falls in Schritt~\ref{enu:ensdmo} ein \clsmo\ gefunden wurde:
+%
+\begin{block}%
+%
+\item\label{enu:ensdmp} Es wird gepr\"{u}ft, ob sich das transiente
+  \clsmo\ aus Schritt~\ref{enu:ensdmo} seit dem letzten Aufruf von
+  \stfn{\enscldescr}\ ge\"{a}ndert haben k\"{o}nnte:\\
+  \stfn{(mismatch-p)}\\
+  Der Aufruf von \stfn{(mismatch-p)}\ gibt den Wert einer an das
+  transiente \clsmo\ assoziierten Statusvariablen zur\"{u}ck, das in
+  den auf die Klasse \class{class}\ \spc[n]\ \mtd[n]\ der \gfn[n]en
+  \stfn{initialize-instance}\ und \stfn{reinitialize-instance}\ auf
+  \lispt\ gesetzt wird; die \mbox{(Re-)}Initialisierung eines
+  \clsmo[es]\ wird damit als Indikator einer eventuell stattgefundenen
+  \mbox{(Re-)}Definition benutzt.
+%
+\begin{block}%
+%
+\item\label{enu:ensdndo} Aus dem transienten \clsmo\ aus
+Schritt~\ref{enu:ensdmo} wird ein transientes \clsdo\ erzeugt:\\
+\stfn{(fill-description)}\\
+Das erzeugte transiente \clsdo\ enth\"{a}lt alle Informationen zur
+Beschreibung der durch das transiente \clsmo\ re\-pr\"{a}\-sen\-tier\-ten
+Klasse, insbesondere auch die \sltdo[e]\ der direkten und effektiven
+\Slt[s].
+%
+\item Es wird gepr\"{u}ft, ob das \clsdo\ aus
+Schritt~\ref{enu:ensddo} \"{a}quivalent zu dem \clsdo\ aus
+Schritt~\ref{enu:ensdndo} ist:\\
+\stfn{(class-description-equal-p)}
+%
+\item\label{enu:ensdupd} Sind die \clsdo[e]\ nicht \"{a}quivalent, wird
+das neu erzeugte \clsdo\ aus Schritt~\ref{enu:ensdndo}
+nicht-destruktiv im persistenten Speicher abgelegt, d.h.\ das
+vorhandene alte \clsdo\ bleibt unver\"{a}ndert erhalten. In der
+persistenten Klassentabelle wird die unter dem Namen der Klasse
+eingetragene Referenz auf das neue \clsdo\ gesetzt:\\
+\stfn{(update-class)}\\
+Dabei wird auch die in Schritt~\ref{enu:ensdmp} abgefragte
+Statusvariable einer eventuellen Klassen\"{a}nderung auf
+\lispnil\ gesetzt.
+Jetzt ist das \clsdo\ aus Schritt~\ref{enu:ensdndo} das aktuelle
+\clsdo.
+%
+\end{block}%
+%
+\end{block}%
+%
+\item sonst exisitiert ein persistentes \clsdo, aber kein transientes
+\clsmo. Dies kann beim Laden eines persistenten Objektes passieren,
+dessen Klassendefinition nicht anderweitig evaluiert oder geladen
+wurde:
+%
+\begin{block}%
+%
+\item Erzeuge die Klassendefinition aus dem \clsdo\ und evaluiere sie:\\
+\stfn{(compile-description)}
+%
+\end{block}%
+\end{block}%
+%
+\item sonst existiert noch kein \clsdo\ der Klasse:
+%
+\begin{block}%
+%
+\item Aus dem transienten \clsmo\ von
+Schritt~\ref{enu:ensdmo} wird ein transientes \clsdo\ erzeugt:\\
+\stfn{(fill-description)}\\
+Das erzeugte transiente \clsdo\ enth\"{a}lt alle Informationen zur
+Beschreibung der durch das transiente \clsmo\ repr\"{a}sentierten Klasse,
+insbesondere auch die \sltdo[e]\ der direkten und effektiven \Slt[s].
+%
+\item\label{enu:ensdsdo} Speichere das erzeugte \clsdo:\\
+\stfn{(update-class)}
+%
+\end{block}%
+%
+\item Jetzt ist sichergestellt, da\ss{} die Klassendefinition im
+transienten System und das dazugeh\"{o}rige aktuelle \clsdo\ zueinander
+passen. Als Ergebnis werden zwei Werte zur\"{u}ckgegeben:
+\begin{itemize}
+%
+\item Das aktuelle transiente \clsdo.
+%
+\item Eine Statusinformation, die angibt, ob in
+Schritt~\ref{enu:ensdupd} oder \ref{enu:ensdsdo} ein (neues)
+\clsdo\ gespeichert wurde.
+%
+\end{itemize}
+%
+\end{infol}
+%
+F\"{u}r Strukturklassen gibt es ein \"{a}hn\-li\-ches Protokoll
+\stfn{\ensstdescr}, das sich vom Protokoll
+\stfn{\enscldescr}\ bez\"{u}glich der hier gew\"{a}hlten Abstraktionsebene
+nur wenig unterscheidet.
+%
+\par{}Die Struktur- bzw.\ Klassen-Beschreibung einer neu erzeugten
+persistenten \representation{} verweist immer auf das im Moment der
+Erzeugung aktuelle \clsdo. In Schritt~\ref{enu:ensdupd} wird bei
+\"{A}nderung der Klassendefinition eine neue \gande{Version einer
+Klassenbeschreibung}{type version}\ \cite[\citepage{401}]{bib:sk87}
+mit neuer Identit\"{a}t erzeugt; beim n\"{a}chsten Zugriff auf die
+persistente \representation{} wird durch Vergleich des durch sie
+referenzierten \clsdo[es]\ mit dem aktuellen
+\clsdo\ gegebenenfalls eine Anpassung der 
+\representation{} und eine \"{A}nderung der Referenz auf das
+\clsdo\ veranla\ss{}t.
+%
+\par{}Die persistente Instanz \oiii\ in \figurename~\ref{fig:plsche} %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/plsche.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/plsche.eps}}%
+\fi%
+\caption{Schemaentwicklung f\"{u}r eine persistente Instanz}%
+\label{fig:plsche}%
+\end{figure}%
+%
+wurde erzeugt, als das \clsdo\ mit der Version 1.00 aktuell war
+(Referenz \oi); bei der n\"{a}chsten Dereferenzierung der persistenten
+Instanz \oiii\ wird die Referenz \oi\ auf das
+aktuelle \clsdo\ \oii\ ge\-\"{a}n\-dert.
+%
+\subsubsection{Speichern eines transienten Objektes}
+%
+Das Speichern eines transienten Objektes beinhaltet die \"{U}bertragung
+des Objektzustands in eine persistente \representation. In das
+Protokoll der \"{U}bertragung flossen folgende \"{U}berlegungen ein:
+\begin{enumerate}
+%
+\item\label{enu:sobjcmod} Die persistente \representation{} soll den
+transienten Zustand angemessen widerspiegeln. Daraus folgt, da\ss{}
+sowohl die im transienten Objekt enthaltenen Referenzen als auch die
+Zust\"{a}nde der referenzierten Objekte ebenfalls mit abgelegt werden
+m\"{u}ssen.
+%
+\item\label{enu:sobjceff} Die \"{U}bertragung soll effizient sein; da
+ein Objekt transitiv sehr viele Instanzen referenzieren kann, sollte
+die M\"{o}glichkeit eines Schnitts bestehen. 
+%
+\item\label{enu:sobjcid} Die Identit\"{a}t der Objekte soll
+ber\"{u}cksichtigt werden; sofern f\"{u}r den Zustand eines transienten
+Objektes eine entsprechende persistente \representation{} existiert,
+soll eine erneute \"{U}bertragung des Zustands immer in dieselbe
+persistente \representation{} stattfinden.
+%
+\end{enumerate}
+%
+Die Eigenschaften von Punkt~\ref{enu:sobjcmod} und \ref{enu:sobjceff}
+widersprechen sich; je nach Verwendungszweck des persistenten Systems
+kann die mehr gew\"{u}nschte Eigenschaft durch Deklarationen oder
+Parameter hervorgehoben werden.
+%
+\begin{infol}%
+%
+\acaption%
+ {Protokoll f\"{u}r das Speichern eines transienten Objektes}%
+ [(store-object)]%
+ \label{pro:sobj}%
+%
+\item Es wird gepr\"{u}ft, ob die \sh-Datei\ ge\"{o}ffnet ist:\\
+\stfn{(assert-sh-open-p)}
+%
+\item\label{enu:sotop} Mit dem Aufruf der \gfn[n]\\
+\stfn{(t-object-to-p-objid)}\\
+wird das transiente Objekt gespeichert:
+%
+\begin{block}%
+%
+\item Ist das zu speichernde Objekt ein \immval, werden als Ergebnis
+von Schritt~\ref{enu:sotop} zwei Werte zur\"{u}ckgegeben:
+\begin{itemize}
+%
+\item Der erste R\"{u}ckgabewert ist die \sobjid\/ des gespeicherten
+Objektes; f\"{u}r \immval[s]\/ ist dies der Zustand des Objektes.
+%
+\item Der zweite R\"{u}ckgabewert ist die Typkennung des
+\immval[s]\/ nach \tablename~\ref{tab:typetags}
+(\citepage{\pageref{tab:typetags}}).
+%
+\end{itemize}
+%
+\item\label{enu:sobjed} F\"{u}r die Instanz einer Struktur-
+bzw.\ \clos-Klasse wird das aktuelle transiente \clsdo\ wie im
+Protokoll~\ref{pro:escl}
+\stfn{\enscldescr}\ (\citepage{\pageref{pro:escl}}) angegeben
+ermittelt:\\
+\stfn{\ensstdescr}\ bzw.\ \stfn{\enscldescr}
+%
+\item\label{enu:sobjid} Die \sobjid\/ des Objektes wird ermittelt:
+%
+\begin{block}%
+%
+\item Das transiente Objekt wird im \cache\/ gesucht:\\
+\stfn{(is-registered-object)}\\
+Bei erfolgreicher Suche wird als Ergebnis von Schritt~\ref{enu:sobjid}
+die zum Objekt geh\"{o}rige \sobjid\/ der persistenten Repr\"{a}sentation
+zur\"{u}ckgegeben.
+\par{}Der \cache\/ stellt somit sicher, da\ss{} der Zustand eines
+transienten Objektes immer in dieselbe persistente
+\representation{} \"{u}bertragen wird.
+%
+\item Wurde das Objekt nicht im \cache\/ gefunden, wird ein
+persistentes Objekt mit einer der transienten Klasse entsprechenden
+Klasse im persistenten Speicher alloziert:\\
+\stfn{(p-allocate-%
+{\usefont{OT1}{\rmdefault}{m}{n}\it\lt{}Klassenname\gt\/})}\\
+Die erhaltene \sobjid\/ und das transiente Objekt werden in den
+\cache\/ eingetragen:\\
+\stfn{(register-to-cache)}\\
+Die \sobjid\/ wird als Ergebnis von Schritt~\ref{enu:sobjid}
+zur\"{u}ckgegeben.
+%
+\end{block}%
+%
+\item\label{enu:sotrbeg} Sofern noch keine Transaktion aktiv ist, wird
+eine Transaktion gestartet:\\
+\stfn{(with-transaction)}\\
+Eine hier gestartete Transaktion wird von rekursiven Aufrufen des
+Protokolls~\ref{pro:sobj} \stfn{(store-object)}\ mitbenutzt.
+%
+\item\label{enu:sowrl} F\"{u}r das durch die \sobjid\/ identifizierte
+persistente Objekt wird eine Schreibsperre angefordert:\\
+\stfn{(with-write-lock)}\\
+Dabei wird festgestellt, ob auf das durch die \sobjid\/ referenzierte
+persistente Objekt bereits eine Schreibsperre innerhalb der
+aktiven Transaktion gesetzt wurde. Wenn ja, wurde der Zustand des
+transienten Objektes in der aktiven Transaktion bereits in die
+persistente \representation{} \"{u}ber\-tra\-gen; in diesem Fall verzweigt
+das Protokoll zu Schritt~\ref{enu:sotrend}.
+%
+\item Der Zustand des transienten Objektes wird in die persistente
+\representation{} \"{u}bertragen:
+%
+\begin{block}%
+%
+\item F\"{u}r Instanzen von Basisklassen siehe das
+Subprotokoll~\ref{pro:sbi} f\"{u}r das Speichern einer transienten
+Instanz einer Basisklasse (\citepage{\pageref{pro:sbi}}).
+%
+\item F\"{u}r Strukturobjekte siehe das Subprotokoll~\ref{pro:sstr}
+\stfn{(setf p-structure)}\ (\citepage{\pageref{pro:sstr}}).
+%
+\item F\"{u}r \clos-Instanzen siehe das Subprotokoll~\ref{pro:scli}
+\stfn{(setf p-instance)}\ (\citepage{\pageref{pro:scli}}).
+%
+\end{block}%
+%
+\item\label{enu:sotrend} Wenn in Schritt~\ref{enu:sotrbeg} eine
+Transaktion gestartet wurde, wird sie in diesem Schritt beendet. Damit
+werden alle innerhalb der Transaktion gesetzten Sperren
+(insbesondere die Schreibsperre aus Schritt~\ref{enu:sowrl})
+aufgehoben.
+%
+\item Als Ergebnis von Schritt~\ref{enu:sotop} werden zwei Werte
+zur\"{u}ckgegeben:
+\begin{itemize}
+%
+\item Der erste R\"{u}ckgabewert ist die in Schritt~\ref{enu:sobjid}
+ermittelte \sobjid\/ des gespeicherten Objektes.
+%
+\item Der zweite R\"{u}ckgabewert ist die Typkennung, die den ersten
+R\"{u}ckgabewert als \sobjid\/ eines persistentes Objektes typisiert
+(\tablename~\ref{tab:typetags}, \citepage{\pageref{tab:typetags}},
+Kennung~0).
+%
+\end{itemize}%
+%
+\end{block}%
+%
+\item Wenn aus dem zweiten R\"{u}ckgabewert von Schritt~\ref{enu:sotop}
+hervorgeht, da\ss{} ein \immval\/ gespeichert wurde
+(\tablename~\ref{tab:typetags}, \citepage{\pageref{tab:typetags}},
+Kennung\,$\neq$\,0), wird als Ergebnis des Protokolls der 
+\immval\/ selbst zur\"{u}ckgegeben; andernfalls wird die \sobjid\/ des
+persistenten Objektes innerhalb einer transienten Instanz der
+Strukturklasse \class{persistent-object}\ zur\"{u}ckgegeben, damit sich
+die Klasse der zur\"{u}ckgegebenen \sobjid\/ vom intern zur
+\representation{} von \sobjid[s]\ verwendeten Typ
+\class{fixnum}\ unterscheidet.
+%
+\end{infol}%
+%
+\begin{infol}%
+%
+\acaption%
+ {Subprotokoll f\"{u}r das Speichern einer transienten Instanz einer
+  Basisklasse}%
+ \label{pro:sbi}%
+\nopagebreak[4]%
+%
+\item F\"{u}r Instanzen von Basisklassen, die nicht Werte sind, wird f\"{u}r
+jeden \Slt\/ des Objektes die \gfn\\
+\stfn{(t-object-to-p-objid)}\\
+aufgerufen, d.h.\ das Protokoll~\ref{pro:sobj}
+\stfn{(store-object)}\ (\citepage{\pageref{pro:sobj}}) wird rekursiv
+mit Schritt~\ref{enu:sotop} fortgef\"{u}hrt. Die aus dem rekursiven
+Aufruf erhaltene \sobjid\/ und die Typkennung des \Slt\/-Zustands wird
+in die zum \Slt\/ geh\"{o}rige Komponente des Referenzfeldes
+(\figurename~\ref{fig:povec}, \citepage{\pageref{fig:povec}}) des
+persistenten Objektes eingetragen.
+%
+\item F\"{u}r transiente Werte wird ihr Zustand mit der Funktion\\
+\stfn{(setf p-values)}\\
+in ihrer bin\"{a}ren \representation{} in das Wertefeld des persistenten
+Objektes (\figurename~\ref{fig:povec}, \citepage{\pageref{fig:povec}})
+kopiert.
+%
+\end{infol}
+%
+\par{}F\"{u}r Symbole kann durch einen dem Protokoll~\ref{pro:sobj}
+mitgegebenen Parameter die Anzahl der \Slt[s], deren Zustand vom
+transienten in das persistente Symbol \"{u}bertragen werden soll,
+eingeschr\"{a}nkt werden; so wird f\"{u}r die Angabe
+\lisp{:name}\ lediglich der Name des Symbols gespeichert. Beim
+Speichern des Wertes eines Symbols wird immer der dynamisch gebundene
+Wert benutzt, da zum einen der lexikalisch gebundene Wert nicht
+einfach ermittelt werden kann \stcite{119}\ und zum anderen in diesem
+Fall die (unter Umst\"{a}nden sehr umfangreiche) lexikalische Umgebung
+des Symbols mit gespeichert werden m\"{u}\ss{}te.
+%
+\begin{infol}%
+%
+\acaption%
+ {Subprotokoll f\"{u}r das Speichern eines transienten
+  Strukturobjektes}%
+ [(setf p-structure)]%
+ \label{pro:sstr}%
+%
+\item Aus dem in Schritt~\ref{enu:sobjed} von Protokoll~\ref{pro:sobj}
+\stfn{(store-object)} (\citepage{\pageref{enu:sobjed}}) erhaltenem
+aktuellem transientem \clsdo\ wird die Liste der \sltdo[e]\ gelesen:\\
+\stfn{(class-effective-slots)}
+%
+\item F\"{u}r jeden \Slt, dessen Zustands-Lebensdauer nicht als
+\lisp{:transient}\ deklariert wurde:
+%
+\begin{block}
+%
+\item Rufe f\"{u}r den \Slt\/-Zustand die \gfn\\
+\stfn{(t-object-to-p-objid)}\\
+auf, d.h.\ das Protokoll~\ref{pro:sobj}
+\stfn{(store-object)}\ (\citepage{\pageref{pro:sobj}}) wird ab
+Schritt~\ref{enu:sotop} aufgerufen. Die daraus erhaltene \sobjid\/ und
+die Typkennung des \Slt\/-Zustands wird in die zum \Slt\/ geh\"{o}rige
+Komponente des Referenzfeldes (\figurename~\ref{fig:pivec},
+\citepage{\pageref{fig:pivec}}) des persistenten Strukturobjektes
+eingetragen.
+%
+\end{block}
+%
+\end{infol}
+%
+Die Iteration \"{u}ber alle \Slt[s]\/ sorgt daf\"{u}r, da\ss{} alle Referenzen
+und referenzierten Objekte mit im persistenten Speicher abgelegt
+werden; die Deklaration eines transienten \Slt\/-Zustands
+er\-m\"{o}g\-licht einen Schnitt, ab dem Objekte nicht weiter gespeichert
+werden.
+%
+\par{}Ein transientes Paket wird als Instanz der Basis-Strukturklasse
+\class{persistent-package}\ abgespeichert. Die im transienten Paket
+enthaltene Liste der ihm zugeordneten transienten Symbole wird beim
+Speichern eines Paketes nicht mit abgelegt; statt dessen werden
+persistente Symbole im Moment des Speicherns ihrem persistenten Paket
+zugeordnet.
+%
+\begin{infol}%
+%
+\acaption%
+ {Subprotokoll f\"{u}r das Speichern einer transienten
+  \protect\clos-Instanz}%
+ [(setf p-instance)]%
+ \label{pro:scli}%
+%
+\item Aus dem in Schritt~\ref{enu:sobjed} von Protokoll~\ref{pro:sobj}
+\stfn{(store-object)} (\citepage{\pageref{enu:sobjed}}) erhaltenem
+aktuellem transientem \clsdo\ wird die Liste der \sltdo[e]\ gelesen:\\
+\stfn{(class-effective-slots)}
+%
+\item F\"{u}r jeden \Slt, dessen Zustands-Lebensdauer als
+\lisp{:cached}\ deklariert wurde:
+%
+\begin{block}
+%
+\item Es wird gepr\"{u}ft, ob der \Slt\/ an einen Wert gebunden ist:\\
+\stfn{(slot-boundp)}
+%
+\item Wenn der \Slt\/ ungebunden ist, wird in die zum \Slt\/ geh\"{o}rige
+Komponente des durch das Referenzfeld referenzierten Zustandsvektors
+(\figurename~\ref{fig:pcivec},
+\citepage{\pageref{fig:pcivec}}) der persistenten \clos-Instanz
+die \sobjid\/ der Markierung \rglq{}ungebundener \Slt\rgrq\ und die
+Typkennung Markierung (\tablename~\ref{tab:typetags},
+\citepage{\pageref{tab:typetags}}, Kennung~4) eingetragen:\\
+\stfn{(setf p-index)}
+%
+\item Wenn der \Slt\/ an einen Wert gebunden ist, rufe f\"{u}r den
+\Slt\/-Zustand die \gfn\\ 
+\stfn{(t-object-to-p-objid)}\\
+auf, d.h.\ das Protokoll~\ref{pro:sobj}
+\stfn{(store-object)}\ (\citepage{\pageref{pro:sobj}}) wird ab
+Schritt~\ref{enu:sotop} aufgerufen. Die daraus erhaltene \sobjid\/ und
+Typkennung des \Slt\/-Zustands wird in die zum \Slt\/ geh\"{o}rige
+Komponente des durch das Referenzfeld referenzierten Zustandsvektors
+(\figurename~\ref{fig:pcivec}, \citepage{\pageref{fig:pcivec}}) der
+persistenten \clos-Instanz eingetragen:\\
+\stfn{(setf p-index)}
+%
+\end{block}%
+%
+\end{infol}%
+%
+Um \mo[e]\ mit einer fest definierten, sy\-stem\-un\-ab\-h\"{a}n\-gi\-gen
+Struktur zu speichern, werden alle \mo[e]\ als \deo[e]\ gespeichert;
+die Abbildung einer \mc\ auf seine \dec\ ergibt sich nach
+\tablename~\ref{tab:mopdescr} (\citepage{\pageref{tab:mopdescr}}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/extent.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/extent.eps}}%
+\fi%
+\caption{Lebensdauer von \protect\Slt\/-Zust\"{a}nden}%
+\label{fig:extent}%
+\end{figure}%
+%
+\par{}\figurename~\ref{fig:extent} zeigt den Zusammenhang zwischen der
+Deklaration einer Lebensdauer f\"{u}r einen \Slt\/-Zustand einer
+\clos-Instanz (mittlere Spalte in \figurename~\ref{fig:extent}) und der
+f\"{u}r die jeweilige Lebensdauer allozierten \representation{} des
+\Slt\/-Zustands im transienten (2.~Spalte) und persistenten
+(3.~Spalte) Speicher, die Zeitpunkte, zu denen die Zust\"{a}nde zwischen
+der transienten und persistenten \representation{} ausgetauscht werden,
+sowie die Verf\"{u}gbarkeit der Deklaration f\"{u}r \Slt[s]\/ von Struktur-
+(2.~Spalte von rechts) und \clos- (rechte Spalte) Klassen.  Die
+Zust\"{a}nde der als \lisp{:cached-\lb{}write-\lb{}through}\ und
+\lisp{:persistent}\ deklarierten \Slt[s]\/ werden durch spezialisierte
+Methoden der \gfn[n]\ \stfn{(setf
+slot-\lb{}value-\lb{}using-\lb{}class)}\ (Protokoll~\ref{pro:stsl},
+\citepage{\pageref{pro:stsl}}) gespeichert und stehen damit nur
+aktiv-persistenten Instanzen zur Verf\"{u}gung.
+%
+%\subsubsection{Nicht speicherbare Objekte}
+%
+\subsubsection{Laden eines persistenten Objektes}
+%
+Die Eigenschaften der \"{U}bertragung eines transienten Objektzustands in
+eine persistente Re\-pr\"{a}\-sen\-ta\-tion gelten sinngem\"{a}\ss{} auch f\"{u}r
+das Laden eines persistenten Objektes.
+%
+\begin{infol}%
+%
+\acaption%
+ {Protokoll f\"{u}r das Laden eines transienten Objektes}%
+ [(load-object)]%
+ \label{pro:lobj}%
+%
+\item Es wird gepr\"{u}ft, ob die \sh-Datei\ ge\"{o}ffnet ist:\\
+\stfn{(assert-sh-open-p)}
+%
+\item\label{enu:lotyp} Die Typkennung des durch die
+\sobjid\/ referenzierten persistenten Objektes wird gelesen:\\
+\stfn{(p-type-tag-of)}
+%
+\item\label{enu:lotop} Mit dem Aufruf der \gfn[n]\\
+\stfn{(p-objid-to-t-object)}\\
+wird die transiente \representation{} eines persistenten Objektes
+geladen; beim Aufruf werden die \sobjid\/ und die Typkennung des
+persistenten Objektes, die in Schritt~\ref{enu:lotyp} ermittelt
+wurde, mitgegeben:
+%
+\begin{block}%
+%
+\item Wenn aus der Typkennung hervorgeht, da\ss{} ein \immval\/ geladen
+wird (\tablename~\ref{tab:typetags}, \citepage{\pageref{tab:typetags}},
+Kennung\,$\neq$\,0), wird als Ergebnis von Schritt~\ref{enu:lotop} ein
+transienter \immval\/ mit dem in der \sobjid\/ abgelegten Zustand
+zur\"{u}ckgegeben.
+%
+\item\label{enu:lobjed} F\"{u}r die Instanz einer Struktur-
+bzw.\ \clos-Klasse wird das aktuelle transiente \clsdo\ wie im
+Protokoll~\ref{pro:escl}
+\stfn{\enscldescr}\ (\citepage{\pageref{pro:escl}}) angegeben
+ermittelt:\\
+\stfn{\ensstdescr}\ bzw.\ \stfn{\enscldescr}
+%
+\item\label{enu:lotrr} Die transiente \representation{} des
+persistenten Objektes wird ermittelt:
+%
+\begin{block}%
+%
+\item Das transiente Objekt wird im \cache\/ gesucht:\\
+\stfn{(is-registered-objid)}\\
+Bei erfolgreicher Suche wird als Ergebnis von Schritt~\ref{enu:lotrr}
+die zum Objekt geh\"{o}rige transiente \representation{} zur\"{u}ckgegeben.
+\par{}Der \cache\/ stellt somit sicher, da\ss{} der Zustand eines
+persistenten Objektes immer in dieselbe transiente Repr\"{a}sentation
+\"{u}bertragen wird.
+%
+\item Wurde das Objekt nicht im \cache\/ gefunden, wird
+klassenabh\"{a}ngig ein transientes Objekt erzeugt:\\
+\stfn{(make-%
+{\usefont{OT1}{\rmdefault}{m}{n}\it\lt{}Klassenname\gt\/})}\\
+F\"{u}r Instanzen von Struktur- und \clos\ Klassen wird gegebenenfalls die
+f\"{u}r die Klasse deklarierte Konstruktor-Funktion aufgerufen.
+Das erzeugte transiente Objekt und seine \sobjid\/ werden in den
+\cache\/ eingetragen:\\
+\stfn{(register-to-cache)}\\
+Die transiente \representation{} wird als Ergebnis von
+Schritt~\ref{enu:lotrr} zur\"{u}ckgegeben.
+%
+\end{block}%
+%
+\item\label{enu:locut} Sofern in Schritt~\ref{enu:lotrr} eine
+transiente \representation{} im \cache\/ gefunden wurde, bleibt der
+Zustand der transienten \representation{} unver\"{a}ndert; das Protokoll
+verzweigt zu Schritt \ref{enu:loend}.
+\par{}Dieses Kriterium sorgt damit f\"{u}r den Schnitt beim Laden eines
+Objektes.
+%
+\item\label{enu:lotrbeg} Sofern noch keine Transaktion aktiv ist, wird
+eine Transaktion gestartet:\\
+\stfn{(with-transaction)}\\
+Eine hier gestartete Transaktion wird von rekursiven Aufrufen des
+Protokolls~\ref{pro:lobj} \stfn{(load-object)}\ mitbenutzt.
+%
+\item\label{enu:lowrl} F\"{u}r das durch die \sobjid\/ identifizierte
+persistente Objekt wird eine Lesesperre angefordert:\\
+\stfn{(with-read-lock)}\\
+Dabei wird festgestellt, ob auf das durch die \sobjid\/ referenzierte
+persistente Objekt bereits eine Lesesperre innerhalb der
+aktiven Transaktion gesetzt wurde. Wenn ja, wurde der Zustand des
+persistenten Objektes in der aktiven Transaktion bereits in seine
+transiente \representation{} \"{u}ber\-tra\-gen; in diesem Fall verzweigt
+das Protokoll zu Schritt~\ref{enu:lotrend}.
+%
+\item Der Zustand des persistenten Objektes wird in die transiente
+\representation{} \"{u}bertragen:
+%
+\begin{block}%
+%
+\item F\"{u}r Instanzen von Basisklassen siehe das
+Subprotokoll~\ref{pro:lbi} f\"{u}r das Laden einer transienten
+Instanz einer Basisklasse (\citepage{\pageref{pro:lbi}}).
+%
+\item F\"{u}r Strukturobjekte siehe das Subprotokoll~\ref{pro:lstr}
+\stfn{(p-structure)}\ (\citepage{\pageref{pro:lstr}}).
+%
+\item F\"{u}r \clos-Instanzen siehe das Subprotokoll~\ref{pro:lcli}
+\stfn{(p-instance)}\ (\citepage{\pageref{pro:lcli}}).
+%
+\end{block}%
+%
+\item\label{enu:lotrend} Wenn in Schritt~\ref{enu:lotrbeg} eine
+Transaktion gestartet wurde, wird sie in diesem Schritt beendet. Damit
+werden alle innerhalb der Transaktion gesetzten Sperren
+(insbesondere die Lesesperre aus Schritt~\ref{enu:lowrl})
+aufgehoben.
+%
+\item\label{enu:loend} Als Ergebnis wird die in
+Schritt~\ref{enu:lotrr} ermittelte transiente \representation{} des
+persistenten Objektes zur\"{u}ckgegeben.
+%
+\end{block}%
+\end{infol}%
+%
+Durch die Verzweigung in Schritt~\ref{enu:locut} existiert im Moment
+keine M\"{o}glichkeit, den Zustand eines Objektes erneut zu laden; dies
+kann in einer zuk\"{u}nftigen Programmversion realisiert werden. N\"{o}tig
+wird das erneute Laden des Zustands von persistenten Objekten
+nach \"{A}nderung ihrer persistenten \representation{} durch parallelen
+Zugriff; eine \"{A}nderung kann \"{u}ber die in Abschnitt~\ref{sec:plcon}
+(\citepage{\pageref{sec:plcon}}) erl\"{a}uterten
+Benachrichtigungssperren erkannt werden.
+%
+\begin{infol}%
+%
+\acaption{Subprotokoll f\"{u}r das Laden einer transienten
+Instanz einer Basisklasse}\label{pro:lbi}
+%
+\item F\"{u}r Instanzen von Basisklassen, die nicht Werte sind,
+wird f\"{u}r jeden \Slt\/ des Objektes die \sobjid\/ und die Typkennung des
+im entsprechenden \Slt\/ in der persistenten Re\-pr\"{a}\-sen\-ta\-tion
+enthaltenen persistenten Objektes gelesen; mit diesen Parametern wird
+die \gfn\\
+\stfn{(p-objid-to-t-object)}\\
+aufgerufen, d.h.\ das Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{pro:lobj}}) wird rekursiv 
+mit Schritt~\ref{enu:lotop} fortgef\"{u}hrt. Die aus dem rekursiven
+Aufruf erhaltene transiente \representation{} des \Slt\/-""Zu\-stands
+wird in den \Slt\/ der transienten \representation{} eingetragen.
+%
+\item F\"{u}r Werte wird ihr Zustand mit der Funktion\\
+\stfn{(p-values)}\\
+in ihrer bin\"{a}ren \representation{} aus dem Wertefeld des
+persistenten Objektes (\figurename~\ref{fig:povec},
+\citepage{\pageref{fig:povec}}) in die transiente Repr\"{a}sentation
+kopiert.
+%
+\end{infol}
+%
+\par{}Beim Laden von Symbolen wird der Zustand nur dann vom
+persistenten in das transiente Symbol kopiert, wenn das transiente
+Symbol durch den Ladevorgang selbst erzeugt wurde; damit wird eine
+eventuell von den BenutzerInnen unerwartete \"{A}nderung des
+Zustands des transienten Symbols verhindert.
+%
+\par{}Ein transientes Paket wird genau dann erzeugt, wenn ein
+persistentes Symbol geladen wird, das sich in einem persistenten Paket
+befindet, dessen Name kein transientes Paket identifiziert.
+Vorhandene transiente Pakete werden \rglq{}mitbenutzt\rgrq; insbesondere
+wird f\"{u}r sie niemals die Funktion
+\stfn{make-package}\ \stcite{262}\ aufgerufen, da die Semantik
+f\"{u}r ein bereits exisitierendes transientes Paket nicht spezifiziert
+ist.
+%
+\begin{infol}%
+%
+\acaption%
+ {Subprotokoll f\"{u}r das Laden eines transienten Strukturobjektes}%
+ [(p-structure)]%
+ \label{pro:lstr}%
+\nopagebreak[4]%
+%
+\item\label{enu:lstrcld} Das referenzierte \clsdo\ wird aus dem Feld
+mit der Strukturbeschreibung (\figurename~\ref{fig:pivec},
+\citepage{\pageref{fig:pivec}}) des Strukturobjektes wie im
+Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{pro:lobj}}) angegeben
+geladen.
+%
+\item\label{enu:lstrse} Wenn das in Schritt~\ref{enu:lobjed} von
+Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{enu:lobjed}}) erhaltene
+aktuelle transiente \clsdo\ und das in Schritt~\ref{enu:lstrcld}
+erhaltene referenzierte transiente \clsdo\ nicht identisch sind, wird
+die persistente \representation{} des Strukturobjektes in die durch das
+aktuelle transiente \clsdo\ von Schritt~\ref{enu:lobjed} von
+Protokoll~\ref{pro:lobj} \stfn{(load-object)}\
+(\citepage{\pageref{enu:lobjed}}) vorgegebene Repr\"{a}sentation
+transformiert, sofern sich die Anzahl der \Slt[s]\/ nicht erh\"{o}ht hat:
+%
+\begin{block}
+%
+\item Die \Slt\/-Zust\"{a}nde werden in der persistenten Repr\"{a}sentation
+von ihrer bisherigen Position an die Position des gleichnamigen
+\Slt[s]\/ der aktuellen transienten Strukturbeschreibung verschoben.
+%
+\item\label{enu:lstrupd} Die Strukturbeschreibung des persistenten
+Strukturobjektes wird auf das in Schritt~\ref{enu:lobjed} von
+Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{enu:lobjed}}) ermittelte
+aktuelle transiente \clsdo\ ge\-\"{a}n\-dert, d.h.\ in das Feld mit der
+Strukturbeschreibung wird die \objid\ der zum aktuellen transienten
+\clsdo\ geh\"{o}rigen persistenten \representation{} eingetragen.
+%
+\end{block}%
+%
+\item Wenn in Schritt~\ref{enu:lstrupd} die Strukturbeschreibung des
+Strukturobjektes ge\-\"{a}n\-dert wurde, wird die Liste der \sltdo[e]\ aus
+dem in Schritt~\ref{enu:lobjed} von Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{enu:lobjed}}) erhaltenem
+aktuellem transientem \clsdo\ gelesen; ansonsten wird die Liste der
+\sltdo[e]\ aus dem in Schritt~\ref{enu:lstrcld} erhaltenem
+referenziertem transientem \clsdo\ gelesen:\\ 
+\stfn{(class-effective-slots)}
+%
+\item F\"{u}r jeden \Slt, dessen Zustands-Lebensdauer nicht als
+\lisp{:transient}\ deklariert wurde:
+%
+\begin{block}
+%
+\item Rufe f\"{u}r die im \Slt\/ enthaltene \sobjid\/ die \gfn\\
+\stfn{(p-objid-to-t-object)}\\
+auf, d.h.\ das Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{pro:lobj}}) wird mit
+Schritt~\ref{enu:lotop} aufgerufen. Die daraus erhaltene transiente
+\representation{} des \Slt\/-Zustands wird in den \Slt\/ des transienten
+Strukturobjektes eingetragen.
+%
+\end{block}
+%
+\end{infol}
+%
+%
+\begin{infol}%
+%
+\acaption%
+ {Subprotokoll f\"{u}r das Laden einer transienten
+  \protect\clos-Instanz}%
+ [(p-instance)]%
+ \label{pro:lcli}%
+%
+\item\label{enu:lclcld} Das referenzierte \clsdo\ wird aus dem Feld
+mit der Klassenbeschreibung (\figurename~\ref{fig:pcivec},
+\citepage{\pageref{fig:pcivec}}) der \clos-Instanz wie im
+Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{pro:lobj}}) angegeben
+geladen.
+%
+\item\label{enu:lclse} Wenn das in Schritt~\ref{enu:lobjed} von
+Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{enu:lobjed}}) erhaltene
+aktuelle transiente \clsdo\ und das in Schritt~\ref{enu:lclcld}
+erhaltene referenzierte transiente \clsdo\ nicht identisch sind:
+%
+\begin{block}%
+%
+\item Der Zustandsvektor der persistenten \clos-Instanz wird in
+die durch das aktuelle transiente \clsdo\ von Schritt~\ref{enu:lobjed}
+von Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{enu:lobjed}}) vorgegebene
+\representation{} transformiert. F\"{u}r die Transformation werden die
+Zust\"{a}nde gleichnamiger \Slt[s]\/ aus dem alten in einen neu
+allozierten persistenten Zustandsvektor kopiert.
+%
+\item Der neu aufgebaute persistente Zustandsvektor wird in die
+persistente \clos-Instanz eingetragen.
+%
+\item Die Klassenbeschreibung der persistenten \clos-Instanz wird auf
+das in Schritt~\ref{enu:lobjed} von Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{enu:lobjed}}) ermittelte
+aktuelle transiente \clsdo\ ge\-\"{a}n\-dert, d.h.\ in das Feld mit der
+Klassenbeschreibung wird die \objid\ der zum aktuellen transienten
+\clsdo\ geh\"{o}rigen persistenten \representation{} eingetragen. 
+%
+\end{block}%
+%
+Jetzt ist sichergestellt, da\ss{} das \clsdo\ der \clos-Instanz
+und die Klassendefinition im transienten System zueinander passen.
+%
+\item Aus dem in Schritt~\ref{enu:lobjed} von Protokoll~\ref{pro:lobj}
+\stfn{(load-object)} (\citepage{\pageref{enu:lobjed}}) erhaltenem
+aktuellem transientem \clsdo\ wird die Liste der \sltdo[e]\ gelesen:\\ 
+\stfn{(class-effective-slots)}
+%
+\item F\"{u}r jeden \Slt, dessen Zustands-Lebensdauer als
+\lisp{:cached}\ deklariert wurde:
+%
+\begin{block}
+%
+\item\label{enu:lclidx} Aus der zum \Slt\/ geh\"{o}rigen Komponente des
+durch das Referenzfeld referenzierten Zustandsvektors
+(\figurename~\ref{fig:pcivec}, \citepage{\pageref{fig:pcivec}}) der
+persistenten \clos-Instanz werden die \sobjid\/ und die Typkennung des
+vom \Slt\/ referenzierten persistenten Objektes gelesen:\\
+\stfn{(p-index)}
+%
+\item Referenziert die in Schritt~\ref{enu:lclidx} erhaltene
+\sobjid\/ in Verbindung mit der Typkennung das Markierungsobjekt
+\rglq{}ungebundener \Slt\rgrq, ist der persistente \Slt\/ ungebunden;
+dem\-ent\-spre\-chend wird die Bindung des \Slt[s]\/ in der
+transienten \representation{} aufgehoben:\\
+\stfn{(slot-makunbound)}
+%
+\item Ist der persistente \Slt\/ gebunden, rufe mit der
+der in Schritt~\ref{enu:lclidx} enthaltenen \sobjid\/ und
+Typkennung die \gfn\\
+\stfn{(p-objid-to-t-object)}\\
+auf, d.h.\ das Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}\ (\citepage{\pageref{pro:lobj}}) wird mit
+Schritt~\ref{enu:lotop} aufgerufen. Die daraus erhaltene transiente
+\representation{} des \Slt\/-Zustands wird in den \Slt\/ der transienten
+\clos-Instanz eingetragen.
+%
+\end{block}
+%
+\end{infol}
+%
+\par{}Der Zustand eines nur im transienten Speicher repr\"{a}sentierten
+\Slt[s]\/ einer Instanz einer \clos\ Klasse
+(\figurename~\ref{fig:extent}, \citepage{\pageref{fig:extent}},
+\Slt\/-Lebensdauer \lisp{:transient}) wird, sofern die transiente
+\clos\ \representation{} im Verlauf des Ladens erzeugt wurde, auf den
+Zustand gesetzt, der sich aus seinem Initialisierungsausdruck ergibt.
+F\"{u}r \Slt[s]\/ von Strukturobjekten wird analog dazu der f\"{u}r den
+\Slt\/ in der Definition angegebene Initialisierungswert benutzt.
+%
+\subsubsection{Schemaentwicklung}
+%
+%\iffalse%
+\iftrue%
+Schritt~\ref{enu:lstrse} von Subprotokoll~\ref{pro:lstr}
+bzw.\ \ref{pro:lcli} beschreibt
+\else%
+Schritt~\ref{enu:lstrse} von Subprotokoll~\ref{pro:lstr}
+bzw.\ Schritt~\ref{enu:lclse} von Subprotokoll \ref{pro:lcli}
+beschreiben
+\fi%
+die momentan realisierte Schemaentwicklung f\"{u}r Struktur-
+bzw.\ \clos-Objekte. Sie besteht darin, die persistente
+\representation{} eines
+persistenten Objektes beim n\"{a}chsten Zugriff nach einer Neuablage
+einer Klassenbeschreibung destruktiv auf die durch
+die aktuelle Klassenbeschreibung gegebene \representationform{}
+anzupassen (\gande{inkrementelle Konvertierung}{incremental
+conversion}\ \cite[\citepage{454}]{bib:bj89}) und die Referenz auf das
+\clsdo\ entsprechend zu \"{a}ndern (\figurename~\ref{fig:plsche},
+\citepage{\pageref{fig:plsche}}). F\"{u}r persistente \clos-Instanzen
+bleibt ihre Identit\"{a}t auch nach der \"{A}nderung immer erhalten; f\"{u}r
+persistente Strukturobjekte ist eine Schemaentwicklung zur Zeit nur
+dann m\"{o}glich, wenn sich die Anzahl der \Slt[s]\/ nicht erh\"{o}ht hat.
+%
+\par{}Es ist geplant, in einer sp\"{a}teren Programmversion mehrere Arten
+f\"{u}r die Schemaentwicklung zur Verf\"{u}gung zu stellen; welche Art benutzt
+werden soll, geht dann aus der f\"{u}r die Klasse deklarierten Art der
+Schemaentwicklung hervor. Um eine Schemaentwicklung auch f\"{u}r verschieden
+realisierte 3.~Schichten zu erhalten, soll ihre Verarbeitung
+aus der 3.\ in die 2.~Schicht verlegt werden.
+%
+\subsubsection{Zugriff auf den Objektzustand}
+%
+\paragraph{Passiv-persistente Objekte}
+%
+Auf pas\-siv-per\-si\-sten\-te Instanzen kann entweder mit
+\swizzling\ oder \"{u}ber die direkte Manipulation der persistenten
+\representation{} zugegriffen werden.
+%
+\subparagraph{\protect\swizzling}%
+%
+Die transiente \representation{} eines passiv-persistenten Objektes wird
+entweder explizit durch einen Aufruf einer entsprechenden Funktion
+(Protokoll~\ref{pro:lobj} \stfn{(load-object)},
+\citepage{\pageref{pro:lobj}}) geladen oder implizit erzeugt, wenn das
+passiv-persistente Objekt von einer zu ladenden Instanz referenziert
+wird. Auf die transiente \representation{} kann mit den \"{u}blichen
+\cl\ Funktionen zugegriffen werden. Der Abgleich zwischen der
+transienten und persistenten Re\-pr\"{a}\-sen\-ta\-tion eines
+passiv-persistenten Objektes erfolgt entweder explizit durch Aufruf
+einer entsprechenden Funktion (Protokoll~\ref{pro:sobj}
+\stfn{(store-object)}, \citepage{\pageref{pro:sobj}}) oder implizit,
+sofern es von einer zu sichernden Instanz referenziert wird.
+%
+\subparagraph{Direkte Manipulation der persistenten Repr\"{a}sentation}
+%
+Zur direkten Manipulation der persistenten \representations{} gibt es 
+entsprechende Funktionen; analog zu \wood\ \cite{bib:wo93} wurde
+als Name einer direkt auf einer persistenten Repr\"{a}sentation
+arbeitenden Funktion eine Konkatenation des Pr\"{a}fixes
+\rglq{}p-\rgrq\ mit dem in \cite{bib:st90} definierten Namen der auf
+einer transienten \representation{} gleichen Typs arbeitenden Funktion
+gebildet; beispielsweise gibt die Funktion \stfn{p-car}\ das erste
+Element einer persistenten {\em cons\/}-Zelle zur\"{u}ck.
+%
+\par{}Auf die Zust\"{a}nde der \Slt[s]\/ von persistenten Struktur- und
+\clos-Objekten kann direkt mit den Funktionen
+\stfn{slot-\ldots}\footnote{Im einzelnen sind dies die Funktionen
+\stfn{slot-value}, \stfn{(setf slot-value)},
+\stfn{slot-boundp}\ und \stfn{slot-makunbound}.}\ zugegriffen werden.
+Dazu wird an diese Funktionen anstatt einer transienten
+\representation{} eines persistenten Struktur- oder \clos-Objektes
+eine \sobjid\/ \"{u}ber\-ge\-ben; die \spc[n]\ \mtd[n]\ greifen in
+diesem Fall immer direkt auf die persistente Re\-pr\"{a}\-sen\-ta\-tion
+zu.
+%
+\paragraph{Aktiv-persistente Instanzen}
+%
+F\"{u}r Instanzen von aktiv-persistenten Klassen erfolgt der Zugriff auf
+den Objektzustand \"{u}ber Methoden der
+\gfn[n]en\ \stfn{slot-\ldots-using-class}, die auf die
+\clsmc\ \class{persistent-metaclass}\ spezialisiert sind.
+%
+\par{}Die \spc[n]\ \mtd[n]\ der generischen Funktionen \stfn{(setf
+slot-value-using-class)}\ und
+\stfn{slot-\lb{}makunbound-\lb{}using-\lb{}class}\ pflegen den f\"{u}r
+einen \Slt\/ deklarierten Index; in der Methode zu \stfn{(setf
+slot-value-using-class)}\ werden persistente \clos-Instanzen zu ihrem
+\Slt\/-Zustand assoziiert, in der Methode zu
+\stfn{slot-makunbound-using-class}\ wird eine bestehende Assoziation
+aufgehoben. F\"{u}r eine sp\"{a}tere Programmversion ist geplant, diese
+Indexverwaltung in die 2.~Schicht zu verschieben.
+%
+\begin{infol}
+%
+\acaption%
+ {{Protokoll f\"{u}r das Schreiben eines \protect\Slt\/-Zustands einer
+   aktiv-persistenten \clos-Instanz}}%
+ [(setf slot-value-using-class)]\label{pro:stsl}%
+%
+\item\label{enu:stsltr} Sofern noch keine Transaktion aktiv ist, wird
+eine Transaktion gestartet:\\
+\stfn{(with-transaction)}
+%
+\item Ermittle die \sobjid\/ der persistenten \clos-Instanz:\\
+\stfn{(persistent-object-objid)}\\
+Damit wird der von der Superklasse
+\class{persistent-clos-object}\ geerbte
+\Slt\/ mit der \sobjid\/ (Protokoll~\ref{pro:defclass}
+\stfn{(defclass)}, Schritt~\ref{enu:dcinit},
+\citepage{\pageref{enu:dcinit}}) der persistenten \representation{} der
+\clos-Instanz gelesen. Ist die \sobjid\/ \lispnil, wird die
+persistente \representation{} des Objektes alloziert:\\
+\stfn{(p-allocate-instance)}
+%
+\item Das den \Slt\/ repr\"{a}sentierende \sltdo\ wird gesucht:\\
+\stfn{(find-effective-slot-description)}\\
+Im Verlauf der Auswertung von
+\stfn{(find-effective-slot-description)}\ wird das
+Protokoll~\ref{pro:escl}
+\stfn{\enscldescr}\ (\citepage{\pageref{pro:escl}}) aufgerufen.
+%
+\item Wenn die Lebensdauer des \Slt\/-Zustands als
+\lisp{:persistent}\ oder
+\lisp{:cached-\lb{}write-\lb{}through}\ (\figurename~\ref{fig:extent},
+\citepage{\pageref{fig:extent}}) deklariert wurde, speichere den
+neuen \Slt\/-Zustand in der persistenten Repr\"{a}sentation:
+%
+\begin{block}
+%
+\item\label{enu:stslov} Wenn f\"{u}r den \Slt\/ ein Index deklariert
+wurde, wird zun\"{a}chst der alte \Slt\/-Zustand wie in
+Protokoll~\ref{pro:losl} \stfn{(slot-value-using-class)}\ %
+(\citepage{\pageref{pro:losl}}) angegeben
+gelesen:\\
+\stfn{(slot-value-using-class)}
+%
+\item Aus der persistenten \representation{} des Objektes wird die
+\sobjid\/ des Zustandsvektors (\figurename~\ref{fig:pcivec},
+\citepage{\pageref{fig:pcivec}}) gelesen:\\
+\stfn{(get-instance-vector-and-location)}
+%
+\item\label{enu:stslnv} Der neue \Slt\/-Zustand wird mit einen Aufruf
+der \gfn\\
+\stfn{(t-object-to-p-objid)}\\
+im persistenten Speicher abgelegt (Protokoll~\ref{pro:sobj}
+\stfn{(store-object)}, Schritt~\ref{enu:sotop},
+\citepage{\pageref{enu:sotop}}). Die erhaltene
+\sobjid\/ und Typkennung wird in den Zustandsvektor an der durch
+die Po\-si\-tions-In\-for\-ma\-tion des \sltdo[es]\ gegebenen Position
+eingetragen.
+%
+\item Wenn f\"{u}r den \Slt\/ ein Index deklariert wurde:
+%
+\begin{block}
+%
+\item\label{enu:stsldk} Pr\"{u}fe, ob der unter Schritt~\ref{enu:stslnv}
+gespeicherte neue \Slt\/-Zustand in der Indextabelle bereits zu einer
+persistenten \clos-Instanz assoziiert ist:\\
+\stfn{(getindex-by-tag)}\\
+Wenn eine persistente Instanz gefunden wird und sie
+nicht identisch zu der an dieses Protokoll \"{u}bergebenen Instanz ist,
+ist der neue \Slt\/-Zustand bereits als Schl\"{u}s\-sel auf eine andere
+persistente \clos-Instanz vergeben; in diesem Fall wird ein Fehler
+signalisiert.
+%
+\item Entferne aus der Indextabelle die Assoziation vom alten in
+Schritt~\ref{enu:stslov} ermittelten \Slt\/-Zustand auf die
+persistente \clos-Instanz:\\
+\stfn{(remindex-by-tag)}
+%
+\item Assoziiere in der Indextabelle den neuen in
+Schritt~\ref{enu:stslnv} gespeicherten \Slt\/-Zustand zur persistenten
+\clos-Instanz:\\
+\stfn{(setf getindex-by-tag)}
+%
+\end{block}
+%
+\item Wenn die Lebensdauer des \Slt\/-Zustands als
+\lisp{:cached-write-through}\ deklariert wurde, speichere den
+neuen \Slt\/-Zustand auch in der transienten Repr\"{a}sentation:\\
+\stfn{(call-next-method)}
+%
+\end{block}
+%
+\item sonst wird der neue \Slt\/-Zustand mithilfe der \std-Methode
+lediglich in die transiente \representation{} eingetragen:\\
+\stfn{(call-next-method)}
+%
+\item Wenn in Schritt~\ref{enu:stsltr} eine Transaktion gestartet
+wurde, wird sie in diesem Schritt beendet. Damit werden alle innerhalb
+der Transaktion gesetzten Sperren aufgehoben.
+%
+\end{infol}
+%
+In der momentanen Programmversion sind keine \gande{doppelten
+Schl\"{u}ssel}{duplicate keys}\ f\"{u}r einen Index zugelassen; die Pr\"{u}fung
+auf einen doppelten Schl\"{u}ssel erfolgt in Schritt~\ref{enu:stsldk} und
+signalisiert gegebenenfalls einen Fehler. F\"{u}r eine sp\"{a}tere
+Programmversion ist geplant, beim Auftreten von doppelten Schl\"{u}sseln
+die zum \Slt\/-Zustand assoziierten persistenten \clos-Instanzen in
+einer Liste abzulegen.
+%
+\begin{infol}
+%
+\acaption%
+ {{Protokoll f\"{u}r das Aufheben der Bindung eines
+   \protect\Slt[s]\/ einer ak\-tiv-per\-si\-sten\-ten
+   \clos-Instanz an einen Wert}}%
+ [(slot-makunbound-using-class)]%
+ \label{pro:musl}%
+%
+\item\label{enu:musltr} Sofern noch keine Transaktion aktiv ist, wird
+eine Transaktion gestartet:\\
+\stfn{(with-transaction)}
+%
+\item Ermittle die \sobjid\/ der persistenten \clos-Instanz:\\
+\stfn{(persistent-object-objid)}
+%
+\item Das den \Slt\/ repr\"{a}sentierende \sltdo\ wird gesucht:\\
+\stfn{(find-effective-slot-description)}\\
+Im Verlauf der Auswertung von
+\stfn{(find-effective-slot-description)}\ wird das
+Protokoll~\ref{pro:escl}
+\stfn{\enscldescr}\ (\citepage{\pageref{pro:escl}}) aufgerufen.
+%
+\item Wenn die Lebensdauer des \Slt\/-Zustands als
+\lisp{:persistent}\ oder
+\lisp{:cached-\lb{}write-\lb{}through}\ (\figurename~\ref{fig:extent},
+\citepage{\pageref{fig:extent}}) deklariert wurde, hebe die
+Bindung des \Slt[s]\/ in der persistenten \representation{} auf:
+%
+\begin{block}
+%
+\item\label{enu:muslov} Wenn f\"{u}r den \Slt\/ ein Index deklariert
+wurde, wird zun\"{a}chst der alte \Slt\/-Zustand wie in
+Protokoll~\ref{pro:losl} \stfn{(slot-value-using-class)}\ %
+(\citepage{\pageref{pro:losl}}) angegeben gelesen:\\
+\stfn{(slot-value-using-class)}
+%
+\item Aus der persistenten \representation{} des Objektes wird die
+\sobjid\/ des Zustandsvektors (\figurename~\ref{fig:pcivec},
+\citepage{\pageref{fig:pcivec}}) gelesen:\\
+\stfn{(get-instance-vector-and-location)}
+%
+\item In den Zustandsvektor wird an der durch
+die Po\-si\-tions-In\-for\-ma\-tion des \sltdo[es]\ gegebenen Position
+das Markierungsobjekt \rglq{}ungebundener \Slt\rgrq\ eingetragen.
+%
+\item Wenn f\"{u}r den \Slt\/ ein Index deklariert wurde, wird
+aus der Indextabelle die Assoziation vom in
+Schritt~\ref{enu:muslov} ermittelten \Slt\/-Zustand auf die
+persistente \clos-Instanz entfernt:\\
+\stfn{(remindex-by-tag)}
+%
+\item Wenn die Lebensdauer des \Slt\/-Zustands als
+\lisp{:cached-write-through}\ deklariert wurde, wird auch die Bindung
+des \Slt[s]\/ in der transienten \representation{} aufgehoben:\\
+\stfn{(call-next-method)}
+%
+\end{block}
+%
+\item sonst wird lediglich die Bindung des \Slt[s]\/ mithilfe der
+\std-Methode in der transienten \representation{} aufgehoben:\\
+\stfn{(call-next-method)}
+%
+\item Wenn in Schritt~\ref{enu:musltr} eine Transaktion gestartet
+wurde, wird sie in diesem Schritt beendet. Damit werden alle innerhalb
+der Transaktion gesetzten Sperren aufgehoben.
+%
+\end{infol}
+%
+%
+\begin{infol}
+%
+\acaption%
+ {{Protokoll f\"{u}r das Lesen eines \protect\Slt\/-Zustands einer
+   aktiv-persistenten \protect\clos-Instanz}}%
+ [(slot-value-using-class)]%
+ \label{pro:losl}%
+%
+\item\label{enu:ldsltr} Sofern noch keine Transaktion aktiv ist, wird
+eine Transaktion gestartet:\\
+\stfn{(with-transaction)}
+%
+\item Ermittle die \sobjid\/ der persistenten \clos-Instanz:\\
+\stfn{(persistent-object-objid)}
+%
+\item Das den \Slt\/ repr\"{a}sentierende \sltdo\ wird gesucht:\\
+\stfn{(find-effective-slot-description)}\\
+Im Verlauf der Auswertung von
+\stfn{(find-effective-slot-description)}\ wird das
+Protokoll~\ref{pro:escl}
+\stfn{\enscldescr}\ (\citepage{\pageref{pro:escl}}) aufgerufen.
+%
+\item Wenn die Lebensdauer des \Slt\/-Zustands als
+\lisp{:persistent}\ deklariert wurde, lade den
+\Slt\/-Zustand aus der persistenten Repr\"{a}sentation:
+%
+\begin{block}
+%
+\item Aus der persistenten \representation{} des Objektes wird die
+\sobjid\/ des Zustandsvektors gelesen:\\
+\stfn{(get-instance-vector-and-location)}
+%
+\item\label{enu:ldslld} Der \Slt\/-Zustand befindet sich im
+Zustandsvektor an der durch die Po\-si\-tions-In\-for\-ma\-tion des
+\sltdo[es]\ gegebenen Position; er wird mit einem Aufruf der \gfn\\
+\stfn{(p-objid-to-t-object)}\\
+mit der \sobjid\/ und der Typkennung des vom \Slt\/ referenzierten
+persistenten Objektes geladen (Protokoll~\ref{pro:lobj}
+\stfn{(load-object)}, Schritt~\ref{enu:lotop},
+\citepage{\pageref{enu:lotop}}).
+%
+\end{block}
+%
+\item\label{enu:ldslcn} sonst wird der \Slt\/-Zustand mithilfe der
+\std-Methode lediglich aus der transienten \representation{} geladen:\\
+\stfn{(call-next-method)}
+%
+\item Wenn in Schritt~\ref{enu:ldsltr} eine Transaktion gestartet
+wurde, wird sie in diesem Schritt beendet. Damit werden alle innerhalb
+der Transaktion gesetzten Sperren aufgehoben.
+%
+\item Als Ergebnis des Protokolls~\ref{pro:losl}
+\stfn{(slot-value-using-class)}\ wird das Ergebnis von
+Schritt~\ref{enu:ldslld} bzw.\ \ref{enu:ldslcn}
+zu\-r\"{u}ck\-ge\-ge\-ben.
+%
+\end{infol}
+%
+%
+\begin{infol}
+%
+\acaption%
+ {{Protokoll f\"{u}r die Pr\"{u}fung, ob ein \protect\Slt\/ einer
+   aktiv-persistenten \clos-Instanz an einen Wert gebunden ist}}%
+ [(slot-boundp-using-class)]\label{pro:bpsl}%
+%
+\item\label{enu:bpsltr} Sofern noch keine Transaktion aktiv ist, wird
+eine Transaktion gestartet:\\
+\stfn{(with-transaction)}
+%
+\item Ermittle die \sobjid\/ der persistenten \clos-Instanz:\\
+\stfn{(persistent-object-objid)}
+%
+\item Das den \Slt\/ repr\"{a}sentierende \sltdo\ wird gesucht:\\
+\stfn{(find-effective-slot-description)}\\
+Im Verlauf der Auswertung von
+\stfn{(find-effective-slot-description)}\ wird das
+Protokoll~\ref{pro:escl}
+\stfn{\enscldescr}\ (\citepage{\pageref{pro:escl}}) aufgerufen.
+%
+\item Wenn die Lebensdauer des \Slt\/-Zustands als
+\lisp{:persistent}\ deklariert wurde, pr\"{u}fe die Bindung
+des \Slt[s]\/ in der persistenten Repr\"{a}sentation:
+%
+\begin{block}
+%
+\item Aus der persistenten \representation{} des Objektes wird die
+\sobjid\/ des Zustandsvektors gelesen:\\
+\stfn{(get-instance-vector-and-location)}
+%
+\item\label{enu:bpslld} Im Zustandsvektor wird an der durch
+die Po\-si\-tions-In\-for\-ma\-tion des \sltdo[es]\ gegebenen Position
+gepr\"{u}ft, ob sich dort nicht das Markierungsobjekt \rglq{}ungebundener
+\Slt\rgrq\ befindet.
+%
+\end{block}
+%
+\item\label{enu:bpslcn} sonst wird lediglich die Bindung des \Slt[s]\
+mithilfe der \std-Methode in der transienten Repr\"{a}sentation
+gepr\"{u}ft:\\
+\stfn{(call-next-method)}
+%
+\item Wenn in Schritt~\ref{enu:ldsltr} eine Transaktion gestartet
+wurde, wird sie in diesem Schritt beendet. Damit werden alle innerhalb
+der Transaktion gesetzten Sperren aufgehoben.
+%
+\item Als Ergebnis des Protokolls~\ref{pro:bpsl}
+\stfn{(slot-boundp-using-class)}\ wird das Ergebnis von
+Schritt \ref{enu:bpslld} bzw.\ \ref{enu:bpslcn} zur\"{u}ckgegeben.
+%
+\end{infol}
+%
+%\subsubsection{Funktionen}
+%
+%%
+%\subsubsection{Versionen}
+%%
+%Versionen werden f\"{u}r \clsdo[e]\ unterst\"{u}tzt.
+%%
+%Beim Speichern oder Laden eines persistenten Objektes wird gepr\"{u}ft,
+%ob sein \clsdo\ gleich ist zu dem aus der aktuellen transienten
+%Klassendefinition gewonnenem \clsdo; sofern Unterschiede festgestellt
+%werden, wird die neue Version des
+%\clsdo[es]\ im persistenten Speicher abgelegt.
+%%
+%
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

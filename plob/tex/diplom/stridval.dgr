@@ -1,0 +1,33 @@
+%	This is -*-LaTeX-*-
+%
+% 04.10.93
+%
+\input{diagdefs}%
+%
+\mkdotdarrow%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{0.2ex}%
+\objectmargin{\stdomargin}%
+%
+\begin{diagram}%
+%
+\save\go[2,0]\merge\framed\restore%
+\makebox[\cstiw]{\lisp{STRUKT\protect\us{}BEZ}}\\
+\makebox[\cstiw]{\hrulefill}\\
+\makebox[\cstiw]{\lisp{<INTEGER\protect\us{}5>}}%
+\xdotted[0,1]|>{\tip}%
+		&\framed<5pt>\makebox{\lisp{5}}\\
+\save\Drop{\parbox{\cstiw}{\raggedright\footnotesize{}%
+\ \\[2ex]Wertstrukturierter Bezeichner}}\restore%
+		&\rule{0em}{2ex}\text{\textrm{\footnotesize{}%
+		 Ganze Zahl 5}}\\
+	&\rule{0em}{4ex}%
+	 \save\Drop{\text{\textrm{\footnotesize%
+	 \raisebox{0.5ex}{\dotdarrow}
+	 Schwache Kopplung (Methode)}}}\restore%
+%
+\end{diagram}%

@@ -1,0 +1,45 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+\def\class#1{#1}
+%
+\newsavebox{\mleg}\sbox{\mleg}{{\mknleg}}%
+%
+\newlength{\omargin}\setlength{\omargin}{4pt}
+\objectmargin{\omargin}%
+\def\objectstyle{\hbox}%
+\spreaddiagramrows{-1pc}%
+\spreaddiagramcolumns{-1pc}%
+%
+\begin{diagram}
+%
+	&\dgc{\textrm{\class{metaobject}}}\\
+\dgc{\textrm{\class{class}}}%
+\subclassof[-1,1]|>\stip%
+		&\dgc{\textrm{\class{slot-definition}}}%
+		 \subclassof[-1,0]|>\stip%
+			&\dgc{\textrm{\class{standard-slot-}}\\%
+			      \textrm{definition}}%
+			 \subclassof[-1,-1]|>\stip\\
+\dgc{\textrm{\class{standard-}}\\
+     \textrm{\class{class}}}\subclassof[-1,0]|>\stip
+		&\dgc{\textrm{\class{standard-direct-}}\\
+		      \textrm{\class{slot-definition}}}%
+		 \subclassof[-1,0]|>\stip
+		 \subclassof[-1,1]|>\stip
+			&\dgc{\textrm{\class{standard-effective-}}\\
+			      \textrm{\class{slot-definition}}}%
+			 \subclassof[-1,0]|>\stip%
+			 \subclassof[-1,-1]|>\stip%
+				&\save\go+<4em,0ex>%
+				 \Drop{\usebox{\mleg}}\restore\\
+\dgmc{\textrm{\class{persistent-}}\\
+      \textrm{\class{metaclass}}}\subclassof[-1,0]|>\stip
+		&\dgmc{\textrm{\class{persistent-direct-}}\\
+		       \textrm{\class{slot-definition}}}%
+		 \subclassof[-1,0]|>\stip
+			&\dgmc{\textrm{\class{persistent-effective-}}\\
+			       \textrm{\class{slot-definition}}}%
+			 \subclassof[-1,0]|>\stip\\
+%
+\end{diagram}%

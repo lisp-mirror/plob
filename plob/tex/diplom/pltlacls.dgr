@@ -1,0 +1,46 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+\def\class#1{#1}
+%
+\newsavebox{\mleg}\sbox{\mleg}{{\mknleg}}%
+%
+\newlength{\omargin}\setlength{\omargin}{4pt}
+\objectmargin{\omargin}%
+\def\objectstyle{\hbox}%
+\spreaddiagramrows{-1pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\def\mkdescr#1{\begin{diagram}\dgmc{\textrm{\class{#1}}}\end{diagram}}%
+\def\mkmdescr#1{\begin{diagram}\dgc{\textrm{\class{#1}}}\end{diagram}}%
+%
+\newsavebox{\stdrm}\sbox{\stdrm}{\mkmdescr{standard-reader-method}}%
+\newsavebox{\stdwm}\sbox{\stdwm}{\mkmdescr{standard-writer-method}}%
+\newsavebox{\perrm}\sbox{\perrm}{\mkdescr{persistent-reader-method}}%
+\newsavebox{\perwm}\sbox{\perwm}{\mkdescr{persistent-writer-method}}%
+%
+\begin{diagram}
+%
+	%&\dgc{\textrm{\class{metaobject}}}\\
+	&\dgc{\textrm{\class{method}}}%
+	 %\subclassof[-1,0]|>\stip%
+	 \\%
+ 	&\dgc{\textrm{standard-method}}\subclassof[-1,0]|>\stip%
+		&\save\go+<8em,0ex>%
+		 \Drop{\usebox{\mleg}}\restore\\
+	&\dgc{\textrm{\class{standard-accessor-method}}}%
+	 \subclassof[-1,0]|>\stip\\
+\save\Drop{\grow<-\omargin>{\usebox{\stdrm}}}%
+\subclassof[-1,1]|>\stip\restore%
+\rule{0em}{\ht\stdrm}
+		&&\save\Drop{\grow<-\omargin>{\usebox{\stdwm}}}%
+		  \subclassof[-1,-1]|>\stip\restore%
+		  \rule{0em}{\ht\stdrm}\\
+\save\Drop{\grow<-\omargin>{\usebox{\perrm}}}%
+\subclassof[-1,0]|>\stip\restore
+\rule{0em}{\ht\perrm}
+		&&\save\Drop{\grow<-\omargin>{\usebox{\perwm}}}%
+		  \subclassof[-1,0]|>\stip\restore%
+		  \rule{0em}{\ht\perwm}
+%
+\end{diagram}%

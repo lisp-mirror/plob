@@ -1,0 +1,1189 @@
+% This is -*-LaTeX-*-
+%
+\chapter{Pro\-gram\-mier\-kon\-zep\-te in persistenten
+\protect\clos-Systemen}%
+\label{chap:cltodb}%
+%
+In diesem Kapitel werden Programmierkonzepte erl\"{a}utert, die
+f\"{u}r ein persistentes Objektsystem wichtig sind und dementsprechend
+auch realisiert werden sollten. Ebenso werden hier
+Realisierungskonzepte erkl\"{a}rt, die allen auf \clos\ basierenden
+persistenten Objektsystemen gemeinsam sind; die aus diesen Konzepten
+resultierenden Einschr\"{a}nkungen werden auch diskutiert. Dieser
+Abschnitt bildet damit die Grundlage f\"{u}r die in den
+sp\"{a}teren Kapiteln beschriebenen Realisierungen von persistenten
+Objektsystemen.
+%
+\par{}Die allgemeinen Konzepte von objekt-orientierten Datenbanken
+werden sehr ausf\"{u}hrlich in \cite[\citepage{1--32}]{bib:zd90}
+geschildert.
+%
+\section{Der \protect\cache}
+%
+Da der persistente Speicher eines persistenten Objektsystems
+normalerweise relativ langsam ist, wird ein \cache\/ eingesetzt, der
+die transienten Repr\"{a}sentationen aller persistenten Objekte
+referenziert, deren Zustand zwischen transientem und persistentem
+Speicher \"{u}bertragen wurde (\figurename~\ref{fig:pocache}).
+%
+\begin{figure}[htbp]
+%
+\centering\parbox{\oshwidth}{\centering%
+\framebox[\ishwidth]{Applikation}\\[\medskipamount]
+%
+\framebox[\oshwidth]{\parbox{\oshwidth}{\centering%
+\framebox[\ishwidth]{Persistentes Objekt-System}\\[\medskipamount]
+\framebox[\ishwidth]{\cache}\\
+}}\\[\medskipamount]
+%
+\framebox[\ishwidth]{Persistenter Speicher}
+}%
+\caption{Schichtenmodell persistentes Objekt-System mit
+\protect\cache}%
+\label{fig:pocache}
+\end{figure}
+%
+Der \cache\/ assoziiert zu einer persistenten die transiente
+Identit\"{a}tsrepr\"{a}sentation, \"{u}ber die dann der Zustand der transienten
+Repr\"{a}sentation referenziert werden kann. Oft wird mindestens f\"{u}r
+Instanzen von Basistypen auch die Umkehrabbildung realisiert.
+%
+\subsection{Effizienzsteigerung}
+%
+Bei mehrmaligem Zugriff auf den Zustand der transienten
+Repr\"{a}sentation eines persistenten Objektes k\"{o}nnen so
+Zugriffe auf den persistenten Speicher eingespart werden. Es wird
+zun\"{a}chst gepr\"{u}ft, ob die transiente Repr\"{a}sentation bereits vom
+Objekt-\cache\/ referenziert wird; wenn ja, erfolgt der Zugriff auf den
+Objektzustand \"{u}ber die aus dem \cache\/ gelesene Referenz,
+andernfalls wird der Zustand des persistenten Objektes
+in eine neu allozierte transiente Repr\"{a}sentation kopiert, die
+Referenz darauf im \cache\/ zur \objid\/ assoziiert und zur\"{u}ckgegeben.
+%
+\par{}Die Verwendung eines \cache\/ kann beim Laden sehr vieler Objekte
+dazu f\"{u}hren, da\ss{} entsprechend viele transiente Repr\"{a}sentationen
+alloziert werden und damit entsprechend viel Speicherresourcen
+verbraucht werden.
+%
+\subsection{Speicherr\"{u}ckgewinnung des transienten Systems}
+%
+F\"{u}r jede transiente Repr\"{a}sentation gibt es jeweils eine Referenz aus
+dem \cache. Dies f\"{u}hrt dazu, da\ss{} alle vom \cache\/ referenzierten
+transienten Repr\"{a}sentationen bei einer
+Spei\-cher\-r\"{u}ck\-ge\-win\-nung des transienten Systems erreichbar
+sind und nicht gel\"{o}scht werden, auch wenn die Applikation keine
+Referenzen mehr auf eine solche transiente Repr\"{a}sentation hat. Um die
+Spei\-cher\-r\"{u}ck\-ge\-win\-nung nicht zu blockieren, m\"{u}ssen entweder
+die Referenzen aus dem
+\cache\/ entfernt werden oder das verwendete \cl-System mu\ss{} sogenannte
+\gande{schwache Referenzen}{weak pointer}[Schwache Referenz][Schwache
+Referenzen werden zur Laufzeit wie normale Referenzen angesehen.
+W\"{a}hrend der \protect\see{Speicherr\"{u}ckgewinnung}\ werden schwache
+Referenzen nicht ber\"{u}cksichtigt, d.h.\ Objekte, die nur \"{u}ber
+schwache Referenzen erreichbar sind, gelten als
+nicht-erreichbar.]\ kennen, d.h.\ Referenzen, die bei der
+Speicherr\"{u}ckgewinung nicht ber\"{u}cksichtigt werden.
+%
+\section{Datentypen}
+%
+\cl\ bietet bereits sehr viele verschiedene
+\gande{Basistypen}{built-in types}\ an \stcite{12--36}; zus\"{a}tzlich
+gibt es noch die standardisierten \clos\ Klassen sowie
+systemab\"{a}ngige vordefinierte Klassen.
+%
+\par{}Der \mbox{(Ge\-samt-)}Zu\-stand eines Objektes setzt sich aus den in
+den \Slt[s]\/ des Objektes enthaltenen \mbox{(Teil-)}Zu\-st\"{a}n\-den
+zusammen.  Sie lassen sich in zwei Arten einteilen; sie k\"{o}nnen
+entweder einfache Werte oder andere Objekte referenzieren
+\cite[\citepage{7}]{bib:sche92}. Aus der Forderung nach m\"{o}glichst
+gro\ss{}er Orthogonalit\"{a}t folgt daraus, da\ss{} ein persistentes
+System beide Arten handhaben k\"{o}nnen mu\ss{}.
+%
+\subsection{Werte}%
+%
+Die f\"{u}r \ifbericht diesen Bericht \else\ifbuch dieses Buch \else
+diese Arbeit \fi\fi betrachteten Systeme verarbeiten meist nicht alle
+Werte oder schr\"{a}nken ihre Verwendung ein, z.B.\ indem
+Zeichenketten eine bestimmte L\"{a}nge nicht \"{u}berschreiten
+d\"{u}rfen.  Bei Systemen, die eine relationale Datenbank als
+persistenten Speicher verwenden, leiten sich die von diesen Systemen
+handhabbaren Werte oft direkt aus den in der relationalen Datenbank
+angebotenen Basistypen ab.
+%
+\subsection{Objekte und Klassen}%
+\label{sec:ocls}%
+%
+\begin{fortune}%
+A rose is a rose is a rose is a rose.
+\from{Gertrude Stein}
+\begin{tt}%
+\begin{tabbing}%
+(d\={}efun is-a (the-object the-class-object)\\
+  \>{}(w\={}hen (eq (class-of the-object) the-class-object)\\
+  \>    \>{}the-class-object))\\[\smallskipamount]
+(is-a \={}(is-a \={}(is-a \={}(find-class 'standard-class)\\
+      \>{}      \>{}      \>{}(find-class 'standard-class))\\
+      \>{}      \>{}(find-class 'standard-class))\\
+      \>{}(find-class 'standard-class))
+\end{tabbing}%
+\end{tt}%
+\fromwonl{\clos}%
+\end{fortune}%
+%
+Struktur und Verhalten von Objekten wird in \clos\ durch ihre
+Klasse festgelegt. F\"{u}r orthogonale persistente Systeme sollten daher
+ebenso innerhalb des persistenten Speichers persistente Objekte mit
+einer geeigneten persistenten Klassen-Repr\"{a}sentation abgelegt werden.
+%
+\subsubsection{Selbstbeschreibende Systeme}
+%
+Die Struktur und das Verhalten der im persistenten Speicher
+enthaltenen Objekte werden durch eine persistente Klassen-Repr\"{a}sentation
+explizit festgelegt; damit werden die im persistenten System
+enthaltenen Objekte unabh\"{a}ngig von der Kopplung an das benutzte
+transiente System
+\gande{selbstbeschreibend}{self-descriptive}[Selbstbeschreibendes
+System][{Ein Objektsystem ist selbst-be\-schrei\-bend, wenn Struktur
+und Verhalten aller Instanzen entweder als
+\protect\gande{\protect\rglq{}eingebaut\protect\rgrq}{built-in}\
+definiert ist oder anderweitig vom Objektsystem erfragt
+werden kann.}]. Diese Eigenschaft ist besonders n\"{u}tzlich, wenn
+unterschiedliche transiente Systeme an den persistenten Speicher
+angekoppelt werden sollen.
+%
+\subsubsection{Strukturbeschreibungen von persistenten
+\protect\clos-Objekten}%
+%
+Zur transienten Repr\"{a}sentation von persistenten Objekten werden
+\ia\ Instanzen der im transienten System vorgefundenen Klasse
+benutzt.  Damit mu\ss{} zu jedem persistenten Objekt zumindestens soviel
+Information abgelegt werden, da\ss{} die Klasse im transienten
+System lokalisiert werden kann, z.B.\ \"{u}ber den Klassennamen.
+Zus\"{a}tzlich sollten noch weitere Informationen \"{u}ber die
+Struktur des persistenten Objektes mit abgelegt werden, da
+\clos\ \"{A}nderungen an Klassendefinitionen zul\"{a}\ss{}t; ein Vergleich der
+persistenten mit der transienten Strukturinformation kann dann zur
+Erkennung einer \"{A}nderung der transienten Klassendefinition benutzt
+werden, um dann diese \"{A}nderung auf die persistente
+Strukturinformation und die betroffenen persistenten Instanzen zu
+propagieren (Schemaentwicklung).
+%
+\subsection{Funktionen}%
+\label{sec:fnmtd}%
+%
+Funktionen enthalten ausf\"{u}hrbaren maschinenabh\"{a}ngigen
+Bin\"{a}rcode, der zudem ab\-h\"{a}n\-gig vom aktuellen \cl\ 
+Proze\ss{} ist; eine \std[isierung]\ von Funktionscode erfolgte bisher
+nicht. Ein Speichern bzw.\ Laden von Code bedeutet daher, eine
+umfangreiche Transformation des Codes zwischen seiner
+Repr\"{a}sentation im transienten und im persistenten Speicher
+durchzuf\"{u}hren. Beim Speichern m\"{u}ssen die im Code enthaltenen
+Referenzen in ein pro\-ze\ss{}\-un\-ab\-h\"{a}n\-gi\-ges Format
+gebracht werden, beim Laden des Codes mu\ss{} dieses
+proze\ss{}unabh\"{a}ngige Format wieder in das proze\ss{}abh\"{a}ngige
+Format des transienten Systems umgewandelt werden. Beide
+Vor\-g\"{a}n\-ge greifen in die Interna des benutzten \cl\ ein und
+setzen damit entsprechende Kenntnisse voraus, die \ia\ nicht
+erh\"{a}ltlich sind. Wegen dieser nicht unerheblichen Schwierigkeiten
+behandeln die in \ifbericht diesem Bericht \else\ifbuch diesem Buch
+\else dieser Arbeit \fi\fi betrachteten Systeme kein Speichern oder
+Laden von Funktionscode, obwohl dies dem Gedanken der orthogonalen
+Persistenz widerspricht.
+%
+\subsection{Nicht speicherbare Objekte}
+%
+\begin{fortune}[6cm]
+Sorry, Dave, I can't do that.
+\from{HAL 9001}
+\end{fortune}
+%
+Wie im letzten Abschnitt gezeigt, kann es Objekte geben, die aus
+welchem Grund auch immer nicht speicherbar sind. Ein persistentes
+System sollte auch mit diesen F\"{a}llen kontrolliert umgehen k\"{o}nnen,
+d.h.\ insbesondere, da\ss{} diese Objekte nicht zu einem unkontrolliertem
+Fehlerabbruch f\"{u}hren, falls sie z.B.\ in Folge der Ablage eines
+speicherbaren Objektes durch die transitiv referenzierte H\"{u}lle des
+Objektes ebenfalls im persistenten Speicher abgelegt werden sollen.
+%
+\subsection{Extern persistente Objekte}%
+\label{sec:extp}%
+%
+Extern persistente Objekte sind Objekte, die nicht durch das
+persistente System selbst, sondern entweder durch ihre
+grunds\"{a}tzlichen Eigenschaften oder durch externen Einflu\ss{} (extern
+be\-z\"{u}g\-lich des persistenten Systems) die Eigenschaft der
+Persistenz erhalten. Damit er\"{u}brigt es sich f\"{u}r das persistente
+System, diese Objekte nochmals persistent abzulegen, da sie diese
+Eigenschaft bereits haben; es gen\"{u}gt, eine Referenz auf diese Objekte
+im persistenten Speicher abzulegen
+\cite[\citepage{239}]{bib:he89}. Diese Referenz mu\ss{} \"{u}ber eine
+Identit\"{a}tsrepr\"{a}sentation hergestellt werden, die den in
+Abschnitt~\ref{sec:idrepr} (\citepage{\pageref{sec:idrepr}})
+dargestellten Bedingungen gen\"{u}gt.  Dateien sind z.B.\ extern
+persistente Objekte, auf die \"{u}ber den Dateinamen eine Referenz
+aufgebaut werden kann.
+%
+\par{}In diesem Zusammenhang wird ein Objekt dann und nur dann als
+extern persistent angesehen, wenn sein Gesamtzustand ausschlie\ss{}lich
+aus Teilzust\"{a}nden besteht, die entweder Werte sind oder
+weitere extern persistente Objekte referenzieren.
+%
+\par{}Bestimmte (\clos) Objekte innerhalb des transienten \cl-Systems
+k\"{o}nnen bzw.\ m\"{u}ssen als extern persistent angesehen werden. Die
+Eigenschaft der Persistenz erhalten diese Objekte dadurch, da\ss{} sie
+vom \cl-System nach jedem Start des Systems so restauriert werden, so
+da\ss{} sie \"{u}ber die Zeit ihre Identit\"{a}t behalten.  Vorbedingung f\"{u}r
+die Referenzierung von extern-persistenten Objekten ist die Existenz
+einer zur Bezugnahme auf diese Objekte geeigneten
+Identit\"{a}tsrepr\"{a}sentation.
+%
+\paragraph{Optional extern persistente Objekte}%
+%
+Als extern persistent k\"{o}nnen beispielsweise \clsmo[e]\ angesehen
+werden, deren Zustand in einer Programm-Modul-Datei persistent
+gehalten wird und deren transiente Repr\"{a}sentation als Folge des
+Ladevorgangs aufgebaut wird. Zur Bezugnahme auf ein \clsmo\ kann dann
+bei vorausgesetzter Eindeutigkeit der Name der \cls\ verwendet
+werden.
+%
+\par{}Sofern sich ein persistentes Objekt auf ein derartiges
+Objekt bezieht, mu\ss{} es sp\"{a}testens bei der Dereferenzierung des
+extern persistenten Objektes in einer geeigneten dereferenzierbaren
+Repr\"{a}sentation (z.B.\ als transientes \clos-Objekt) vorliegen; sie
+kann auch im Verlauf der Dereferenzierung selbst durch
+das persistente System erzeugt werden.
+%
+\paragraph{System-interne Objekte}%
+%
+Bestimmte vom \cl-System vordefinierte transiente Objekte sollten nur
+gelesen aber niemals \"{u}berschrieben werden; ferner wird ihr Zustand
+durch das \cl-System selbst im Verlauf des Systemstarts
+wiederhergestellt ({\em environmental objects\/}
+\cite[\citepage{33}]{bib:fo88}). Wegen des ausschlie\ss{}lich
+lesenden Zugriffs auf diese Objekte lohnt es sich nicht, sie im
+persistenten Speicher abzulegen, da ihr transienter Zustand nicht
+durch den im persistenten Speicher abgelegten Zustand \"{u}berschrieben
+werden darf; zudem sind diese Objekte in Bezug auf Persistenz
+\rglq{}uninteressant\rgrq, da sie entweder lediglich Teilzust\"{a}nde des
+\cl\ von systeminterner Bedeutung enthalten oder aber in ihrer
+Bedeutung so festgelegt sind, da\ss{} sie als konstant angenommen werden
+k\"{o}nnen.
+%
+\par{}In diese Kategorie fallen beispielsweise alle \std-\mo[e]\ der
+in \cite{bib:amop91}\ definierten \std-\mc[n]. Redefinitionen der
+\std-\mc[n]\ sind nicht erlaubt \amopcite{144}; daraus folgt, da\ss{} die
+zur Repr\"{a}sentation verwendeten \std-\mo[e]\ ebenfalls nicht direkt
+modifiziert werden d\"{u}rfen. F\"{u}r Referenzen von persistenten Objekten
+auf die \std-\mo[e]\ k\"{o}nnen z.B.\ f\"{u}r \std-\clsmc[n]\ ihre Namen
+verwendet werden.
+%
+\section{Objektrepr\"{a}sentation}
+%
+Je nach Umgebung eines persistenten Objektes bieten sich
+unterschiedliche Re\-pr\"{a}\-sen\-ta\-tions\-for\-men f\"{u}r seinen
+Zustand an.
+%
+\subsection{Objekte in relationalen Datenbanken}\label{sec:rdbpr}
+%
+Um die von einer relationalen Datenbank angebotenen
+Funktionalit\"{a}ten f\"{u}r persistente Objekte verf\"{u}gbar zu
+machen, m\"{u}ssen die dort definierten Strukturen benutzt werden; die
+in \ifbericht diesem Bericht \else\ifbuch diesem Buch \else dieser
+Arbeit \fi\fi betrachteten Systeme f\"{u}r persistente Objekte, die
+als Sekund\"{a}rspeicher eine relationale Datenbank benutzen, arbeiten
+daher nach folgendem Prinzip:
+%
+\begin{itemize}%
+%
+\item Eine Klasse mit persistenten Instanzen wird auf eine Relation
+abgebildet (1.~Zeile in \tablename~\ref{tab:objvsdb},
+\citepage{\pageref{tab:objvsdb}}); der Name der Relation wird \ia\ aus
+dem Namen der Klasse abgeleitet. Die Relation wird vor dem ersten
+Speichern einer persistenten Instanz in der Datenbank angelegt.
+%
+\item F\"{u}r jeden effektiven persistenten Slot einer solchen Klasse
+wird ein Attribut innerhalb der zur Klasse geh\"{o}rigen Relation
+definiert (3.~Zeile in \tablename~\ref{tab:objvsdb}); der Name des
+Attributes wird \ia\ aus dem Namen des
+\Slt[s]\/ abgeleitet. In den meisten relationalen Datenbanken mu\ss{} ein
+Attribut statisch typisiert werden; damit ist der Zustand eines
+\Slt[s]\/ eines persistenten Objektes auf einen Typ festgelegt. Eine
+Folge dieser Typisierung kann sein, da\ss{} der \Slt\/ nur Werte und keine
+persistenten Objekte referenzieren kann.
+%
+\item Der Zustand eines persistenten Objektes wird als Tupel in der
+Relation abgelegt, die zur Klasse des Objektes geh\"{o}rt (2.~Zeile in
+\tablename~\ref{tab:objvsdb}). Die \objid\/ des persistenten Objektes
+wird ebenfalls in einem zus\"{a}tzlichen Attribut abgelegt.
+%
+\end{itemize}
+%
+Die hier beschriebene Art der Repr\"{a}sentation f\"{u}hrt mindestens
+innerhalb des persistenten Systems zu einer unterschiedlichen
+Sichtweise von \mo[en]\ und \rglq{}normalen\rgrq\ \clos-Instanzen;
+\clsmo[e]\ werden durch Relationen, \sltmo[e]\ durch Attribute und
+\rglq{}normale\rgrq\ Instanzen durch Tupel repr\"{a}sentiert. Die
+R\"{u}ckabbildung auf ein \mo\ kann je nach verwendeter Datenbank
+schwierig werden. Einige Datenbanken bieten Zugriff auf die in
+\gande{systeminternen Relationen}{system
+catalogs}\ \cite[\citepage{430}]{bib:on94} abgelegten Informationen
+\"{u}ber die verwendeten Repr\"{a}sentationen; beispielsweise werden
+Relationen in der objekt-orientierten relationalen Datenbank
+\postgres\ in der systeminternen Relation
+\relation{pg\us{}type}\ durch einen Tupel  repr\"{a}sentiert 
+\cite[\citepage{41}]{bib:we93} und k\"{o}nnen von dort auch gelesen
+werden.
+%
+\subsection{Objekte in Objektspeichern}
+%
+Da Objektspeicher keine bestimmten Typisierungskonzepte vorschreiben,
+k\"{o}nnen die Strukturen zur Repr\"{a}sentation von Instanzen dort frei
+gew\"{a}hlt werden. Der einfachste Weg besteht darin, sie \"{a}hnlich wie
+die Strukturen des transienten Systems festzulegen; zwischen
+transienten und persistenten Objekten kann dann eine direkte Abbildung
+durchgef\"{u}hrt werden.
+%
+\subsection{Repr\"{a}sentation von persistenten Objekten im transienten
+Speicher}%
+\label{sec:porepr}
+%
+Um \"{u}berhaupt Zugriff auf den Zustand eines persistenten Objektes zu
+erhalten, mu\ss{} es im transienten Speicher repr\"{a}sentiert werden;
+der Umfang der Repr\"{a}sentation kann unterschiedlich gro\ss{} sein:
+\begin{itemize}
+%
+\item Eine minimale Repr\"{a}sentation w\"{u}rde lediglich die Informationen
+enthalten, die f\"{u}r die Adressierung der Instanz im persistenten
+Speicher notwendig w\"{a}ren, also seine \objid. Der Zugriff auf den
+Objektzustand ist dann ausschlie\ss{}lich \"{u}ber Methoden m\"{o}glich, die
+die Repr\"{a}sentation des Objektes im persistenten Speicher
+referenzieren.
+%
+\item Eine maximale Repr\"{a}sentation w\"{u}rde den gesamten Zustand des
+Objektes in den transienten Speicher kopieren; damit w\"{a}re ein Zugriff
+mit den \"{u}blichen Funktionen m\"{o}glich. Ein Problem bereitet in diesem
+Fall der Abgleich des Zustands der transienten und persistenten
+Repr\"{a}sentation. Dabei wird unter Umst\"{a}nden viel Speicherplatz
+belegt.
+%
+\end{itemize}
+Die in \ifbericht diesem Bericht \else\ifbuch diesem Buch \else dieser
+Arbeit \fi\fi betrachteten persistenten Systeme bieten teilweise
+Mischformen zwischen beiden Repr\"{a}sentationsarten an, indem z.B.\ 
+beim Laden eines persistenten Objektes zun\"{a}chst eine minimale
+Repr\"{a}sentation erzeugt wird, die bei der ersten Dereferenzierung
+des Objektzustands die maximale Repr\"{a}sentation auf \Slt\/- oder
+Objekt-Ebene alloziert und nachl\"{a}dt (Beispiel siehe
+\ifbericht%
+\cite[\citepage{74}]{bib:ki94a}%
+\else%
+Abschnitt~\ref{sec:sohaor}, \citepage{\pageref{sec:sohaor}}%
+\fi).
+%
+\section{Aktive und passive Objekte}
+%
+Die in einem \cl-System vorhandenen Objekte werden von mir in
+Anlehnung an \cite[\citepage{26}]{bib:fo88}\ nach der
+grunds\"{a}tzlich gegebenen Art der \"{A}nderung oder Erweiterung
+ihrer Semantik (im Sinne von \cite[\citepage{1}]{bib:amop91}) in
+aktive und passive Objekte eingeteilt. Im Rahmen \ifbericht dieses
+Berichtes \else\ifbuch dieses Buches \else dieser Arbeit \fi\fi wird
+die Erweiterung der Objektsemantik um Persistenz betrachtet.
+%
+\subsection{Aktive Instanzen}
+%
+Bei {\em aktiven Instanzen}\addglossary{Aktive Instanz}[{Bei einer
+aktiven Instanz kann eine \"{A}nderung oder Erweiterung ihrer Semantik
+(Erweiterung um Persistenz in diesem Rahmen) grund\-s\"{a}tz\-lich
+mittels der {\protect\em vorhandenen\/}, in \protect\cite{bib:st90}
+und \protect\cite{bib:amop91} definierten generischen
+{\protect\std-\protect\fn[en]} eingebunden werden; in
+\protect\cl\ sind alle \protect\clos-Instanzen aktive
+Instanzen.}]\ kann eine Semantikerweiterung oder -\"{a}nderung
+(Persistenz) grund\-s\"{a}tz\-lich mittels der {\em vorhandenen\/}, in
+\cite{bib:st90} und \cite{bib:amop91} definierten generischen
+\std-\fn[en]\ eingebunden
+werden. Alle Instanzen zeigen somit unabh\"{a}ngig von ihrer Lebensdauer
+nach au\ss{}en das gleiche Verhalten; persistente Instanzen unterscheiden
+sich lediglich durch ihre verl\"{a}ngerte Lebensdauer von transienten
+Instanzen. Aktive Instanzen sind die Objekte der gekapselten Klassen
+und damit insbesondere in
+\cl\ die Instanzen der \clos\ Klassen. Eine Einbindung betrifft die
+\mtd[n]\ der generischen \std-\fn[en]\ und kann auf folgende
+Arten erfolgen:
+%
+\subsubsection{Ersetzen der \protect\std-\protect\mtd[n]}
+%
+Der in \cite{bib:st90} und \cite{bib:amop91} definierte
+\std\ l\"{a}\ss{}t ein \"{U}berschreiben der f\"{u}r Persistenz relevanten
+\std-\mtd[n]\ zu; damit k\"{o}nnen sie durch \mtd[n]\ des
+persistenten Systems ersetzt werden, die beispielsweise 
+alle \Slt\/-Zugriffe auf eine im persistenten Speicher abgelegte
+Repr\"{a}sentation umleiten.
+%
+\par{}Mit dieser Ersetzung w\"{u}rden ausnahmslos alle \clos-Instanzen
+persistent werden. In einer konkreten Realisierung dieses Ansatzes
+kann es Probleme geben, da das LISP-System sich unter Umst\"{a}nden nicht
+vollst\"{a}ndig an den in \cite{bib:st90} und \cite{bib:amop91}
+definierten \std\ h\"{a}lt, beispielsweise durch den Zugriff auf
+den Objektzustand \"{u}ber Funktionen der unteren Schichten des
+Objektsystems; ebenso kann man davon ausgehen, da\ss{} die
+\std-\mtd[n]\ optimiert sind und eine Ersetzung zu erheblichen
+Effizienzverlusten f\"{u}hren kann. Wegen dieser unkalkulierbaren
+Seiteneffekte werden die \std-\mtd[n]\ daher von den meisten
+persistenten Systemen \"{a}hnlich wie systemprimitive Funktionen
+(Abschnitt~\ref{sec:simpd}, \citepage{\pageref{sec:simpd}}) angesehen,
+die besser nicht \"{u}berschrieben werden.
+%
+\par{}Nachteilig ist auch, da\ss{} diese Vorgehensweise lediglich das
+Verhalten von \clos-Instanzen modifiziert; ihre transiente Struktur
+bleibt unver\"{a}ndert. Damit k\"{o}nnen bestimmte Eigenschaften, die sich
+in Verbindung mit einem persistenten System ergeben w\"{u}rden (wie
+beispielsweise ausschlie\ss{}liche Repr\"{a}sentation eines \Slt\/-Zustands
+im persistenten Speicher), nicht realisiert werden.
+%
+\par{}Die durch diesen Ansatz realisierte Persistenz lie\ss{}e sich als
+radikal-orthogonal bezeichnen, da alle \clos-Instanzen grunds\"{a}tzlich
+persistent gehalten werden; aus pragmatischen Gr\"{u}nden sollte ein
+persistentes System aber eher annehmen, da\ss{} eine \clos-Instanz
+transient ist, bis es eine gegenteilige Information erh\"{a}lt.
+%
+\subsubsection{Erweiterung der \protect\std-\protect\mtd[n]}
+%
+Ebenso ist eine Erweiterung der in \cite{bib:st90} und
+\cite{bib:amop91} definierten f\"{u}r Persistenz relevanten
+\std-\mtd[n]\ zul\"{a}ssig, sofern ihre Funktionalit\"{a}t
+nicht eingeschr\"{a}nkt wird \amopcite{144}. Die bei einer Ersetzung
+entstehenden Nachteile lassen sich zwar zum Teil vermeiden, indem f\"{u}r
+rein transiente Objekte die \std-\mtd[n]\ und f\"{u}r persistente
+Objekte \fn[en]\ des persistenten Systems aufgerufen werden; da ein
+gro\ss{}er Teil der aufgerufenen generischen \fn[en]\ auch bei Verwendung
+eines persistenten Systems transiente Objekte referenziert, wird auch
+bei einer Erweiterung ein Effizienzverlust auftreten.
+%
+\par{}Wie bei der Ersetzung kann die Struktur der \clos-Instanzen
+nicht ver\"{a}ndert werden.
+%
+\subsubsection{\protect\Spc\ \protect\clsmc[n]\ und
+\protect\spc\ \protect\mtd[n]}
+%
+Durch das in \cite{bib:amop91} festgelegte Protokoll kann Verhalten
+und Struktur von aktiven Objekten in \clos\ durch Spezialisierung
+ihrer \clsmc\ in Bezug auf Persistenz modifiziert werden:
+\begin{itemize}
+%
+\item Die Strukturdefinition von aktiven Objekten kann im Verlauf der
+Initialisierung des die Klasse repr\"{a}sentierenden
+\clsmo[es]\ ver\"{a}ndert werden.
+%
+\item Das \mop\ legt fest, da\ss{} die f\"{u}r Persistenz relevanten
+(generischen) \std-\fn[en]\ immer eine generische Funktion mit der
+\clsmc\ der \clos-Instanz aufrufen; die auf die
+\clsmc\ \spc[n]\ \mtd[n]\ legen das \rglq{}eigentliche\rgrq\ persistente
+Verhalten der Instanz fest. Auf eine
+\spc\ \clsmc\ \spc\ \mtd[n]\ k\"{o}nnen somit das Verhalten eines
+\clos-Objektes modifizieren.
+%
+\end{itemize}
+%
+\"{U}ber die Spezialisierung lassen sich die Nachteile der Ersetzung
+bzw.\ Erweiterung nur der Methoden vermeiden, da sie lediglich die
+persistenten Objekte beeinflu\ss{}t; Verhalten und Struktur der
+transienten Objekte bleiben unver\"{a}ndert. Die \spc\ \clsmc\ wird vom
+persistenten System realisiert und \"{u}ber eine Klassenoption von den
+BenutzerInnen in deren Klassen eingebunden. Das persistente
+System kann annehmen, da\ss{} Instanzen mit einer derartigen
+\spc[n]\ \clsmc\ grunds\"{a}tzlich persistent zu halten sind, da
+andernfalls die \spc\ \clsmc\ nicht benutzt worden w\"{a}re.
+%
+\par{}Ein weiterer Vorteil in der Verwendung von auf Persistenz
+\spc[n]\ \clsmc[n]\ liegt darin, da\ss{} im Verlauf der Initialisierung
+des \clsmo[es]\ zus\"{a}tzliche Klassen- und \Slt\/-Optionen ausgewertet
+werden k\"{o}nnen, um beispielsweise 
+eine bestimmte \representationform{} (Abschnitt~\ref{sec:porepr},
+\citepage{\pageref{sec:porepr}}) 
+oder einen Schnitt (Abschnitt~\ref{sec:cut},
+\citepage{\pageref{sec:cut}}) auf \Slt\/- oder Klassen-Ebene zu
+deklarieren\ifbericht%
+\ \cite[\citepage{111}]{bib:ki94a}\else%
+; konkrete Beispiele daf\"{u}r werden in
+Abschnitt~\ref{sec:plpr} (\citepage{\pageref{sec:plpr}}) gegeben\fi.
+%
+\par{}Eine \clos-Instanz, deren \clsmc\ auf Persistenz spezialisiert
+ist, wird im folgenden Text als {\em aktiv-persistente
+Instanz\/}\addglossary{Aktiv-persistente Instanz}[{Eine
+\protect\clos-Instanz, deren \protect\clsmc\ auf Persistenz
+spezialisiert ist.}]\ bezeichnet; alle anderen Objekte sind
+{\em passiv-persistente Objekte\/}\addglossary{Passiv-persistente
+Instanz}[{Eine nicht \protect\see{aktiv-persistente Instanz}.}].
+Analog dazu sind die jeweiligen Klassen der Objekte
+{\em aktiv-persistente\/}\addglossary{Aktiv-persistente Klasse}
+[{Eine Klasse, die durch ein \protect\clsmo\ einer auf Persistenz
+{\protect\spc[n]}\ \protect\clsmc\ repr\"{a}sentiert
+wird.}]\ bzw.\ {\em passiv-persistente\/}\addglossary{Passiv-persistente
+Klasse}[{Eine nicht
+\protect\see{aktiv-persistente Klasse}.}]{\em\ Klassen}.
+%
+\par{}In den in \ifbericht diesem Bericht \else\ifbuch diesem Buch
+\else dieser Arbeit \fi\fi betrachteten persistenten Systemen werden
+intern in den unteren Schichten alle Objekte als passiv-persistent
+angesehen; aktiv-persistente Objekte entstehen erst durch das in
+h\"{o}heren Schichten mit \spc[n]\ \mtd[n]\ realisierte Verhalten.
+%
+\subsection{Passive Objekte}
+%
+Alle nicht-aktiven Instanzen sind {\em passive
+Objekte}\addglossary{Passives Objekt}[{Eine nicht \protect\see{aktive
+Instanz}. In \protect\cl\ sind alle Objekte der Basis- und
+Struktur-Klassen passive Objekte.}], d.h.\ die in \cite{bib:st90} und
+\cite{bib:amop91} definierten \std-\fn[en]\ bzw.\ die \mtd[n]\ der
+generischen \std-\fn[en]\ k\"{o}nnen nicht erweitert werden; Persistenz
+kann entweder durch \"{U}bertragung der Objektzust\"{a}nde zwischen einer
+transienten und einer persistenten Repr\"{a}sentation (\swizzling\/) oder
+durch Realisierung von (zus\"{a}tzlichen) \gfn[n]en und \mtd[n]\ zur
+Verf\"{u}gung gestellt werden.  In LISP sind die Instanzen der Basis- und
+Struktur-Klassen passive Objekte.
+%
+\subsection{Kopplung von Persistenz an aktiv-persistente Objekte}
+%
+Ein persistentes System sollte Persistenz als M\"{o}glichkeit
+anbieten, die, wenn sie genutzt wird, als Folgerung aus der
+orthogonalen Sichtweise grunds\"{a}tzlich allen Objekten
+unabh\"{a}ngig von ihrer Klasse zur Verf\"{u}gung steht. Bei den
+\ifbericht f\"{u}r diesen Bericht \else\ifbuch in diesem Buch \else
+f\"{u}r diese Arbeit \fi\fi betrachteten Systemen, die eine
+relationale Datenbank als persistenten Speicher verwenden, besteht die
+M\"{o}glichkeit der Persistenz lediglich f\"{u}r aktiv-persistente
+Objekte und f\"{u}r passiv-persistente Instanzen einiger weniger
+Basistypen mit entsprechenden Basistypen in der relationalen
+Datenbank; damit wird die M\"{o}glichkeit der Persistenz f\"{u}r
+\clos-Instanzen an die Art ihrer Einbindung gekoppelt. In diesem Fall
+wird durch die eingeschr\"{a}nkte Persistenz eine nicht-orthogonale
+Sichtweise vertreten. Problematisch bei diesem Ansatz sind Referenzen
+der \Slt[s]\/ von aktiv-persistenten Objekten auf aktive Objekte; da
+aktive Objekte nicht persistent werden k\"{o}nnen, wird in diesen
+Systemen w\"{a}hrend des Speicherns eines aktiv-persistenten Objektes
+bei einer solchen Referenz \ia\ ein Fehler angezeigt. Bei einer
+orthogonalen Sichtweise von Persistenz sollten aktive Objekte als
+passiv-persistent verarbeitet werden.
+%
+\section{Schnitt zwischen Objekten}\label{sec:cut}
+%
+\begin{fortune}[8cm]
+{\tt H\ i\ n\ w\ e\ i\ s\ !\\[\smallskipamount]
+Alle Kurzprogramme werden automatisch\\
+mit textilgerechtem Endschleudern\\
+\underline{ohne}\ Sp\"{u}lstop beendet.}
+\from{Bedienungsanleitung der Waschmaschine \rglq{}Siemens
+Siwamat Plus 3600\rgrq}
+\end{fortune}
+%
+Ein transientes Objekt kann sehr viele Referenzen auf andere
+transiente Objekte enthalten; beim Speichern eines solchen Objektes
+kann es passieren, da\ss{} das persistente System beim Speichern der
+transitiv referenzierten Objekte einen nicht unerheblichen Teil des
+Gesamtzustands des \cl-Systems im persistenten Speicher ablegt
+\cite[\citepage{26}]{bib:fo88}.
+Beim Laden eines derartigen Objektes w\"{u}rde ein gro\ss{}er Teil
+des Systemzustands entweder \"{u}berschrieben werden oder er w\"{u}rde
+mehrmals repr\"{a}sentiert werden; ersteres birgt die Gefahr, da\ss{} auch
+systeminterne Objekte unerwartet f\"{u}r das \cl-System ver\"{a}ndert
+werden, w\"{a}hrend letzteres die Speicherresourcen des transienten
+Systems unn\"{o}tig belastet. Beispiele f\"{u}r derartige Objekte sind
+\clsmo[e], die jeweils eine Liste ihrer Sub- und Superklassen
+enthalten. Das Speichern eines \clsmo[es]\ w\"{u}rde daher \"{u}ber die
+transitive H\"{u}lle alle \clsmo[e]\ im persistenten Speicher ablegen;
+das Laden eines \clsmo[es]\ w\"{u}rde dementsprechend entweder die
+vorhandenen \clsmo[e]\ \"{u}berschreiben oder die komplette
+Klassenhierarchie \rglq{}neben\rgrq\ der bestehenden zus\"{a}tzlich
+aufbauen.
+%
+\par{}Ein persistentes System sollte daher abh\"{a}ngig von einem
+Kriterium beim Speichern eines Objektes einen
+\rglq{}Schnitt\rgrq\ machen, ab dem die weiter transitiv referenzierten
+Objekte nicht mehr gespeichert werden.
+Dieser Schnitt betrifft einen Teilzustand des zu speichernden
+transienten Objektes, der w\"{a}hrend des Speichervorgangs nicht weiter
+traversiert wird. Da die Objekte jenseits des
+Schnitts nicht im persistenten Speicher repr\"{a}sentiert werden, d\"{u}rfen
+von dort keine Referenzen auf persistente Objekte existieren, da die
+persistenten Objekte unter Umst\"{a}nden nicht dereferenzierbar sind; dies
+ist z.B.\ der Fall, wenn das persistente System nicht geladen wurde.
+%
+\subsection{Extern-persistente Objekte}
+%
+Wegen der in Abschnitt~\ref{sec:extp} (\citepage{\pageref{sec:extp}})
+genannten Eigenschaften und der Abgeschlossenheit von extern
+persistenten Objekten kann bei der Anforderung, ein extern
+persistentes Objekt im persistenten Speicher abzulegen, ein Schnitt
+durchgef\"{u}hrt werden; der Zustand des extern persistenten Objektes
+braucht nicht gespeichert zu werden.
+%
+\par{}In diesem Fall kann die Referenz auf das extern persistente
+Objekt durch seine Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion
+hergestellt werden, d.h.\ die Referenzen des persistenten Objektes
+bleiben erhalten.
+%
+\subsection{Deklaration eines Schnitts}
+%
+\think{Warum ist eine automatische Bestimmung schwierig?}%
+[Das System wei\ss{} nicht, welche Objekte die BenutzerInnen
+bzgl.\ Persistenz interessieren und welche nicht.]%
+Da sich eine (automatische) Bestimmung, ob ein Schnitt
+durchgef\"{u}hrt werden soll oder nicht, als schwierig erweist, besteht
+eine praktikable L\"{o}sung darin, dem persistenten System Hinweise auf
+die Situationen zu geben, in denen ein Schnitt durchgef\"{u}hrt werden
+soll.\footnote{Analog ist z.B.\ das Vorgehen des \cl\ \"{U}bersetzers,
+Deklarationen zur Code-Optimierung auszuwerten.} Diese Hinweise
+k\"{o}nnen beispielsweise darin bestehen, da\ss{} bestimmte Teilzust\"{a}nde
+von Objekten grunds\"{a}tzlich nicht persistent gehalten werden sollen.
+%
+\par{}Damit werden im persistenten Objekt Referenzen auf andere
+Objekte weggelassen; die transiente und persistente Repr\"{a}sentation
+des Objektes unterscheiden sich also.
+%
+\subsection{Redundante Referenzen}%
+%
+Sofern die Bedeutung eines transienten Objektes bekannt ist, k\"{o}nnen
+redundante Referenzen bei der \"{U}bertragung des Objektzustands vom
+transienten in den persistenten Speicher weggelassen werden und bei
+der R\"{u}ck\"{u}bertragung des Zustands wieder hinzugef\"{u}gt werden. Ein
+Beispiel daf\"{u}r ist die in einem \clsmo\ enthaltene Liste der
+Subklassen. Ein Weglassen dieser Liste verhindert, da\ss{} in Verbindung
+mit der Liste der Superklassen alle \clsmo[e]\ \"{u}bertragen werden; bei
+der \"{U}bertragung des Zustands aus dem persistenten in den transienten
+Speicher ist die Liste der Subklassen entweder leer, wenn die
+repr\"{a}sentierte Klasse noch nicht exisitierte, oder sie kann aus dem
+existierenden transienten \clsmo\ \"{u}bernommen werden.
+%
+\section{Protokolle}
+%
+In diesem Abschnitt werden allgemeine Konzepte f\"{u}r das Verhalten im
+Zusammenhang mit persistenten Klassen und Objekten erl\"{a}utert;
+spezielle Protokolle werden \ifbericht
+in \cite[\citepage{111, 75}]{bib:ki94a} f\"{u}r die in
+Kapitel~\ref{chap:plob}\ und das ebenfalls in
+\cite[\citepage{67}]{bib:ki94a} beschriebene System {\em Shared Object
+Hierarchie\/} \soh%
+\else
+in den Abschnitten~\ref{sec:sohpr}\ (\citepage{\pageref{sec:sohpr}}) und
+\ref{sec:plpr} (\citepage{\pageref{sec:plpr}}) f\"{u}r die
+in den Kapiteln~\ref{chap:soh} und \ref{chap:plob}\ %
+beschriebenen persistenten Systeme%
+\fi\ erkl\"{a}rt.
+%
+\subsection{Definition von aktiv-persistenten \protect\cls[n]}
+%
+%Aktiv-persistente Klassen 
+%
+Aktiv-persistente Klassen werden in der Klassendefinition im Makro
+\lisp{defclass}\ mit der Klassenoption \lisp{:metaclass}\ realisiert,
+deren Argument der Name einer innerhalb des persistenten Systems
+implementierten auf Persistenz \spc[n]\ \clsmc\ ist. Ihre Instanzen
+repr\"{a}sentieren Klassen mit aktiv-persistenten Objekten. Die
+Auswertung der Klassenoption \lisp{:metaclass}\ wird durch das
+\mop\ festgelegt; Details zur Vorgehensweise des \mop\ finden sich in
+\cite{bib:pa91b}. \ifbericht In \cite[\citepage{111}]{bib:ki94a}\ wird
+die Vorgehensweise speziell f\"{u}r das in Kapitel~\ref{chap:plob}
+(\citepage{\pageref{chap:plob}}) beschriebene persistente System
+erl\"{a}utert\else Das Protokoll~\ref{pro:defclass}
+\stfn{(defclass)}\ (\citepage{\pageref{pro:defclass}}) erl\"{a}utert die 
+Vorgehensweise speziell f\"{u}r das in Kapitel~\ref{chap:plob}
+(\citepage{\pageref{chap:plob}}) beschriebene persistente
+System\fi. An dieser Stelle werden nur kurz die M\"{o}glichkeiten
+beispielhaft erkl\"{a}rt, die sich aus der Definition von
+aktiv-persistenten Klassen ergeben; inwieweit sie genutzt werden,
+h\"{a}ngt von der konkreten Realisierung des persistenten Systems ab.
+%
+\subsubsection{Zus\"{a}tzliche Klassenoptionen}
+%
+Zus\"{a}tzlich zu den in \stcite{823}\ definierten
+\std-Klassenoptionen k\"{o}nnen durch die \spc\ \clsmc\ weitere
+Klassenoptionen ausgewertet werden, die sich auf Verhalten oder
+Struktur der Instanzen der definierten Klasse auswirken. Beispiele
+daf\"{u}r sind:
+\begin{itemize}
+%
+\item Die Lebensdauer, die standardm\"{a}\ss{}ig f\"{u}r die
+\Slt\/-Zust\"{a}nde von Instanzen der definierten Klasse benutzt werden
+soll, kann als Klassenoption deklariert werden.
+%
+\item Die Vorgehensweise bei \"{A}nderung der Klassendefinition seit der
+letzten Ablage des die Klasse repr\"{a}sentierenden \clsmo[es]\ kann
+ausgew\"{a}hlt werden (Art der Schemaentwicklung).
+%
+\end{itemize}
+%
+\subsubsection{Zus\"{a}tzliche \protect\Slt-Optionen}
+%
+Ebenso kann die \spc\ \clsmc\ au\ss{}er den \std-\Slt\/-Op\-tio\-nen
+\stcite{822}\ weitere \Slt\/-Optionen auswerten, die sich auf
+Repr\"{a}sentation und Verhalten eines \Slt[s]\/ innerhalb der Klasse
+beziehen:
+\begin{itemize}
+%
+\item Die Lebensdauer des \Slt\/-Zustands der Instanzen kann
+deklarativ vorgegeben werden, z.B.\ indem er als transient deklariert
+wird; dann mu\ss{} der \Slt\/-Zustand beim Speichern der transienten
+Instanz nicht weiter referenziert werden und erm\"{o}glicht so einen
+Schnitt.
+%
+\item F\"{u}r den \Slt\/-Zustand der Instanzen kann eine bestimmte
+\representationform{} im transienten oder persistenten Speicher
+ausgew\"{a}hlt werden. Dies beeinflu\ss{}t \ia\ auch die Zugriffsmethoden
+auf den \Slt\/-Zustand.
+%
+\end{itemize}
+%
+\subsubsection{\protect\Spc[s]\ Verhalten}
+%
+Durch die \spc\ \clsmc\ kann auch das Verhalten von
+ak\-tiv-per\-si\-sten\-ten Instanzen beeinflu\ss{}t werden; f\"{u}r
+Persistenz interessiert in erster Linie das Verhalten beim Erzeugen
+einer (zun\"{a}chst) transienten aktiv-persistenten Instanz sowie der
+Zugriff auf die \Slt\/-Zust\"{a}nde.
+\begin{itemize}
+%
+\item Beim Erzeugen einer (transienten) Instanz einer
+aktiv-persistenten Klasse kann durch eine \spc\ \mtd\ des
+persistenten Systems die persistente Repr\"{a}sentation des Objektes
+gleich mit erzeugt werden. Begr\"{u}ndet w\"{a}re dieses Vorgehen durch die
+Sichtweise, da\ss{} Instanzen einer aktiv-persistenten Klasse immer
+persistent sein sollen.
+%
+\par{}Alternativ dazu kann die \spc\ \mtd\ auch die Erzeugung der
+transienten Repr\"{a}sentation im Umfang einschr\"{a}nken und einen Teil
+des Objektes im persistenten Speicher allozieren; die
+Zugriffsmethoden m\"{u}ssen dann entsprechend die persistente
+Re\-pr\"{a}\-sen\-ta\-tion des Objektes referenzieren.
+%
+\item Die f\"{u}r den Zugriff auf den \Slt\/-Zustand
+\spc[n]\ \mtd[n]\ k\"{o}nnen f\"{u}r die Verarbeitung der verschiedenen
+\representationforms\ des Zustands genutzt werden.
+%
+\end{itemize}
+%
+\subsection{Zugriff auf den Objektzustand}
+%
+Dieser Abschnitt erl\"{a}utert verschiedene Ans\"{a}tze f\"{u}r den Zugriff auf
+den Zustand von passiv-persistenten und aktiv-persistenten Objekten.
+%
+\subsubsection{Passiv-persistente Objekte}%
+\label{sec:simpd}%
+%
+Die Manipulation von einfachen Daten in \cl\ erfolgt mit
+z.T.\ systemprimitiven Funktionen, die ausschlie\ss{}lich auf der
+festgelegten transienten Repr\"{a}sentation des Datums arbeiten k\"{o}nnen.
+Die Forderung nach m\"{o}glichst gro\ss{}er Orthogonalit\"{a}t w\"{u}rde angewendet
+auf die Manipulationsm\"{o}glichkeiten von einfachen Daten bedeuten, da\ss{}
+die gleichen Funktionen sowohl auf der transienten als auch auf der
+persistenten Repr\"{a}sentation eines Objektes arbeiten k\"{o}nnen
+sollten. Praktisch w\"{u}rde dies bedeuten, diesen Funktionen eine
+Komponente f\"{u}r die Verarbeitung der persistenten Repr\"{a}sentation
+hinzuzuf\"{u}gen, was \ia\ f\"{u}r systemprimitive Funktionen durch
+das LISP-System verwehrt wird; au\ss{}erdem k\"{o}nnte ein derartiger Eingriff
+im Fehlerfall die Funktionsf\"{a}higkeit des kompletten Systems
+beeintr\"{a}chtigen. Praktisch verwendbar sind Objekt-\swizzling\ oder
+die direkte Manipulation der persistenten Repr\"{a}sentation.
+%
+\paragraph{Objekt-\protect\swizzling}%
+%
+\addglossary{Objekt-Swizzling}[Abbildung zwischen einer transienten
+und einer persistenten Repr\"{a}sentation eines persistenten Objektes.]%
+%
+\swizzling\ bezeichnet die Vorgehensweise, f\"{u}r den Zugriff
+auf ein persistentes Objekt zus\"{a}tzlich zur persistenten eine
+transiente Repr\"{a}sentation zu allozieren und den Zustand des
+persistenten Objektes in seine transiente Repr\"{a}sentation zu
+kopieren. Referenzen zwischen persistenten Objekten im persistenten
+Speicher werden beim Kopiervorgang in die Identit\"{a}tsrepr\"{a}sentation
+des transienten Systems transformiert. Manipuliert wird direkt und
+aus\-schlie\ss{}\-lich die nach au\ss{}en zur Verf\"{u}gung gestellte
+transiente Repr\"{a}sentation des Objektes. Zu \rglq{}geeigneten
+Zeitpunkten\rgrq\ wird der Zustand der persistenten Repr\"{a}sentation auf
+den Stand der transienten gebracht.
+%
+\subparagraph{Zeitpunkt des Abgleichs}%
+%
+Der Zeitpunkt dieses Abgleichs mu\ss{} festgelegt werden; er sollte
+m\"{o}glichst nach Bedarf, d.h.\ nach einer tats\"{a}chlich erfolgten
+\"{A}nderung des Objektzustands erfolgen. Eine \"{A}nderung ist nur schwer
+zu detektieren, da zum einen die Manipulations-Funktionen nicht
+modifiziert werden k\"{o}nnen und damit ein Markieren des Objektes als
+Folge einer \"{A}nderung nicht m\"{o}glich ist;\footnote{Falls dies m\"{o}glich
+w\"{a}re, k\"{o}nnte statt des Setzens der Markierung ebenso der Abgleich
+selbst durchgef\"{u}hrt werden.} zum anderen scheidet ein Vergleich des
+Zustands der transienten und der persistenten Repr\"{a}sentation aus
+Effizienzgr\"{u}nden meist aus. Deswegen wird der Abgleich meist an
+andere Vorg\"{a}nge gebunden; wenn das Objekt beispielsweise von einer
+anderen Instanz referenziert wird, wird es immer dann gespeichert,
+wenn auch die referenzierende Instanz gespeichert wird. Eine andere
+M\"{o}glichkeit besteht darin, den Abgleich nur auf expliziten von au\ss{}en
+erfolgenden Aufruf einer entsprechenden Funktion durchzuf\"{u}hren
+\cite[\citepage{35}]{bib:ca88}.
+%
+\subparagraph{Persistente und transiente Identit\"{a}t}%
+%
+Das Objekt erh\"{a}lt zus\"{a}tzlich zu seiner persistenten
+eine transiente Identit\"{a}t mit eigener Repr\"{a}sentation; f\"{u}r den
+Abgleich mu\ss{} die transiente Identit\"{a}tsrepr\"{a}sentation wieder auf die
+persistente abgebildet werden, damit der Abgleich f\"{u}r genau das
+persistente Objekt durchgef\"{u}hrt wird, aus dem die transiente
+Repr\"{a}sentation entstanden ist.
+%
+\subparagraph{Effizienz}%
+%
+Die Manipulation der Objekte erfolgt nach wie vor sehr effizient
+mit den vorhandenen Funktionen auf den transienten Repr\"{a}sentationen.
+%
+\paragraph{Direkte Manipulation der persistenten Repr\"{a}sentation}%
+%
+Als zweite M\"{o}glichkeit zum Zugriff auf den Zustand von
+passiv-persistenten Objekten gibt es die direkte Manipulation der
+persistenten Repr\"{a}sentation.  Das persistente System bietet eigene
+Funktionen an, die direkt auf den persistenten Objekten im
+persistenten Speicher arbeiten.
+%
+\subparagraph{Transiente Repr\"{a}sentation}%
+%
+Sofern eine transiente Repr\"{a}sentation des persistenten Objektes
+existiert, sollten \"{A}nderungen des im persistenten Speicher abgelegten
+Zustands in die transiente Repr\"{a}sentation propagiert werden; bei
+fehlender transienter Repr\"{a}sentation entf\"{a}llt der Abgleich.
+%
+\subparagraph{Explizite Angabe der persistenten
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion}%
+%
+F\"{u}r die direkte Manipulation der persistenten Repr\"{a}sentation mu\ss{}
+die Identit\"{a}tsrepr\"{a}sentation des persistenten Objektes von den
+BenutzerInnen explizit angegeben werden; damit ist zwar das zu
+manipulierende Objekt eindeutig identifiziert, aber die Benutzung des
+persistenten Systems wird durch die direkte Verwendung der
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tio\-nen und der direkt
+darauf arbeitenden Funktionen f\"{u}r die BenutzerInnen intransparent.
+%
+\subparagraph{Effizienzverlust}%
+%
+Eine direkte Manipulation beinhaltet \ia\ den Transfer von
+Daten zwischen dem transienten und dem persistenten Speicher; die
+Folge davon kann ein erheblicher Effizienzverlust sein.
+%
+\subsubsection{Aktiv-persistente Instanzen}%
+%
+Die Manipulation von aktiv-persistenten Instanzen erfolgt
+ausschlie\ss{}lich \"{u}ber Methoden, die anders als die
+Manipulations-\mtd[n]\ f\"{u}r passiv-persistente Objekte erweitert
+oder modifiziert werden k\"{o}nnen. Damit kann sowohl ein kontrolliertes
+\swizzling\ als auch die direkte Manipulation der persistenten
+Repr\"{a}sentation von Instanzen realisiert werden.
+%
+%\subsection{Funktionen}
+%
+% wurden bereits weiter oben erl\"{a}utert.
+%
+\section{Lokalisierung von Objekten}%
+%
+\addglossary{Lokalisierung von Objekten}[{Auswahl von persistenten
+Objekten aus dem persistenten Speicher anhand von Kriterien, wie
+z.B.\ nach dem Namen des Objektes oder nach bestimmten
+\protect\Slt\/-Zust\"{a}nden.}]%
+%
+Nachdem ein Objekt persistent gespeichert wurde, mu\ss{} es 
+m\"{o}glich sein, das Objekt zu lokalisieren. F\"{u}r den Proze\ss{}, der das
+persistente Objekt erzeugt hat, stellt dies \ia\ zun\"{a}chst
+keine Schwierigkeit dar, wenn er beispielsweise die \objid[s]\ der von
+ihm erzeugten persistenten Instanzen in (transienten) Variablen
+ablegt hat und dar\"{u}ber adressiert.
+%
+\par{}F\"{u}r Prozesse, die bereits existierende persistente Objekte
+lokalisieren wollen, steht dies nicht zur Verf\"{u}gung; persistente
+Objekte m\"{u}ssen \"{u}ber bestimmte Kriterien lokalisierbar sein. Das
+Ergebnis einer Lokalisierung ist die Menge der zum Kriterium
+passenden persistenten Objekte.
+%
+\subsection{Lokalisierung \"{u}ber einen Pfad}
+%
+Die Lokalisierung \"{u}ber einen Pfad findet sich bei einigen persistenten
+Systemen, die einen Objektspeicher als persistenten Speicher benutzen
+(z.B.\ \wood\ \cite{bib:wo93}).  Das einzige direkt addressierbare
+Objekt in einem Objektspeicher ist das Wurzelobjekt; innerhalb des
+Wurzelobjektes gibt es mindestens einen \Slt, \"{u}ber den alle von den
+BenutzerInnen gespeicherten persistenten Objekte erreichbar sein
+m\"{u}ssen. Erreichbarkeit mu\ss{} dabei durch den Zustand der von diesem
+\Slt\/ referenzierten persistenten Objekte von den BenutzerInnen
+sichergestellt werden.
+%
+\par{}Die Lokalisierung \"{u}ber einen Pfad besteht darin, mit dem
+Wurzelobjekt zu beginnen und als erstes den \og[en]\ \Slt\/ zu
+dereferenzieren; dieser Vorgang wird rekursiv mit dem dereferenzierten
+persistenten Objekt sowie einem \rglq{}richtigen\rgrq\ \Slt\/ innerhalb
+dieses Objektes wiederholt, bis ein \rglq{}Schlu\ss{}objekt\rgrq\ erreicht
+wird; dieses \rglq{}Schlu\ss{}objekt\rgrq\ ist das \"{u}ber den Pfad
+lokalisierte Objekt (\figurename~\ref{fig:adrpath}). %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/adrpath.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/adrpath.eps}}%
+\fi%
+\caption{Lokalisierung eines persistenten Objektes \"{u}ber einen Pfad}%
+\label{fig:adrpath}%
+\end{figure}%
+%
+Diese Art der Lokalisierung hat den Vorteil, sehr schnell zum Ziel zu
+f\"{u}hren, da lediglich wenige Objekte traversiert werden
+m\"{u}ssen. Nachteilig ist, da\ss{} die komplette Verwaltung des
+Objektgraphen in der Hand der BenutzerInnen liegt; das Traversieren
+(d.h.\ die Wahl des \rglq{}richtigen\rgrq\ \Slt[s]\/) verlangt
+Kenntnisse \"{u}ber die Strukturen der transitiv vom Wurzelobjekt
+referenzierten Objekte; ebenso mu\ss{} ein Kriterium festgelegt werden,
+wann ein \rglq{}Schlu\ss{}objekt\rgrq\ erreicht worden ist und damit die
+Suche beendet werden kann.
+%
+\par{}Diese Art der Lokalisierung entspricht vom Konzept her der
+Adressierung in hierarchischen und netzwerk-orientierten Datenbanken.
+Sie sollte besser in den unteren Schichten eines persistenten Systems
+verborgen bleiben; h\"{o}heren Schichten sollte eine
+Lokalisierungm\"{o}glichkeit geboten werden, die sich mehr an das durch
+relationale Datenbanken eingef\"{u}hrte Konzept der Adressierung \"{u}ber
+die Assoziation eines Objektes an einen Wert orientiert und die zudem
+Erreichbarkeit m\"{o}glichst einfach sicherstellt.
+%
+\subsection{Lokalisierung \"{u}ber Namen}
+%
+In LISP kann ein Name (repr\"{a}sentiert durch eine Zeichenkette) \"{u}ber
+ein Symbol auf einen Wert abgebildet werden \stcite{13, 27}. Eine mehr
+LISP-gem\"{a}\ss{}e Lokalisierung f\"{u}r persistente Objekte w\"{a}re daher
+die Abbildung eines Namens auf ein persistentes Objekt, eventuell auch
+unter Benutzung eines persistenten Symbols.
+%
+\subsubsection{Relationale Datenbank als persistenter Speicher}
+%
+Bei Verwendung einer relationalen Datenbank als persistenten
+Speicher l\"{a}\ss{} sich eine solche Abbildung sehr einfach durch eine
+Relation mit zwei Attributen realisieren, die den Namen auf das
+dazugeh\"{o}rige persistente Objekt abbildet.
+%
+\subsubsection{Objektspeicher als persistenter Speicher}
+%
+In einem Objektspeicher m\"{u}\ss{}te eine persistente Namenstabelle
+gef\"{u}hrt werden, die die entsprechende Abbildung durchf\"{u}hrt
+(\figurename~\ref{fig:adrname}; %
+%
+\begin{figure}[hbtp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/adrname.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/adrname.eps}}%
+\fi%
+\caption{Lokalisierung eines persistenten Objektes \"{u}ber einen Namen}%
+\label{fig:adrname}%
+\end{figure}%
+%
+die Objekte \oii\ und \oiii\ k\"{o}nnen entweder direkt die \"{u}ber die
+Namen referenzierbaren Objekte sein oder persistente Symbole, deren
+\Slt\/ mit dem Wert auf das mit Namen versehene persistente Objekt
+verweist). Da die Namenstabelle ebenfalls
+persistent gehalten wird, ist sie vom Wurzelobjekt aus erreichbar;
+damit sind auch die von der Namenstabelle referenzierten persistenten
+Objekte immer erreichbar.
+%
+\par{}Ein Beispiel f\"{u}r die Lokalisierung \"{u}ber Namen findet sich im
+persistenten Objektsystem \zeitgeist\ \cite[\citepage{28}]{bib:fo88};
+dort mu\ss{} beim Speichern eines transienten Objektes eine Zeichenkette
+angegeben werden, mit der das aus der Speicherung hervorgegangene
+persistente Objekt lokalisiert werden kann. In dem
+von mir realisierten persistentem Objektsystem k\"{o}nnen persistente
+Objekte an ein persistentes Symbol gebunden werden
+(\citepage{\pageref{sec:psym}}); eine Lokalisierung besteht im Suchen
+des persistenten Symbols anhand seines Namens und der Dereferenzierung
+des Symbol-\Slt[s], der den Wert enth\"{a}lt.
+%
+\subsection{Inhaltsorientierte Lokalisierung}
+%
+Bei der inhaltsorientierten Lokalisierung werden persistente Objekte
+einer Klasse \"{u}ber den Zustand oder Zustandsbereich eines
+\Slt[s]\/ ausgew\"{a}hlt.
+%
+\subsubsection{Relationale Datenbank als persistenter Speicher}
+%
+Bei persistenten Objektsystemen mit einer relationalen Datenbank als
+persistenten Speicher ist die Verwendung der Datenbank mit der Absicht
+verbunden, die dort realisierte Funktionalit\"{a}t auch f\"{u}r persistente
+Objekte zur Verf\"{u}gung zu stellen (siehe
+z.B.\ Argumentation in \cite[\citepage{2}]{bib:ro87}); deswegen werden
+auch die Strukturen der persistenten Repr\"{a}sentationen wie in
+\tablename~\ref{tab:objvsdb} (\citepage{\pageref{tab:objvsdb}})
+gew\"{a}hlt, damit die von der Datenbank angebotenen Funktionen zur
+Auswahl von Tupeln auch f\"{u}r die persistenten Repr\"{a}sentationen der
+persistenten Objekte direkt benutzt werden k\"{o}nnen. Eine
+inhaltsorientierte Lokalisierung von Objekten ist damit bereits auf
+der untersten Ebene des persistenten Objektsystems gegeben.
+%
+\subsubsection{Objektspeicher als persistenter Speicher}
+%
+Objektspeicher selbst bieten meist keine inhaltsorientierten
+Lokalisierungsm\"{o}glichkeiten an; statt dessen m\"{u}ssen die
+entsprechenden Indextabellen innerhalb des persistenten Systems
+realisiert und gepflegt werden (\figurename~\ref{fig:adridx}). %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/adridx.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/adridx.eps}}%
+\fi%
+\caption{Inhaltsorientierte Lokalisierung eines persistenten
+Objektes}%
+\label{fig:adridx}%
+\end{figure}%
+%
+Wie die Abbildung zeigt, wird der \Slt\/-Zustand zweimal abgelegt: in
+der Indextabelle und im persistenten Objekt. Das persistente System
+mu\ss{} daher sicherstellen, da\ss{} die \"{A}nderung eines \Slt\/-Zustands und
+der Indextabelle konsistent und unteilbar erfolgen. Damit mu\ss{} ein
+persistentes System zumindestens Transaktionen realisieren; sofern
+konkurrenter Zugriff auf den persistenten Speicher m\"{o}glich ist, mu\ss{}
+zus\"{a}tzlich Unteilbarkeit durch Schreibsperren gew\"{a}hrleistet werden.
+%
+\par{}\"{A}hnlich wie bei der Lokalisierung \"{u}ber Namen kann auch bei der
+inhaltsorientierten Lokalisierung Erreichbarkeit durch die
+Indextabelle gew\"{a}hrleistet werden.
+%
+\section{Datenbank-Konzepte in persistenten Systemen}%
+\label{sec:dbtocl}%
+%
+Dieser Abschnitt beschreibt w\"{u}nschenswerte
+Erweiterungen aus der Datenbankwelt, die m\"{o}g\-lichst in ein
+persistentes Objektsystem integriert werden sollten. Die hier
+aufgef\"{u}hrten Punkte betreffen in erster Linie persistente Systeme, die
+einen Objektspeicher als persistenten Speicher benutzen;
+Systeme mit relationalen Datenbanken benutzen die entsprechenden von
+der Datenbank angebotenen Funktionalit\"{a}ten.
+%
+\subsection{Konsistenter Gesamtzustand}
+%
+Der Gesamtzustand aller im persistenten Speicher befindlichen Objekte
+sollte konsistent sein; Zustands\"{u}berg\"{a}nge sollten immer von einem
+konsistenten Zustand in einen n\"{a}chsten konsistenten Zustand
+f\"{u}hren. Da eine automatische Bestimmung eines konsistenten
+Gesamtzustands recht aufwendig werden kann, \"{u}berl\"{a}\ss{}t man dessen
+Festlegung den BenutzerInnen; der \"{U}bergang findet innerhalb einer von
+den BenutzerInnen aktivierten Transaktion statt, die daf\"{u}r sorgt,
+da\ss{} entweder bei Ende der Transaktion der neue von den BenutzerInnen
+als konsistent definierte Zustand erreicht wird oder bei einem Abbruch
+der alte Zustand wiederhergestellt wird
+\cite[\citepage{159}]{bib:gr93} (\figurename~\ref{fig:trtime}).
+Ausschlie\ss{}lich innerhalb einer aktiven Transaktion ist ein
+tempor\"{a}r inkonsistenter Gesamtzustand erlaubt.
+%
+\begin{figure}[hbtp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/trtime.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/trtime.eps}}%
+\fi%
+\caption{Zustands\"{u}berg\"{a}nge bei Ende bzw.\ Abbruch einer Transaktion}%
+\label{fig:trtime}%
+\end{figure}%
+%
+\subsection{Konkurrenter Zugriff}
+%
+Bei konkurrentem Zugriff mu\ss{} zus\"{a}tzlich Serialisierbarkeit
+gew\"{a}hrleistet sein. Eine einfache Realisierung sind
+\twophasetrs\addglossary{Zwei-Phasen-Transaktion}[two-phased
+transaction][In einer \protect\twophasetr\ werden
+in der ersten Phase die Objekte, auf die zugegriffen
+werden soll, durch die zugreifende Transaktion f\"{u}r alle konkurrenten
+Transaktionen gesperrt; die zweite Phase, in der f\"{u}r die zugreifende
+Transaktion keine neuen Sperren gesetzt werden d\"{u}rfen, beginnt mit
+der ersten Aufhebung einer ihrer Sperren. Damit wird
+\protect\see{Se\-ria\-li\-sier\-bar\-keit}\ gew\"{a}hrleistet.]\ %
+\cite[\citepage{163}]{bib:je87}\ in Verbindung mit einem
+Objekt-Sperrprotokoll. In der
+ersten Phase werden die persistenten Objekte, auf die zugegriffen
+werden soll, durch die zugreifende Transaktion f\"{u}r alle konkurrenten
+Transaktionen gesperrt; die zweite Phase, in der f\"{u}r die zugreifende
+Transaktion keine neuen Sperren gesetzt werden d\"{u}rfen, beginnt mit
+der ersten Aufhebung einer ihrer Sperren. In
+\cite[\citepage{163}]{bib:je87} wird gezeigt, da\ss{} so
+Serialisierbarkeit sichergestellt ist.
+%
+\subsection{Komplexe Anfragen}
+%
+F\"{u}r komplexe Anfragen bieten persistente Objektsysteme mit einer
+relationalen Datenbank als persistentem Speicher h\"{o}heren Schichten
+eine Schnittstelle mit LISP-\"{a}hnlicher Syntax, die relativ einfach in
+Datenbank-Anfragen \"{u}berf\"{u}hrt werden kann. Je nach Qualit\"{a}t der
+Schnittstelle wird auch die Semantik von LISP ber\"{u}cksichtigt.
+%
+\par{}Bei Systemen mit Objektspeichern sind die entsprechenden
+M\"{o}glichkeiten meist nicht vorhanden und m\"{u}ssen innerhalb des
+persistenten Systems realisiert werden.
+%
+\subsection{Schemaentwicklung}
+%
+In \clos\ k\"{o}nnen Klassendefinitionen ge\"{a}ndert werden; ein
+persistentes System sollte daher M\"{o}g\-lich\-kei\-ten vorsehen, ein
+ge\"{a}ndertes \clsmo\ erneut zu speichern und die persistenten Instanzen
+der Klasse auf die durch die neue Definition gegebene Struktur zu
+transformieren.
+%
+\section{Zusammenfassung}
+%
+Dieses Kapitel erl\"{a}utert verschiedene Programmierkonzepte, die in
+die Realisierung eines persistenten Systems in \clos\ einflie\ss{}en
+k\"{o}nnen.
+%
+\par Zur Effizienzsteigerung bietet es sich an, die transienten
+Repr\"{a}sentationen von persistenten Objekten \"{u}ber einen \cache\/ zu
+referenzieren; damit k\"{o}nnen Zugriffe auf den persistenten Speicher
+eingespart werden.
+%
+\par{}Die Realisierung von orthogonaler Persistenz verlangt, da\ss{} ein
+persistentes System alle in transientem \cl\ und \clos\ vorkommenden
+Instanzen unabh\"{a}ngig vom Typ speichern k\"{o}nnen sollte. Um ein Objekt
+zu speichern, mu\ss{} seine Struktur bekannt sein. F\"{u}r Instanzen von
+Basisklassen geht ihre Struktur implizit aus ihrer Definition
+(z.B.\ in \cite{bib:st90}) hervor; die Struktur von \clos-Instanzen
+einer Klasse wird explizit durch ihr \clsmo\ repr\"{a}sentiert.
+%
+\par{}Die Informationen \"{u}ber die Struktur eines transienten Objektes
+wird benutzt, um eine persistente Repr\"{a}sentation aufzubauen und den
+Zustand des transienten Objektes dorthin zu \"{u}ber\-tra\-gen. Bei der
+Verwendung einer relationalen Datenbank als persistenten Speicher werden
+durch die relationale Datenmodellierung bestimmte, nicht LISP-gem\"{a}\ss{}e
+\representationforms\ vorgeschrieben; ein Objektspeicher bietet
+gr\"{o}\ss{}ere Freiheit bei der Wahl der Repr\"{a}sentation der in ihm
+enthaltenen Objekte.
+%
+\par{}F\"{u}r die Verarbeitung von Persistenz \"{u}ber Objekte gibt es die
+beiden Sichtweisen der aktiven und der passiven Persistenz. Bei
+aktiver Persistenz werden f\"{u}r vorhandene \gfn{}en weitere
+\mtd[n]\ spezialisiert; damit wird die Einbindung von Persistenz
+transparent. F\"{u}r passiv-persistente Objekte kann intransparente
+Persistenz \"{u}ber \swizzling\ oder \"{u}ber eine direkte Manipulation der
+persistenten Repr\"{a}sentation angeboten werden.
+%
+\par{}Nachdem Objekte gespeichert wurden, sollte eine Lokalisierung
+der Objekte m\"{o}glich sein; f\"{u}r die Lokalisierung sollten
+datenbank-\"{a}hnliche Kriterien, wie Auswahl der persistenten Objekte
+\"{u}ber Namen oder \"{u}ber bestimmte \Slt\/-Zust\"{a}nde realisiert werden.
+Persistente Speicher mit relationalen Datenbanken bieten diese
+Funktionalit\"{a}t bereits auf niedriger Ebene; bei Verwendung eines
+Objektspeichers m\"{u}ssen die entsprechenden Auswahlm\"{o}glichkeiten meist
+in einer h\"{o}heren Schicht zus\"{a}tzlich realisiert werden.
+%
+\par{}Die inhaltsorientierte Lokalisierung setzt die zus\"{a}tzliche
+Realisierung bestimmter Datenbankfunktionalit\"{a}ten, wie Transaktionen
+und gegebenenfalls Sperrprotokolle, f\"{u}r auf Objektspeichern basierende
+Systeme voraus.  Sofern ein derartiges System eine inhaltsorientierte
+Lokalisierung realisiert, sollten diese zus\"{a}tzlich realisierten
+Funktionalit\"{a}ten nicht nur intern genutzt werden, sondern auch den
+BenutzerInnen des Systems zur Verf\"{u}gung gestellt werden.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

@@ -1,0 +1,19 @@
+%	This is -*-LaTeX-*-
+%
+% inclme.dgr
+% 5.8.94
+%
+\begin{small}
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{2em}%
+\newlength{\coliw}\setlength{\coliw}{8em}
+\newlength{\coliiw}\setlength{\coliiw}{5em}
+%
+\def\mkbox#1#2{\parbox{#1}{\centering #2}}
+%
+\begin{diagram}
+\mkbox{\coliw}{Persistent program-\\ming language X'}%
+\rto|<{\rotate\tip}
+			&\mkbox{\coliiw}{Real\\system R}
+\end{diagram}
+\end{small}

@@ -1,0 +1,119 @@
+%	This is -*-LaTeX-*-
+%
+% 10.8.94
+%
+\input{diagdefs}%
+%
+\newlength{\rowh}\setlength{\rowh}{18pt}%	% Zeilenhoehe
+\newlength{\rowht}\setlength{\rowht}{0.1\rowh}%	% Zeilenhoehe / 10
+\newlength{\csep}\setlength{\csep}{2ex}%	% Spaltentrenner
+\newlength{\coliw}\setlength{\coliw}{4em}%
+\newlength{\coliiw}\setlength{\coliiw}{6em}%
+\newlength{\coliiiw}\setlength{\coliiiw}{5em}%
+%
+\def\oslotattr#1{\lisp{#1}}
+%
+\def\oslotname{\oslotattr{\symbolquote{}quota}}
+\def\osloti{\oslotattr{3}}
+\def\oslotii{\oslotattr{5.0}}
+%
+\addtolength{\csep}{\stdomargin}
+\def\rlineh{\rule{0em}{\rowh}}%
+% Um die drei Punkte aus jeder Box zu entfernen, folgende Zeile
+% auskommentieren ...
+\def\etcetc{\raisebox{0.5\rowh}{\text{\textrm{\ldots}}}}
+% ... und folgende aktivieren:
+%\def\etcetc{}
+%
+\fboxsep0pt%
+\parindent0pt%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramrows{-\fboxrule}
+\spreaddiagramcolumns{-2pc}
+\spreaddiagramcolumns{-\fboxrule}
+\objectmargin{0pt}
+%
+\def\symbolquote{}%
+%\def\symbolquote{'}%
+%
+\def\frbox#1#2{%
+\save\Drop{\text{\textrm{#2}}}\restore%
+\framebox{\rule{0em}{\rowh}\rule{#1}{0ex}}%
+}%
+%
+\def\frtxt#1{\frbox{\coliiiw}{#1}}%
+%
+\def\frsq{%
+\frbox{\rowh}{$\bullet$}%
+}
+%
+\def\begptr{%
+\makebox[\coliw]{%
+\rlineh%
+\hspace*{\fill}\raisebox{0.375\rowh}{$\bullet$}}\hspace*{\stdomargin}%
+\save\go[0,0]+<0.5\coliw,0ex>+<\stdomargin,0ex>%
+     \xline+<-2\stdomargin,0ex>\restore}%
+%
+\begin{diagram}
+%
+	&\rule{\csep}{0ex}
+		&&&\rule{\csep}{0ex}
+			&&&\rule{\csep}{0ex}
+				&\rule{\csep}{0ex}
+					&\rule{\csep}{0ex}
+						&&\rule{\csep}{0ex}\\
+\rule{0ex}{\rowh}&&&&&\\
+\raisebox{0ex}[0.9\rowh][0.1\rowh]{%
+		  \parbox{\coliw}{\centering%
+		  \oi\\[-\medskipamount]
+		  \makebox[0.66\coliw]{\hrulefill}}}%
+		  \save\go[2,0]\merge\framed<5pt>\restore
+&&\frtxt{\ldots}&\frsq
+	&&\frtxt{\ldots}&\frsq
+			&&\raisebox{0ex}[0.9\rowh][0.1\rowh]{%
+			  \parbox{\coliw}{\centering%
+			  \oii\\[-\medskipamount]
+			  \makebox[0.66\coliw]{\hrulefill}}}%
+			  \save\go[2,0]\merge\framed<5pt>\restore\\
+%
+\begptr\xto'[0,1]+<0ex,0em>'[-2,1]'[-2,2][-1,2]
+&&\frtxt{\oslotname}&\frsq
+  \save\go+<-\rowht,0ex>\xto'[0,1]'[-2,1]'[-2,2][-1,2]\restore
+	&&\frtxt{\osloti}&\frsq%
+	  \save\go+<-\rowht,0ex>\xto'[0,1]'[-1,1][-1,2]\restore%
+			&&\text{\textrm{\osloti}}\\
+%
+\etcetc
+&&\frtxt{\ldots}&\frsq
+	&&\frtxt{\ldots}&\frsq
+			&&\etcetc\\
+%
+\text{\textrm{\footnotesize{}Wurzel}}
+	&&\save\Drop{%
+          \makebox[\coliiw][l]{\parbox{\stdtxtw}{\footnotesize\flushleft%
+		  \Slt\/-Name $\rightarrow$\\Index-Tabelle}}}\restore
+	&&&\frtxt{\oslotii}&\frsq
+	  \save\go+<-\rowht,0ex>\xto[0,4]\restore%
+			&&&&\raisebox{0ex}[0.9\rowh][0.1\rowh]{%
+			    \parbox{\coliw}{\centering%
+			    \oiii\\[-\medskipamount]
+			    \makebox[0.66\coliw]{\hrulefill}}}%
+			    \save\go[2,0]\merge\framed<5pt>\restore\\
+%
+	&&&&&\frtxt{\ldots}&\frsq
+			&&&&\text{\textrm{\oslotii}}\\
+%
+\rlineh
+	&&&&&\save\Drop{%
+             \makebox[\coliiiw][l]{\parbox{\stdtxtw}{\footnotesize\flushleft%
+		  \Slt\/-Zustand $\rightarrow$\\Objekt}}}\restore
+			&&&&&\etcetc\\
+%
+\rule{0em}{3ex}\\
+\save\go[0,0]+<15em,0ex>\Drop{\parbox{30em}{\footnotesize{}%
+\oi: Wurzelobjekt\\[\smallskipamount]
+\oii: Objekt mit Zustand \osloti\ in \Slt\ \oslotname\quad%
+\oiii: Objekt mit Zustand \oslotii\ in \Slt\ \oslotname
+}}\restore%
+\end{diagram}%

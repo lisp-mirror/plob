@@ -1,0 +1,50 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\mklinearrow%
+\newsavebox{\tleg}\sbox{\tleg}{\mktleg}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{1cm}%
+\objectmargin{\stdomargin}%
+\objectwidth{\bigtxtw}%
+%
+\begin{diagram}
+%
+\text{\textrm{\noi\ \class{ANGESTELLTER}}}%
+\save\go[6,0]\merge\framed<5pt>\restore\\
+\makebox[\bigtxtw]{\hrulefill}\\
+\text{\lisp{OBJID=<ANG\us{}95>}}\\
+\makebox[\bigtxtw]{\dotfill}\\
+\text{\lisp{NAME=\dq\namei\dq}}\\
+\text{\textrm{\noii\ \lisp{ABTEILUNG=<ABT\us{}19>}}}%
+\save\go+<\cR,0em>\drto!<-\cL,0em>\restore\\
+\text{\lisp{GEHALT=3000}}%
+	&\text{\textrm{\noiii\ \class{ABTEILUNG}}}%
+	 \save\go[5,0]\merge\framed<5pt>\restore\\
+	&\makebox[\bigtxtw]{\hrulefill}\\
+	&\text{\lisp{OBJID=<ABT\protect\us{}19>}}\\
+	&\makebox[\bigtxtw]{\dotfill}\\
+	&\text{\textrm{\noiv\ \lisp{NAME=\dq{}Schuhe\dq}}}\\
+\text{\textrm{\novi\ \class{ANGESTELLTER}}}%
+\save\go[6,0]\merge\framed<5pt>\restore%
+	&\text{\textrm{\nov\ \lisp{LEITER=<ANG\protect\us{}101>}}}%
+	 \save\go+<-\cL,0em>\lto!<\cR,0em>\restore\\
+\makebox[\bigtxtw]{\hrulefill}\\
+\text{\lisp{OBJID=<ANG\protect\us{}101>}}\\
+\makebox[\bigtxtw]{\dotfill}\\
+\text{\lisp{NAME=\dq\nameii\dq}}\\
+\text{\textrm{\novii\ \lisp{ABTEILUNG=<ABT\protect\us{}19>}}}%
+\save\go+<\cR,0em>\xto[-10,1]!<-\cL,0em>\restore\\
+\text{\lisp{GEHALT=6000}}\\
+%
+% Legende:
+&\save\Drop{\usebox{\tleg}}\restore\\
+\rule{0em}{\ht\tleg}%
+\save\Drop{\text{\textrm{\footnotesize%
+\raisebox{0.5ex}{\linearrow}
+Kopplung \"{u}ber Tupel-Surrogat}}}\restore%
+%
+\end{diagram}%

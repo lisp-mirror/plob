@@ -1,0 +1,120 @@
+%macropackage=lplaing   This is -*-LaTeX-*-
+% testdgr.tex
+% HK 15.11.92
+%
+% Diagramm, das geladen werden soll:
+%
+%\def\nokloebner
+\def\loadiagram{%
+%adridx.dgr%
+%adrname.dgr%
+%adrpath.dgr%
+%clicmc.dgr%
+%clolout.dgr%
+%clshier.dgr%
+%dindadr.dgr%
+%exidrepr.dgr%
+%extent.dgr%
+%gctrpe.dgr%
+%hlsecst.dgr%
+%hperlay.dgr%
+%idtaxon.dgr%
+%incldbme.dgr%
+%incldbmo.dgr%
+%inclme.dgr%
+%inclmo.dgr%
+%kartei.dgr%
+%karteic.dgr%
+%llsecst.dgr%
+%../manual/manext.dgr%
+%noiden.dgr%
+%ooiden.dgr%
+%oordbref.dgr%
+%operlay.dgr%
+%periden.dgr%
+pldflow.dgr%
+%plexarr.dgr%
+%plicmc.dgr%
+%ploblay.dgr%
+%ploblaye.dgr%
+%../manual/plobrpce.dgr%
+%plroots.dgr%
+%plsche.dgr%
+%pltlacls.dgr%
+%pltlcls.dgr%
+%pltlmcls.dgr%
+%pltlscls.dgr%
+%primitiv.dgr%
+%reachabl.dgr%
+%reldbref.dgr%
+%rperlay.dgr%
+%rperlaye.dgr%
+%sohlay.dgr%
+%stridcs.dgr%
+%stridcs.dgr%
+%stridval.dgr%
+%sttrans.dgr%
+%trtime.dgr%
+%suridnty.dgr%
+%usridnty.dgr%
+}
+%
+%\def\nothink{}
+%
+\ifx\loadiagram\undefined
+\def\loadiagram{Kein Diagramm angegeben}
+\fi
+%
+\nofiles%
+%
+%\input{psfig}\psnoisy%
+%\input{psfig}\pssilent%
+%
+% xypic unbedingt VOR german laden, da es sonst Verstaendigungs-
+% schwierigkeiten zwischen xypic und german ueber die Verwendung
+% des " (doppelten Anfuehrungszeichens) gibt.
+\documentclass[a4paper]{pretty}%
+%
+\usepackage[german]{babel}%
+\usepackage{crossref}%
+\usepackage[dvips]{xypic}\LaTeXdiagrams\NoisyDiagrams%
+\usepackage{epsfig}%
+\usepackage{timestt}%
+\usepackage{dipldefs}%
+%
+% 04.10.93: Alldieweil man gepunktete Linien (mit \xdotted...
+% erzeugte) mit xtex nicht sehen kann, wird \xdotted hier als \xline
+% umdefiniert:
+% HK 8.7.94: Mit ghostview sind sie sichtbar.
+%\let\xdotted\xline%
+%
+\begin{document}
+%
+%\pagestyle{headings}
+%
+%\chapter{Eins}
+%
+Erster Absatz. Erster Absatz. Erster Absatz. Erster Absatz. Erster Absatz.
+Erster Absatz. Erster Absatz. Erster Absatz. Erster Absatz. Erster Absatz.
+Erster Absatz. Erster Absatz. Erster Absatz. Erster Absatz. Erster Absatz.
+Viele, viele Sternchen: \verb|*| \verb|*| \verb|*|.
+Es folgen die Umlaute: ae = \"{a}, oe = \"{o}, ue = \"{u}, esszet = \ss{},
+AE = \"{A}, OE = \"{O}, UE = \"{U}.
+%
+\begin{figure}[h]%
+% 21.09.1993: Das Sch... Diagramm kann um's verrecken nicht zentriert
+% werden; weiss der Teufel, warum das nicht geht:
+\def\class#1{{\tt#1}}
+\input{\loadiagram}%
+\caption{Testbild {\tt\rglq{}\loadiagram\rgrq{}}}%
+\end{figure}%
+%
+\par Letzter Absatz. Letzter Absatz. Letzter Absatz. Letzter Absatz. 
+Letzter Absatz. Letzter Absatz. Letzter Absatz. Letzter Absatz. 
+Letzter Absatz. Letzter Absatz. Letzter Absatz. Letzter Absatz. 
+Es folgen die Umlaute: ae = \"{a}, oe = \"{o}, ue = \"{u}, esszet = \ss{},
+AE = \"{A}, OE = \"{O}, UE = \"{U}.
+%
+\par DVI-Datei vom \today
+%
+\end{document}

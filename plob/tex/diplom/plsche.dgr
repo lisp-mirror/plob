@@ -1,0 +1,113 @@
+%	This is -*-LaTeX-*-
+%
+% 20.09.93
+%
+\input{diagdefs}%
+%
+\newlength{\rowh}\setlength{\rowh}{18pt}%	% Zeilenhoehe
+\newlength{\rowht}\setlength{\rowht}{0.1\rowh}%	% Zeilenhoehe / 10
+\newlength{\csep}\setlength{\csep}{14pt}%	% Spaltentrenner
+\newlength{\coliw}\setlength{\coliw}{7em}%
+\newlength{\coliiaw}\setlength{\coliiaw}{10em}%
+\newlength{\coliibw}\setlength{\coliibw}{8em}%
+\newlength{\refsep}\setlength{\refsep}{0.5ex}%
+%
+\newsavebox{\cleg}\sbox{\cleg}{\mkcleg}%
+%
+\fboxsep0pt%
+\parindent0pt%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramrows{-\fboxrule}
+\spreaddiagramcolumns{-2pc}
+\spreaddiagramcolumns{-\fboxrule}
+\objectmargin{0pt}
+%
+\def\symbolquote{}%
+%\def\symbolquote{'}%
+%
+\def\frbox#1#2{%
+\save\Drop{\text{\textrm{#2}}}\restore%
+\framebox{\rule{0em}{\rowh}\rule{#1}{0ex}}%
+}%
+%
+\def\frtxt#1{\frbox{\coliw}{#1}}%
+%
+\def\frsq{%
+\frbox{\rowh}{$\bullet$}%
+}
+%
+\begin{diagram}
+%
+\frtxt{\ldots}&\frsq
+		&&&\raisebox{0ex}[0.9\rowh][0.1\rowh]{%
+		   \parbox{\coliiaw}{\centering%
+		   \class{class-description}\\[-\smallskipamount]
+		   \makebox[0.9\coliiaw]{\hrulefill}}}%
+		   \save\go[3,0]\merge\framed<5pt>\restore%
+			&&\raisebox{0ex}[0.9\rowh][0.1\rowh]{%
+			  \parbox{\coliiaw}{\centering%
+			  \class{class-description}\\[-\smallskipamount]
+			  \makebox[0.9\coliiaw]{\hrulefill}}}%
+			  \save\go[3,0]\merge\framed<5pt>\restore\\
+%
+\frtxt{\lisp{\symbolquote{}department}}&\frsq
+		&&&\raisebox{0ex}[\rowh][0ex]{\parbox{\coliiaw}%
+		   {\centering%
+		   \lisp{name=\symbolquote{}employee}}}%
+			&&\raisebox{0ex}[\rowh][0ex]{\parbox{\coliiaw}%
+			  {\centering%
+			  \lisp{name=\symbolquote{}employee}}}\\
+%
+\frtxt{\ldots}&\frsq
+	&\rule{\csep}{0ex}&\rule{0.5\csep}{0ex}
+		&\parbox{\coliiaw}{\centering\lisp{version=1.01}}
+			&\rule{\csep}{0ex}
+			&\parbox{\coliiaw}{\centering\lisp{version=1.00}}\\
+%
+\frtxt{\lisp{\symbolquote{}employee}}
+	&\frsq\save\go+<-\rowht,0ex>%
+	 \xto'[0,1]'[-3,1]+<0em,\refsep>[-3,3]!<0em,\refsep>%
+	 \restore
+		&&&\parbox{\coliiaw}{\centering\ldots%
+		   \raisebox{0ex}[0ex][\stdomargin]{}}%
+			&&\parbox{\coliiaw}{\centering\ldots%
+			  \raisebox{0ex}[0ex][\stdomargin]{}}\\
+%
+\frtxt{\ldots}&\frsq
+		&&&\raisebox{3ex}[\rowh][0ex]{%
+		   \parbox{\coliiaw}{\footnotesize\flushleft%
+		   Aktuelles \clsdo}}%
+			&&\raisebox{3ex}[\rowh][0ex]{%
+			  \parbox{\coliiaw}{\footnotesize\flushleft%
+			  Referenziertes \clsdo}}\\
+%
+\makebox[\coliw][l]{\parbox{\stdtxtw}{\footnotesize\flushleft%
+Klassenname $\rightarrow$\\%
+\clsdo}}\\
+\rule{0em}{\rowh}%
+		&&&&&&\raisebox{0ex}[0.9\rowh][0.1\rowh]{%
+		      \parbox{\coliibw}{\centering%
+		      \oiii\ \class{employee}\\[-\medskipamount]
+		      \makebox[0.9\coliibw]{\hrulefill}}}%
+		      \save\go!<0em,\refsep>%
+		      \xto'[0,-1]+<0em,\refsep>%
+		      '[-6,-1]^(0.2){\text{\textrm{\oi}}}%
+		      [-6,0]%
+		      \restore%
+		      \save\go!<0em,-\refsep>%
+		      \xdotted'[0,-3]+<-0.25\csep,-\refsep>%
+		      ^(0.65){\text{\textrm{\oii}}}%
+		      '[-6,-3]+<-0.25\csep,-\refsep>%
+		       [-6,-2]!<-0.25\csep,-\refsep>|>{\tip}%
+		      \restore%
+		      \save\go[2,0]\merge\framed<5pt>\restore\\
+% Legende:
+\save\Drop{\usebox{\cleg}}\restore%
+\rule{0em}{\rowh}%
+		&&&&&&\parbox{\coliibw}{\centering\lisp{\dq\namei\dq}}\\
+\rule{0em}{\rowh}%
+		&&&&&&\parbox{\coliibw}{\centering\ldots%
+		      \raisebox{0ex}[0ex][\stdomargin]{}}
+%
+\end{diagram}%

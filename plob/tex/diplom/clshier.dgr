@@ -1,0 +1,35 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\newsavebox{\hleg}\sbox{\hleg}{{\mkhleg}}%
+%
+\def\objectstyle{\hbox}%
+\spreaddiagramrows{-0.75pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\begin{diagram}
+%
+	& \dgmc{\textrm{\ T\ }}%
+\\%
+	& \dgmc{\textrm{standard-}\\{}\textrm{object}}
+	   \xto[3,1] \udouble|>\Tip%
+\\%
+	&&& \dgmc{\textrm{metaobject}} \ddlto<-1ex> \ulldouble|>\Tip%
+\\%
+\dgc{\textrm{show-std-}\\{}\textrm{class}} \uurdouble|>\Tip \drrto &&&
+	\dgmc{\textrm{class}} \dlto<1ex> \udouble|>\Tip%
+\\%
+\dgc{\textrm{example}}\udouble|>\Tip \drrto &&
+	\dgmc{\textrm{standard-}\\{}\textrm{class}}
+ 	\toul \urdouble<0.75ex>|>\Tip &&
+		\dgmc{\textrm{built-}\\{}\textrm{in-class}}
+		\llto \uldouble|>\Tip
+\\%
+\dgi{\textrm{\texttt{*}example\texttt{*}}} \uto &&
+	\dgmc{\textrm{meta-show-}\\{}\textrm{std-class}}
+	\uto<-1ex> \udouble<1ex>|>\Tip
+\\
+&&&&\save\Drop{\usebox{\hleg}}\restore
+%
+\end{diagram}%

@@ -1,0 +1,38 @@
+%	This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+\def\class#1{#1}
+%
+\newsavebox{\sleg}\sbox{\sleg}{{\mksleg}}%
+%
+\newlength{\omargin}\setlength{\omargin}{4pt}
+\objectmargin{\omargin}%
+\def\objectstyle{\hbox}%
+\spreaddiagramrows{-1pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\def\mkdescr#1{\begin{diagram}\dgmc{\textrm{\class{#1}}}\end{diagram}}%
+%
+\newsavebox{\cdescr}%
+\sbox{\cdescr}{\mkdescr{structure-description}}%
+\newsavebox{\mdescr}%
+\sbox{\mdescr}{\mkdescr{structure-slot-description}}%
+\newlength{\doffsx}\setlength{\doffsx}{4em}%
+\newlength{\doffsy}\setlength{\doffsy}{-1em}%
+%
+\begin{diagram}
+%
+	&\dgc{\textrm{\class{persistent-object}}}\\
+	&\dgc{\textrm{\class{persistent-structure}}}
+	 \subclassof[-1,0]|>\stip
+		&&\save\Drop{\usebox{\sleg}}\restore\\
+\save\go!<\doffsx,\doffsy>%
+\Drop{\grow<-\omargin>{\usebox{\cdescr}}}%
+\subclassof[-1,1]|>\stip\restore
+\rule{\wd\cdescr}{0em}
+		&&\save\go!<-\doffsx,\doffsy>%
+		  \Drop{\grow<-\omargin>{\usebox{\mdescr}}}
+		  \subclassof[-1,-1]|>\stip\restore
+		  \rule{\wd\mdescr}{0em}
+%
+\end{diagram}%

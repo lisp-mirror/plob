@@ -1,0 +1,69 @@
+%	This is -*-LaTeX-*-
+%
+% 18.8.95
+%
+\input{diagdefs}%
+%
+\begin{small}
+\def\lheight{14pt}%	% Zeilenhoehe
+\newlength\fwidth%
+%\setlength\fwidth\smltxtw%
+\setlength\fwidth{5em}%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramrows{1ex}
+\objectmargin{0pt}
+%
+\def\nfrbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\save\Drop{\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}}\restore%
+}%
+\def\frbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}%
+}%
+%
+\def\frtxt#1{\frbox{\fwidth}{#1}}%
+\def\nfrtxt#1{\nfrbox{\fwidth}{#1}}%
+%
+\newsavebox{\diskfile}%
+\sbox{\diskfile}{\psfig{%
+%height=\lheight,%
+figure=diskfile.eps}}%
+%
+\begin{diagram}%
+%
+\rule{1em}{0ex} & \rule{1em}{0ex}\\
+%
+\rule{0em}{\lheight}%
+\nfrtxt{Session}
+		&&\nfrtxt{Session}\\
+%
+\drto|<{\rotate\tip}
+		&&\dlto|<{\rotate\tip}\\
+%
+	&\frtxt{\plob}\\
+%
+	&&\save\go+<0.5\fwidth,2ex>\Drop{%
+		      \Text{\textrm{\small%
+		       Transaction}\\{}\textrm{\small{}UNDO
+		       logfiles}}}%
+		\restore\\
+%
+	&\uuto|<{\rotate\tip}%
+	   \frtxt{C-\plob}%
+	   \rto|<{\rotate\tip}%
+		&\usebox{\diskfile}&\usebox{\diskfile}\\
+%
+\\
+%
+	&\uuto|<{\rotate\tip}%
+	   \frtxt{POSTORE}%
+	   \rto|<{\rotate\tip}%
+		&\usebox{\diskfile}%
+			&\save\go+<-1em,0ex>\Drop{%
+			  \Text{\textrm{\small\sh}\\{}%
+				\textrm{\small{}file}}}\restore
+%
+\end{diagram}%
+\end{small}

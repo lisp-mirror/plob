@@ -1,0 +1,44 @@
+%	This is -*-LaTeX-*-
+%
+% 02.09.93
+%
+\input{diagdefs}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramrows{2ex}%
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{1em}%
+\objectmargin{0pc}
+%\objectwidth{0em} % Nein
+\def\columnsep{\rule{3em}{0ex}}
+%
+\newlength{\blskip}\setlength{\blskip}{\baselineskip}%
+%
+\def\egrowx{3em}
+\def\eframe{\go+<-\egrowx,0ex>%
+\xline'[0,2]+<\egrowx,0ex>%
+'[2,2]+<\egrowx,0ex>%
+'[2,0]+<-\egrowx,0ex>%
+[0,0]+<-\egrowx,0ex>}
+%
+\def\Nultext#1#2{\rule{0em}{#2\blskip}%
+\save\Drop{\Text{\textrm{#1}}}\restore}
+%
+\begin{diagram}
+%							% Zeile:
+&\xline'[0,4]'[2,4]'[2,0][0,0]&&&&&\\			%  1
+\columnsep&\columnsep&\columnsep			%  2
+&\Nultext{Applikation}{1}\columnsep
+&\columnsep&\columnsep&\columnsep\\
+&&&&&&\\						%  3
+\rule{0em}{1ex}\\					%  4
+\eframe							%  5
+ &\uurto|<{\rotate\tip}
+  &&&\eframe
+   &\uulto|<{\rotate\tip}
+    &\\
+&\Nultext{Transientes Objektsystem}{1}			%  6
+ &&&&\Nultext{Persistenter Speicher}{1}\\
+&&&&&&							%  7
+%
+\end{diagram}%

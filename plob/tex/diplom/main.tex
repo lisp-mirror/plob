@@ -1,0 +1,255 @@
+%macropackage=lplaing           This is -*-LaTeX-*-
+%
+% main.tex
+% HK 23.10.92
+%
+% Switches
+%
+% Fuer Vorab-Drucke \nodiagram, \notableofcontents ein- und \nothink
+% ausschalten:
+%       \def\notableofcontents{}% Um Inhaltsverzeichnis auszuschalten
+%       %\def\nothink{}         % Um die Kommentare sichtbar zu machen
+%       %\nofiles
+% Fuer druckfertige Version \nodiagram, \notableofcontents aus- und \nothink
+% einschalten:
+%       %\def\notableofcontents{}% Um Inhaltsverzeichnis einzuschalten
+%       \def\nothink{}          % Um die Kommentare verschwinden zu lassen
+%       \nofiles
+%
+% Bei Ausgabe auf den Drucker d105_hp6 (doppelseitiger Drucker) werden
+% oft die Seiten 69, 71, 138 und 139 zermarmelt; daher die Seiten
+% 69-72 und 137-140 nochmal drucken.
+% Seit der Installation von LaTeX 2.09e scheint das nicht mehr zu
+% passieren.
+%
+%\def\notableofcontents{}       % Unterdrueckt Inhaltsverzeichnis, Glossar
+\def\nothink{}          % Unterdrueckt Kommentare
+%\nofiles%
+%
+% LaTeX 2.09
+%\input{psfig}%
+%\psnoisy%
+%\pssilent%
+%
+\newif\ifdothink\dothinkfalse
+%
+\ifbuch\def\schrgr{12pt}\else\def\schrgr{11pt}\fi
+\documentclass[a4paper,wide,\schrgr,titlepage,twoside,nothink]{pretty}%
+%
+\usepackage[german]{babel}\selectlanguage{german}
+\usepackage{epsfig}
+%\usepackage[set]{longtable}
+\usepackage{longtable}
+%
+\usepackage{avb}
+\usepackage{timestt}
+%
+\usepackage{crossref}
+\usepackage{dipldefs}
+\ifbericht%
+\def\nextstep{\usepackage{fbititle}}%
+\else%
+\def\nextstep{\relax}%
+\fi%
+\nextstep%
+\def\thisreportnumber{179}
+\ifbericht%
+\reportnumber{\thisreportnumber}%
+\reviewers{%
+ Prof.\ Dr.\ Leonie Dreschler-Fischer und
+ Prof.\ Dr.\ Joachim W.\ Schmidt}%
+\fi%
+%
+% Version fuers Pruefungsamt:
+%\def\dipldate{7.\ September 1994}
+%
+% Unmengen von Tippfehlern beseitigt, diverse Fussnoten in den
+% laufenden Text integriert:
+%\def\dipldate{16.\ September 1994}
+%
+% Anpassung auf LaTeX 2.09 e:
+%\def\dipldate{9.\ November 1994}
+%
+% FBI-Bericht:
+%\def\dipldate{%
+% \ifbericht\else14.\ \fi%
+% Februar 1995}
+%
+% FBI-Bericht, korrigiert und mit eingearbeiteten Anmerkungen von
+% F. Matthes, A. Gawecki:
+\ifx\dipldate\undefined%
+\ifbericht%
+\def\dipldate{Juli 1995}%
+\else\ifbuch%
+\def\dipldate{}%
+\else%
+\def\dipldate{Abgabetermin: 7.\ September 1994}%
+\fi\fi\fi%
+%
+\ifx\dipldate\undefined\def\dipldate{}\fi%
+\edef\dipldate{\noexpand\date{\dipldate}}\dipldate%
+%
+\providecommand\td{\ensuremath{\sim}}% ASCII-Tilde
+\ifbuch%
+\def\figurefontsize{normalsize}%
+\else%
+\def\figurefontsize{small}%
+\fi%
+%
+%
+% Tiefe des Inhaltsverzeichnis; wird von report.sty standardmaessig
+% auf 2 gesetzt:
+%\def\mytocdepth{99}
+%
+\makeglossary%
+%
+% \includeonlys
+%
+%\includeonly{title}
+%\includeonly{title,intro}
+%\includeonly{title,intro,bibliogr}
+%\includeonly{title,intro,soh,bibliogr}
+%\includeonly{title,intro,identity}
+%\includeonly{title,intro,identity,bibliogr}
+%\includeonly{title,backgrnd}
+%\includeonly{title,backgrnd,bibliogr}
+%\includeonly{title,plob}
+%\includeonly{title,clos,bibliogr}
+%\includeonly{title,identity,bibliogr}
+%\includeonly{intro}
+%\includeonly{intro,cltodb,plob,bibliogr}
+%\includeonly{intro,bibliogr}
+%\includeonly{backgrnd}
+%\includeonly{identity}
+%\includeonly{identity,bibliogr}
+%\includeonly{identity,cltodb,plob,bibliogr}
+%\includeonly{arch}
+%\includeonly{cltodb}
+%\includeonly{cltodb,plob}
+%\includeonly{cltodb,bibliogr}
+%\includeonly{soh}
+%\includeonly{plob}
+%\includeonly{plob,exit}
+%\includeonly{plob,bibliogr}
+%\includeonly{exit}
+%\includeonly{bibliogr}
+%
+% Trennungsausnahmen
+%
+\hyphenation{
+%aus-schlie\ss{}-lich
+%\\"{u}ber-tra-gen
+Be-nut-zer-In-nen
+Be-schrei-bung
+Be-schrei-bungs-klas-se Be-schrei-bungs-Klas-se
+Be-schrei-bungs-klas-sen Be-schrei-bungs-Klas-sen
+Da-ten-bank
+Da-ten-ob-jekt Da-ten-ob-jek-te Da-ten-ob-jek-ten Da-ten-ob-jek-tes
+Ele-ment-ebe-ne
+%Gr\\"{o}-\ss{}e
+Ini-tia-li-sie-rungs-aus-druck
+Ini-tia-li-sie-rungs-funk-ti-on
+Merk-mals-an-zahl
+Per-si-sten-tes
+Spei-cher-adres-se
+Stru-ktur
+Struk-tur-ob-jekt Struk-tur-ob-jek-tes
+sy-stem-in-tern sy-stem-in-ter-ne
+sy-stem-spe-zi-fi-scher
+Trans-ak-tion Trans-ak-tio-nen
+Typ-be-schrei-bung Typ-be-schrei-bun-gen
+Wur-zel-ob-jekt Wur-zel-ob-jek-tes
+}
+% 
+\begin{document}
+%
+\newcommand{\lb}{\linebreak[0]}%                Zeilenumbrueche in \tt-Env.
+\def\nonnil{nicht-\lispnil}%
+\frenchspacing%
+\sloppy%
+%
+\include{title}
+%
+\pagenumbering{roman}\pagestyle{headings}
+%
+\ifx\mytocdepth\undefined\relax\else%
+\settocdepth{\mytocdepth}%
+\fi%
+%
+\ifx\notableofcontents\undefined%
+\tableofcontents\clearpage%
+\thispagestyle{plain}\cleardoublepage%
+\ifbuch\else\listoffigures\fi%
+\fi%
+\clearpage\thispagestyle{plain}\cleardoublepage%
+%
+\pagenumbering{arabic}
+\include{intro}
+\thispagestyle{plain}\cleardoublepage
+\include{backgrnd}
+\thispagestyle{plain}\cleardoublepage
+\include{identity}
+\thispagestyle{plain}\cleardoublepage
+\include{arch}
+\thispagestyle{plain}\cleardoublepage
+\include{cltodb}
+\ifbericht\else
+\thispagestyle{plain}\cleardoublepage
+\include{soh}
+\fi
+\thispagestyle{plain}\cleardoublepage
+\include{plob}
+\thispagestyle{plain}\cleardoublepage
+\include{exit}
+\ifx\notableofcontents\undefined
+\thispagestyle{plain}\cleardoublepage
+\addglossary%
+ {Endlos-Schleife\nopageno}%
+ [{\protect\see{Schleife, Endlos-\protect\td}}]%
+\addglossary%
+ {Schleife, Endlos-\protect\td\nopageno}%
+ [{\protect\see{Endlos-Schleife}%
+  \protect\footnote{-- Random Shack Data Processing Dictionary}}]%
+\label{chap:glossary}%
+\addcontentsline%
+ {toc}%
+ {chapter}%
+ {\protect\numberline{}{\protect\glossaryname}}%
+\setglossary%
+\clearpage\fi%
+\thispagestyle{plain}\cleardoublepage
+\include{bibliogr}
+%
+\ifbericht%
+\def\nextstep{\appendix}%
+\else%
+\def\nextstep{\relax}%
+\fi%
+\nextstep%
+%
+\ifbericht%
+\def\nextstep{%
+\thispagestyle{plain}\cleardoublepage%
+\let\pfsection\chapter%
+\let\pfsubsection\section%
+\let\pfsubsubsection\subsection%
+\thispagestyle{plain}\cleardoublepage%
+\include{perform}}%
+\else%
+\def\nextstep{\relax}%
+\fi
+\nextstep%
+%
+\iffalse% Die Erklaerung wird nicht mehr gebraucht ...
+\thispagestyle{plain}\cleardoublepage\thispagestyle{empty}%
+\vspace*{\fill}%
+\par\noindent Ich versichere, die vorliegende Diplomarbeit ohne fremde
+Hilfe selbst\"{a}ndig angefertigt und keine anderen als die angegebenen
+Quellen und Hilfsmittel verwendet zu haben.
+\bigskip
+\par\noindent Hamburg, \titledate
+\vspace*{\fill}\clearpage%
+\fi%\iffalse%
+%
+\end{document}%
+%

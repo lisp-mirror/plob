@@ -1,0 +1,29 @@
+%	This is -*-LaTeX-*-
+%
+% 01.09.93
+%
+\input{diagdefs}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramrows{2ex}%
+%\spreaddiagramcolumns{-2pc}%
+%\spreaddiagramcolumns{1em}%
+\objectmargin{0pc}
+%
+\def\nframe{\xline'[0,2]'[2,2]'[2,0][0,0]}%
+%
+\begin{diagram}
+%							% Zeile:
+\nframe&&\\						%  1
+&\text{\textrm{Applikation}}&\\				%  2
+&&\\							%  3
+\rule{0em}{1ex}\\					%  4
+\nframe&\uuto|<{\rotate\tip}&\\				%  5
+&\text{\textrm{Persistentes Objektsystem}}&\\		%  6
+&&\\							%  7
+\rule{0em}{1ex}\\					%  8
+\nframe&\uuto|<{\rotate\tip}&\\				%  9
+&\text{\textrm{Persistenter Speicher}}&\\		% 10
+&&							% 11
+%
+\end{diagram}%

@@ -1,0 +1,36 @@
+%	This is -*-LaTeX-*-
+%
+% 04.10.93
+%
+\input{diagdefs}%
+%
+\mkdotdarrow%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{1ex}%
+\objectmargin{\stdomargin}%
+%
+\begin{diagram}
+%
+\save\go[2,0]\merge\framed\restore%
+\makebox[\cstiw]{\lisp{STRUKT\protect\us{}BEZ}}%
+	&&\save\go[3,0]\merge\framed<5pt>\restore%
+	  \makebox[\cstiiiw]{\class{ANGESTELLTER}}\\
+\makebox[\cstiw]{\hrulefill}%
+	&&\makebox[\cstiiiw]{\hrulefill}\\
+\makebox[\cstiw]{\lisp{<ANGESTELLTER\protect\us{}23>}}%
+\xdotted'[0,1]+<0em,0ex>'[-2,1]+<0em,0ex>[-2,2]|>{\tip}%
+	&&\text{\lisp{NAME=\dq\nameii\dq}}\\
+\save\Drop{\parbox{\cstiw}{\raggedright\footnotesize{}%
+\ \\[5ex]Typstrukturierter Bezeichner}}\restore%
+	&&\text{\lisp{GEHALT=6000}}\\
+	&&\rule{0em}{2ex}\parbox{\cstiiiw}{\footnotesize{}Instanz}\\
+	&&\rule{0em}{4ex}%
+	  \save\Drop{\text{\textrm{\footnotesize%
+	  \raisebox{0.5ex}{\dotdarrow}
+	  Schwache Kopplung (Methode)}}}\restore%
+%
+\end{diagram}%

@@ -1,0 +1,50 @@
+%	This is -*-LaTeX-*-
+%
+% 11.8.94
+%
+\input{diagdefs}%
+%
+\newlength{\csep}\setlength{\csep}{6em}%
+\newlength{\coliiw}\settowidth{\coliiw}{Abbruch}%
+%
+\newlength{\blskip}\setlength{\blskip}{\baselineskip}%
+%
+\def\Nultext#1{\save\Drop{\Text{\textrm{#1}}}\restore}
+\def\vbar{\left|\right.}%
+\def\tidx#1{\vbar\save\go+<0em,-2.5ex>\Drop{t_{#1}}\restore}%
+%
+\spreaddiagramrows{-1pc}%
+\spreaddiagramcolumns{-1.5pc}%
+\objectmargin{0pt}%
+%
+\begin{diagram}%
+%
+&\Nultext{Gesamtzustand}
+	&&\rule{\csep}{0ex}%
+		&\rule{\csep}{0ex}\\
+\\
+\text{\textrm{z$_{1}$}}&\Nultext{---}%
+	 &&&\xline[0,1]&
+		\raisebox{0.5ex}[0pt][0pt]{%
+		\parbox{\coliiw}{\flushleft\ Ende}}\\
+	&&&&\xdotted[1,0]&&\text{\textrm{der Transaktion}}\\
+\text{\textrm{z$_{0}$}}&
+ \save\go+<-0.5em,0ex>\xline[0,2]\restore
+	&&\xdotted[-2,1]\xdotted[-1,1]
+		&\xline[0,1]&
+		 \raisebox{0.5ex}[0pt][0pt]{%
+		 \parbox{\coliiw}{\flushleft\ Abbruch}}\\
+%
+&\xto[-5,0]+<0ex,-1em>
+\xto[0,4]_>{\text{\textrm{\small Zeit}}}
+&&\tidx{0}&\tidx{1}&
+&&\save\go+<0pt,0.5\blskip>\Drop{\parbox{10em}{\footnotesize%
+---: Konsistenter Zustand\\
+\raisebox{0.5ex}{\ldots}: Inkonsistenter Zustand
+}}\restore\\
+&&&\vbar%
+\rto%
+^{\text{\textrm{\small Aktive}}}%
+_{\text{\textrm{\small Transaktion}}}&\vbar
+%
+\end{diagram}%

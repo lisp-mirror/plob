@@ -1,0 +1,43 @@
+%	This is -*-LaTeX-*-
+%
+% 01.10.93
+%
+\input{diagdefs}%
+%
+\let\coliw\smltxtw%
+\let\coliiw\smltxtw%
+\let\coliiiw\stdtxtw%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{1ex}%
+\objectmargin{\stdomargin}%
+%
+\begin{diagram}%
+%
+\makebox[\coliw]{\class{INDIREKTE\protect\us{}ADR}}%
+\save\go[2,0]\merge\framed\restore%
+	&&\save\go[3,0]\merge\framed\restore%
+	  \makebox[\coliiw]{\class{FORWARDER}}%
+		&&\makebox[\coliiiw]{\class{ANGESTELLTER}}%
+		  \save\go[3,0]\merge\framed<5pt>\restore\\
+\makebox[\coliw]{\hrulefill}%
+	&&\makebox[\coliiw]{\hrulefill}%
+		&&\makebox[\coliiiw]{\hrulefill}\\
+\makebox[\coliw]{\tt{}<0x34B74>}%
+\xto'[0,1]+<0em,0ex>'[-2,1]+<0em,0ex>[-2,2]%
+	&&\makebox[\coliiw]{\tt{}<0xA249F8>}%
+	  \xto'[0,1]+<0em,0ex>'[-2,1]+<0em,0ex>[-2,2]%
+		&&\text{\lisp{NAME=\dq\namei\dq}}\\
+\rule{0em}{2ex}%
+\parbox{\coliw}{\footnotesize{}Indirekte Adresse}%
+	&&\text{\texttt{\ldots}}%
+		&&\text{\lisp{GEHALT=3000}}\\
+	&&\rule{0em}{2ex}%
+	  \parbox{\coliiw}{\footnotesize\em{}Forwarder}%
+		&&\rule{0em}{2ex}%
+		  \parbox{\coliiiw}{\footnotesize{}Instanz}
+%
+\end{diagram}%

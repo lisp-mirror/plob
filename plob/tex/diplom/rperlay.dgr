@@ -1,0 +1,52 @@
+%       This is -*-LaTeX-*-
+%
+% 30.08.93
+%
+\input{diagdefs}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramrows{2ex}%
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{1em}%
+\objectmargin{0pc}
+%\objectwidth{0em} % Nein
+%
+\newlength{\blskip}\setlength{\blskip}{\baselineskip}%
+%
+\def\columnsep{\rule{3em}{0ex}}
+%
+\def\Nultext#1#2{%
+\save\Drop{\Text{#1}}\restore
+\rule{0em}{#2\blskip}%
+}%
+\def\nframe{\xline'[0,2]'[2,2]'[2,0][0,0]}%
+%
+\begin{diagram}
+%                                                       % Zeile:
+\xline'[0,5]'[2,5]'[2,1]'[6,1]'[6,0][0,0]               %  1
+ &&&&&\\
+\columnsep&\columnsep&\columnsep                        %  2
+&\Nultext{\textrm{Applikation}}{1}\columnsep&\columnsep&\columnsep\\
+&&&&&\\                                                 %  3
+\rule{0em}{1ex}\\                                       %  4
+&\save                                                  %  5
+ \go+<1em,0ex>
+ \xline'[0,0]+(4,0)'[0,4]'[2,4]'[2,0]+<1em,0ex>[0,0]+<1em,0ex>
+ \restore
+  &&\uuto|<{\rotate\tip}
+   &&\\
+&&&\Nultext{\textrm{Persistentes Objektsystem}}{1}\\    %  6
+&&&&&\\                                                 %  7
+\rule{0em}{1ex}\\                                       %  8
+\nframe                                                 %  9
+% &\xto[-2,-1];[-2,0]:(0.5,0)|<{\rotate\tip}
+ &\xdotted{[-2,-1];[-2,0]:(0.5,0)}|<{\rotate\tip}|>{\tip}%
+  \uurrto|<{\rotate\tip}
+  &&\nframe
+   &\uulto|<{\rotate\tip}
+    &\\
+&\Nultext{\textrm{Transientes}\\{}\textrm{Objektsystem}}{2} % 10
+ &&&\Nultext{\textrm{Persistenter}\\{}\textrm{Speicher}}{2}\\
+&&&&&                                                   % 11
+%
+\end{diagram}%

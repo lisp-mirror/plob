@@ -1,0 +1,56 @@
+%	This is -*-LaTeX-*-
+%
+% 12.8.94
+%
+\newsavebox{\diskfile}\sbox{\diskfile}{\psfig{figure=diskfile.eps}}%
+%
+\input{diagdefs}%
+%
+\def\lheight{18pt}%	% Zeilenhoehe
+\def\fwidth{\stdtxtw}%
+%
+\spreaddiagramrows{-1.5pc}
+\objectmargin{0pt}
+%
+\def\nfrbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\save\Drop{\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}}\restore%
+}%
+\def\frbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}%
+}%
+%
+\def\frtxt#1{\frbox{\fwidth}{#1}}%
+\def\nfrtxt#1{\nfrbox{\fwidth}{#1}}%
+%
+\begin{diagram}%
+%
+\save\Drop{\text{\textrm{Schicht}}}\restore
+  & \rule{8ex}{0ex}\\
+%
+4 & \save\Drop{\Text{\textrm{Applikations-}\\{}\textrm{schicht}}}\restore
+	&&\frtxt{LISP Applikation}\\
+%
+\\
+%
+3 & \save\Drop{\Text{\textrm{Persistentes}\\{}\textrm{Objektsystem}}}\restore
+	&&\uuto|<{\rotate\tip}%
+	  \frtxt{\soh}\\
+%
+\\
+%
+2 &
+	&&\uuto|<{\rotate\tip}%
+	  \frtxt{LIBPQ}\\
+%
+  & \save\Drop{\Text{\textrm{Persistenter}\\{}\textrm{Speicher}}}\restore\\
+%
+1 &
+	&&\uuto|<{\rotate\tip}%
+	   \frtxt{POSTGRES}%
+	   \rto|<{\rotate\tip}%
+	  	&\usebox{\diskfile}%
+			&\save\Drop{\text{\textrm{\small Datenbank}}}\restore
+%
+\end{diagram}%

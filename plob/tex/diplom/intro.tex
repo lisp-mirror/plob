@@ -1,0 +1,457 @@
+%       This is -*-LaTeX-*-
+%
+\chapter{Einleitung}\label{chap:intro}
+%
+Die \gande{Lebensdauer}{extent}\ von Daten und Objekten ist bei den
+meisten Systemen auf die Lebensdauer des Prozesses eingeschr\"{a}nkt, der
+sie erzeugt hat, d.h.\ insbesondere wenn dieser Proze\ss{} terminiert,
+werden alle Daten freigegeben ({\em fl\"{u}chtige\/} oder
+{\em transiente\/} Objekte).  Ein persistentes Objekt ist ein Objekt,
+dessen Lebensdauer unabh\"{a}ngig von dem Proze\ss{} ist, der dieses Objekt
+erzeugt hat, d.h.\ ein einmal erzeugtes Objekt kann zu einem anderen
+Zeitpunkt von einem anderen, sp\"{a}teren Proze\ss{} wiederbenutzt werden
+\cite[\citepage{75}]{bib:at89}. In \cite[\citepage{4}]{bib:mo89a} wird
+Persistenz von Daten als der Zeitraum definiert, w\"{a}hrend der die
+Daten existieren und \gande{benutzbar}{usable}\ sind; anzustreben
+sind Systeme, bei denen Persistenz und Benutzung von Daten getrennt
+werden.
+%
+\par{}Die bisher gebr\"{a}uchliche Methode zum Speichern von langlebigen
+Daten ist die Benutzung einer Datenbank, die den BenutzerInnen
+Datentypen und Operationen \"{u}ber die abgelegten Daten zur Verf\"{u}gung
+stellt.  Viele Datenbanken verf\"{u}gen \"{u}ber eigene Anfragesprachen, die
+einen vollst\"{a}ndigen Zugriff auf die M\"{o}g\-lich\-kei\-ten der
+Datenbank bieten; meist sind diese Anfragesprachen aber nicht f\"{u}r das
+Erstellen kompletter Applikationen geeignet. Daher wird neben der
+Anfragesprache oft eine Schnittstelle zu einer Programmiersprache
+angeboten. Diese Schnittstelle stellt lediglich die Funktionalit\"{a}t
+der Datenbank zur Verf\"{u}gung, richtet sich \ia\ jedoch nicht nach den
+Konzepten der Programmiersprache, die die Datenbank verwendet:%
+\footnotemark\addtocounter{footnote}{-1}%
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/incldbmo.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/incldbmo.eps}}%
+\fi%
+\end{figure}%
+\refstepcounter{figure}%
+\addcontentsline%
+ {lof}%
+ {figure}%
+ {\protect\numberline{\thefigure}{\ignorespaces%
+  Benutzung von Programmiersprache und Datenbank zur Abstraktion eines
+  realen Systems}}%
+%
+\par\noindent{}Eine L\"{o}sung dieses Problems besteht darin, die
+Trennung zwischen Datenbank und Programmiersprache aufzuheben,
+d.h.\ die  Datenbankkonzepte m\"{o}glichst vollst\"{a}ndig in eine
+Programmiersprache zu integrieren:\footnote{Abbildungen nach
+\cite[\citepage{81}]{bib:at89}} %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/inclmo.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/inclmo.eps}}%
+\fi%
+\end{figure}%
+\refstepcounter{figure}%
+\addcontentsline%
+ {lof}%
+ {figure}%
+ {\protect\numberline{\thefigure}{\ignorespaces%
+  Benutzung einer persistenten Programmiersprache zur Abstraktion
+  eines realen Systems}}%
+%
+\par\noindent{}Es bietet sich an, entweder eine v\"{o}llig neue Sprache
+zu erstellen oder aber diese Integration f\"{u}r eine vorhandene
+Sprache durchzuf\"{u}hren. In \ifbericht dieser Forschungsarbeit
+\else\ifbuch der in diesem Buch vorgestellten Forschungsarbeit \else
+dieser Arbeit \fi\fi wurde der zweite Ansatz untersucht und
+realisiert:\ das \cl\ Object System (\clos) wurde um Persistenz
+erweitert.
+%
+\iffalse
+Persistente Objekte sind quasi die Vorstufe einer
+Datenbank f\"{u}r Objekte. Durch Bereitstellung von Methoden, die eine
+datenbank-typische Verwaltung von persistenten Objekten durchf\"{u}hren,
+l\"{a}\ss{}t sich ein System, das persistente Objekte anbietet, sehr leicht
+in eine objektorientierte Datenbank erweitern
+\cite[\citepage{88}]{bib:at89}.
+\fi
+%
+\ifdothink%
+\section*{Kommentare}
+Dieser Text ist noch in der Entstehung begriffen und enth\"{a}lt daher
+noch Anmerkungen, die in der endg\"{u}ltigen Fassung nicht mehr
+auftauchen (genau wie dieser Abschnitt).  Diese Anmerkungen beginnen
+mit dem Wort \rglq{}\"{U}berlegen\rgrq{} und sind kursiv gesetzt und mit
+einem doppelten Pfeil am Rand gekennzeichnet, wenn der Kommentar noch
+nicht beantwortet ist, z.B: \think{Wenn einem Gutes widerf\"{a}hrt, das
+ist doch eine \"{U}berlegung wert}. Beantwortete Kommentare sind zur
+Unterscheidung zu \rglq{}offenen\rgrq{} Fragen mit einem einfachen Pfeil
+am Rand gekennzeichnet:
+\think{Was bedeutet der einfache Pfeil am Rand?}[Eine
+beantwortete \"{U}berlegung].%
+\fi%
+%
+\section{Hintergrund}
+%
+Das \oscar\ ({\em Open Skies for Conventional Arms Reduction\/})
+Projekt im Fachbereich Informatik der Universit\"{a}t Hamburg befa\ss{}t
+sich mit der Auswertung von Satellitenbildern zur Verifikation von
+Abr\"{u}stungsvereinbarungen. Dazu werden \"{A}nderungen an R\"{u}stungsanlagen
+halbautomatisch \"{u}berwacht, indem ein Modell einer solchen Anlage im
+Rechner abgelegt wird und dieses Modell mit den Satellitenbildern der
+gleichen Anlage verglichen wird; die Aufgabe von \oscar\ besteht
+darin, abr\"{u}stungstechnisch relevante \"{A}nderungen zwischen
+Rechnermodell und Satellitenbild zu detektieren und diese \"{A}nderungen
+zur weiteren Verarbeitung kenntlich zu machen. Das im Rechner
+abgelegte Modell entspricht einem Soll-Zustand; die Satellitenbilder
+der Anlage geben den Ist-Zustand wieder. Die zu \"{u}berwachenden Anlagen
+sind geografischer Natur, d.h.\ im Gel\"{a}nde feststehende Objekte mit
+einer gewissen Gr\"{o}\ss{}e, wie z.B.\ Flugh\"{a}fen, Kasernen und
+Hafenanlagen.
+%
+\par{}Die f\"{u}r die Verifikation relevanten Anlagen
+werden als Objekte bestehend aus Teil\-kom\-po\-nen\-ten modelliert;
+so besteht ein Flughafen z.B.\ aus ein- oder mehreren Hangars, einem
+Radarturm, den Start- und Landebahnen, den Verbindungswegen, auf denen
+die Flugzeuge bewegt werden, usw.  Die Ab\-h\"{a}n\-gig\-kei\-ten
+zwischen den Teilkomponenten m\"{u}ssen ebenfalls be\-r\"{u}ck\-sich\-tigt
+werden, z.B.\ wird man auf einem Flughafen immer einen Verbindungsweg
+zwischen den Hangars und den Start- und Landebahnen finden. Das
+allgemeine Konzept einer solchen Anlage wird als generisches Modell
+abgelegt, welches die einzelnen Teilkomponenten spezifiziert und die
+Ab\-h\"{a}n\-gig\-kei\-ten zwischen ihnen festlegt.  Im generischen
+Modell wird lediglich qualitativ festgelegt, aus welchen Teilen die
+gesamte Anlage besteht; erst durch Instanziierung eines generischen
+Modells wird eine konkrete Anlage erzeugt.
+\think{Evt. darstellen: Zusammenhang mit Tree Grammars,
+Ballard/Brown S.~175 ff., kd-Trees, Ballard/Brown S.~281 ff.
+Wissensrepr\"{a}sentation.}
+%
+\par{}In einem n\"{a}chsten Schritt lie\ss{}e sich feststellen, ob beliebige
+Satellitenbilder R\"{u}\-stungs\-an\-la\-gen enthalten; dazu w\"{u}rde im
+Bild nach Strukturen gesucht werden, die die Projektion einer
+Instanziierung eines generischen Modells auf das Bild sein k\"{o}nnten.
+%
+\par{}In diesem Zusammenhang ergibt es sich, da\ss{} die generischen Modelle
+sowie ihre Instanziierungen persistent, d.h.\ \"{u}ber einen l\"{a}ngeren
+Zeitraum, gespeichert werden m\"{u}ssen. Aus den
+\og[en]\ Ab\-h\"{a}n\-gig\-kei\-ten
+zwischen den Teilkomponenten ergibt sich die Notwendigkeit, auf diese
+Komponenten assoziativ zugreifen zu m\"{u}ssen. Da es sich bei den
+Instanziierungen um r\"{a}umliche Daten handelt, mu\ss{} ebenfalls ein
+Zugriff mit mehrdimensionalen Schl\"{u}sseln m\"{o}glich sein.
+\think{Den Rest des Absatzes noch sauberer, ausf\"{u}hrlicher formulieren
+und besser begr\"{u}nden, warum objekt-orientierte Programmierung:}
+Wegen der vom Projekt \oscar\ betrachteten Objekte bietet sich
+f\"{u}r die Realisierung die objekt-orientierte Programmierung an,
+bei der die Teilkomponenten als Instanzen repr\"{a}sentiert werden.
+%
+\section{Aufgabenstellung}%
+\label{sec:task}%
+%
+Die Aufgabenstellung besteht darin, f\"{u}r das im \oscar\ Projekt
+eingesetzte LISP-System eine M\"{o}g\-lich\-keit zu schaffen,
+Datenobjekte transparent beliebig lange speichern zu k\"{o}nnen. Dabei
+m\"{u}ssen folgende Punkte beachtet werden:
+\begin{itemize}
+%
+\item Das persistente System mu\ss{} sehr gro\ss{}e Objekte handhaben k\"{o}nnen,
+wie z.B.\ Satellitenbilder mit hoher Aufl\"{o}sung.
+%
+\item Die Anzahl der in einem LISP-System von einem Objekt
+referenzierten Instanzen kann sehr hoch sein; es sollte m\"{o}glich sein,
+ihre Anzahl bez\"{u}glich Persistenz einzuschr\"{a}nken, indem sie
+beispielsweise in \rglq{}interessante\rgrq\ und
+\rglq{}uninteressante\rgrq\ Instanzen eingeteilt werden und lediglich
+die \rglq{}interessanten\rgrq\ Objekte persistent gehalten werden.  Eine
+Spei\-cher\-r\"{u}ck\-ge\-win\-nung sollte den durch nicht mehr
+ben\"{o}tigte Objekte belegten Speicherplatz wieder freigeben.
+%
+\item Die Integration des persistenten Systems in vorhandene Systeme
+soll sehr einfach sein und m\"{o}glichst wenig \"{A}nderungen nach sich
+ziehen.
+%
+\item Gefordert sind ebenfalls Datenbankfunktionalit\"{a}ten, wie
+Transaktionen und assoziativer mehrdimensionaler Zugriff auf Objekte.
+%
+\end{itemize}
+%
+\section{\"{U}bersicht}
+%
+In Kapitel~\ref{chap:back} werden verschiedene Ans\"{a}tze f\"{u}r
+Persistenz und ihre Integration in Programmiersprachen vorgestellt.
+Kapitel~\ref{chap:idty} behandelt die Identit\"{a}t von Objekten unter
+dem Gesichtspunkt der Persistenz und die sich daraus ergebenen
+Konsequenzen f\"{u}r die Realisierung eines persistenten Systems.
+Verschiedene Architekturen von persistenten Objektsystemen werden in
+Kapitel~\ref{chap:arch} erl\"{a}utert.  Kapitel~\ref{chap:cltodb}
+besch\"{a}ftigt sich mit verschiedenen Programmierkonzepten, die in
+Bezug auf Persistenz wichtig sind.  \ifbericht\else In
+Kapitel~\ref{chap:soh} wird die Realisierung des persistenten Systems
+\soh\ beschrieben und analysiert. \fi Kapitel~\ref{chap:plob}
+beschreibt das von mir realisierte System f\"{u}r persistente Objekte
+in \cl. Kapitel~\ref{chap:exit} enth\"{a}lt eine Zusammenfassung
+\ifbericht des Berichtes \else\ifbuch des Buches \else der Arbeit
+\fi\fi und gibt Hinweise f\"{u}r die Weiterentwicklung des in
+Kapitel~\ref{chap:plob} vorgestellten Systems.
+%
+\section{Voraussetzungen}
+%
+Voraussetzung f\"{u}r das Verst\"{a}ndnis dieses Textes sind Grundkenntnisse
+in \cl; eine gute Einf\"{u}hrung in \cl\ mit dem Schwerpunkt auf
+praktische Beispiele ist \cite{bib:no92}. Eine allgemeine Darstellung
+von LISP findet sich in \cite{bib:wi89}. In
+\amopcite{243--255}\ werden die Konzepte des \cl\ Object System
+(\clos) im Vergleich zu denen von \smalltalk\ und \cpp\ kurz
+dargestellt.
+%
+\par{}F\"{u}r das Verst\"{a}ndnis der beschriebenen Realisierungen von
+persistenten Systemen sind Kenntnisse des \clos\ Metaobjekt-Protokolls
+(\mop) \"{u}berwiegend im Bereich der Beeinflussung der
+Repr\"{a}sentation von \clos-Instanzen hilfreich; dies wird in
+\amopcite{13--34, 47--51, 72--78, 85--90, {\em 96--106\/}, 137--139,
+146--149, 154--158}\ dargestellt.
+%
+\section{Schreibweisen}
+%
+\begin{fortune}
+Man spricht deutsch. Si parla Italiano. English spoken.
+American understood.
+%\from{Schild an einem Gesch\"{a}ft im Ernst-\lb{}Lu\-bitsch-\lb{}Film
+%\rglqq{}Bluebard's Eigth Wife\rgrqq{} \cite[\citepage{171}]{ka92}}
+\from{Schild an einem Gesch\"{a}ft im Ernst-\lb{}Lu\-bitsch-\lb{}Film
+\rglq{}Bluebard's Eigth Wife\rgrq}
+\end{fortune}
+%
+Der folgende Text enth\"{a}lt, soweit m\"{o}glich, die amerikanischen
+Fachausdr\"{u}cke in \"{u}bersetzter Form. Zur Klarstellung, wie der
+deutsche Begriff zu verstehen ist, wird bei der ersten Benutzung eines
+von mir \"{u}bersetzten Begriffes dahinter der amerikanische
+Originalbegriff in runde Klammern eingeschlossen angegeben,
+z.B.: Nach \gande{Ablauf einer bestimmten Wartezeit}{time out}\ wird
+ein Fehler signalisiert. Viele dieser Begriffe werden im Glossar
+(\citepage{\pageref{chap:glossary}}) erkl\"{a}rt.
+%
+\par{}Begriffe, deren sinngem\"{a}\ss{}e \"{U}bersetzung nicht m\"{o}glich ist, wie
+z.B.\ \Slt\/ oder \cache, wurden von mir im Original verwendet.  Bei
+Zusammensetzungen mit solchen Begriffen habe ich nicht ein Wort
+gebildet, sondern die Einzelw\"{o}rter durch einen Bindestrich getrennt,
+z.B.\ \Slt\/-Zustand statt \rglq{}\Slt\/zustand\rgrq.
+%
+\section{Begriffe}
+%
+\vspace*{-4.5ex}\begin{fortune}[6cm]
+\rm\hspace*{\fill}Altes Lautgedicht\hspace*{\fill}\\[\smallskipamount]
+\sf%
+H\,H\,H\hspace*{\fill}H\,H\hspace*{\fill}H\,H\hspace*{\fill}H\,H\,H\\
+\hspace*{\fill}H\,H\,H\hspace*{\fill}\\
+\hspace*{\fill}H\,H\,H\hspace*{\fill}H\,H\,H\hspace*{\fill}\\
+\hspace*{\fill}A\,A\,A\hspace*{\fill}\\
+O la la la\hspace*{\fill}O\,A\hspace*{\fill}O\,A\hspace*{\fill}la la%
+\\[\smallskipamount]
+\rm{}Plinius (i.J.\ 1847.)
+%\from{Kurt Schwitters \cite[\citepage{42}]{sc87}}
+\from{Kurt Schwitters}
+\end{fortune}
+%
+Die in diesem Abschnitt definierten Begriffe spiegeln teilweise den
+Objektbegriff von \clos\ wider; f\"{u}r eine allgemeinere Darstellung
+verweise ich auf
+%\cite[\citepage{8}]{bib:we90}.
+\cite{bib:we90}.
+%
+\subsection{Objektbegriff}
+%
+Ein {\em Objekt\/} ist die Abstraktion einer realen Entit\"{a}t; es
+besitzt eine {\em Identit\"{a}t\/} und hat einen {\em Zustand\/} und ein
+{\em Verhalten\/}.
+%
+\par{}Die Identit\"{a}t eines Objektes zeichnet es als einzigartig unter
+allen Objekten aus. {\em Werte\/} sind Objekte, deren Identit\"{a}t durch
+ihren Zustand festgelegt wird; weiter einschr\"{a}nkend werden Werte als
+Basisklassen-Instanzen definiert, die grunds\"{a}tzlich keine weiteren
+Objekte referenzieren k\"{o}nnen, wie beispielsweise Zahlen, Zeichen,
+Zeichenketten und Bitvektoren.  Bei (\rglq{}echten\rgrq) Objekten ist
+die Identit\"{a}t
+unabh\"{a}ngig von ihrem Zustand \cite[\citepage{3}]{bib:sche92}.  Mit
+einer \representationform{} f\"{u}r Identit\"{a}t kann ein Objekt
+referenziert werden. Ein Wert, dessen Zustand direkt in einer
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion repr\"{a}sentiert werden kann,
+wird als \immval\addglossary{Immediate}[{Ein \protect\immval\/ ist ein
+Wert, dessen Zustand direkt in einer
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-tat\-ion repr\"{a}sentiert werden
+kann.}]\ bezeichnet.
+%
+\par{}Die Struktur des Zustands und das Verhalten eines
+Objektes wird durch seine {\em Klasse\/} festgelegt. Die Struktur des
+Objektzustands ist aus \Slt[s]\/ zusammengesetzt; ein
+\Slt{\em-Zustand\/} ist der in einem \Slt\/ enthaltene Teilzustand des
+Objektes und referenziert einen Wert oder ein Objekt.  Das Verhalten
+des Objektes wird durch seine {\em\mtd[n]\/} gebildet; jede einzelne
+\mtd\ eines Objektes definiert einen Teil seines Verhaltens. Klassen
+werden durch {\em\clsmo[e]\/} repr\"{a}sentiert, \Slt[s]\/ durch
+\Slt-{\em\mo[e]\/} und \mtd[n]\ durch {\em\mtdmo[e]\/}.
+%
+\par{}Eine Klasse entsteht durch {\em Spezialisierung\/} einer oder
+mehrerer Superklassen, von denen sie Struktur und Verhalten erbt und
+gegebenenfalls modifiziert oder erweitert. Die aus einer solchen
+Modifikation hervorgegangene \mtd\ ist eine {\em\spc\ \mtd\/}.
+%
+\par{}Ein {\em transientes Objekt\/} ist ein Objekt, dessen Zustand in
+einem transienten Speicher re\-pr\"{a}\-sen\-tiert wird; der Zustand
+eines {\em persistenten Objektes\/} wird in einem persistenten
+Speicher repr\"{a}sentiert.  Die {\em transiente Repr\"{a}sentation eines
+persistenten Objektes\/} ist der im persistenten Speicher
+repr\"{a}sentierte Zustand des Objektes, der vollst\"{a}ndig oder teilweise
+in eine Re\-pr\"{a}\-sen\-ta\-tion im transienten Speicher kopiert wurde.
+Das Verhalten eines persistenten Objektes wird durch das Verhalten
+seiner transienten Re\-pr\"{a}\-sen\-ta\-tion bestimmt.
+%
+\par{}Ein {\em Objektsystem\/} ist eine Sammlung von Objekten; es
+bietet Hilfsmittel zur Manipulation von Objekten an, wie Editoren zum
+Erstellen von Klassen- und Methoden-Definitionen, Funktionen
+zur Erzeugung von Klassen, Objekten usw. Innerhalb eines Objektsystems
+gibt es {\em Basisklassen\/}%
+\addglossary{Basisklasse}[built-in class][{Eine Basisklasse ist eine
+in das LISP-System
+\protect\gande{\protect\rglq{}eingebaute\protect\rgrq}%
+{built-in}\ Klasse, zu der im Gegensatz zu allgemeinen Klassen keine
+Subklassen spezialisiert werden k\"{o}nnen. Ebenso wird auf den Zustand
+der Instanzen von Basisklassen nicht mit \protect\mtd[n], sondern mit
+\protect\fn[en]\ zugegriffen; damit entf\"{a}llt ebenfalls die
+M\"{o}g\-lich\-keit, die \protect\std-Zugriffs-\protect\mtd[n]\ weiter
+spezialisieren zu k\"{o}nnen.}], die sich im Vergleich zu allgemeinen
+Klassen durch eingeschr\"{a}nkte M\"{o}glichkeiten auszeichnen; so k\"{o}nnen
+sie beispielsweise nicht spezialisiert werden.
+%
+\par{}Persistenz ist {\em orthogonal\/}, wenn sie eine grundlegende
+Eigenschaft eines Datums ist und nicht von anderen Eigenschaften des
+Datums, wie z.B.\ der Zugeh\"{o}rigkeit zu einem bestimmten Typ,
+abh\"{a}ngt. Bei {\em transparenter\/} Persistenz ergeben sich aus der
+Sicht der BenutzerInnen keine \"{A}n\-de\-run\-gen der Schnittstelle zum
+Objektsystem; die Objekte erhalten unter Beibehaltung ihrer
+Schnittstelle zus\"{a}tzlich die Eigenschaft der Persistenz. Intern
+erfolgt die Einbindung von transparenter Persistenz \"{u}ber
+\spc\ \mtd[n]\ von im  System bereits vohandenen  (generischen)
+\fn[en]. Bei {\em intransparenter\/} Persistenz m\"{u}ssen die f\"{u}r
+Persistenz erstellten (generischen) \fn[en]\ von den BenutzerInnen
+explizit benutzt werden.
+%
+\par{}Die Begriffe Objekt, Instanz und Datum werden synonym verwendet;
+dies gilt auch f\"{u}r die Begriffe Typ und Klasse.
+%
+\subsection{Begriffe des \protect\mop}%
+%
+Bei der Bezeichnung der Klassen, Objekte und Methoden des \mop\ habe
+ich mich an den in \amopcite{74--75, 137, 140}\ definierten \Std\ gehalten.
+\begin{itemize}
+%
+\item Die Klassen \class{class}, \class{slot-definition},
+\class{generic-function}, \class{method}\ und
+\class{method-combination}\ werden als {\em Basis-\mc[n]\/}
+bezeichnet. Eine {\em\mc\/} ist eine Subklasse genau einer dieser
+Klassen.
+%
+\item Die Klassen \class{standard-class},
+\class{stan\-dard-di\-rect-slot-de\-fi\-ni\-tion},
+\class{stan\-dard-ef\-fec\-tive-slot-de\-fi\-ni\-tion},
+\class{standard-method},
+\class{standard-reader-method},
+\class{standard-writer-method}\ und
+\class{stan\-dard-ge\-ne\-ric-func\-tion} werden als
+{\em\std-\mc[n]\/} bezeichnet. Er\-g\"{a}n\-zend fasse ich Subklassen der
+Klasse \class{standard-accessor-method}\ unter dem Begriff
+{\em Zugriffs-\mtdmc[n]\/} zusammen. Eine von BenutzerInnen definierte
+Subklasse einer \std-\mc\ wird als {\em\spc\ \mc\/} bezeichnet.
+%
+\item Auf \Std-\mc[n]\ spezialisierte \mtd[n]\ werden als
+{\em\Std-\mtd[n]\/} bezeichnet. Auf \spc\ \mc[n]\ spezialisierte
+\mtd[n]\ werden als {\em\spc\ \mtd[n]\/} bezeichnet.
+%
+\item Instanzen einer \mc\ werden als {\em\mo[e]\/} bezeichnet. Ein
+{\em\Std-\mo\/} ist die Instanz einer \Std-\mc. Ein {\em\spc[s]\ \mo\/}
+ist die Instanz einer \spc[n]\ \mc.
+\begin{itemize}
+%
+\item Ein {\em\clsmo\/} ist eine Instanz der Klasse
+\class{standard-class}\ oder einer ihrer Subklassen.
+%
+\item Ein \Slt-{\em\mo\/} ist eine Instanz der Klasse
+\class{standard-direct-slot-definition}\ oder
+\class{standard-effective-slot-definition}\ oder
+einer ihrer jeweiligen Subklassen.
+%
+\item Ein {\em generisches \fn[s]-\mo\/} ist eine Instanz der Klasse
+\class{standard-generic-function}\ oder einer ihrer Subklassen.
+%
+\item Ein {\em\mtdmo\/} ist eine Instanz der Klasse
+\class{standard-method}\ oder einer ihrer Subklassen.
+%
+\end{itemize}
+%
+\item Der (ungenaue) Begriff \rglq{}Metaklasse\rgrq\ wird nicht
+verwendet; statt dessen wird eine Klasse wie
+z.B.\ \class{standard-class}\ explizit als {\em\clsmc\/} bezeichnet
+(\figurename\ \ref{fig:mopcls}).
+%
+\end{itemize}
+%
+\
+\begin{figure}[htbp]%
+%
+%\def\class#1{#1}%
+\def\name#1{{\footnotesize#1}}%
+%
+\newlength{\indentw}\setlength{\indentw}{5mm}%
+\newlength{\restwidth}\setlength{\restwidth}{\textwidth}%
+\addtolength{\restwidth}{-\leftmargini}%
+\def\mkline#1#2#3{%
+\parbox{\restwidth}{%
+\hspace*{#1}%
+\class{#2}%
+%\hspace*{\fill}%
+\dotfill%
+\name{#3}}}%
+%
+\begin{listing}[\small]%
+\mkline{0\indentw}{T}{\cls}\\
+\mkline{1\indentw}{standard-object}{\cls}\\
+\mkline{2\indentw}{metaobject}{\cls}\\
+\mkline{3\indentw}{class}{Basis-\mc}\\
+\mkline{4\indentw}{built-in-class}{\mc}\\
+\mkline{4\indentw}{forward-referenced-class}{\mc}\\
+\mkline{4\indentw}{standard-class}{\Std-\clsmc}\\
+\mkline{5\indentw}{\ldots}{\Spc\ \clsmc}\\
+\mkline{3\indentw}{slot-definition}{Basis-\mc}\\
+\mkline{4\indentw}{standard-slot-definition}{\mc}\\
+\mkline{5\indentw}{standard-direct-slot-definition}{\Std-\sltmc}\\
+\mkline{6\indentw}{\ldots}{\Spc\ \sltmc}\\
+\mkline{5\indentw}{standard-effective-slot-definition}{\Std-\sltmc}\\
+\mkline{6\indentw}{\ldots}{\Spc\ \sltmc}\\
+\mkline{3\indentw}{generic-function}{Basis-\mc}\\
+\mkline{4\indentw}{standard-generic-function}{\Std-Generische-\fn[s]-\mc}\\
+\mkline{5\indentw}{\ldots}{\Spc\ Generische \fn[s]-\mc}\\
+\mkline{3\indentw}{method}{Basis-\mc}\\
+\mkline{4\indentw}{standard-method}{\Std-\mtdmc}\\
+\mkline{5\indentw}{standard-accessor-method}{\Std-\mtdmc}\\
+\mkline{6\indentw}{standard-reader-method}{\Std-\mtdmc}\\
+\mkline{7\indentw}{\ldots}{\Spc\ \mtdmc}\\
+\mkline{6\indentw}{standard-writer-method}{\Std-\mtdmc}\\
+\mkline{7\indentw}{\ldots}{\Spc\ \mtdmc}\\
+\mkline{3\indentw}{method-combination}{Basis-\mc}
+\end{listing}%
+%
+\caption{Metaobjekt-Klassenhierarchie und Klassenbezeichnungen}%
+\label{fig:mopcls}%
+\end{figure}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

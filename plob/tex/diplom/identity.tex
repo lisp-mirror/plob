@@ -1,0 +1,1525 @@
+% This is -*-LaTeX-*-
+%
+\chapter{Identit\"{a}t}%
+\label{chap:idty}%
+%
+\begin{fortune}
+Heute betrachtet sich das Vieh darin [im Spiegelbild eines Flusses,
+Anm.\ d.\ Verf.]\ und sieht sich schwimmen, wenn es daran
+entlangl\"{a}uft, und H\"{a}nfling und Buchfink verdoppeln sich darin, ohne
+ihre Einzigkeit zu verlieren. Sie entstehen darin wieder, ohne zu
+sterben, und wundern sich, da\ss{} ihnen in solch kaltem Nest im Nu Junge
+ausschl\"{u}pfen, die genauso gro\ss{} sind wie sie selber.
+\from{Cyrano De Bergerac: Herzstiche}
+\end{fortune}
+%
+Die Objekte innerhalb eines Objektsystems stehen nicht f\"{u}r sich
+alleine, sondern sind durch Referenzen untereinander verbunden. Eine 
+Referenz stellt einen eineindeutigen Bezug zur referenzierten Instanz
+her. Ein Objekt wird durch seine Identit\"{a}t unterscheidbar von allen
+anderen Objekten; Eineindeutigkeit f\"{u}r eine Referenz ist daher dann
+gew\"{a}hrleistet, wenn sie aus der Identit\"{a}t des Objektes bestimmt
+wird. Dieses Kapitel besch\"{a}ftigt sich deswegen mit dem
+Identit\"{a}tsbegriff allgemein und spezieller mit den m\"{o}glichen
+\representationforms\ f\"{u}r Identit\"{a}t von transienten und
+persistenten Objekten zum Aufbau von Referenzen zwischen Instanzen.
+%
+\par{}Mit Identit\"{a}t wird die Eigenschaft bezeichnet, da\ss{} ein Ding
+oder ein Sachverhalt nur mit sich selbst in allen
+\gande{Merkmalen}{properties}\ \"{u}bereinstimmt
+\cite[\citepage{543}]{bib:kl76} \cite[\citepage{9}]{bib:zd90}.%
+\footnote{Dagegen ist Gleichheit lediglich die \"{U}bereinstimmung in
+wesentlichen Merkmalen zweier nicht-identischer Dinge
+\cite[\citepage{303}]{bib:schm82}.} Laut {\em Identit\"{a}tsprinzip\/}
+sind zwei Dinge {\it x\/} und {\it y\/} genau dann identisch, wenn
+alle Merkmale {\it P\/} zwischen diesen beiden Dingen \"{a}quivalent
+sind:
+%
+\begin{equation}
+(x \equiv y) %
+\stackrel{\mbox{\rm\footnotesize\it def}}{=}
+\bigwedge_{P} P(x) \leftrightarrow P(y)
+\end{equation}
+%
+\par{}In der hier vorliegenden Form kann das Identit\"{a}tsprinzip
+(lediglich) verwendet werden, um ein Individuum gegen andere
+abzugrenzen, indem z.B.\ alle Individuen zu einem bestimmten Zeitpunkt
+betrachtet werden; das Identit\"{a}tsprinzip erm\"{o}glicht in diesem Fall
+die Bestimmung einer Identit\"{a}t f\"{u}r jedes einzelne Individuum, da es
+sich von allen anderen in mindestens einem Merkmal
+unterscheidet. Diese sogenannte {\em abstrakte Identit\"{a}t\/} ist die
+triviale Feststellung, da\ss{} jedes Individuum genau mit sich selbst
+identisch ist und wird auch als {\it x}\,=\,{\it x} formuliert.
+%
+\par{}Der nicht-triviale Fall besteht darin, da\ss{} sich Merkmale
+eines Individuums \"{a}ndern k\"{o}nnen. Bei einer \"{A}nderung bleibt die
+abstrakte Identit\"{a}t gegen\"{u}ber allen anderen Individuen erhalten,
+aber das Identit\"{a}tsprinzip gilt in der \og[en]\ Form nicht mehr f\"{u}r
+das Individuum selbst vor und nach einer \"{A}nderung.  Trotzdem bleibt
+das Individuum mit sich selbst gleich, es ist {\em
+kon\-kret-""iden\-tisch}. Die Merkmale eines Individuums lassen sich
+in konstante und variable Merkmale einteilen; da die sich ergebenden
+\"{A}nderungen der variablen Merkmale \ia\ nicht vorhersehbar sind, kann
+ein eingeschr\"{a}nktes Identit\"{a}tsprinzip zur Identit\"{a}tsfeststellung
+eines Individuums verwendet werden, wobei die Einschr\"{a}nkung darin
+besteht, nicht alle, sondern ausschlie\ss{}lich die konstanten Merkmale
+zu betrachten. Die Einteilung in konstante und variable Merkmale mu\ss{}
+je nach Verwendungszweck angemessen vorgenommen werden, so da\ss{} die
+konkrete Identit\"{a}t eines Individuums hinreichend feststellbar wird.
+%
+\par{}Beispielsweise sind variable Merkmale bei einer Person die
+Kleidung oder die Umgebung, in der sich die Person befindet, wie die
+aktuelle Postanschrift; ein oft konstantes Merkmal ist der Name; immer
+konstante Merkmale sind Geburtstag und -ort. Bei Immobilien ist
+hingegen die Ortsangabe ein konstantes Merkmal, w\"{a}hrend die aktuellen
+BesitzerInnen oder BewohnerInnen eines solchen Objektes variable
+Merkmale sind.
+%
+\par{}Die in diesem Zusammenhang interessierenden Individuen sind
+Daten im Sinne der (objekt-orientierten) Programmierung.
+Programmierung verfolgt die Absicht, einen Teil der realen Welt als
+Modell nachzubilden. Dazu wird \"{u}ber die realen Gegebenheiten
+abstrahiert. Aus den einzelnen konkreten Sachverhalten werden
+allgemeing\"{u}ltige Gesetzm\"{a}\ss{}igkeiten abgeleitet und in eine
+Modellwelt \"{u}bertragen; unwesentliche Dinge werden im Modell
+weggelassen \cite[\citepage{538}]{bib:wa89}. Ein Datenobjekt
+ist die Abbildung eines Dings oder Sachverhaltes der realen Welt in
+die Modellwelt. Ein reales Ding besitzt eine Identit\"{a}t; deswegen ist
+es sinnvoll, den Identit\"{a}tsbegriff der realen Welt auch auf die durch
+die Programmierung geschaffene Modellwelt zu \"{u}ber\-tra\-gen.
+%
+\section{Identit\"{a}tsrepr\"{a}sentation}\label{sec:idrepr}
+%
+Identit\"{a}t ist eine zu jedem Individuum geh\"{o}rige Eigenschaft; wenn
+ein System die Identit\"{a}t der in ihm enthaltenen Individuen
+widerspiegelt, mu\ss{} die Identit\"{a}t der einzelnen Individuen durch eine
+geeignete Form repr\"{a}sentiert werden. Diese Form kann zur
+Identifikation (lat.\ {\em identitas\/} \rglq{}Wesenseinheit\rgrq\ und
+{\em facere\/} \rglq{}machen\rgrq{} \cite{bib:wa68}) eines Individuums
+benutzt werden. F\"{u}r Individuen, Identit\"{a}t und
+\representationforms\ f\"{u}r Identit\"{a}t gelten folgende
+Grunds\"{a}tze:
+%
+\begin{enumerate}
+%
+\item Es gibt Individuen; jedes Individuum hat eine eigene, genau ihm
+zu\-ge\-h\"{o}\-ri\-ge Iden\-ti\-t\"{a}t\ %
+\linebreak[4]\cite[\citepage{284}]{bib:pat88}.
+%
+\item Es gibt keine Identit\"{a}t ohne ein dazugeh\"{o}riges Individuum.
+%
+\item Die Identit\"{a}t eines Individuums kann durch eine geeignete Form
+repr\"{a}sentiert werden.
+%
+\end{enumerate}
+%
+Der Rest dieses Kapitels besch\"{a}ftigt sich mit
+Identit\"{a}tsrepr\"{a}sentationen und geht insbesondere der Frage nach, was
+eine \rglq{}geeignete Form\rgrq\ ist.
+%
+\subsection{Referenzen zwischen Individuen}
+%
+Eine Identit\"{a}tsrepr\"{a}sentation kann als Stellvertreter f\"{u}r das
+Individuum selbst benutzt werden. Damit wird es erst m\"{o}glich,
+Referenzen zwischen Individuen aufzubauen. Umgekehrt macht es das
+Fehlen einer solchen Repr\"{a}sentation unm\"{o}glich, Referenzen zwischen
+Objekten zu etablieren; in diesem Fall kann ein Objekt selbst
+lediglich in einem \rglq{}umfassenden\rgrq\ Objekt als Wert enthalten
+sein, da es nicht referenzierbar ist.
+%
+\par{}\figurename~\ref{fig:kartei} %
+%
+\begin{figure}[htbp]%
+\ifloriot%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/kartei.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/kartei.eps}}%
+\fi%
+\else%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/karteic.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/karteic.eps}}%
+\fi%
+\fi%
+\caption{Identit\"{a}ten, Identit\"{a}tsrepr\"{a}sentationen
+und Referenzen in einer Personenkartei}%
+\label{fig:kartei}%
+\end{figure}%
+%
+zeigt als Beispiel den Ausschnitt einer Personenkartei. Es sind
+insgesamt vier Individuen beteiligt: zwei Personen (Dr.\ Kl\"{o}b\-ner
+\oiv\ und Herr M\"{u}l\-ler-""L\"{u}\-den\-scheid \ovii) sowie zwei
+Karteikarten (Karten \oi\ und \ov). Jedes dieser Individuen hat eine
+eigene Identit\"{a}t. Die Identit\"{a}ten der Individuen werden \"{u}ber ihre Namen
+repr\"{a}sentiert (\tablename~\ref{tab:kartei}).
+%
+\begin{figure}[hbtp]\centering
+%
+\begin{minipage}{\textwidth}\centering% \minipage wg. Fussnote
+\let\footnoterule\relax% Kein Trennungsstrich fuer Fussnoten
+\newlength{\dqwidth}%
+%
+\begin{\figurefontsize}%
+\begin{tabular}{|p{16em}|p{8em}|}%
+\hline%
+$\downarrow$%
+\footnote{Zu lesen: Person mit dem Namen Kl\"{o}bner wird
+repr\"{a}sentiert durch den Namen \lisp{\dq{}Kl\"{o}bner\dq}}%
+\ \tabularheader{wird repr\"{a}sentiert durch den}
+        &\tabularheader{Namen}\ $\downarrow$\\
+\hline\hline
+Person mit dem Namen \rglq{}Kl\"{o}bner\rgrq%
+        &\lisp{\dq{}Kl\"{o}bner\dq}\\
+\hline
+Person mit dem Namen \rglq{}M\"{u}ller-\lb{}L\"{u}denscheid\rgrq%
+        &\lisp{\settowidth{\dqwidth}{\dq}%
+               \dq{}M\"{u}ller-\newline\hspace*{\dqwidth}L\"{u}denscheid\dq}\\
+\hline
+Karte, die die Person mit dem Namen
+\rglq{}Kl\"{o}bner\rgrq\ repr\"{a}sentiert%
+        &\lisp{<KARTE\us{}12>}\\
+\hline
+Karte, die die Person mit dem Namen
+\rglq{}M\"{u}ller-\lb{}L\"{u}denscheid\rgrq\ repr\"{a}sentiert%
+        &\lisp{<KARTE\us{}25>}\\
+\hline
+\end{tabular}%
+\end{\figurefontsize}%
+\end{minipage}%
+%
+\let\figurename\tablename%
+\caption{Identit\"{a}tsrepr\"{a}sentation in einer Kartei}%
+\label{tab:kartei}%
+\end{figure}%
+%
+\"{U}ber diese Re\-pr\"{a}\-sen\-ta\-ti\-ons\-for\-men k\"{o}nnen die in
+\figurename~\ref{fig:kartei} eingezeichneten Referenzen aufgebaut
+werden. Da die Referenz zwischen Person und dazugeh\"{o}riger Karteikarte
+\"{u}ber den Namen der Person aufgebaut wird, darf er sich nicht \"{a}ndern,
+da sonst die Aufl\"{o}sung der Referenz nicht mehr m\"{o}glich ist. Ebenso
+mu\ss{} der Name eindeutig sein.
+%
+\subsection{Bedingungen f\"{u}r eine
+Identit\"{a}tsrepr\"{a}sentation}\label{sec:cobjid}%
+%
+Folgende Bedingungen gelten f\"{u}r eine Identit\"{a}tsrepr\"{a}sentation
+von Datenobjekten:
+%
+\begin{description}
+%
+\item[Eindeutigkeit] Sie mu\ss{} eineindeutig sein. Jedes
+Datum mu\ss{} eine eigene Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion
+erhalten, die sich von allen anderen gleichzeitig erreichbaren
+Datenobjekten unterscheidet, da sonst keine eindeutige Identifikation
+\"{u}ber diese \representationform{} m\"{o}glich ist.
+%
+\item[Unabh\"{a}ngigkeit vom aktuellen Zustand] Sie
+darf nicht von Bestandteilen des Datenobjektes abh\"{a}ngig sein, deren
+Zustand sich w\"{a}hrend seiner Lebensdauer \"{a}ndern k\"{o}nnten, da sonst
+Referenzen auf das Datenobjekt ung\"{u}ltig werden.
+%
+\item[Unabh\"{a}ngigkeit von der Umgebung] Reale Objekte behalten ihre
+Identit\"{a}t bei einem Umgebungswechsel; analog dazu beh\"{a}lt auch ein
+Datenobjekt unabh\"{a}ngig von der aktuellen Umgebung seine Identit\"{a}t.
+F\"{u}r die gew\"{a}hlte \representationform{} von Identit\"{a}t folgt daraus,
+da\ss{} sie davon unabh\"{a}ngig sein mu\ss{}, falls sich diese w\"{a}hrend der
+Lebensdauer des Objektes \"{a}ndern k\"{o}nnte.
+%
+\item[Zeitliche Unabh\"{a}ngigkeit] Identit\"{a}t von realen Objekten ist
+invariant gegen\"{u}ber Ver\"{a}nderung der Zeit w\"{a}h\-rend ihrer
+Lebensdauer; gleiches gilt f\"{u}r Datenobjekte. Daher mu\ss{} die
+\representationform{} f\"{u}r Identit\"{a}t konstant bleiben \"{u}ber die
+Zeitdauer, w\"{a}hrend der das Datenobjekt existiert.
+%
+\end{description}
+%
+% Fuer den folgenden Satz:
+% (C) by Carsten Schroeder, 15.09.1993, ca. 14:30h :
+Das Umfeld, in dem sich die zusammengeh\"{o}rigen Objekte befinden,
+bestimmt, welche Re\-pr\"{a}\-sen\-ta\-tion f\"{u}r Identit\"{a}t gew\"{a}hlt
+werden kann, damit diese Bedingungen erf\"{u}llt sind.
+%
+Wenn beispielsweise alle Objekte ausschlie\ss{}lich in einem
+nicht-verteilten abgeschlossenem System enthalten sind, gen\"{u}gt es,
+wenn die Identit\"{a}tsrepr\"{a}sentation innerhalb dieses Systems eindeutig
+ist.  Bei verteilten Systemen ist es notwendig, da\ss{} die
+Repr\"{a}sentation eindeutig f\"{u}r alle beteiligten Prozesse ist.
+%
+\subsection{Forderungen an eine
+Identit\"{a}tsrepr\"{a}sentation}
+%
+Au\ss{}er diesen notwendigen Bedingungen sollte eine
+Identit\"{a}tsrepr\"{a}sentation zus\"{a}tzliche Forderungen erf\"{u}llen.
+%
+\begin{description}
+%
+\item[Effiziente Realisierung] Bei Systemen mit sehr vielen
+Objekten sollte die Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion
+m\"{o}glichst kurz sein; sie sollte insbesondere in einem vern\"{u}nftigen
+Verh\"{a}ltnis zur mittleren Gr\"{o}\ss{}e der Datenobjekte selbst stehen.
+%
+\item[M\"{o}glichst hoher lokaler Informationsgehalt] Eine
+Identit\"{a}tsrepr\"{a}sentation sollte soviel Information wie m\"{o}glich
+\"{u}ber das sie repr\"{a}sentierende Objekt enthalten
+\cite[\citepage{244}]{bib:he89}. Die Art der Information
+ist abh\"{a}ngig vom beabsichtigten Verwendungszweck der Objekte. Wenn
+eine Identit\"{a}tsrepr\"{a}sentation z.B.\ Komponenten enth\"{a}lt, die eine
+Lokalisierung des dazugeh\"{o}rigen Datenobjektes erm\"{o}glichen, kann der
+Zugriff auf den Objektzustand effizienter realisiert werden. Bei
+Systemen mit Typbindung der Datenobjekte zur Laufzeit ist es f\"{u}r
+Typpr\"{u}fungen von Vorteil, wenn bereits die
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion R\"{u}ck\-schl\"{u}s\-se auf den
+Typ des Datenobjektes zul\"{a}\ss{}t, da dann kein Zugriff auf die
+Typinformation des Datenobjektes selbst notwendig ist. Je mehr
+Information in einer Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion
+enthalten ist, um so gr\"{o}\ss{}er ist sie; damit bedingt ein hoher
+Informationsgehalt eine geringere Platzeffizienz.
+%
+\par{}Objekte werden durch Identit\"{a}tsrepr\"{a}sentationen
+referenziert; f\"{u}r sie ergibt sich bei Identit\"{a}tsrepr\"{a}sentationen
+mit Informationsgehalt die Einschr\"{a}nkung, da\ss{} sich diese, das Objekt
+betreffenden Informationen nicht \"{a}ndern d\"{u}rfen, weil sonst die in
+allen das Objekt referenzierenden Identit\"{a}tsrepr\"{a}sentationen
+enthaltenen Informationen ung\"{u}ltig werden. Eine Pr\"{u}fung, ob dieser
+Fall eingetreten ist mit anschlie\ss{}ender Korrektur der Informationen
+in der Identit\"{a}tsrepr\"{a}sentation ist nicht sinnvoll zu realisieren,
+da die Pr\"{u}fung selbst weitere Dereferenzierungen (z.B.\ des
+Objektzustands) nach sich zieht und damit der Effizienzvorteil
+verloren geht.
+%
+\item[Kanonische Identit\"{a}tsrepr\"{a}sentation]
+Eine kanonische Identit\"{a}tsrepr\"{a}sentation erm\"{o}glicht eine
+einheitliche Verarbeitung aller im System auftretenden
+Identit\"{a}tsrepr\"{a}sentationen unabh\"{a}ngig vom Typ des Objektes, das sie
+repr\"{a}sentieren. Damit wird die Erstellung eines solchen Systems
+vereinfacht und die \"{U}bersichtlichkeit erh\"{o}ht. Eine kanonische Form
+kann bei Datenobjekten von einfachen, skalaren Typen dazu f\"{u}hren,
+da\ss{} die Re\-pr\"{a}\-sen\-ta\-tions\-form mehr Platz verbraucht als das
+Objekt, das sie repr\"{a}sentiert; zur Vermeidung dessen d\"{u}rfen in
+\cl\ Daten von einfachen Typen (z.B.\ Daten der Typen
+\class{fixnum}\ \stcite{288}\ oder \class{character}\ \stcite{371})
+nicht-kanonisch repr\"{a}sentiert werden.
+%
+\par{}Ein Beispiel f\"{u}r eine kanonische Form ist die in diesem Kapitel
+verwendete Notation f\"{u}r die Identit\"{a}tsrepr\"{a}sentation von
+Objekten. Sie besteht aus der Konkatenation einer \"{o}ff\-nen\-den
+spitzen Klammer mit dem Namen des Objekt-Typs, einem Unterstrich,
+einer beliebig ge\-w\"{a}hl\-ten und innerhalb des Typs eindeutigen
+Nummer und einer schlie\ss{}enden spitzen Klammer
+(z.B.\ \lisp{<ANGESTELLTER\us{}23>}).  Aus dieser kanonischen Form
+l\"{a}\ss{}t sich damit zus\"{a}tzlich bereits der Typ des durch sie
+repr\"{a}sentierten Objektes ableiten.
+%
+\item[Sp\"{a}tes \rglq{}Materialisieren\rgrq\ des Datenobjektes] Eine
+Identit\"{a}tsrepr\"{a}sentation dient \ua\ als Referenz auf das
+dazugeh\"{o}rige Datenobjekt. Eine Dereferenzierung besteht daraus, eine
+Abbildung zu evaluieren, die mit der Identit\"{a}tsrepr\"{a}sentation als
+Argument den Zugriff auf den Zustand des sie repr\"{a}sentierenden
+Objektes erm\"{o}glicht. Sp\"{a}testens zu diesem Moment mu\ss{} das
+Datenobjekt \rglq{}materialisiert\rgrq\ sein, d.h.\ in einer direkt
+dereferenzierbaren Repr\"{a}sentation (z.B.\ im transienten Speicher)
+vorliegen \cite[\citepage{240}]{bib:he89}. Vorher besteht diese
+Notwendigkeit nicht; es ist also ausreichend, bis zur ersten
+Dereferenzierung lediglich die Identit\"{a}tsrepr\"{a}sentation eines
+Datenobjektes als Stellvertreter f\"{u}r die persistente Repr\"{a}sentation
+zu benutzen, die dann beim (ersten) Zugriff den Aufbau einer direkt
+referenzierbaren (transienten) Repr\"{a}sentation nach sich zieht.
+%
+\par{}Sp\"{a}tes Materialisieren l\"{a}\ss{}t sich demzufolge nur dann
+erreichen, wenn zwischen Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion und
+Datenobjekt eine \rglq{}schwache\rgrq\ Kopplung existiert.
+%
+\end{description}
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/idtaxon.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/idtaxon.eps}}%
+\fi%
+\captionfrom%
+ {\"{U}bersicht \"{u}ber Identit\"{a}tsrepr\"{a}sentationen}%
+ {\cite[\citepage{43}]{bib:ko90}}%
+\label{fig:idtaxon}%
+\end{figure}%
+%
+\section{\"{U}bersicht \"{u}ber Identit\"{a}tsrepr\"{a}sentationen}%
+\label{sec:ovidrepr}
+%
+\figurename~\ref{fig:idtaxon} %
+%
+zeigt eine \"{U}bersicht f\"{u}r verschiedene Realisierungen von
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tio\-nen, die zum einen in
+vorhandenen transienten Systemen verwendet werden (Adressen) und die
+sich zum anderen f\"{u}r persistente Umgebungen eignen (Bezeichner und
+Surrogate). In den folgenden Abschnitten werden die einzelnen
+Repr\"{a}sentationen erl\"{a}utert und bewertet.
+%
+\subsection{Adressen}
+%
+Eine der einfachsten M\"{o}glichkeiten zur Identit\"{a}tsrepr\"{a}sentation
+eines Datums ist seine Adresse. Bei direkten Adressen reicht eine
+einmalige Dereferenzierung f\"{u}r den Zugriff auf den Zustand des
+dazugeh\"{o}rigen Datenobjektes aus (\figurename~\ref{fig:dadr}). %
+Indirekte Adressen referenzieren einen sogenannten
+{\em Forwarder}. Ein {\em Forwarder\/} ist eine Datenstruktur mit
+meist fester Gr\"{o}\ss{}e, die eine direkte Referenz auf das Datenobjekt
+sowie gegebenenfalls weitere Informationen \"{u}ber das Datenobjekt
+enth\"{a}lt; indirekte Adressen m\"{u}ssen damit f\"{u}r den Zugriff auf den
+Objektzustand doppelt dereferenziert werden.  Oft werden alle
+{\em Forwarder\/} in einer Tabelle zusammengefa\ss{}t; eine indirekte
+Adresse kann dann als Index in diese Tabelle realisiert werden.
+%
+\par{}Die Interpretation einer Adresse erfolgt auf der {\em
+Hardware\/}-Ebene und damit auf einer sehr niedrigen
+Abstraktionsebene.
+%
+\subsubsection{Eindeutigkeit, Unabh\"{a}ngigkeit vom aktuellen
+Objektzustand}
+%
+Sofern die Allozierung des die Daten enthaltenen Speicherbereichs
+korrekt erfolgt, sind Adressen innerhalb ihres G\"{u}ltigkeitsbereichs
+immer eindeutig. Sie bleiben bei Zustands\"{a}nderungen von Datenobjekten
+konstant.
+%
+\begin{figure}[htbp]%[btp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/dadr.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/dadr.eps}}%
+\fi%
+\caption{Direkte Adressen}\label{fig:dadr}%
+\end{figure}%
+%
+\subsubsection{Umgebungsunabh\"{a}ngigkeit}
+%
+Indirekte Adressen (\figurename~\ref{fig:indadr})
+%
+erm\"{o}glichen eine Relozierung der referenzierten Objekte innerhalb des
+Adre\ss{}raumes. Beim Wechsel der Umgebung von Objekten aus ihrem
+Adre\ss{}raum heraus wird eine Identit\"{a}tsrepr\"{a}sentation \"{u}ber die
+Adresse entweder nicht mehr m\"{o}glich (z.B.\ weil die neue Umgebung
+keine vergleichbaren [Hauptspeicher-]Adressen hat, wie bei der
+\"{U}ber\-tra\-gung von Objekten in Dateien), oder es kann nicht
+sichergestellt werden, da\ss{} die Objekte in der neuen Umgebung die
+gleiche Adresse wie in der vorherigen Umgebung haben (z.B.\ Transfer
+von Daten auf eine andere Maschine).  Bei der Verwendung von Adressen
+als Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion ist
+Umgebungsunabh\"{a}ngigkeit damit nicht gegeben.
+%
+\begin{figure}[htbp]%[tbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/indadr.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/indadr.eps}}%
+\fi%
+\caption{Indirekte Adressen}\label{fig:indadr}%
+\end{figure}%
+%
+\subsubsection{Zeitliche Unabh\"{a}ngigkeit}
+%
+Damit Daten, die sich innerhalb eines transienten Speichers befinden,
+persistent werden, m\"{u}ssen sie in eine nicht-fl\"{u}chtige Umgebung
+transferiert werden. Damit treten f\"{u}r persistente Daten die im
+letzten Absatz geschilderten Probleme auf; zeitliche Unabh\"{a}ngigkeit
+ist also bei Adressen als Identit\"{a}tsrepr\"{a}sentation f\"{u}r persistente
+Objekte nicht gegeben.
+%
+\par{}Sofern indirekte Adressen wie \og\ als Index in eine
+Tabelle mit {\em Forwardern\/} realisiert werden, l\"{a}\ss{}t sich das
+Problem der Umgebungs- und Zeitunabh\"{a}ngigkeit dadurch l\"{o}sen, da\ss{} in
+der persistenten Umgebung au\ss{}er den Instanzen die Tabelle aller
+{\em Forwarder\/} ebenfalls persistent abgelegt wird; die f\"{u}r die
+Referenz zwischen {\em Forwarder\/} und seiner dazugeh\"{o}rigen Instanz
+verwendete Identit\"{a}tsrepr\"{a}sentation mu\ss{} dann jeweils der Umgebung
+angepa\ss{}t werden, in der sich das Objekt befindet. Ein Beispiel daf\"{u}r
+ist die in GemStone verwendete Adressierung \"{u}ber eine
+\gande{Objekttabelle}{object table}, die eine indirekte Adresse auf
+den physikalischen Ort eines Objektes abbildet
+\cite[\citepage{370}]{bib:ma87}. In \gande{LOOM}{Large Object-Oriented
+Memory}\ werden f\"{u}r Referenzen zwischen Objekten indirekte Adressen
+benutzt, deren \representationform{} davon abh\"{a}ngt, ob sich das Objekt
+im transienten oder persistenten Speicher befindet; bei
+\"{U}ber\-tra\-gung eines Objektes zwischen den Speicherarten werden die
+indirekten Adressen
+konvertiert\ \linebreak[4]\cite[\citepage{299}]{bib:ka90}.
+%
+\subsubsection{Effizienz}
+%
+Adressierung von Daten wird auf allen Rechnern bis auf niedrigste
+Ebene ({\em Hardware\/}) unterst\"{u}tzt und ist damit als
+Identit\"{a}tsrepr\"{a}sentation f\"{u}r Datenobjekte, die im transienten
+Speicher liegen, sehr effizient. Der Zugriff auf den Objektzustand
+\"{u}ber eine indirekte Adresse ist wegen der doppelten Dereferenzierung
+langsamer als bei einer direkten Adresse.
+%
+\subsubsection{Informationsgehalt}
+%
+Wieviel Informationen bereits eine Adresse \"{u}ber das von ihr
+dereferenzierte Objekt enthalten kann, ist von der verwendeten
+Rechnerarchitektur abh\"{a}ngig. Rechner mit einfachen Prozessoren
+k\"{o}nnen in einer Adresse meist keine Informationen \"{u}ber das
+dereferenzierte Objekt ablegen; in diesem Fall m\"{u}ssen die ben\"{o}tigten
+Informationen immer \"{u}ber eine Dereferenzierung der Adresse besorgt
+werden.
+%
+\par{}Bei anderen Rechnern bestehen Adressen aus
+der Speicheradresse und einer Menge von
+\gande{Markierungsbits}{tag bits}, in denen begrenzt Informationen
+\"{u}ber das dereferenzierte Objekt abgelegt werden k\"{o}nnen; damit
+k\"{o}nnen diese Informationen ohne eine Dereferenzierung des Objektes
+selbst ermittelt werden. Wenn das mit der Adresse repr\"{a}sentierte
+Objekt ein referenzierbares Objekt ist, d\"{u}rfen sich die
+in den Markierungsbits abgelegten Informationen \"{u}ber das
+repr\"{a}sentierte Objekt nicht
+\"{a}ndern, da sonst die in allen das Objekt referenzierenden Adressen
+enthaltenen Informationen ung\"{u}ltig werden.
+%
+\par{}Meist enthalten die Markierungsbits Informationen \"{u}ber den Typ
+des referenzierten Objektes; aus der \og[en]\ Einschr\"{a}nkung
+folgt, da\ss{} sich in diesem Fall der Typ des Objektes nicht \"{a}ndern
+darf.\footnote{In diesem Zusammenhang sei auf den Unterschied zwischen
+dem Typ eines Objektes (der in diesem Fall nicht ge\"{a}ndert werden
+darf) und dem Typ selbst (der durchaus ge\"{a}ndert werden k\"{o}nnte,
+sofern er w\"{a}hrend der \rglq{}Lebenszeit\rgrq\ der Objekte zur
+Verf\"{u}gung steht) hingewiesen.} Eine m\"{o}gliche Markierung w\"{a}re z.B.,
+da\ss{} eine Adresse selbst als Wert zu interpretieren ist.
+%
+\par{}Bei indirekten Adressen lassen sich im {\em Forwarder\/}
+zus\"{a}tzliche Informationen \"{u}ber das referenzierte Datenobjekt
+ablegen.  Um diese Informationen zu erhalten, reicht damit eine
+einmalige Dereferenzierung der indirekten Adresse aus; das Objekt
+selbst braucht nicht dereferenziert zu werden. Die Ablage von
+Informationen im {\em Forwarder\/} f\"{u}hrt dazu, da\ss{} ein Teil der
+Informationen vom Objekt weg in den {\em Forwarder\/} verlagert wird;
+damit m\"{u}ssen die Informationen im {\em Forwarder\/} durch das System
+besonders ber\"{u}cksichtigt werden, z.B.\ m\"{u}ssen sie beim Aufbau des
+{\em Forwarders\/} aus dem Objekt bestimmt werden und in den {\em
+Forwarder\/} geschrieben werden.
+%
+\subsubsection{Kanonische Form}
+%
+Direkte und indirekte Adressen als Identit\"{a}tsrepr\"{a}sentation sind
+dann kanonisch, wenn jede Adresse unabh\"{a}ngig von Merkmalen (wie
+z.B.\ dem Typ) des referenzierten Datenobjektes die gleiche Form hat.
+Aus Effizienzgr\"{u}nden wird oft eine nicht-kanonische Form gew\"{a}hlt,
+bei der z.B.\ die Anzahl der verwendeten Markierungsbits vom Typ des
+Datenobjektes abh\"{a}ngt. In diesem Fall ist die Repr\"{a}sentation
+speicherplatz-sparend, verlangt aber einen h\"{o}heren Aufwand bei der
+Verarbeitung, weil jeder Typ spezialisierte Methoden ben\"{o}tigt.
+%
+\subsubsection{Sp\"{a}tes Materialisieren}
+%
+Eine direkte Adresse verweist immer auf ein existierendes Datenobjekt;
+es gibt keine direkten Adressen von (noch) nicht existierenden
+Datenobjekten. Damit die Identit\"{a}t eines Datums \"{u}ber seine direkte
+Adresse repr\"{a}sentiert werden kann, mu\ss{} also das Datum selbst im
+Speicher alloziert werden.  Dies gilt ebenso f\"{u}r virtuellen Speicher,
+der allerdings nach erfolgter Allozierung die M\"{o}glichkeit bietet, den
+physikalischen Hauptspeicher durch
+\gande{Aus- und Einlagerung von Daten}{paging}\ zu
+entlasten; damit findet eine sp\"{a}te Materialisierung des Objektes
+f\"{u}r die nach der Allozierung folgenden Zugriffe auf den Objektzustand
+statt.
+%
+\par{}Eine indirekte Adresse setzt f\"{u}r ihre Existenz nicht die
+Allozierung des Speicherplatzes f\"{u}r das durch sie repr\"{a}sentierte
+Datenobjekt, sondern lediglich die Allozierung eines {\em
+Forwarders\/} voraus. Damit lie\ss{}e sich ein
+sp\"{a}tes Materialisieren dadurch erreichen, da\ss{} innerhalb des
+{\em Forwarders\/} Informationen abgelegt werden, wie das Objekt
+materialisiert werden kann; das Objekt selbst wird dann beim ersten
+Zugriff auf den Objektzustand nach der Dereferenzierung des
+{\em Forwarders\/} materialisert.
+%
+\subsubsection{Bewertung}
+%
+Adressen erm\"{o}glichen eindeutige und effiziente Referenzen innerhalb
+eines transienten physikalischen oder virtuellen Adre\ss{}raumes; f\"{u}r
+persistente Objekte sind sie nicht geeignet, da ihre G\"{u}ltigkeit an
+den Adre\ss{}raum selbst und seine \ia\ endliche Lebensdauer gebunden
+ist. Da die Effizienz von Adressen extrem hoch ist, kann es sich
+lohnen, ein persistentes Objekt in den transienten Adre\ss{}raum zu
+\"{u}bertragen; im Verlauf der \"{U}bertragung m\"{u}\ss{}te dann \ua\ \gande{eine
+Konvertierung der persistenten Identit\"{a}tsrepr\"{a}sentation in eine
+Adresse vorgenommen werden}{Pointer-Swizzling}%
+\addglossary{Pointer-Swizzling}[Konvertierung
+einer persistenten Identit\"{a}tsrepr\"{a}sentation in eine Adresse.].
+%
+\subsection{Strukturierte Bezeichner}
+%
+\gande{Strukturierte Bezeichner}{structured identifier}\ sind
+Identit\"{a}tsrepr\"{a}sentationen, die Informationen \"{u}ber die jeweils
+repr\"{a}sentierten Objekte enthalten.  Ein Teil der die Objekte
+betreffenden Informationen wird von den Objekten weg in die
+strukturierten Bezeichner verlagert. Die Strukturierung wird so
+gew\"{a}hlt, da\ss{} diese Informationen relativ einfach aus den Bezeichnern
+ermittelt werden k\"{o}nnen. Die Interpretation eines strukturierten
+Bezeichners erfolgt auf einer h\"{o}heren Abstraktionsebene als bei einer
+Adresse.
+%
+\subsubsection{Arten von strukturierten Bezeichnern}
+%
+In persistenten Systemen realisierte strukturierte Bezeichner
+lassen sich in wertstrukturierte, typ\-struk\-tu\-rier\-te und
+ortsstrukturierte Bezeichner einteilen.
+%
+\paragraph{Wertstrukturierte Bezeichner}
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/stridval.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/stridval.eps}}%
+\fi%
+\caption{Wertstrukturierter Bezeichner}\label{fig:stridval}%
+\end{figure}%
+%
+Der Zustand eines Wertes l\"{a}\ss{}t sich vollst\"{a}ndig in einem
+wertstrukturierten Bezeichner ablegen (\figurename~\ref{fig:stridval}).
+Die repr\"{a}sentierten Instanzen werden nicht als tats\"{a}chlich
+allozierte Objekte im Speicher abgelegt, da jeweils ein gesamter
+Objektzustand im Bezeichner enthalten ist; damit besteht keine
+Notwendigkeit, zus\"{a}tzlich explizite Speicherrepr\"{a}sentationen f\"{u}r
+die Objekte vorzusehen.
+%
+\par{}Die in den Bezeichnern enthaltenen Informationen
+bestehen aus dem Typ und dem Zustand der Objekte (in diesem Beispiel
+dem Typ \lisp{INTEGER}\ und dem Zustand~\lisp{5}). Bei
+strukturierten Bezeichnern f\"{u}r Instanzen von Basistypen kann oft auf
+die Typinformation verzichtet werden, da der Typ implizit aus dem
+repr\"{a}sentierten Zustand selbst hervorgeht; so w\"{a}re in diesem
+Beispiel die Identit\"{a}tsrepr\"{a}sentation \lisp{<5>}\ f\"{u}r die
+ganze Zahl~5 ausreichend.
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/stridtyp.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/stridtyp.eps}}%
+\fi%
+\caption{Typstrukturierter Bezeichner}\label{fig:stridtyp}%
+\end{figure}%
+%
+\paragraph{Typstrukturierte Bezeichner}%
+\label{enu:stridtyp}%
+%
+Typstrukturierte Bezeichner enthalten Informationen \"{u}ber den Typ der
+Objekte, die sie repr\"{a}sentieren (\figurename~\ref{fig:stridtyp}).
+Genauso wie bei Adressen mit Markierungsbits k\"{o}nnen diese
+Informationen aus den Bezeichnern ausgelesen werden, ohne das
+dazugeh\"{o}rige Datenobjekt zu dereferenzieren. Auch gilt hier die
+Einschr\"{a}nkung, da\ss{} sich die in den Bezeichnern enthaltenen
+Informationen \"{u}ber die Objekte nicht \"{a}ndern d\"{u}rfen, da sonst die in
+allen ein Objekt referenzierenden Bezeichnern enthaltenen
+Informationen ung\"{u}ltig werden; in diesem Beispiel darf sich also der
+Typ eines Objektes nicht \"{a}ndern.
+%
+\par{}Au\ss{}er dem Typ enth\"{a}lt der Bezeichner Informationen
+zur Lokalisierung des Objektes (in diesem Beispiel die Information
+\lisp{23}), die durch die Zugriffsmethoden in eine direkte
+Referenz auf das Objekt umgewandelt wird
+(\figurename~\ref{fig:exidrepr}).
+%
+\begin{figure}[hbtp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/exidrepr.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/exidrepr.eps}}%
+\fi%
+\caption{Abbildung eines typstrukturierten Bezeichners auf ein
+Datenobjekt}%
+\label{fig:exidrepr}%
+\end{figure}%
+%
+\paragraph{Ortsstrukturierte Bezeichner}
+%
+Die Identit\"{a}tsrepr\"{a}sentation mit ortsstrukturierten Bezeichnern
+(\figurename~\ref{fig:stridcs}) %
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/stridcs.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/stridcs.eps}}%
+\fi%
+\caption{Ortsstrukturierter Bezeichner}\label{fig:stridcs}%
+\end{figure}%
+%
+kann in verteilten Systemen verwendet werden; sie entspricht vom
+Konzept her einer Erweiterung der indirekten Adressierung.  Ein {\em
+Client\/} kann \"{u}ber einen strukturierten Bezeichner eine Referenz auf
+ein Objekt herstellen, das sich auf einem {\em Server\/}
+befindet. Hier entspricht ein strukturierter Bezeichner dem bei der
+indirekten Adressierung verwendeten {\em Forwarder}. Er besteht aus
+einer zur Umgebung der Instanz (d.h.\ dem {\em Server\/}) lokalen
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion und einer Information, mit
+der die Umgebung des Objektes bestimmt werden kann. Damit k\"{o}n\-nen
+vom {\em Client\/} \rglq{}externe\rgrq\ Objekte referenziert werden.
+%
+\subsubsection{Eindeutigkeit, Unabh\"{a}ngigkeit vom aktuellen
+Objektzustand}
+%
+Beides mu\ss{} f\"{u}r strukturierte Bezeichner durch die ge\-w\"{a}hl\-te
+Realisierung sichergestellt werden.
+%
+\subsubsection{Umgebungsunabh\"{a}ngigkeit, Zeitliche Unabh\"{a}ngigkeit}
+%
+Wertstrukturierte Bezeichner enthalten implizit das Objekt, das sie
+repr\"{a}sentieren; sie bilden eine abgeschlossene atomare Einheit. Zur
+\rglq{}Materialisierung\rgrq\ des repr\"{a}sentierten Objektes ist nur die
+Anwendung einer Methode \"{u}ber den Bezeichner notwendig, die ohne
+weitere Seiteneffekte auskommt; damit sind wertstrukturierte
+Bezeichner unabh\"{a}ngig von Umgebung und Zeit.
+%
+\par{}Bei typ- und ortsstrukturierten Bezeichnern mu\ss{} Umgebungs- und
+Zeitunabh\"{a}ngigkeit durch die gew\"{a}hlte Realisierung erfolgen.
+%
+\subsubsection{Effizienz, kanonische Form}
+%
+Strukturierte Bezeichner k\"{o}nnen f\"{u}r einfache, kleine Objekte sehr
+gro\ss{} werden, insbesondere wenn eine kanonische Repr\"{a}sentation
+verwendet wird.  F\"{u}r den Zugriff auf den Objektzustand m\"{u}ssen aus
+dem Bezeichner die f\"{u}r die Lokalisierung notwendigen Informationen
+durch eine Methode ermittelt werden; damit sind strukturierte
+Bezeichner ineffektiver als Adressen.
+%
+\subsubsection{Informationsgehalt}
+%
+Die Absicht bei der Verwendung von strukturierten Bezeichnern ist die
+Ablage von m\"{o}glichst viel Informationen \"{u}ber ein Objekt in seiner
+Identit\"{a}tsrepr\"{a}sentation.
+%
+\subsubsection{Sp\"{a}tes Materialisieren}
+%
+Anders als bei Adressen gibt es bei Bezeichnern keine
+\rglq{}feste\rgrq\ Kopplung zwischen
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion und dem Speicherplatz, den
+das repr\"{a}sentierte Datum belegt, sondern Bezeichner bilden eine
+\rglq{}schwache\rgrq\ Kopplung an das Datenobjekt \"{u}ber Methoden; daher
+lie\ss{}e sich in diese Methoden ein sp\"{a}tes Materialisieren integrieren.
+Die f\"{u}r die Materialisierung notwendigen Informationen m\"{u}ssen aus
+dem Bezeichner ableitbar sein.
+%
+\subsubsection{Bewertung}
+%
+Die Aufl\"{o}sung einer Referenz \"{u}ber einen strukturierten Bezeichner
+bedingt seine Interpretation auf einer relativ hohen
+Abstraktionsebene. Damit sind strukturierte Bezeichner ineffizienter
+als Adressen, bieten aber durch eine geeignet realisierte
+Interpretation die M\"{o}glichkeit der Unabh\"{a}ngigkeit von Umgebung und
+Zeit und sind damit abh\"{a}ngig von ihrer Realisierung f\"{u}r persistente
+Objekte geeignet. Da sich die in ihnen enthaltenen Informationen nicht
+\"{a}ndern d\"{u}rfen, sind bei ihrer Verwendung in \cl\ gewisse
+Restriktionen zu beachten; so sollten z.B.\ keine typstrukturierten
+Bezeichner f\"{u}r die Repr\"{a}sentation der Identit\"{a}t von \clos-Objekten
+verwendet werden, da die \cls\ einer \clos-Instanz ge\"{a}ndert werden
+kann.
+%
+\subsection{Benutzer-definierte Bezeichner}
+%
+\begin{fortune}[6cm]
+%I really don't know her -- I only know her name
+%\from{Phil Collins: Invisible Touch}
+Ich habe keinen Namen\\
+Daf\"{u}r! {[}\ldots{]}\\
+Name ist Schall und Rauch,\\
+Umnebelnd Himmelsglut.%
+\from{Goethe: Faust}
+\end{fortune}
+%
+Wie bereits bei den wertstrukturierten Bezeichnern gezeigt, kann der
+gesamte Zustand eines konstanten Datenobjektes zur
+Identit\"{a}tsrepr\"{a}sentation genutzt werden. Bei nicht-konstanten
+Datenobjekten gibt es eine vergleichbare M\"{o}glichkeit, indem zur
+Identit\"{a}tsrepr\"{a}sentation ein Teilzustand des Datenobjektes
+ausgew\"{a}hlt wird und daf\"{u}r implizit angenommen wird, da\ss{} er konstant
+bleibt. Der Teilzustand wird \ia\ so gew\"{a}hlt, da\ss{} er
+genau einen Bezeichner enth\"{a}lt, der zur Identit\"{a}tsrepr\"{a}sentation
+des gesamten Datenobjektes benutzt wird. Anders als bei den
+wertstrukturierten Bezeichnern gibt es zu jeder
+Identit\"{a}tsrepr\"{a}sentation ein explizit vorhandenes Datenobjekt.
+%
+\par{}In rein relationalen Datenbanken wird aus externer Sicht diese
+Art der Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion verwendet; aus einem
+Tupel wird von den BenutzerInnen als Teilzustand ein Attribut
+ausgew\"{a}hlt, dessen Wert die Identit\"{a}t des Tupels repr\"{a}sentiert
+(\figurename~\ref{fig:usridnty}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/usridnty.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/usridnty.eps}}%
+\fi%
+\caption{Benutzer-definierte Bezeichner}\label{fig:usridnty}%
+\end{figure}%
+%
+Rein relationale Datenbanken haben keine
+\rglq{}eingebaute\rgrq\ Repr\"{a}sentation f\"{u}r Identit\"{a}t der in ihnen
+enthaltenen Daten.
+%
+\par{}Eine genauere Betrachtung von Identit\"{a}t und
+Identit\"{a}tsrepr\"{a}sentation in relationalen Datenbanken folgt in
+Abschnitt~\ref{sec:idmsys}.
+%
+\subsubsection{Eindeutigkeit}
+%
+Der Wert dieses Attributes wird von den BenutzerInnen vergeben; damit
+m\"{u}ssen sie auch die Eindeutigkeit sicherstellen.
+%
+\subsubsection{Unabh\"{a}ngigkeit vom aktuellen Objektzustand}
+%
+Der Wert des ausgew\"{a}hlten Attributes ist ein Teilzustand des Tupels
+und korrespondiert mit einem Merkmalswert des durch den Tupel
+modellierten realen Objektes; bei \"{A}nderungen dieses Teilzustands
+\"{a}ndert sich damit auch die Repr\"{a}sentation f\"{u}r die Identit\"{a}t des
+Tupels.
+%
+\par{}Zudem ist die G\"{u}ltigkeit des Wertes als
+Identit\"{a}tsrepr\"{a}sentation von Tupeln auf eine Relation
+eingeschr\"{a}nkt; zur Benutzung des Wertes als
+Identit\"{a}tsrepr\"{a}sentation m\"{u}ssen die BenutzerInnen diesen
+G\"{u}ltigkeitsbereich kennen.
+%
+\subsubsection{Umgebungsunabh\"{a}ngigkeit, Zeitliche Unabh\"{a}ngigkeit}
+%
+Identit\"{a}tsrepr\"{a}sentierende Bezeichner sind unabh\"{a}ngig vom
+Ort, an dem sich die repr\"{a}sentierten Objekte befinden. Sie bleiben
+auch \"{u}ber einen beliebig langen Zeitraum g\"{u}ltig.
+%
+\subsubsection{Effizienz}
+%
+Referenzen zwischen Tupeln werden von den BenutzerInnen \"{u}ber
+{\em Joins\/} aufgel\"{o}st; die Effizienz dieser {\em Joins\/} wird in
+erster Linie durch den in der relationalen Datenbank realisierten
+\gande{Anfragen-Optimierer}{query optimizer}\ bestimmt. Die
+BenutzerInnen k\"{o}nnen die Datenbank veranlassen, die Werte der
+identit\"{a}tsrepr\"{a}sentierenden Attribute geordnet abzulegen, um einen
+schnelleren assoziativen Zugriff zu erm\"{o}glichen.
+%
+\subsubsection{Sp\"{a}tes Materialisieren}
+%
+Zwischen Bezeichner und Tupel besteht eine schwache Kopplung; damit
+kann prinzipiell eine sp\"{a}te Materialisierung erfolgen. Der Zeitpunkt
+wird durch die Realisation innerhalb der Datenbank bestimmt.
+%
+\subsubsection{Kanonische Form, Informationsgehalt}
+%
+Inwieweit diese Forderungen erf\"{u}llt werden, h\"{a}ngt von der durch die
+BenutzerInnen gew\"{a}hlten Form der Bezeichner ab; die sich daraus
+ergebenen Informationen \"{u}ber die repr\"{a}sentierten Objekte stehen
+ausschlie\ss{}lich den BenutzerInnen (und nicht der Datenbank) zur
+Verf\"{u}gung.
+%
+\subsubsection{Bewertung}
+%
+Die durch benutzer-definierte Bezeichner realisierten Eigenschaften
+und M\"{o}glichkeiten stehen ausschlie\ss{}lich den BenutzerInnen zur
+Verf\"{u}gung; das persistente System repr\"{a}sentiert zwar die
+Bezeichner, hat aber kein Wissen um ihre Bedeutung. Dieses fehlende
+Wissen wirkt sich \ua\ darin aus, da\ss{} Referenzen zwischen Objekten
+nicht innerhalb der Datenbank aufgel\"{o}st werden k\"{o}nnen; damit
+lassen sich bestimmte, f\"{u}r persistente Objektsysteme wichtige
+Konzepte, wie Traversieren der von einem Objekt referenzierten
+Instanzen oder Speicherr\"{u}ckgewinnung \"{u}ber Erreichbarkeit,
+nicht innerhalb des persistenten Systems realisieren. Im Rahmen
+\ifbericht dieses Berichtes \else\ifbuch dieses Buches \else dieser
+Arbeit \fi\fi sind benutzer-definierte Bezeichner daher zur
+Identit\"{a}tsrepr\"{a}sentation ungeeignet.
+%
+\subsection{Tupel-Bezeichner und Tupel-Surrogate}
+%
+Innerhalb einer relationalen Datenbanken wird f\"{u}r viele Operationen
+eine Referenzierung von Tupeln ben\"{o}tigt:
+%
+\begin{description}
+%
+\item[Transaktionen] W\"{a}hrend einer laufenden Transaktion werden die
+Zustands\"{a}nderungen an Tupeln festgehalten, um bei Abbruch einer
+Transaktion den Zustand der ge\"{a}nderten Tupel wieder \gande{auf den
+Stand bei Beginn der Transaktion zur\"{u}ckzusetzen}{rollback}. Aus
+dieser Protokollierung m\"{u}ssen sich daher Referenzen auf die
+modifizierten Tupel aufbauen lassen.
+%
+\item[{\em Update}, Selektion,
+Aggregate]\hspace*{-\labelsep}\footnote{Ein Aggregat ist eine Funktion
+\"{u}ber alle Werte eines Attributs einer Relation, z.B.\ Summenbildung,
+Mittelwert.}\hspace*{\labelsep} W\"{a}hrend der internen Verarbeitung
+durch eine Datenbank werden in einer unteren Schicht aus der Datenbank
+Tupel ausgew\"{a}hlt und in einer h\"{o}heren Schicht verarbeitet
+(z.B.\ Iteration \"{u}ber diese Tupel mit \"{A}ndern, Ausgeben oder
+Aufsummieren von Attributwerten).  Schreibende Zugriffe auf Tupel sind nur
+m\"{o}glich, wenn die Datenbank eine Referenz auf die in ihr enthaltenen
+Tupel aufbauen kann.
+%
+\item[Projektion] F\"{u}r schreibenden Zugriff m\"{u}ssen die Referenzen auf
+die zu einer Projektion ge\-h\"{o}\-ri\-gen Tupel in der Datenbank
+abgelegt werden.
+%
+\end{description}
+%
+Damit mu\ss{} die Identit\"{a}t von Tupeln innerhalb der Datenbank
+repr\"{a}sentiert werden. Realisiert wird die Identit\"{a}tsrepr\"{a}sentation
+in einigen Datenbanken durch generierte Tupel-Bezeichner, die
+innerhalb einer Relation eindeutig sind; durch die Einschr\"{a}nkung der
+Eindeutigkeit auf eine Relation sind sie nicht unabh\"{a}ngig von ihrer
+Umgebung.
+%
+\par{}Tupel-Surrogate unterscheiden sich von Tupel-Bezeichnern darin,
+da\ss{} sie \"{u}ber alle Relationen eindeutig sind. In \postgres\ werden
+beispielsweise Tupel durch \gande{eineindeutige
+Tupel-Surrogate}{IID}\ identifiziert \cite[\citepage{18}]{bib:sto86a}.
+%
+\par{}Tupel-Bezeichner und -Surrogate werden ausschlie\ss{}lich
+innerhalb der Datenbank verwendet; den Datenbank-BenutzerInnen ist
+diese Identit\"{a}tsrepr\"{a}sentation nicht zug\"{a}nglich. Zudem wird nur die
+Identit\"{a}t von Tupeln repr\"{a}sentiert; f\"{u}r die in den Attributen
+befindlichen Instanzen gibt es keine Identit\"{a}tsrepr\"{a}sentation.
+%
+\subsubsection{Bewertung}
+%
+Tupel-Bezeichner und Tupel-Surrogate sind sehr spezielle, f\"{u}r
+relationale Datenbanken geeignete Identit\"{a}tsrepr\"{a}sentationen.
+Im Rahmen \ifbericht dieses Berichtes \else\ifbuch dieses Buches \else
+dieser Arbeit \fi\fi wird eine Identit\"{a}tsrepr\"{a}sentation
+be\-n\"{o}\-tigt, die f\"{u}r alle in einem Objektsystem auftretenden
+Instanzen benutzt werden kann; da Tu\-pel-""Be\-zeich\-ner und
+-Surrogate lediglich die Identit\"{a}t von Tupeln repr\"{a}sentieren,
+sind sie damit f\"{u}r den hier beabsichtigten Zweck nicht geeignet.
+%
+\subsection{Surrogate}%
+\label{sec:idsur}%
+%
+Surrogate sind globale Identit\"{a}tsrepr\"{a}sentationen, die
+selbst keine direkten Informationen \"{u}ber die jeweils repr\"{a}sentierten
+Instanzen enthalten (\figurename~\ref{fig:suridnty}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/suridnty.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/suridnty.eps}}%
+\fi%
+\caption{Surrogate}\label{fig:suridnty}%
+\end{figure}%
+%
+\subsubsection{Eindeutigkeit, Unabh\"{a}ngigkeit vom aktuellen Zustand,
+Umgebungsunabh\"{a}ngigkeit, Zeitliche Unabh\"{a}ngigkeit}
+%
+Diese Bedingungen k\"{o}nnen durch eine Realisierung relativ leicht
+eingehalten werden, indem die Surrogate z.B.\ von einem globalen
+Proze\ss{} generiert werden.
+%
+\subsubsection{Kanonische Form}
+%
+Eine nicht-kanonische Form ist bei allen Identit\"{a}tsrepr\"{a}sentationen
+ein Hinweis darauf, da\ss{} die Form selbst bereits direkte Informationen
+\"{u}ber das repr\"{a}sentierte Objekt enth\"{a}lt; daraus folgt f\"{u}r
+Surrogate, da\ss{} sie eine kanonische Form haben m\"{u}ssen.
+%
+\subsubsection{Informationsgehalt} 
+%
+In Surrogaten selbst sind keine Informationen \"{u}ber die
+repr\"{a}sentierten Objekte abgelegt; eine Realisierung mu\ss{} daher diese
+Informationen z.B.\ in internen Tabellen halten, die \"{u}ber Surrogate
+indiziert werden und als Ergebnis der Indizierung die ben\"{o}tigten
+Objektinformationen ergeben.
+%
+\par{}Das Fehlen jeglicher Information \"{u}ber Objekte in Surrogaten hat
+den Vorteil, da\ss{} ein Surrogat immer seine G\"{u}ltigkeit als
+Identit\"{a}tsrepr\"{a}sentation beh\"{a}lt; \"{A}nderungen von
+Objektinformationen wirken sich nicht auf Surrogate aus.
+%
+\subsubsection{Effizienz}
+%
+Der in Surrogaten fehlende direkte Informationsgehalt hat folgende
+Auswirkungen:
+%
+\begin{description}
+%
+\item[Zugriffe auf den Objektzustand] Surrogate erfordern im
+Vergleich zu den bisherigen
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tio\-nen einen h\"{o}heren Aufwand
+f\"{u}r Zugriffe auf den Objektzustand.
+%
+\item[{Ablage von \immval[s]}] Der Zustand eines \immval[s]\/ l\"{a}st
+sich nicht als Information in einem Surrogat ablegen. Eine Realisierung
+mu\ss{} daher intern auch f\"{u}r \immval[s]\/ Speicher allozieren.
+Viele Realisierungen benutzen aus diesem Grund Surrogate nur
+f\"{u}r explizit repr\"{a}sentierte Objekte und nicht f\"{u}r \immval[s].
+%
+\item[{Identit\"{a}t von \immval[s]}] Identische \immval[s]\/ m\"{u}ssen auch
+identische Surrogate erhalten; die L\"{o}sung dieses Problems ist
+nicht-trivial.
+%
+\end{description}
+%
+\subsubsection{Sp\"{a}tes Materialisieren}
+%
+Wegen der schwachen Kopplung \"{u}ber Methoden zwischen Surrogaten und
+repr\"{a}sentierten Objekten ist ein sp\"{a}tes Materialisieren m\"{o}glich.
+%
+\subsubsection{Bewertung}
+%
+Surrogate sind v\"{o}llig unabh\"{a}ngig von Umgebung, Zeit und Zustand des
+Objektes, dessen Identit\"{a}t sie repr\"{a}sentieren; damit sind sie sehr
+gut als Identit\"{a}tsrepr\"{a}sentation f\"{u}r persistente Objekte
+geeignet. Problematisch ist die Behandlung von \immval[s]; eine
+konkrete Realisierung kann dieses Problem aber dadurch l\"{o}sen, da\ss{}
+\rglq{}abgeschw\"{a}chte\rgrq\ Surrogate mit einer nicht vollst\"{a}ndig
+kanonischen Form realisiert werden.
+%
+\section{Objekt-Identifikation (\protect\objid)}%
+\label{sec:handle}
+%
+\begin{fortune}
+{[\ldots]} Zeichen oder Zeichen von Zeichen benutzen wir nur,
+solange wir keinen Zugang zu den Dingen selbst haben.
+\from{Umberto Eco: Der Name der Rose}
+\end{fortune}
+%
+Die Identit\"{a}tsrepr\"{a}sentation eines Datenobjektes wird als seine
+\objid\/ bezeichnet. In einer Programmiersprache werden Datenobjekte
+durch unevaluierte Ausdr\"{u}cke, sogenannte \handle[s],
+referenziert. Die Evaluierung eines \handle\ hat als Ergebnis das
+referenzierte Datenobjekt selbst; damit entspricht sie einer
+Dereferenzierung des sie repr\"{a}sentierenden Objektes
+\cite[\citepage{238}]{bib:he89} (Beispiele siehe
+\tablename~\ref{tab:exhandle}).
+%
+\begin{figure}[htbp]%
+%
+%\begin{minipage}{\textwidth}% \minipage wg. Fussnote
+%\let\footnoterule\relax% Kein Trennungsstrich fuer Fussnoten
+\centering%
+%
+\def\coli{5em}\def\colii{11em}\def\coliii{16em}% Breite Spalten 1-3
+\def\pbrr#1#2{\parbox[t]{#1}{\raggedright{}#2}}% \parbox\raggedright
+%                                                ~~  ~   ~     ~
+\begin{\figurefontsize}%
+\begin{tabular}{|p{\coli}|p{\colii}|p{\coliii}|}
+%
+\hline
+\tabularheader{In}\ $\downarrow$%
+%\footnote{Zu lesen: In \clogo\ ergibt
+%\handle\ \lisp{malloc(2048)}\ bei Evaluierung Referenz auf ein
+%Speicherblockobjekt der Gr\"{o}\ss{}e 2048 Byte}%
+ &\tabularheader{ergibt \handle}\ $\downarrow$
+  &\tabularheader{bei Evaluierung Referenz auf}\ $\downarrow$ \ldots\\
+\hline
+\hline
+%
+%\clogo\smallskip
+% &\lisp{malloc(2048)}\smallskip
+%  &\pbrr{\coliii}{\ldots\ ein Speicherblockobjekt der Gr\"{o}\-\ss{}e 2048
+%   Byte}\smallskip\\
+%\hline
+%
+\pbrr{\coli}{SQL Datenbank}\smallskip
+ &\pbrr{\colii}{\lisp{SELECT A.ALL WHERE A.GEHALT > 2000 \& A IN
+  ANGESTELLTER}}\smallskip
+  &\ldots\ ein (tempor\"{a}res) Mengenobjekt, das alle
+   Tupelobjekte enth\"{a}lt, die Angestellte mit einem Gehalt gr\"{o}\ss{}er
+   2000 repr\"{a}sentieren\smallskip\\
+\hline
+%
+%LISP\smallskip
+% &\lisp{(cons 1 nil)}\smallskip
+%  &\ldots\ ein neues Listenobjekt \lisp{'(1)}\smallskip\\
+%\hline
+%
+\clos\smallskip
+ &%
+%  \pbrr{\colii}{\lisp{(make-instance\\{}\hspace*{0.5em}'foo)}}\smallskip
+%  &\ldots\ ein neues Objekt der \cls\ \class{foo}\smallskip\\
+% \cline{2-3}
+% &%
+  \pbrr{\colii}{\lisp{(find-class\\{}\hspace*{0.5em}'standard-class)}}%
+  \smallskip
+  &%
+   \ldots\ das \std\ \clsmo\ der Klasse
+   \class{standard-class}\smallskip\\
+\hline
+%
+\pbrr{\coli}{Per\-si\-sten\-tes \clos}\smallskip
+ &\pbrr{\colii}{\lisp{(get-object%
+%\footnote{siehe Definition~(\ref{equ:getobj})}%
+%\\{}\hspace*{0.5em}%
+ \ \dq{}FOO\us{}15\dq)}}\smallskip
+  &\ldots\ das Objekt, dessen Identit\"{a}t durch die Zeichenkette
+  \lisp{\dq{}FOO\us{}15\dq}\ re\-pr\"{a}\-sen\-tiert wird\smallskip\\
+\hline
+%
+\end{tabular}%
+\end{\figurefontsize}%
+%\end{minipage}%
+%
+\let\figurename\tablename%
+\caption{Beispiele f\"{u}r \protect\handle\ und durch Evaluierung
+referenzierte Objekte}%
+\label{tab:exhandle}%
+%
+\end{figure}%
+%
+Die Identit\"{a}t der als Ergebnis der Evaluierung entstehenden
+Objekte wird durch einen Objektidentifikator (\objid\/)
+repr\"{a}sentiert.
+Die Bestimmung der \objid\/ eines Objektes ist eine bijektive
+polymorphe Abbildung von der Menge der Objekte $O$ in die Menge
+der Objekt-Identifikatoren $I$:
+%
+\begin{equation}
+\mbox{\em get-objid} : O \rightarrow I
+\end{equation}
+%
+Je nach Vorgehensweise konstruiert oder generiert diese Abbildung eine 
+\representationform{} f\"{u}r die Identit\"{a}t eines Objektes.
+Die Umkehrabbildung $\mbox{\em get-objid}^{-1}$, im folgenden
+{\em get-object\/} genannt, bildet einen Objektidentifikator
+auf das dazugeh\"{o}rige Datenobjekt ab:
+%
+\begin{equation}\label{equ:getobj}
+\mbox{\em get-objid\/}^{-1} \equiv \mbox{\em get-object} :
+I \rightarrow O
+\end{equation}
+%
+Da die \objid\/ die Identit\"{a}t eines Datenobjektes eineindeutig
+repr\"{a}sentiert, ergibt sich daraus:
+%
+\begin{enumerate}
+%
+\item Zwei Objekte $o_1$ und $o_2$ sind genau dann identisch, wenn
+ihre jeweiligen \objid[s]\ gleich sind:
+\begin{equation}
+\mbox{\em identical\/}(o_1,o_2) \leftrightarrow
+\mbox{\em get-objid\/}(o_1) = \mbox{\em get-objid\/}(o_2) 
+\end{equation}
+%
+\item Die \objid\/ dient als \rglq{}Stellvertreter\rgrq\ f\"{u}r das Objekt
+selbst und kann benutzt werden, um Referenzen auf ein Objekt
+aufzubauen. Die Abbildung {\em get-object\/} erm\"{o}glicht den Zugriff
+auf den Zustand des Objektes.
+%
+\end{enumerate}
+%
+\section{Identit\"{a}t in verschiedenen Systemen}%
+\label{sec:idmsys}
+%
+Jedes in einem System existierende Datum hat eine Identit\"{a}t;
+Programmiersprachen und Systeme unterscheiden sich aber stark
+in ihrer Auffassung davon, ob diese Identit\"{a}t \"{u}berhaupt
+repr\"{a}sentiert werden soll und wie diese Repr\"{a}sentation
+aussieht.
+%
+\subsection{Identit\"{a}t in statisch typisierten Programmiersprachen}
+%
+\begin{fortune}[8cm]
+GO IN GREEN\\[\smallskipamount]
+Go in green. Go in, case. Go in green.\hspace*{\fill}\\
+\hspace*{\fill}Go in green. go in.\ in, go in green.\\
+\hspace*{\fill}Go in green.\\
+\hspace*{\fill}Go in green.
+\from{Gertrude Stein}
+\end{fortune}
+%
+In den klassischen Programmiersprachen wie \clogo\ und
+\pascal\ werden typisierte Variablen zur Repr\"{a}sentation von Daten
+benutzt.
+Eine Variable wird \"{u}ber einen benutzer-definierten Bezeichner
+(Variablennamen) adressiert. Das Datum selbst
+enth\"{a}lt keinerlei Informationen \"{u}ber seinen Typ; er wird lediglich
+an den Bezeichner des Datums gebunden und steht nur w\"{a}hrend des
+\"{U}ber\-set\-zer\-laufs zur Verf\"{u}gung.
+%
+\par{}Ein Konzept f\"{u}r Datenidentit\"{a}t gibt es in diesen Sprachen
+nicht; daraus folgt, da\ss{}
+eine \representationform{} f\"{u}r die Identit\"{a}t eines Datums ebenso
+fehlt. Der Variablenname erm\"{o}glicht nur die Adressierung eines
+Datums; dessen Identit\"{a}t wird durch ihn nicht repr\"{a}sentiert.
+Bei diesem Ansatz werden die Konzepte von Addressierung
+und Identit\"{a}t vermischt. Die Adresse eines Datums ist eine
+externe Eigenschaft, die es erm\"{o}glicht, auf dieses Datum zuzugreifen,
+w\"{a}hrend die Identit\"{a}t die innere Eigenschaft der Einzigartigkeit
+eines Datums widerspiegelt. Die Adresse ist zudem
+abh\"{a}ngig von der Umgebung, in der sich das Datum befindet
+\cite[\citepage{38}]{bib:ko90}. Kennzeichnend f\"{u}r diese Sprachen ist
+das Fehlen eines Operators, mit dem auf Identit\"{a}t
+gepr\"{u}ft werden kann; lediglich ein Test auf Gleichheit ist
+m\"{o}glich (siehe z.B.\ \cite[\citepage{23}]{bib:wi83}). Dieser Test gibt
+keinerlei Aufschlu\ss{} dar\"{u}ber, ob zwei Variablen sich auf ein und
+dasselbe Datenobjekt beziehen, da jeweils nur die Zust\"{a}nde der
+Datenobjekte verglichen werden (\figurename~\ref{fig:noiden}).
+%
+\begin{figure}[hbtp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/noiden.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/noiden.eps}}%
+\fi%
+\caption{Identit\"{a}t in {\protect\rglq}klassischen{\protect\rgrq}\ 
+  Programmiersprachen}\label{fig:noiden}%
+\end{figure}%
+%
+\par{}Oft wird in diesen Sprachen die Adresse eines
+Datums als seine Identit\"{a}tsrepr\"{a}sentation benutzt; damit ist
+die Identit\"{a}tsrepr\"{a}sentation aber nicht in der Sprache
+selbst realisiert, sondern wird explizit von den BenutzerInnen
+gew\"{a}hlt. In einigen
+Sprachen kann auch diese M\"{o}glichkeit nicht oder nur eingeschr\"{a}nkt
+genutzt werden, da sie keine Operatoren zur Ermittlung der Adresse
+eines Datums anbieten, wie z.B.\ \pascal. Die Adresse eines Datums in
+\pascal\ ist nur dann bekannt, wenn f\"{u}r das Datum eine darauf
+verweisende Zeigervariable deklariert wird und das Datum selbst im
+\heap\ abgelegt wird; die Adresse des Datums wird bei der
+Speicheralloziierung in der Zeigervariablen abgelegt. Die
+Typinformation \"{u}ber das von der Zeigervariablen dereferenzierte Datum
+ist an den Namen der Zeigervariablen gebunden. Ein Test auf
+Identit\"{a}t von zwei Daten durch Vergleich ihrer Adressen kann in
+\pascal\ nur erfolgen, wenn beide Daten vom gleichen Typ sind. Ein
+Identit\"{a}tstest zwischen Daten verschiedenen Typs ist nicht
+m\"{o}glich, da der \"{U}bersetzer keinen Vergleich von Zeigervariablen
+zul\"{a}\ss{}t, die auf unterschiedliche Typen verweisen.
+%
+\par{}Durch die Verwendung von Bezeichnern f\"{u}r Objekte
+in Systemen ohne Re\-pr\"{a}\-sen\-ta\-tions\-for\-men f\"{u}r Identit\"{a}t
+tritt noch ein weiteres Problem auf. Auf dasselbe Objekt kann auf
+verschiedene Art und Weise zugegriffen werden; wird das jeweils durch
+den Zugriff adressierte Objekt an verschiedene Bezeichner gebunden,
+ist es bei fehlender \representationform{} f\"{u}r Identit\"{a}t nicht
+m\"{o}glich festzustellen, ob sich diese Bezeichner auf ein und dasselbe
+Objekt beziehen. Dieser Effekt wird als {\em aliasing\/} bezeichnet.
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/ooiden.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/ooiden.eps}}%
+\fi%
+\caption{Identit\"{a}t in objekt-orientierten Programmiersprachen}%
+\label{fig:ooiden}%
+\end{figure}%
+%
+\subsection{Identit\"{a}t in dynamisch typisierten Programmiersprachen}
+%
+In dynamisch typisierten Programmiersprachen werden nicht Variablen,
+sondern die Datenobjekte selbst typisiert; Variablen dienen lediglich
+zur Referenzierung der Objekte.  \cl\ und viele der
+objekt-orientierten Programmiersprachen wie \smalltalk\ und
+\clos\ sind dynamisch typisierte Sprachen.
+%
+\par{}Die dynamisch typisierten Programmiersprachen benutzen Konstrukte,
+die Datenidentit\"{a}t be\-r\"{u}ck\-sich\-ti\-gen; so repr\"{a}sentieren diese
+Systeme die Identit\"{a}ten der in ihnen enthaltenen Daten. Aus der
+internen Sicht dieser Sprachen enth\"{a}lt eine Variable keinen direkten
+Wert, sondern eine Identit\"{a}tsrepr\"{a}sentation f\"{u}r ein Datenobjekt,
+mittels der dann auf den Objektzustand zugegriffen werden kann.  Es
+findet also eine Trennung zwischen dem Objekt als Individuum und
+seiner Adressierung statt (\figurename~\ref{fig:ooiden}). Variablen
+enthalten aus interner Sicht ausschlie\ss{}lich Referenzen auf
+Datenobjekte und nicht mehr die Objekte selbst wie in den
+\rglq{}klassischen\rgrq\ Pro\-gram\-mier\-spra\-chen.\footnote{Nat\"{u}rlich
+gibt es auch hier Ausnahmen aus Effizienzgr\"{u}nden, wie z.B.\ Objekte
+der Klasse \class{Smal\mbox{}lInt} in \smalltalk\ oder Instanzen der
+Klasse \class{fixnum} in \clos.} Aus externer Sicht, also aus der
+Sicht der BenutzerInnen, wird eine Variable an ein
+ei\-gen\-st\"{a}n\-di\-ges Objekt gebunden; es ergeben sich zwei
+\"{A}nderungen gegen\"{u}ber den klassischen Programmiersprachen:
+%
+\begin{enumerate}
+%
+\item Da Objekte \representationforms\ f\"{u}r ihre Identit\"{a}t haben und
+Variablen diese Formen und nicht mehr die Objekte selbst enthalten,
+kann festgestellt werden, ob sich zwei Variablen auf ein und dasselbe
+Objekt beziehen; zus\"{a}tzlich zum Test auf Gleichheit gibt es jetzt noch
+einen Test auf Identit\"{a}t.
+%
+\item Bei einer Zuweisung an eine Variable \"{a}ndert sich nicht der
+Zustand des Objektes, sondern die Variable wird an das zugewiesene
+Objekt gebunden; die vorherige Bindung wird aufgehoben. Der Zugriff
+auf den Objektzustand erfolgt durch Aufrufe entsprechender
+Zugriffsfunktionen durch die BenutzerInnen.
+%
+\end{enumerate}
+%
+\subsection{Identit\"{a}t in \protect\cl\ und \protect\clos}
+%
+\cl\ und \clos\ repr\"{a}sentieren die Identit\"{a}t von
+Datenobjekten. In \cite{bib:st90} wird zwar keine bestimmte
+Identit\"{a}tsrepr\"{a}sentation vorgeschrieben, es wird aber
+angenommen, da\ss{} die Iden\-ti\-t\"{a}t eines Objektes \"{u}ber
+seine Adresse repr\"{a}sentiert wird \stcite{103, 104}. Aus
+Effizienzgr\"{u}nden wird f\"{u}r die Realisierung eines \cl-Systems
+empfohlen, Werte der Klassen \class{short-float}\ \stcite{22}\ und
+\class{character}\ \stcite{371}\ als \immval[s]\/ anzusehen; daraus
+folgt eine nicht-kanonische Identit\"{a}tsrepr\"{a}sentation. F\"{u}r
+Werte der Klasse \class{fixnum}\ wird ebenfalls angenommen, da\ss{}
+sie effizienter als Instanzen der allgemeineren Klasse
+\class{integer}\ repr\"{a}sentiert werden \stcite{16}. Numerische
+Werte k\"{o}nnen ebenfalls nicht-kanonisch repr\"{a}sentiert werden
+\stcite{288}. Die meisten \cl-Systeme halten sich an diese
+Empfehlungen; in dem zur Realisierung von persistenten Objektsystemen
+in \ifbericht diesem Bericht \else\ifbuch diesem Buch \else dieser
+Arbeit \fi\fi verwendetem \lwcl\ werden Instanzen der Klassen
+\class{short-float}, \class{character}\ und \class{fixnum}\ als
+\immval[s]\/ angesehen, deren Identit\"{a}t nicht-kanonisch
+repr\"{a}sentiert wird; bei allen anderen Objekten wird deren
+jeweilige Identit\"{a}t \"{u}ber ihre Adresse repr\"{a}sentiert.
+%
+\subsection{Identit\"{a}t in relationalen Datenbanken}
+%
+Die in relationalen Datenbanken enthaltenen persistenten Datenobjekte
+sind wie nicht-per\-si\-sten\-te Daten Dinge oder Sachverhalte der
+realen Welt in abstrakter Form. Bei der Modellbildung werden reale
+Dinge abstrahiert und anhand gleichartiger Merkmale klassifiziert;
+jede gefundene Klasse wird in der Datenbank als Relation abgelegt.
+Die Merkmale der realen Dinge einer Klasse werden als Attribute der
+Relation definiert. Ein reales Objekt wird in der Datenbank als Tupel
+der zu seiner Klasse geh\"{o}rigen Relation abgelegt.
+%
+\par{}Relationale Datenbanken lassen sich in rein relationale,
+erweiterte und objekt-orientierte Datenbanken einteilen. In
+rein relationalen und erweiterten relationalen Datenbanken wird eine
+Relation als Tabelle verstanden, bei der f\"{u}r jedes Attribut eine
+Spalte existiert; ein Tupel ist eine Zeile einer
+solchen Tabelle. In die objekt-orientierten Datenbanken wurden
+Konzepte der objekt-orientierten Programmierung integriert; so
+werden Relationen als vererbbare Klassen, Tupel als Instanzen mit
+Identit\"{a}t und Attribute als \Slt[s]\/ aufgefa\ss{}t. Das bedeutet jedoch
+nicht, da\ss{} sie in der Lage sind, Datenobjekte im Sinne der
+objekt-orientierten Programmierung (wie z.B.\ \clos-Objekte) direkt zu
+speichern.
+%
+\subsubsection{Rein relationale Datenbanken}
+%
+Sie erf\"{u}llen die von Codd \cite[\citepage{399}]{bib:co79}
+aufgestellte Bedingung, da\ss{} ein Tupel sich in mindestens einem
+Attributwert von allen anderen Tupeln der gleichen Relation
+unterscheidet \cite[\citepage{37}]{bib:on94}; damit gilt f\"{u}r jedes
+Tupel das Identit\"{a}tsprinzip (es wird als individuelles,
+unterscheidbares Datenobjekt aufgefa\ss{}t). Trotz dieser Auffassung von
+Datenidentit\"{a}t fehlt in den rein relationalen Datenbanken nach Codd
+eine datenbank-interne Identit\"{a}tsrepr\"{a}sentation; statt dessen wurde
+daf\"{u}r eine Konvention definiert, die die Herstellung von Identit\"{a}t
+den Datenbank-BenutzerInnen \"{u}berl\"{a}\ss{}t
+(\figurename~\ref{fig:reldbref}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/reldbref.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/reldbref.eps}}%
+\fi%
+\caption{Identit\"{a}ten und Referenzen in relationalen
+Datenbanken}\label{fig:reldbref}%
+\end{figure}%
+%
+\begin{description}
+%
+\item[Identit\"{a}tsrepr\"{a}sentation in relationalen Datenbanken]
+Die Identit\"{a}tsrepr\"{a}sentation in relationalen Datenbanken besteht
+daraus, da\ss{} innerhalb einer Relation von den BenutzerInnen ein oder
+mehrere Attribute ausgew\"{a}hlt werden, deren Werte die Identit\"{a}t eines
+Tupels widerspiegeln (Prim\"{a}rschl\"{u}sselattribute); sie bilden somit
+die \objid\/ des Tupels.  Aus den Bedingungen f\"{u}r
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tion folgt, da\ss{} die beteiligten
+Attribute ihre Werte innerhalb eines Tupels nicht \"{a}ndern d\"{u}rfen und
+mindestens innerhalb der Relation eindeutig sein m\"{u}ssen. Die korrekte
+Vergabe der Attributwerte liegt vollst\"{a}ndig in der Hand der
+BenutzerInnen.
+%
+\par{}Die BenutzerInnen der Relation, die diese
+\objid\/ f\"{u}r den Aufbau von Referenzen ausnutzen m\"{o}chten, m\"{u}ssen
+wissen, welche Attribute der Relation f\"{u}r diesen Zweck festgelegt
+wurden (\figurename~\ref{fig:reldbref}, Attribute \oi, \oiii\ und \ov)
+\cite[\citepage{84}]{bib:schl83}.
+%
+\item[Referenzen zwischen Datenobjekten]
+Referenzen zwischen Datenobjekten werden aufgebaut,
+indem der Wert des iden\-ti\-t\"{a}ts-re\-pr\"{a}\-sen\-tie\-ren\-den
+Attributes des dereferenzierten Tupels in ein Attribut im
+referenzierenden Tupel eingetragen wird. Im referenzierenden Tupel
+wird dieses Attribut per Konvention von den BenutzerInnen nicht als
+\rglq{}wertetragend\rgrq, sondern als
+\rglq{}dereferenzierend\rgrq\ festgelegt (Sekund\"{a}rschl\"{u}ssel
+oder Fremdschl\"{u}sselattribute, \figurename~\ref{fig:reldbref},
+Referenzen zwischen
+\oii\,$\leftrightarrow$\,\oiii, \oiii\,$\leftrightarrow$\,\ovi\ und
+\oiv\,$\leftrightarrow$\,\ov).
+%
+\item[Aufl\"{o}sung der Referenzen]
+Die Aufl\"{o}sung der Referenzen erfolgt \"{u}ber Selektion des
+dereferenzierten Objektes \"{u}ber das identit\"{a}tsrepr\"{a}sentierende
+Attribut. Dazu ist der Aufbau eines {\em Joins\/} zwischen
+referenzierendem und dereferenziertem Tupel n\"{o}tig. Die Referenz ist
+symmetrisch; da der {\em Join\/} kommutativ ist \cite[\citepage{85,
+174}]{bib:schl83}, kann durch Umstrukturierung ebenso eine Referenz in
+Gegenrichtung aufgel\"{o}st werden.
+%
+\par{}Die in \figurename~\ref{fig:reldbref} eingezeichneten Referenzen
+zwischen den Objekten sind nicht explizit in der Datenbank enthalten.
+%
+\end{description}
+%
+\par{}Die korrekte Verwaltung sowohl der identit\"{a}ts-repr\"{a}sentierenden
+Attribute als auch der Referenzen, d.h.\ der Schl\"{u}sselintegrit\"{a}t,
+liegt in der Hand der BenutzerInnen, da eine rein relationale
+Datenbank kein \rglq{}Wissen\rgrq\ \"{u}ber diese getroffenen Konventionen
+hat.
+%
+\par{}Das Problem der Identit\"{a}tsrepr\"{a}sentation \"{u}ber einen
+Attributwert ist seine doppelte Bedeutung. Zum einen dient er als
+\objid\/ und zum anderen ist er ein Wert innerhalb des Tupels. Die
+L\"{o}sung innerhalb einer rein relationalen Datenbank besteht darin,
+diese beiden Bedeutungen aufzutrennen und f\"{u}r die
+Identit\"{a}tsrepr\"{a}sentation ein zus\"{a}tzliches Attribut
+\attr{}{OBJID}\ festzulegen. Beim Anlegen eines neuen Tupels mu\ss{} es
+dann von den BenutzerInnen mit einem beliebigen aber innerhalb der
+Relation eindeutigen Wert belegt werden. Der gew\"{a}hlte Wert kann mit
+einem Merkmal des im Tupel modellierten realen Objektes
+korrespondieren, sofern dieses Merkmal die Bedingungen f\"{u}r
+Identit\"{a}tsrepr\"{a}sentation einh\"{a}lt (z.B.\ Personalausweisnummer als
+\objid\/ f\"{u}r Tupel der Relation \relation{ANGESTELLTER}).
+%
+\begin{figure}[htbp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/oordbref.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/oordbref.eps}}%
+\fi%
+\caption{Identit\"{a}ten und Referenzen in objekt-orientierten
+relationalen Datenbanken}\label{fig:oordbref}%
+\end{figure}%
+%
+\subsubsection{Erweiterte relationale Datenbanken}
+%
+Als m\"{o}gliches Hilfskonstrukt bieten sie den BenutzerInnen zur
+Einhaltung der Bedingungen f\"{u}r eine Identit\"{a}tsrepr\"{a}sentation
+sogenannte {\em Trigger\/} \cite[\citepage{407}]{bib:on94}
+\cite[\citepage{49}]{bib:vaga89} (Synonym {\em Alerter\/}
+\cite[\citepage{53}]{bib:ni88}) an. Ein {\em Trigger\/} ist eine
+Prozedur, die bei Eintritt eines Ereignisses oder Erf\"{u}llung einer
+Vorbedingung aktiviert wird (vergleichbar dem
+{\em D\"{a}mon\/}-Konzept). Er kann beispielsweise benutzt werden, um
+beim Ereignis \rglq{}Einf\"{u}gen eines Tupels\rgrq{} die dazugeh\"{o}rige
+\objid\/ zu generieren und in das identit\"{a}ts-repr\"{a}sentierende
+Attribut \attr{}{OBJID}\ einzutragen; ebenso kann er bei Zugriff auf
+Attribute aktiviert werden und dabei die G\"{u}ltigkeit von Referenzen
+\"{u}berwachen.
+%
+\par{}Bei neueren Systemen gibt es die M\"{o}glichkeit,
+Integrit\"{a}tsbedingungen zu spezifizieren, die von der relationalen
+Datenbank \"{u}berwacht werden; damit kann beispielsweise die
+Schl\"{u}sselintegrit\"{a}t automatisch \"{u}berpr\"{u}ft werden. Problematisch
+ist aber, da\ss{} die entsprechenden Bedingungen auch f\"{u}r den
+\rglq{}einfachen\rgrq\ Fall von Referenzen zwischen Objekten
+spezifiziert werden m\"{u}ssen, obwohl die Bedingung der
+Schl\"{u}sselintegrit\"{a}t bereits inh\"{a}rent in der Referenz enthalten ist.
+%
+\subsubsection{Objekt-orientierte relationale Datenbanken}
+%
+Sie erweitern das Typkonzept und lassen Da\-ten\-bank-Re\-la\-tio\-nen
+als Typen f\"{u}r Attribute zu (\figurename~\ref{fig:oordbref}).  Aus der
+Sicht der BenutzerInnen ist der Wert eines derartigen Attributes ein
+Tupel der typbildenden Relation; intern wird \"{a}hnlich wie bei
+Variablen in objekt-orientierten Programmiersprachen das Tupel durch
+seine \objid\/ repr\"{a}sentiert.  Dadurch kann eine direkte Referenz von
+einem Attribut auf ein Tupel aufgebaut werden. Die in
+\figurename~\ref{fig:oordbref} eingezeichneten Referenzen werden durch
+die Datenbank und nicht durch die BenutzerInnen realisiert; f\"{u}r den
+Zugriff ist daher auch kein {\em Join\/} mehr n\"{o}tig. Die Referenz kann
+h\"{a}ufig nur in einer Richtung aufgel\"{o}st werden.
+%
+\par{}Als referenzierbare Objekte werden in einigen Systemen
+ausschlie\ss{}lich Tupel
+angesehen (z.B.\ \postgres\ \cite{bib:sto86a}). Die Identit\"{a}t aller
+anderen in der Datenbank
+enthaltenen Objekte wird in diesen Systemen nicht repr\"{a}sentiert;
+damit sind keine Referenzen auf diese Daten m\"{o}glich.
+%
+\subsection{Identit\"{a}t in persistenten Objektsystemen}
+%
+\begin{fortune}
+Entit\"{a}ten sollten nicht unn\"{o}tig vervielfacht werden.
+%\from{\rglq{}Ockhams Rasiermesser\rgrq\ nach \cite[\citepage{220}]{ru92}}
+\from{\rglq{}Ockhams Rasiermesser\rgrq}
+\end{fortune}
+%
+In persistenten Systemen, die auf Maschinen mit fl\"{u}chtigem Speicher
+realisiert werden, wird zur Ablage von persistenten Objekten ein
+Sekund\"{a}rspeicher benutzt. Nach Erzeugung eines Objektes im
+fl\"{u}chtigen Speicher legt das persistente System das Objekt entweder
+explizit (z.B.\ durch Veranlassung von au\ss{}en, wie Anwendung einer
+Methode durch die BenutzerInnen, die daf\"{u}r sorgt, da\ss{} das Objekt
+persistent wird) oder implizit (z.B.\ wird f\"{u}r jedes neu
+erzeugte Objekt angenommen, da\ss{} es persistent sein soll) im
+nicht-fl\"{u}chtigen Speicher ab. Bei Zugriffen auf die Objekte 
+von einem sp\"{a}teren oder anderen Proze\ss{} k\"{o}nnen die
+referenzierten persistenten Objekte aus Effizienzgr\"{u}nden vom
+persistenten System aus der persistenten in die transiente Umgebung
+kopiert werden und dort direkt von den BenutzerInnen manipuliert
+werden; in diesem Fall gibt es von einem Datum zwei
+\rglq{}Ausgaben\rgrq{}, eine im fl\"{u}chtigen Speicher und eine im
+nicht-fl\"{u}chtigen Speicher (\figurename~\ref{fig:periden}).
+%
+\begin{figure}[hbtp]%
+\ifbuch%
+\centerline{\psfig{figure=twelvept/periden.eps}}%
+\else%
+\centerline{\psfig{figure=tenpt/periden.eps}}%
+\fi%
+\caption{Identit\"{a}t eines Objektes in einem persistenten System}%
+\label{fig:periden}%
+\end{figure}%
+%
+F\"{u}r die BenutzerInnen der obersten Schicht eines persistenten Systems
+sollte diese Dualit\"{a}t nicht sichtbar sein, sondern sie arbeiten
+lediglich mit dem einen Objekt, das sie direkt im Zugriff haben; das
+persistente System sorgt f\"{u}r die Verwaltung des Objektes, wie
+Transfer zwischen fl\"{u}chtigem und nicht-fl\"{u}chtigem Speicher, Regelung
+von Zugriffskonflikten von mehreren BenutzerInnen auf ein Objekt usw.
+%
+\par{}Die Identit\"{a}t eines Objektes ist damit abh\"{a}ngig von der
+Schicht eines persistenten Systems. In der obersten Schicht gibt es
+f\"{u}r jedes Objekt eine Identit\"{a}t; in den darunter liegenden Schichten
+existiert das Objekt in einer oder mehreren zusammengeh\"{o}rigen
+\rglq{}Ausgaben\rgrq{}, denen man in diesen Schichten eine eigene
+Identit\"{a}t geben kann. Bei Transfer eines Objektes zwischen den
+Schichten m\"{u}ssen dann die jeweiligen Identit\"{a}tsrepr\"{a}sentationen
+umgeformt werden.
+%
+\section{Zusammenfassung}
+%
+Identit\"{a}t ist eine jedem Datenobjekt zugeh\"{o}rige Eigenschaft. Sie
+zeichnet ein Datenobjekt als eigenst\"{a}ndig aus, d.h.\ es unterscheidet
+sich von allen anderen Datenobjekten. Dies mu\ss{} in einem System von
+Datenobjekten durch eine geeignete \representationform{} wiedergegeben
+werden. Sie dient dazu, Referenzen auf das dazugeh\"{o}rige Objekt
+aufzubauen. Eine \representationform{} mu\ss{} dabei bestimmten
+Bedingungen gen\"{u}gen; sie mu\ss{} eindeutig und unabh\"{a}ngig von Zeit,
+aktuellem Zustand und der Umgebung des Objektes sein, dessen
+Identit\"{a}t repr\"{a}sentiert werden soll. F\"{u}r transiente und persistente
+Umgebungen sind die in diesem Kapitel diskutierten
+Iden\-ti\-t\"{a}ts\-re\-pr\"{a}\-sen\-ta\-tio\-nen unterschiedlich
+geeignet. \clos-Systeme repr\"{a}sentieren die Identit\"{a}t der in ihnen
+enthaltenen Objekte
+\ia\ mit nicht-kanonischen Adressen, deren Verwendung als
+Identit\"{a}tsrepr\"{a}sentation in einer persistenten Umgebung damit
+ausscheidet.  F\"{u}r persistente Objekte mu\ss{} daher eine geeignete
+Identit\"{a}tsrepr\"{a}sentation innerhalb der persistenten Umgebung
+ausgew\"{a}hlt und realisiert werden; zu diesem Zweck sind Surrogate sehr
+gut geeignet, da sie die Bedingungen f\"{u}r eine
+Identit\"{a}tsrepr\"{a}sentationform am Besten erf\"{u}llen.  Sofern ein
+persistentes Objekt seine Umgebung wechseln kann, mu\ss{}
+bei jedem Wechsel \ua\ seine Identit\"{a}tsrepr\"{a}sentation konvertiert
+werden; bei der Verwendung von Surrogaten bedeutet dies konkret, da\ss{}
+beim Wechsel von persistenten Objekten zwischen der persistenten und
+der transienten Umgebung \ua\ eine Konvertierung zwischen Surrogaten
+und Adressen erfolgen mu\ss{}.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

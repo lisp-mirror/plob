@@ -1,0 +1,118 @@
+%	This is -*-LaTeX-*-
+%
+% 16.8.94
+%
+\input{diagdefs}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\objectmargin{0pt}%
+%
+\def\statevectori{\text{\textrm{\ \oii}\ \lisp{\#((employee 4711) nil)}}}%
+\def\statevectorii{%
+\text{\textrm{\ \oiii}\ \lisp{\#((employee 4711)}
+      \textit{\fontencoding{T1}\selectfont<object>}\lisp{)}}}%
+\def\classwrapper{%
+\text{\textrm{\ \ov}\ \lisp{\#(}%
+\textit{\fontencoding{T1}\selectfont<class metaobject>}
+\lisp{(objid name salary)}%
+\ \textrm{\ldots}\ \lisp{)}}}
+%
+\def\ptr#1{\save\Drop{\makebox[\clsw]{%
+\hspace*{\fill}\raisebox{0.25ex}{$\bullet$}}}%
+\go[0,0]+<\cR,0ex>#1+<-1.3\clsmargin,0ex>\restore}%
+\def\begptr{\ptr{\xline}}%
+%
+\newlength{\refsep}\setlength{\refsep}{0.5ex}%
+\newlength{\objw}\setlength{\objw}{6em}%
+\newlength{\clsw}\setlength{\clsw}{\bigtxtw}%
+\newlength{\clsmargin}\setlength{\clsmargin}{3pt}%
+%
+\newlength{\tempw}\setlength{\tempw}{0pt}
+%
+\begin{diagram}
+%
+\text{\textrm{\oi}\ \lisp{\#S(}}&
+	\text{\textit{\fontencoding{T1}\selectfont<class wrapper>}}&
+		\text{\textrm{\ }}
+	&\text{\textit{\fontencoding{T1}\selectfont<state vector>}}
+		&\text{\lisp{)}}\\
+\rule{0em}{4ex}
+		&&&&\settowidth{\tempw}{\statevectori}%
+		    \tempw0.5\tempw%
+		    \global\edef\statevectoriw{\the\tempw}%
+		    \save%
+		    \go+<\statevectoriw,0ex>%
+		    \Drop{\statevectori}
+		    \xline'[0,-1]+<\refsep,0ex>|<{\rotate\tip}%
+			   [-1,-1]+<\refsep,-1ex>
+		    \restore\\
+\rule{0em}{4ex}
+		&&&&\settowidth{\tempw}{\statevectorii}%
+		    \tempw0.5\tempw%
+		    \global\edef\statevectoriiw{\the\tempw}%
+		    \save%
+		    \go+<\statevectoriiw,0ex>%
+		    \Drop{\statevectorii}
+		    \xdotted'[0,-1]+<-\refsep,0ex>|<{\rotate\tip}%
+			     [-2,-1]+<-\refsep,-1ex>
+		    \restore\\
+\rule{0em}{1ex}\\
+		&&&&&&&\setlength{\tempw}{\statevectoriiw}%
+		       \tempw2\tempw%
+		       \addtolength{\tempw}{-2em}%
+		       \global\edef\stvrm{\the\tempw}%
+		       \save%
+		       \go[3,0]\merge\framed<5pt>\restore%
+		       \grow<\clsmargin>{%
+		        \makebox[\objw]{\oiv\ \class{employee}}}
+		       \xline'[0,-3]+<\stvrm,0ex>|<{\rotate\tip}%
+			      [-2,-3]+<\stvrm,-1ex>\\
+		&&&&&&&\grow<\clsmargin>{%
+		        \makebox[\objw]{\hrulefill}}\\
+		&&&&&&&\grow<\clsmargin>{%
+		        \text{\lisp{\dq\namei\dq}}}\\
+		&&&&&&&\grow<\clsmargin>{%
+		        \text{\lisp{3000}}}\\
+\rule{0em}{6ex}
+	&&\settowidth{\tempw}{\classwrapper}%
+	  \tempw0.5\tempw%
+	  \global\edef\wrapperw{\the\tempw}
+	  \save\go+<\wrapperw,0ex>%
+	  \Drop{\classwrapper}%
+	  \go+<-\wrapperw,\refsep>%
+	  \xline'[0,-1]+<0em,\refsep>|<{\rotate\tip}[-8,-1]
+	  \restore\\
+\rule{0em}{2ex}\\
+		&&&&&\save\go[4,0]\merge\framed<5pt>\restore%
+		     \grow<\clsmargin>{%
+		      \makebox[\clsw]{\ovi\ \class{dbclass}}}
+		     \xline'[0,-3]+<4em,0ex>|<{\rotate\tip}%
+			    [-2,-3]+<4em,-1ex>\\
+		&&&&&\grow<\clsmargin>{%
+		      \makebox[\clsw]{\hrulefill}}\\
+		&&&&&\grow<\clsmargin>{%
+		      \text{\lisp{class-name=employee}}}\\
+		&&&&&\grow<\clsmargin>{%
+		      \text{\lisp{slots=(...)}}}
+			&\rule{2em}{0ex}\\
+		&&&&&\grow<\clsmargin>{%
+		      \makebox[\clsw]{\ovii\ \lisp{wrapper=\#(...)}}}
+		     \begptr%
+		     \xto'[0,1]'[1,1]'[1,-4]%
+			 '[-6,-4]+<0em,-\refsep>%
+			  [-6,-3]+<0em,-\refsep>&\\
+\rule{0em}{4ex}	&&&&&&\\
+\rule{0em}{10ex}\save\go+<20em,0ex>\Drop{\parbox{40em}{\footnotesize%
+\oi: Objekt mit den Referenzen auf den {\em Class Wrapper}
+     \ov\ und den Zustandsvektor \oii\ bzw.\ \oiii\\[\smallskipamount]
+\oii: Zustandsvektor mit der \objid\ des Objektes direkt
+      nach dem Laden\\[\smallskipamount]
+\oiii: Zustandsvektor mit \objid\ und nachgeladener Repr\"{a}sentation
+       \oiv\ nach dem ersten \Slt\/-Zugriff\\[\smallskipamount] 
+\ov: {\em Class Wrapper} mit den Referenzen auf das
+       \clsmo\ \ovi\ und die Liste der \Slt\/-Namen
+}}\restore
+%
+\end{diagram}%

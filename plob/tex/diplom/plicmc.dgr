@@ -1,0 +1,87 @@
+%       This is -*-LaTeX-*-
+%
+\input{diagdefs}%
+%
+\newlength{\colsep}\setlength{\colsep}{3em}
+\newlength{\coliw}\setlength{\coliw}{5em}
+\newlength{\coliiw}\setlength{\coliiw}{9em}
+\newlength{\coliiiw}\setlength{\coliiiw}{9em}
+\def\classdescrof{\textrm{\footnotesize{}p-}\\%
+\textrm{\footnotesize{}class-of}}
+%
+\newlength{\blskip}\setlength{\blskip}{\baselineskip}%
+%
+\newsavebox{\cleg}\sbox{\cleg}{\mkcleg}%
+%
+\newlength{\ctxtw}
+\setlength{\ctxtw}{\coliw}%
+\addtolength{\ctxtw}{2\colsep}%
+\addtolength{\ctxtw}{4\stdomargin}%
+\addtolength{\ctxtw}{\coliiw}%
+\addtolength{\ctxtw}{\coliiiw}%
+\addtolength{\ctxtw}{-\wd\cleg}%
+\newsavebox{\ctxt}\sbox{\ctxt}{\parbox{\ctxtw}{\small%
+%
+Das Verhalten von persistenten Instanzen wird nicht repr\"{a}sentiert;
+daher gibt es keinen \slt\ mit einer Liste der Methoden in einem
+persistenten \clsdo.
+%
+}}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{\colsep}%
+\objectmargin{\stdomargin}%
+%\objectwidth{\smltxtw}%
+%
+\newlength{\templ}
+\def\bracenl{%
+\settowidth{\templ}{(}\\{}\hspace*{\templ}}
+%
+\begin{diagram}
+%
+\parbox{\coliw}{\centering\makebox[0em]{\class{employee}}}%
+\save\go[4,0]\merge\framed<5pt>\restore%
+        &\parbox{\coliiw}{\centering\class{class-description}}
+         \save\go[4,0]\merge\framed<5pt>\restore%
+                &\parbox{\coliiiw}{\centering\class{class-description}}%
+                 \save\go[4,0]\merge\framed<5pt>\restore%
+                 \stolu^{\Text{\classdescrof\\{}\rule{0em}{1.4\blskip}}}\\
+\makebox[\coliw]{\hrulefill}
+\save%
+\go+<\cR,0em>\xto[0,1]!<-\cL,0em>_{\Text{\classdescrof}}%
+\restore%
+        &\makebox[\coliiw]{\hrulefill}
+         \save%
+         \go+<\cR,0em>\xto[0,1]!<-\cL,0em>_{\Text{\classdescrof}}%
+         \restore%
+                &\makebox[\coliiiw]{\hrulefill}\\
+\parbox{\coliw}{\centering\lisp{\dq\nameii\dq}}
+        &\parbox{\coliiw}{\lisp{(name salary)}}
+                &\parbox{\coliiiw}{\lisp{(slots\bracenl%
+                                          superclasses)}}\\
+\makebox[\coliw]{\dotfill}
+        &\makebox[\coliiw]{\dotfill}
+                &\makebox[\coliiiw]{\dotfill}\\
+\parbox{\coliw}{\centering\lisp{3000}}
+        &\parbox{\coliiw}{\lisp{(employee\bracenl%
+                                 std-obj t)}}
+                &\parbox{\coliiiw}{\lisp{(standard-class\bracenl%
+                                          class std-obj t)}}\\
+\\ \Text{\textrm{Persistente}\\{}\textrm{Instanz}}
+        &\Text{\textrm{Persistentes \clss-}\\{}\textrm{\deo}}
+                &\Text{\textrm{Persistentes \clss-}\\{}\textrm{\deo}}\\
+\rule{0em}{1em}\\
+%
+% Erlaeuterungen:
+\rule{0em}{\ht\ctxt}%
+\save\go+<-0.5\coliw,0em>+<-\stdomargin,0em>+<0.5\ctxtw,0em>%
+\Drop{\usebox{\ctxt}}\restore
+% Legende:
+                &&\save%
+                  \go+<+0.5\coliiiw,0em>+<\stdomargin,0em>%
+                  +<-0.5\wd\cleg,0em>%
+                  \Drop{\usebox{\cleg}}\restore
+%
+\end{diagram}
