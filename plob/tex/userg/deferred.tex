@@ -1,0 +1,29 @@
+
+\begin{CompactCode}
+(defclass \comment{\lt{}class name\gt}\ (\comment{\,\{\,\lt{}superclasses\gt\,\}\,})
+  (\comment{\,\{\,\lt{}slots\gt\,\}\,})
+  (:metaclass persistent-metaclass)
+  \underline{(:constructor \comment{\lt{}funcallable object\gt})}  \comment{;; usage deprecated}
+  \underline{(:dependent \comment{\lt{}boolean\gt})}
+  \underline{(:extent \comment{\lt{}keyword\gt})}
+  \underline{(:schema-evolution \comment{\lt{}keyword\gt})}
+  \comment{\{\,\lt{}other class options\gt\,\}\,})
+\end{CompactCode}
+
+\subsubsection{Class option
+\protect\lisp{:deferred}\ \protect\emph{(not implemented)}}%
+\label{sec:ClassDeferred}
+
+The additional class option \lisp{:deferred}\ is neither used nor
+further implemented. It was planned to use it to support more
+efficient object storing and loading by improved support for forward
+referenced objects, as a replacement for the missing store/load
+plan generator. The idea was to use the value of this option as a hint
+to store instances of classes being declared \lisp{:deferred} before
+instances of other classes not declared as being \lisp{:deferred} and
+to load instances of such a class after instances of other classes.
+This option would take a priority number as argument, the higher the
+number, the earlier the storing / the later the loading of the
+class' instances.
+
+

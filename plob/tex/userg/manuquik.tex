@@ -1,0 +1,422 @@
+% This is -*-LaTeX-*-
+%
+% manuqik.tex
+% 1997/12/04 Heiko Kirschke
+
+\chapter[Quick tour through PLOB]%
+{Quick tour through \protect\plob}
+
+This chapter shows in a few example statements how to work with \plob\ 
+to make objects persistent. Each of the concepts shown here is
+explained in detail in one of the following chapters of the manual;
+references to these chapters are given at the end of each section. The
+examples assume that \plob\ has been installed as described in
+\cite{bib:PLOB-install}. The example code itself is in
+\lisp{plob-\thisversion/}\lisp{src/}\lisp{example/}\lisp{plob-quick-tour.lisp}
+
+\section[Starting LISP and loading PLOB]%
+{Starting LISP and loading \protect\plob}%
+\label{sec:QuickTourStart}
+
+At first, \allegrocl\ is started and the system itself is loaded:
+\begin{CompactCode}
+/home/kirschke>cd plob-\thisversion/src/allegro
+/home/kirschke/plob-\thisversion/src/allegro>cl
+Allegro CL 4.3 [Linux/X86; R1] (8/5/97 16:30)
+\OmitUnimportant
+\listener{}(load "defsystem-plob")
+; Fast loading ./defsystem-plob.fasl
+T
+\listener{}(load-plob)
+; Loading system: "PLOB!".
+;   Loading product for module: "PLOB:SOURCE;plob-defpackage".
+\OmitUnimportant
+; Fast loading PLOB:SOURCE;plob-sexpr.fasl
+;    (/home/kirschke/plob-\thisversion/src/allegro/plob-sexpr.fasl)
+T
+\end{CompactCode}
+
+Omissions of unimportant system messages are marked by
+`\OmitUnimportant'.
+
+\refpar Section \Nameref{sec:StartClient}; section \fcite{bootstrap
+  ...}.
+
+\section{Opening the database}
+
+Next, the database session to \plob\ is opened explicitly by a call to
+\fcite{open-my-session}; this step could also be omitted, \plob\ will
+open the database when it is needed the first time. The next example
+code assumes that the lisp root is already formatted; this is done
+automatically the very first time a database is opened.
+\begin{CompactCode}
+\listener{}(open-my-session)
+;;;; Bootstrap   : Opening tcp://nthost/database\marginnumber{\smalloi}
+;;; Info from server at executing client:SH_short_read_root:
+;;; =======================================================
+;;; PLOB! daemon version \thisversion\space{}database version \thisversion\space{}- WIN32
+;;; =======================================================
+;;; Copyright (C) 1994-\thisyear Heiko Kirschke \thisemail
+;;; Part of server code (C) University of St. Andrews
+;;; PLOB! comes with ABSOLUTELY NO WARRANTY; for details, look into the
+;;; user's guide `plob/ps/userg.ps' provided within the distribution.
+;;;; Bootstrap(1): Loaded PLOB::STRUCTURE-DESCRIPTION, 11/13 slots.
+\OmitUnimportant
+;;;; Bootstrap(4): Loaded PLOB::METHOD-DESCRIPTION, 5/6 slots.
+;;;; LISP root formatted at 1997/11/21 16:56 by ALLEGRO
+#<heap kirschke@nthost `Initial Lisp Listener' short-objid=50327650>\marginnumber{\smalloii}
+\end{CompactCode}
+
+This bootstrap is always done the first time a database is opened; the
+bootstrap loads some \mo[s] from the persistent storage into the LISP
+image. The first line of output \oi\ shows the database opened; it
+uses TCP/IP as transmission protocol (\lisp{tcp:}), the server host is
+\lisp{nthost}\ (a remote Windows/NT PC) and the database opened is
+located in subdirectory \lisp{database}\ relative to the server's
+installation directory. The call returned an object representing the
+session to the database \oii; this object is stored in
+\fcite{*default-persistent-heap*}\ and will be used as default session
+for all database operations.
+
+\refpar Section \Nameref{sec:SessionManagement}
+
+\section[Showing other sessions]%
+{Showing other sessions active on the database}
+
+Now let's look who is on the database:
+\begin{CompactCode}
+\listener{}(show-sessions)
+  Sessions on tcp://nthost/plob
+* #<heap kirschke@nthost `Initial Lisp Listener'\marginnumber{\smalloi}
+         transaction=514 short-objid=50327650>
+. #<heap kirschke@nthost `Metaheap' short-objid=50329172>\marginnumber{\smalloii}
+\end{CompactCode}
+
+There are 2 sessions started from the current LISP process; the first
+one \oi\ is the actual session (marked by a `\lisp{*}'), the other one
+\oii\ is a session used by \plob\ internally for storing and loading
+of metaobjects.
+
+\refpar Section \Nameref{sec:SessionManagement}
+
+\section{Defining a persistent class}%
+\label{sec:QuickTourDefclass}
+
+The most simple way to make \clos\ classes and their instances
+persistent is by adding the class option \lisp{(:metaclass
+  persistent-metaclass)}:
+\begin{CompactCode}
+\listener{}(defclass person ()
+              ((name :initarg :name :initform nil :accessor person-name)
+               (soc-sec-# :initarg :soc-sec-#
+                          :accessor person-soc-sec-#
+                          :index (btree :test equal)))
+              (:metaclass persistent-metaclass))
+#<PERSISTENT-METACLASS PERSON>
+\end{CompactCode}
+
+This example uses the tight-binding interface of \plob\ for persistent
+objects. As will be shown later, persistency is available too for
+classes whose definition cannot or should not be changed by adding the
+class option \lisp{:metaclass}\ \lisp{persistent-metaclass}. Those
+classes use the loose binding interface of \plob, which differs from
+the tight-binding interface by the lack of some functionality.
+
+The class itself is not yet persistent; this will be done the first
+time an instance of the class is created and stored.
+
+\section{Binding to a persistent symbol}
+
+\begin{CompactCode}
+\listener{}(setf #!*cleese*\marginnumber{\smalloi}
+              (make-instance 'person :name "Cleese" :soc-sec-# 2000))
+;;;;; Stored #<instance class-description person 1.00\marginnumber{\smalloii}
+;;;;;                   slots=2/3 short-objid=50327268>.
+#<instance person soc-sec-#=2000 short-objid=50326603>\marginnumber{\smalloiii}
+\end{CompactCode}
+
+The \cl\ macro reader construct
+\lisp{\#!\textrm{\emph{\lt{}symbol\gt}}}\ at \oi\ introduces a
+persistent symbol with the same name and package like the transient
+\emph{\lt{}symbol\gt}. Persistent symbols are used as `entry points'
+into the database, to reference persistent objects by a name. An
+object bound to a persistent symbol is always reachable. Therefore,
+the symbol's value is persistent, too, and will never be removed by a
+garbage collection. The persistent symbol is a symbol on its own; the
+only relation to its transient companion is that they share the same
+name and package name.
+
+The output \oii\ shows that a class description for class
+\class{person}\ is stored in the database; the name of the class is
+\lisp{person}, its version number is \lisp{1.00}; it has 3 slots, 2
+are persistent slots and 1 is a transient slot (the last one is added
+silently by \plob\ at establishing the \clsmo\ representing class
+\class{person}). For the slot named \lisp{soc-sec-\#}, an index will
+be maintained automatically which maps a value to the instance having
+that slot value.
+
+The call shown here \oiii\ returned the now persistent object which
+will be bound to the persistent symbol \lisp{*cleese*}. For slots with
+a declared index, the slot name and its value will be shown in the
+print representation.
+
+\refpar Section \Nameref{sec:TightBinding};
+section \Nameref{sec:SlotIndex};
+section \Nameref{sec:PersistentSymbol}.
+
+\section{Making persistent instances}
+
+Now, some more persistent instances are created:
+\begin{CompactCode}
+\listener{}(make-instance 'person :name "Palin" :soc-sec-# 3000)
+#<instance person soc-sec-#=3000 short-objid=50326605>
+\listener{}(make-instance 'person :name "Gilliam" :soc-sec-# 4000)
+#<instance person soc-sec-#=4000 short-objid=50326607>
+\end{CompactCode}
+
+Besides using persistent symbols, this example shows the second way to
+ensure reachability for a persistent object. Indexes are defined as
+being reachable, so the index declared on slot \lisp{soc-sec-\#}\ will
+ensure reachability for all instances of class \class{person},
+although not every individual \class{person}\ instance may be bound to
+a persistent symbol.
+
+\refpar Section \Nameref{sec:SlotIndexAndReachability}.
+
+\section{Doing simple queries}
+
+Get the instance of class \class{person}\ whose slot value of slot
+\lisp{soc-sec-\#}\ equals to 2000:
+\begin{CompactCode}
+\listener{}(p-select 'person :where 'soc-sec-# := 2000)
+#<instance person soc-sec-#=2000 short-objid=50326603>
+\listener{}(person-name *)
+"Cleese"
+\end{CompactCode}
+
+This is the person named \lisp{"Cleese"}\ which has been stored above
+as the very first instance of class \textbf{person}. The query
+accessed the index declared for slot \lisp{soc-sec-\#}.
+
+\refpar Section \Nameref{sec:IndexQuery}.
+
+\section{Defining a print method}
+
+Since the \objid\ is rather poor for identifying the person instance,
+a print method will be defined:
+\begin{CompactCode}
+\listener{}(defmethod print-object ((obj person) stream)
+               (print-unreadable-object (obj stream :type t :identity t)
+                 (format stream "~A (short-objid ~A)"
+                         (if (slot-boundp obj 'name) (person-name obj))
+                         (persistent-object-objid obj))))
+\end{CompactCode}
+
+Now, the output of the simple query will look somewhat better:
+\begin{CompactCode}
+\listener{}(p-select 'person :where 'soc-sec-# := 2000)
+#<PERSON Cleese (short-objid=50326603) @ #xa064f02>
+\end{CompactCode}
+
+Unfortunately, the method itself cannot be stored in the database,
+since \plob\ does not support storing of binary function code; section
+\Nameref{sec:BinaryCode} explaines the workarounds which are
+implemented in \plob\ to cope with function code.
+
+\section{Leaving LISP}
+
+When leaving LISP, all open sessions to the database are closed
+automatically. A close of all sessions can be forced by calling
+\fcite{close-heap}.
+\begin{CompactCode}
+\listener{}:exit
+cplobheap.c(196): fnDeinitializeHeapModule:
+  PLOB! is trying to close 2 pending session(s), please wait ... done!
+\end{CompactCode}
+
+\refpar Section \Nameref{sec:FinishClient}
+
+\section[Restarting the system]%
+{Restarting the system; reload of classes}
+
+\ResetListener After a restart of the LISP system and a reload of
+\plob\ (as described in section \Nameref{sec:QuickTourStart}), loading
+the value of a persistent symbol will re-establish the class of the
+object found in the value cell of the persistent symbol into the
+current LISP image:
+\begin{CompactCode}
+/home/kirschke/plob-\thisversion/src/allegro>cl
+\OmitUnimportant
+\listener{}(load "defsystem-plob")
+\OmitUnimportant
+\listener{}(load-plob)
+\OmitUnimportant
+\listener{}#!*cleese*
+;;;; Bootstrap   : Opening tcp://nthost/database\marginnumber{\smalloi}
+\OmitUnimportant
+;;;; LISP root formatted at 1997/11/21 16:56 by ALLEGRO
+;;;;; Compiling #<instance class-description person 1.00\marginnumber{\smalloii}
+;;;;;                      slots=2/3 short-objid=50327268>
+#<instance person soc-sec-#=2000 short-objid=50326603>\marginnumber{\smalloiii}
+\end{CompactCode}
+
+The output \oi\ shows that the database is opened implicit at loading
+the persistent symbol, and that a class description has been compiled
+into the current LISP image \oii. This compilation will re-establish
+the class as it has been specified within its original definition as
+given with the \lisp{defclass}\ statement in section
+\Nameref{sec:QuickTourDefclass}; all superclasses, slots, slot
+initargs, slot initforms, slot accessors etc.\ will be re-established,
+too. The return value \oiii\ is the value of the persistent symbol
+\lisp{*cleese*}:
+\begin{CompactCode}
+\listener{}(person-name *)
+"Cleese"
+\end{CompactCode}
+
+\section{Doing a schema evolution}
+
+Adding, removing or changing a slot of a class definition will result
+in a modification of the persisten class description:
+\begin{CompactCode}
+\listener{}(defclass person ()
+              ((name :initarg :name :initform nil :accessor person-name)
+               (soc-sec-# :initarg :soc-sec-#
+                          :accessor person-soc-sec-#
+                          :index (btree :test equal))
+               \comment{;; Adding slot age:}
+               (age :initarg :age :initform nil :accessor person-age))
+              (:metaclass persistent-metaclass))
+#<PERSISTENT-METACLASS PERSON>
+\end{CompactCode}
+
+Next time an instance of class \textbf{person} is loaded or stored,
+the new class description will be stored within the database, and the
+instance loaded or stored will be updated to this new class
+description. In the following example, a reload of the top-level
+state of the object bound to the persistent symbol \lisp{*cleese*}\ is
+done to enforce the new class description being stored to the
+database:
+\begin{CompactCode}
+\listener{}#!(*cleese* :flat)\marginnumber{\smalloi}
+Error: The persistent definition for class
+PERSON does not match its transient counterpart.
+       Reason: total number of slots; tr.: 4 / pe.: 3\marginnumber{\smalloii}
+  [condition type: SIMPLE-ERROR]
+
+Restart actions (select using :continue):
+ 0: Store the transient definition to the persistent store.
+ 1: Replace the transient definition by its persistent counterpart.
+ 2: Ignore definition mismatch (might result in LISP runtime errors).
+ 3: Show the transient class definition.
+ 4: Show the persistent class definition.
+[1] \listener{}:cont
+;;;;; Updated #<instance class-description person 1.01
+;;;;;                    slots=3/4 short-objid=50327096>.
+#<instance person soc-sec-#=2000 short-objid=50326603>
+\end{CompactCode}
+
+The evaluation \oi\ forces a reload of the top-level state of the
+object bound to the persistent symbol (this is done by the
+\lisp{:flat}\ argument given to the persistent symbol reader). An error
+is raised \oii\ which shows the reason for the schema evolution
+(the number of slots has been increased to 4 slots).
+
+\refpar Section \Nameref{sec:SchemaEvolution}.
+
+\section{Using transactions}
+
+Each read and write access to the database is guarded by a transaction
+(and locking). Transactions are used for ensuring consistent changes
+to the database: Either all or none of the changes done to objects
+states during a transaction are stored in the database. They can be
+used explicit by embedding the code which should do such a consistent
+change into \fcite{with-transaction}:
+\begin{CompactCode}
+\listener{}(with-transaction ()
+              (setf (person-age #!*cleese*) 52)
+              \comment{;; \lt{}some other code in between\gt}
+              (setf (person-soc-sec-# #!*cleese*) 2001))
+\end{CompactCode}
+
+This call will ensure that either both slots are changed or none of
+them: Executing the whole \lisp{(with-transaction ...)}\ block will
+result in the changes written to the database. Each jump out of the
+\lisp{(with-transaction ...)}\ block will result in a transaction's
+abort, which will reset the slot states to their value before the
+block was entered. This jump out-of-the-block happens for example when
+\emph{\lt{}some other code in between\gt} raises a runtime error.
+\footnote{For now, a transaction's abort will only affect the
+  persistent representation of the object; its transient
+  representation remains unchanged and may therefore contain some new
+  state.}
+
+\refpar Section \Nameref{sec:Transaction}.
+
+\section{Defining and using btrees}
+
+Persistent btrees are used internally for many purposes (for example,
+for maintaining the persistent package and symbol tables, and for
+indexes), so it was decided to make them available to the user API.
+Btrees are similar to hash tables, with the difference that their keys
+are sorted. Similar to hash tables, they come with two (not three)
+test modes \lisp{eq}\ and \lisp{equal}. A test mode of \lisp{eq}\ 
+means that the btree's keys are sorted by identity, whereas a test
+mode of \lisp{equal}\ will sort the keys accroding to their state.
+\begin{CompactCode}
+\listener{}(setf #!*btree* (make-btree :test 'equal))
+#<btree equal 0/0 short-objid=50327317>
+\listener{}(setf (getbtree "Cleese" #!*btree*) #!*cleese*)
+#<instance person soc-sec-#=2000 short-objid=50326603>
+\listener{}(setf (getbtree "myself" #!*btree*) "Heiko Kirschke")
+"Heiko Kirschke"
+\listener{}(p-apropos-btree #!*btree*)
+"Clesse", data: #<instance person short-objid=50326603>
+"myself", data: #<simple-string `Heiko Kirschke' short-objid=50327186>
+\end{CompactCode}
+
+\refpar Section \Nameref{sec:PersistentBTree}.
+
+\section{Server log file}
+
+The server reports important actions, errors and information messages
+to a log file containing plain text. The name of the file is
+\lisp{messages.log}. This file is located on the server host in the
+database directory directly below the database root directory
+specified at \plobwoexcl's installation. So, when encountering any
+problems with running \plob, a look into the server's log file might
+help.  A typical excerpt looks like this:
+\begin{CompactCode}
+1998/01/07 10:41:18 kirschke@nthost\marginnumber{\smalloi}
+       splob.c(462): fnServerInitializePlob:
+       Started ./plobd\marginnumber{\smalloii}
+1998/01/07 10:41:26 #<heap kirschke@nthost `Metaheap'
+                                           short-objid=50328853>
+       splob.c(1926): fnSHopen (#'c-sh-open):
+       Client kirschke@nthost, now 1 client(s):\marginnumber{\smalloiii}
+       Opening stable heap `plob' succeeded.
+       Reason: Administrator login
+1998/01/07 10:41:46 #<heap kirschke@nthost `Metaheap'
+                                           short-objid=50328853>
+       splob.c(1190): fnSHclose (#'c-sh-close):
+       Closed stable heap `plob',\marginnumber{\smalloiv}
+       now 0 client(s).
+       Garbage collection resulted in 4317 - 1524 = 2793 objects.
+\end{CompactCode}
+
+At \oi, each message shows the date and time it was generated and the
+current client which was responsible for the raised message. The
+source code location and C function which raised the message is shown,
+too, and the message itself \oii. All physical database
+openings are reported \oiii; when the last client disconnects, a
+garbage collection is triggered, which writes the number of deleted
+objecs into the log file \oiv.
+
+%\begin{CompactCode}
+%\listener{}
+%\end{CompactCode}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "userg"
+%%% End: 
