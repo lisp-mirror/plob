@@ -72,6 +72,9 @@ static const char	szMissingArgument []	= "Missing <%s> argument";
 /* -------------------------------------------------------------------------
 | Prototypes
  ------------------------------------------------------------------------- */
+static LPSTR	fnAdminFormatDecimal	( ULONG		luNumber,
+					  LPSTR		pszNumber,
+					  size_t	nNumber );
 static int 	fnAdminErrorHandler	( ERRORLEVEL	eLevel,
 					  LPCSTR	lpszContinue,
 					  LPCSTR	lpszErrorMsg );
@@ -93,6 +96,9 @@ static LPSTR	fnAdminSetRootDirectory	( PADMINAPPL	pAdmin,
 static LPSTR	fnAdminReadRootDirectory( PADMINAPPL	pAdmin,
 					  LPSTR		pszArgument,
 					  size_t	nArgument );
+static LPSTR	fnAdminGetURL		( PADMINAPPL	pAdmin,
+					  LPSTR		pszURL,
+					  size_t	nURL );
 static LPSTR	fnAdminSetURL		( PADMINAPPL	pAdmin,
 					  LPCSTR	pszURL );
 static LPSTR	fnAdminReadURL		( PADMINAPPL	pAdmin,
@@ -313,6 +319,45 @@ static const DISPATCHENTRY GlobalDispatchTable []	= {
 };
 
 /* ----------------------------------------------------------------------- */
+static LPSTR	fnAdminFormatDecimal	( ULONG		luNumber,
+					  LPSTR		pszNumber,
+					  size_t	nNumber )
+{
+  static const int	nColumns	= 3;
+  static const char	cDecimal	= ',';
+  char			szRaw [ 64 ], szFormatted [ 96 ];
+
+  PROCEDURE ( fnAdminFormatDecimal );
+
+  ASSERT ( pszNumber != NULL );
+  ASSERT ( nNumber > 0 );
+
+  sprintf ( szRaw, "%lu", luNumber );
+  if ( cDecimal ) {
+    int	i, j, o;
+    o	= strlen ( szRaw ) % nColumns;
+    for ( i = 0, j = 0; szRaw [ i ]; i++ ) {
+      if ( o == 0 ) {
+	if ( j > 0 ) {
+	  szFormatted [ j++ ]	= cDecimal;
+	}
+	o	= nColumns;
+      }
+      o--;
+      szFormatted [ j++ ]	= szRaw [ i ];
+    }
+    szFormatted [ j ]	= '\0';
+  } else {
+    strcpy ( szFormatted, szRaw );
+  }
+
+  strncpy ( pszNumber, szFormatted, nNumber );
+  pszNumber [ nNumber - 1 ]	= '\0';
+
+  RETURN ( pszNumber );
+} /* fnAdminFormatDecimal */
+
+/* ----------------------------------------------------------------------- */
 static int 	fnAdminErrorHandler	( ERRORLEVEL	eLevel,
 					  LPCSTR	lpszContinue,
 					  LPCSTR	lpszErrorMsg )
@@ -357,11 +402,14 @@ static int 	fnAdminErrorHandler	( ERRORLEVEL	eLevel,
     if ( lpszErrorMsg != NULL ) {
       fprintf ( fnAdminStreamOut ( pGlobalAdmin ),
 		"%s: %s\n",
-		ppszErrorLevel2String [ eLevel - errMin ],
-		lpszErrorMsg, lpszContinue );
+		ppszErrorLevel2String [ eLevel - errMin ], lpszErrorMsg );
     }
     fnAdminFileStackPrint ( pGlobalAdmin );
     if ( pGlobalAdmin->eSource != eFromInteractive ) {
+      if ( lpszContinue != NULL ) {
+	fprintf ( fnAdminStreamOut ( pGlobalAdmin ),
+		  "action taken was: %s\n", lpszContinue );
+      }
       fflush ( fnAdminStreamOut ( pGlobalAdmin ) );
       break;
     }
@@ -427,8 +475,7 @@ static int 	fnAdminErrorHandler	( ERRORLEVEL	eLevel,
     break;
   }
 
-  if ( eLevel >= ( ( pGlobalAdmin->eSource == eFromInteractive ) ?
-		   errError : errCError ) ) {
+  if ( eLevel >= errError ) {
     if ( pGlobalAdmin->bJmpBufErrorValid ) {
       longjmp ( pGlobalAdmin->jmpbufError, 1 );
     } else {
@@ -541,6 +588,7 @@ static LPFILE	fnAdminStreamIn		( PADMINAPPL	pAdmin )
 {
   PROCEDURE	( fnAdminStreamIn );
 
+  ASSERT ( pAdmin != NULL );
   ASSERT ( pAdmin->nFiles < length ( pAdmin->Files ) );
   ASSERT ( pAdmin->Files [ pAdmin->nFiles ].pStreamIn != NULL );
 
@@ -563,6 +611,8 @@ static BOOL	fnAdminAssertOpen	( PADMINAPPL	pAdmin )
   BOOL	bIsOpen = FALSE;
 
   PROCEDURE	( fnAdminAssertOpen );
+
+  ASSERT ( pAdmin != NULL );
 
   bIsOpen	= ( pAdmin->oHeap != NULLOBJID );
 
@@ -622,6 +672,8 @@ static void	fnAdminClose		( PADMINAPPL	pAdmin,
 {
   PROCEDURE	( fnAdminClose );
 
+  ASSERT ( pAdmin != NULL );
+
   if ( pAdmin->oHeap != NULLOBJID ) {
     fnClientDbClose ( pAdmin->oHeap, bWithGC );
     pAdmin->oHeap	= NULLOBJID;
@@ -635,6 +687,8 @@ static LPSTR	fnAdminSetRootDirectory	( PADMINAPPL	pAdmin,
 					  LPCSTR	pszRootDirectory )
 {
   PROCEDURE	( fnAdminSetRootDirectory );
+
+  ASSERT ( pAdmin != NULL );
 
   if ( pAdmin->pszRootDirectory != NULL ) {
     free ( pAdmin->pszRootDirectory );
@@ -656,6 +710,8 @@ static LPSTR	fnAdminReadRootDirectory( PADMINAPPL	pAdmin,
   char	szRootDirectory [ 256 ];
 
   PROCEDURE	( fnAdminReadRootDirectory );
+
+  ASSERT ( pAdmin != NULL );
 
   szRootDirectory [ 0 ]	= '\0';
   while ( szRootDirectory [ 0 ] == '\0' ) {
@@ -683,10 +739,39 @@ static LPSTR	fnAdminReadRootDirectory( PADMINAPPL	pAdmin,
 } /* fnAdminReadRootDirectory */
 
 /* ----------------------------------------------------------------------- */
+static LPSTR	fnAdminGetURL		( PADMINAPPL	pAdmin,
+					  LPSTR		pszURL,
+					  size_t	nURL )
+{
+  LPSTR	pszResultURL	= NULL;
+
+  PROCEDURE	( fnAdminGetURL );
+
+  ASSERT ( pAdmin != NULL );
+  ASSERT ( pszURL != NULL );
+  ASSERT ( nURL > 0 );
+
+  pszURL [ 0 ]	= '\0';
+  if ( pAdmin->pszURL == NULL ) {
+    fnAdminCmdURL ( pAdmin, TRUE );
+    pszResultURL	= pAdmin->pszURL;
+  } else if ( fnAdminArgPeekNotOption ( pAdmin ) != NULL ) {
+    fnAdminReadURL ( pAdmin, pszURL, nURL );
+    pszResultURL	= pszURL;
+  } else {
+    pszResultURL	= pAdmin->pszURL;
+  }
+
+  RETURN ( pszResultURL );
+} /* fnAdminGetURL */
+
+/* ----------------------------------------------------------------------- */
 static LPSTR	fnAdminSetURL		( PADMINAPPL	pAdmin,
 					  LPCSTR	pszURL )
 {
   PROCEDURE	( fnAdminSetURL );
+
+  ASSERT ( pAdmin != NULL );
 
   if ( pAdmin->pszURL != NULL ) {
     free ( pAdmin->pszURL );
@@ -1224,24 +1309,14 @@ static BOOL	fnAdminCreateStart	( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCreateStart );
 
-  szURL [ 0 ]	= '\0';
-  if ( pAdmin->pszURL == NULL ) {
-    fnAdminCmdURL ( pAdmin, TRUE );
-    pszURL	= pAdmin->pszURL;
-  } else if ( fnAdminArgPeekNotOption ( pAdmin ) != NULL ) {
-    fnAdminReadURL ( pAdmin, szURL, sizeof ( szURL ) );
-    pszURL	= szURL;
-  } else {
-    pszURL	= pAdmin->pszURL;
-  }
-
+  pszURL	= fnAdminGetURL ( pAdmin, szURL, sizeof ( szURL ) );
   if ( pszURL == NULL ) {
     nErrors++;
   }
 
-  szRootDirectory [ 0 ]	= '\0';
-  fnSplitURL ( pszURL, szHost, szProtocol, szDirectory );
   if ( nErrors == 0 ) {
+    szRootDirectory [ 0 ]	= '\0';
+    fnSplitURL ( pszURL, szHost, szProtocol, szDirectory );
     if ( strcmp ( szHost, szLocalhost ) == 0 ) {
       if ( pAdmin->pszRootDirectory == NULL ) {
 	fnAdminCmdRoot ( pAdmin, TRUE );
@@ -1306,17 +1381,7 @@ static BOOL	fnAdminCmdStop		( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCmdStop );
 
-  szURL [ 0 ]	= '\0';
-  if ( pAdmin->pszURL == NULL ) {
-    fnAdminCmdURL ( pAdmin, TRUE );
-    pszURL	= pAdmin->pszURL;
-  } else if ( fnAdminArgPeekNotOption ( pAdmin ) != NULL ) {
-    fnAdminReadURL ( pAdmin, szURL, sizeof ( szURL ) );
-    pszURL	= szURL;
-  } else {
-    pszURL	= pAdmin->pszURL;
-  }
-
+  pszURL	= fnAdminGetURL ( pAdmin, szURL, sizeof ( szURL ) );
   if ( pszURL == NULL ) {
     RETURN ( bFinish );
   }
@@ -1402,17 +1467,7 @@ static BOOL	fnAdminCmdReset		( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCmdReset );
 
-  szURL [ 0 ]	= '\0';
-  if ( pAdmin->pszURL == NULL ) {
-    fnAdminCmdURL ( pAdmin, TRUE );
-    pszURL	= pAdmin->pszURL;
- } else if ( fnAdminArgPeekNotOption ( pAdmin ) != NULL ) {
-    fnAdminReadURL ( pAdmin, szURL, sizeof ( szURL ) );
-    pszURL	= szURL;
-  } else {
-    pszURL	= pAdmin->pszURL;
-  }
-
+  pszURL	= fnAdminGetURL ( pAdmin, szURL, sizeof ( szURL ) );
   if ( pszURL == NULL ) {
     RETURN ( bFinish );
   }
@@ -1437,17 +1492,7 @@ static BOOL	fnAdminCmdRestart	( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCmdRestart );
 
-  szURL [ 0 ]	= '\0';
-  if ( pAdmin->pszURL == NULL ) {
-    fnAdminCmdURL ( pAdmin, TRUE );
-    pszURL	= pAdmin->pszURL;
-  } else if ( fnAdminArgPeekNotOption ( pAdmin ) != NULL ) {
-    fnAdminReadURL ( pAdmin, szURL, sizeof ( szURL ) );
-    pszURL	= szURL;
-  } else {
-    pszURL	= pAdmin->pszURL;
-  }
-
+  pszURL	= fnAdminGetURL ( pAdmin, szURL, sizeof ( szURL ) );
   if ( pszURL == NULL ) {
     RETURN ( bFinish );
   }
@@ -1574,33 +1619,64 @@ static BOOL	fnAdminCmdStatistics	( PADMINAPPL	pAdmin,
 
   if ( fnAdminAssertOpen ( pAdmin ) ) {
     FIXNUM	nMaximumSpace			= 0;
+    char	szMaximumSpace [ 32 ];
+    char	szMaximumSpaceKB [ 32 ];
     FIXNUM	nAllocatedSpace			= 0;
+    char	szAllocatedSpace [ 32 ];
+    char	szAllocatedSpaceKB [ 32 ];
     FIXNUM	nUnallocatedSpace		= 0;
+    char	szUnallocatedSpace [ 32 ];
+    char	szUnallocatedSpaceKB [ 32 ];
     FIXNUM	nUnusedAllocatedSpace		= 0;
+    char	szUnusedAllocatedSpace [ 32 ];
+    char	szUnusedAllocatedSpaceKB [ 32 ];
     FIXNUM	nAllocatedManagementSpace	= 0;
+    char	szAllocatedManagementSpace [ 32 ];
+    char	szAllocatedManagementSpaceKB [ 32 ];
     FIXNUM	nNumberOfObjects		= 0;
+    char	szNumberOfObjects [ 32 ];
     fnClientDbStatistics ( pAdmin->oHeap, &nMaximumSpace, &nAllocatedSpace,
 			   &nUnallocatedSpace, &nUnusedAllocatedSpace,
 			   &nAllocatedManagementSpace, &nNumberOfObjects );
     INFO (( "Connected to: %s\n"
-	    "       Maximum space              %10d bytes (%d KB)\n"
-	    "       Allocated space            %10d bytes (%d KB)\n"
-	    "       Unallocated space          %10d bytes (%d KB)\n"
-	    "       Unused allocated space     %10d bytes (%d KB)\n"
-	    "       Allocated management space %10d bytes (%d KB)\n"
-	    "       Number of objects          %10d",
+	    "       Maximum space              %15s bytes (%s KB)\n"
+ 	    "       Allocated space            %15s bytes (%s KB)\n"
+	    "       Unallocated space          %15s bytes (%s KB)\n"
+	    "       Unused allocated space     %15s bytes (%s KB)\n"
+	    "       Allocated management space %15s bytes (%s KB)\n"
+	    "       Number of objects          %15s",
 	    pAdmin->pszURL,
-	    nMaximumSpace,
-	    ( (unsigned int) nMaximumSpace + halfKB ) / oneKB,
-	    nAllocatedSpace,
-	    ( (unsigned int) nAllocatedSpace + halfKB ) / oneKB,
-	    nUnallocatedSpace,
-	    ( (unsigned int) nUnallocatedSpace + halfKB ) / oneKB,
-	    nUnusedAllocatedSpace,
-	    ( (unsigned int) nUnusedAllocatedSpace + halfKB ) / oneKB,
-	    nAllocatedManagementSpace,
-	    ( (unsigned int) nAllocatedManagementSpace + halfKB ) / oneKB,
-	    nNumberOfObjects ));
+	    fnAdminFormatDecimal ( nMaximumSpace, szMaximumSpace,
+				   sizeof ( szMaximumSpace ) ),
+	    fnAdminFormatDecimal ( ( (ULONG) nMaximumSpace + halfKB ) /
+				   oneKB, szMaximumSpaceKB,
+				   sizeof ( szMaximumSpaceKB ) ),
+	    fnAdminFormatDecimal ( nAllocatedSpace, szAllocatedSpace,
+				   sizeof ( szAllocatedSpace ) ),
+	    fnAdminFormatDecimal ( ( (ULONG) nAllocatedSpace + halfKB ) /
+				   oneKB, szAllocatedSpaceKB,
+				   sizeof ( szAllocatedSpaceKB ) ),
+	    fnAdminFormatDecimal ( nUnallocatedSpace, szUnallocatedSpace,
+				   sizeof ( szUnallocatedSpace ) ),
+	    fnAdminFormatDecimal ( ( (ULONG) nUnallocatedSpace + halfKB ) /
+				   oneKB, szUnallocatedSpaceKB,
+				   sizeof ( szUnallocatedSpaceKB ) ),
+	    fnAdminFormatDecimal ( nUnusedAllocatedSpace,
+				   szUnusedAllocatedSpace,
+				   sizeof ( szUnusedAllocatedSpace ) ),
+	    fnAdminFormatDecimal ( ( (ULONG) nUnusedAllocatedSpace + halfKB ) /
+				   oneKB,
+				   szUnusedAllocatedSpaceKB,
+				   sizeof ( szUnusedAllocatedSpaceKB ) ),
+	    fnAdminFormatDecimal ( nAllocatedManagementSpace,
+				   szAllocatedManagementSpace,
+				   sizeof ( szAllocatedManagementSpace ) ),
+	    fnAdminFormatDecimal ( ( (ULONG) nAllocatedManagementSpace +
+				     halfKB ) / oneKB,
+				   szAllocatedManagementSpaceKB,
+				   sizeof ( szAllocatedManagementSpaceKB ) ),
+	    fnAdminFormatDecimal ( nNumberOfObjects, szNumberOfObjects,
+				   sizeof ( szNumberOfObjects ) ) ));
   }
 
   RETURN ( bFinish );
