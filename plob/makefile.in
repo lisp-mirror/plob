@@ -51,6 +51,18 @@ SUBDIRS=lib bin src
 /* ----------------------------------------------------------------------
 | Main targets
  ---------------------------------------------------------------------- */
+#if HasOpSys == hasWin32
+
+drule ( initial, \
+	$(BINDIR) slash fileExe(dos2unix), \
+	noActions )
+
+rule ( $(BINDIR) slash fileExe(dos2unix), \
+       src slash common slash fileC(dos2unix), \
+       gcc -o ruleTarget src slash common slash fileC(dos2unix) )
+
+#endif
+
 drule ( $(STDTARGETS), \
 	noDependencies, \
 	@$(MAKE) default dash ruleTarget nln \
