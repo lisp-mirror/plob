@@ -3,9 +3,9 @@
 | Author	Heiko Kirschke
 |		mailto:Heiko.Kirschke@acm.org
 | Date		1997-03-26
-| Description	Global settings for Windows NT 4/2000
+| Description	Global settings for Windows NT 4/2000/XP
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -93,7 +93,7 @@ LDLIBS=
 | Database and server settings
  ---------------------------------------------------------------------- */
 /* Default RPC database host: */
-#define DATAHOST jungle
+#define DATAHOST localhost
 /* Default RPC database transport protocol: */
 #define DATATRANS tcp
 /* Default RPC database root directory: */
