@@ -6,7 +6,7 @@
 | Targets		server:
 | Description	Make the server installation
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -53,6 +53,7 @@ rule ( server dash stage dash 0, \
        option1(server) "$(DATAHOST)" )
 
 rule ( server dash stage dash 1, \
+       $(DEFAULTROOT) spc \
        $(DEFAULTROOT) slash fileDll(librpclientplob) spc \
        $(DEFAULTROOT) slash fileExe(plobdadmin) spc \
        $(DEFAULTROOT) slash plobdmon spc \
@@ -72,6 +73,7 @@ rule ( $(DEFAULTROOT), \
 	  mkdir ruleTarget > /dev/null 2>&1; bsnl \
 	  if [ ! option1(d) "$@" ]; then bsnl \
 	    echo "*** Creating $@ failed."; bsnl \
+	    echo "*** Check macro DATAROOT in file $(opsys)/make.vars.in"; bsnl \
 	    exit 1; bsnl \
 	  fi bsnl \
 	fi )
@@ -81,10 +83,10 @@ rule ( $(LIBDIR) slash fileDll(librpclientplob) spc \
        $(BINDIR) slash $(opsys) slash fileExe(plobd) spc \
        $(BINDIR) slash plobdmon, \
        noDependencies, \
-       silent echo "*** Cannot read $@" nln \
-       tab silent echo "*** Please check if file $@ exists and copy it to" nln \
-       tab silent echo "*** $(DEFAULTROOT) on host `hostname` 'by hand'." nln \
-       tab exit 1 )
+       silent echo "*** Cannot read $@"; bsnl \
+       echo "*** Please check if file $@ exists and copy it to"; bsnl \
+       echo "*** $(DEFAULTROOT) on host `hostname` manually."; bsnl \
+       exit 1 )
 
 MkCopyRule($(DEFAULTROOT) slash, \
            $(LIBDIR) slash, \
@@ -101,11 +103,15 @@ MkCopyRule($(DEFAULTROOT) slash, \
 rule ( $(DEFAULTROOT) slash fileExe(plobd), \
        $(BINDIR) slash $(opsys) slash fileExe(plobd), \
        silent echo "cp -p $(BINDIR)/$(opsys)/plobd $@"; bsnl \
-       cp option1(p) $(BINDIR) slash $(opsys) slash fileExe(plobd) ruleTarget 2>/dev/null; bsnl \
+       cp option1(p) $(BINDIR) slash $(opsys) slash fileExe(plobd) \
+          spc ruleTarget 2>/dev/null; bsnl \
        if [ $$? option2(ne,0) ]; then bsnl \
          echo "Copy failed, trying to stop server ..."; bsnl \
-	   $(CONFDIR) slash $(opsys) plobdadmin option1(root) $(DEFAULTROOT) option1(close) >/dev/null 2>&1; bsnl \
-	 cp option1(p) $(BINDIR) slash $(opsys) slash fileExe(plobd) ruleTarget 2>/dev/null; bsnl \
+	   $(CONFDIR) slash $(opsys) slash plobdadmin \
+	   option1(root) $(DEFAULTROOT) \
+	   option1(close) option1(stop) >/dev/null 2>&1; bsnl \
+	 cp option1(p) $(BINDIR) slash $(opsys) slash fileExe(plobd) \
+	    spc ruleTarget 2>/dev/null; bsnl \
        fi; bsnl \
        if [ option1(r) "$@" ]; then bsnl \
          chmod paste3(ugo,+,x) ruleTarget; bsnl \

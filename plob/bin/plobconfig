@@ -16,6 +16,9 @@ szDefLisp='./src/allegro/defsystem-plob.lisp'
 szConfLisp='./src/allegro/plob-defaults.lisp'
 szEmail='Heiko.Kirschke@acm.org'
 
+szPrompt='PLOB! '
+szCopyright="${szPrompt}(C) 1994--2002 Heiko Kirschke ${szEmail}"
+
 unset bDefaultClient bDefaultServer bClient bServer szUname
 
 set +e
@@ -311,8 +314,8 @@ fnYesOrNoP ()
 fnInstallBase ()
 {
   echo "
-PLOB! configuration and installation
-PLOB! (C) 1994-1998 Heiko Kirschke ${szEmail}
+${szPrompt}configuration and installation
+${szCopyright}
 
 This script will configure PLOB! to make it ready for use; optional,
 compiling the client and server source code can also be done after
@@ -994,8 +997,8 @@ fnInstallServer ()
   fi
 
   echo "
-PLOB! server configuration and installation
-PLOB! (C) 1994-1998 Heiko Kirschke ${szEmail}
+${szPrompt}server configuration and installation
+${szCopyright}
 
 This script will try to install the PLOB! server on host
 ${szConfDataHost}. The default answer is shown in
@@ -1038,7 +1041,7 @@ fnStartServer ()
   # Ask if the daemon should be started:
   if [ -x "${szConfDataRoot}/plobd" ]; then
     if fnYesOrNoP 'yes' 'Should a PLOB! daemon be [re]started now?' "\
-   If not started now, a daemon can be started later by using the script
+   If not started now, a daemon can be started later by using program
    ${szConfDataRoot}/plobdadmin, see its help text
    for further details."; then
       ${szConfDataRoot}/plobdadmin -start
@@ -1229,8 +1232,8 @@ fnShipOut ()
 {
  (
   echo "
-PLOB! tar
-PLOB! (C) 1994-1998 Heiko Kirschke ${szEmail}"
+${szPrompt}archive packing utility
+${szCopyright}"
   unset szOldTarFile szTarFile
   bBootstrap=false
   szBootstrap=''

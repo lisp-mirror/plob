@@ -12,7 +12,7 @@
 |		possibility of calling LaTeX from a make file.
 |		For the usage of make.rules, read the man pages of make.
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -445,7 +445,8 @@ rule ( target, \
 #define MkCopyRule(target,source,file)\
 rule ( paste2(target,file), \
        noDependencies, \
-       if [ option1(r) paste2(source,file) spc ]; then bsnl \
+       silent if [ option1(r) paste2(source,file) spc ]; then bsnl \
+         echo "cp -p " paste2(source,file) " " paste2(target,file); bsnl \
          cp option1(p) spc paste2(source,file) spc paste2(target,file); bsnl \
        fi )
 

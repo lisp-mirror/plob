@@ -99,7 +99,7 @@ LDLIBS=
 /* Default RPC database transport protocol: */
 #define DATATRANS tcp
 /* Default RPC database root directory: */
-#define DATAROOT /opt/data/plob
+#define DATAROOT c:/opt/data/plob
 /* Default RPC database directory: */
 #define DATABASE database
 
