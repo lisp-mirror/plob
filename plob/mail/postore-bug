@@ -1,0 +1,32 @@
+From: kirschke@kogs26.informatik.uni-hamburg.de (Heiko Kirschke)
+To: postmaster@tamdhu.dcs.st-and.ac.uk
+Subject: Bug in POSTORE
+
+
+Dear Sir or Madam,
+
+since I don't have an email-address of the POSTORE author(s) I beg you
+to forward this mail to him/her/them.
+
+There's a bug in POSTORE, module svmstore.c, function SS_set_lock,
+around line 1160:
+
+	psint SS_set_lock( pos )
+	psint pos ;
+	{
+		psint *addr ;
+
+		addr = ( psint * )( ( char * ) disk_vaddr + pos ) ;
+		/* HK 30.11.93: Bug: */
+		/*
+		return( SS_Xmemlock( addr - WORDSIZE ) ) ;
+		*/
+		return( SS_Xmemlock( addr ) ) ;
+	}
+
+The lock word offset of - WORDSIZE is already subtracted in sheap.c,
+function SH_set_lock, so doing it in svmstore.c too 'locks' the wrong
+memory address.
+
+Sincerely,
+Heiko Kirschke
