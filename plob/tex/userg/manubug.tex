@@ -1,0 +1,461 @@
+
+\chapter{Bug fixes and changes}
+
+This section describes bug fixes, known bugs and the changes which
+have been done to \plob\ compared to the description as found in
+\cite{bib:Kirschke-94a}.
+
+\section{Bug fixes}%
+\label{sec:BugFixes}
+
+\subsection[Example code]{Example code in file
+  \protect\lisp{plob-example.lisp}}
+
+Fixed 1997-09: The example showing usage of transactions did not work,
+since the \lisp{:extent}\ of the example \fcite{person}\ was changed
+from \lisp{:persistent}\ to \lisp{:cached-write-through}; so, an
+object reload is necessary after a transaction's abort.
+
+\subsection{Initialization of transient slots}
+
+Fixed 1997-11: Slots declared \lisp{:transient}\ are now initialized
+to their \lisp{:initform}.
+
+\subsection{Structure accessors}
+
+Fixed 1997-12-01: In \allegrocl, the structure constructors and
+structure slot readers are now retrieved correctly from \allegro's
+internal structure descriptions.
+
+\subsection{Read-only lock conflict}
+
+Fixed 1997-12-15: Added missing conflict between write-intent and
+read-only locks.
+
+\section{Changes}%
+\label{sec:Changes}
+
+\subsection{Version 2.00 and 2.01}
+
+\subsubsection{Macro character for persistent symbols changed}
+
+1997-02: In the first version the macro character \lisp{\#l}\ (hash
+sign followed by the letter `l') was used for adressing persistent
+symbols.  At the port from \lw\ to \allegro, it was found that the
+macro character \lisp{\#l}\ is already occupied by \allegro\ for
+reading logical pathnames, so the \lisp{\#!}\ (hash sign followed by
+an exclamation mark) macro character is now used for adressing
+persistent symbols.
+
+\subsubsection[On-demand loading for slots of CLOS objects]{On-demand
+  loading for slots of persistent \protect\clos\ objects}
+
+1997-08: The slots of classes declared with a
+\lisp{:metaclass}\hspace{\lispblank}\lisp{persistent-metaclass}\ are
+now loaded on-demand.
+
+\subsubsection[Direct `p-...' functions]{Direct \protect\lisp{p-\ldots}\
+  functions}
+
+1997-10: The functions for directly working on persistent objects have
+been fixed to modify destructively a transient representation, too, if
+it is found in the cache.
+
+\subsubsection{Parameter *default-setf-depth*}
+
+1997-10: The parameter \textbf{*default-setf-depth*} was removed;
+\fcite{*default-depth*}\ is now used as default depth for both storing
+and loading of objects.
+
+\subsection{Version 2.02}
+
+\subsubsection{Documentation}
+
+1997-08 -- 1998-01: Wrote completely new user's guide.
+
+1997-12-01: The manual has been split into two documents, one
+documenting the external API (file \url{eref.pdf}) and the other one
+documenting the internal entities (file \url{iref.pdf}).
+
+1998-01: All documentation is now available in Portable Document
+Format (PDF), too, for improved cross-referencing and text searching.
+
+\subsubsection{Macro with-transaction}
+
+1998-01-28: \Fcite{with-transaction}\ has now an optional argument,
+which passes the database where the transaction should be started. For
+the moment, always use an empty optional argument:
+\begin{IndentedCompactCode}
+(with-transaction ()
+  \comment{\lt{}forms\gt})
+\end{IndentedCompactCode}
+
+\subsubsection{Multiple servers on one machine}
+
+1998-02-04: More than one database can now be served on a single
+machine.
+
+Each database directory contains a file \lisp{version.inf}\ with a RPC
+version number (1 for the `main server', \gt\ 1 for each database
+directory). Each open request from a client to a database is directed
+to the `main server' (or any other server running), which looks up the
+RPC version number from the RPC version number file, start up a daemon
+(if non is running), and return the RPC version number to the client.
+This RPC version number is in turn used by the client to create the
+connection to the daemon serving the database.  A new started server
+process will terminate itself after the last client has disconnected.
+
+\subsubsection{Administration}
+
+1998-02-04: Moved code from script \lisp{plobdadmin}\ into the
+server's C code; databases can now be created by calling
+\fcite{p-create-database}.
+
+\subsubsection{URL-based database naming}
+
+1998-02-06: The baroq splitting of a database' name into three
+components of transport protocol (former parameter
+\textbf{*default-server-transport*}), host (former parameter
+\textbf{*default-server-host*}) and directory (former parameter
+\textbf{*default-server-directory*}) has been removed. Instead, a
+database is now named by a single URL (Universal Resource Locator),
+see \fcite{url}\ for details. The name of the current database is
+found in \fcite{*database-url*}, whereas the default database is in
+\fcite{*default-database-url*}; the effective database opened is
+formed by merging these both URLs.
+
+\subsection{Version 2.04}
+
+\subsubsection{Parameter *verbose*}
+
+1998-02-06: Setting \fcite{*verbose*}\ to \lispnil\ or 0 will continue
+all non-fatal \lisp{cerror}s without any user intervention.
+
+\subsubsection{Windows/NT support}
+
+1998-02-26: The server \lisp{plobd.exe}\ is running under Microsoft
+Windows/NT 4.0.  1998-04-15: \plobwoexcl's client code for \lwcl\ 
+4.0.1 is running under Windows/NT 4.0. Fixed final release on
+1998-05-05.
+
+\subsubsection{Btrees}
+
+1998-03-10: \Fcite{+plob-min-marker+}\ and \fcite{+plob-max-marker+}\ 
+refer now to the first and last existing object in a btree, and no
+longer to the object `before' or `behind' the first or last
+existing object, as it was before. The page size of (empty) btrees can
+now be changed.  1998-05-05: Fixed code for inspecting btrees in
+\lwcl.  1998-06-25: BTrees can now be iterated in ascending and
+descending order. The intervals for a search request can now be
+specified as open and closed intervals.
+
+\subsubsection{Built in types representation}
+
+1998-03-10: Type tags are represented as first class objects by
+instances of class \textbf{built-in-class}.
+
+\subsubsection{Multithreading}
+
+1998-04-22: The RPC client code for Solaris and Windows/NT is now
+multithreading safe. For IRIX and Linux, no multithreading RPC code
+can be generated by \lisp{rpcgen}.
+
+\subsubsection{Storing and loading of metaobjects}
+
+1998-05-05: For storing and loading of metaobjects, the
+\lisp{*root-persistent-heap*}\ is now used instead of the
+\lisp{*default-persistent-heap*}. This decouples transaction handling
+for metaobjects from the transaction handling for
+non-metaobjects. And, it uses the \lisp{*root-persistent-heap*}\ which
+was used before only during the bootstrap.
+
+1998-11-19: This idea was not very good, since it raised lock
+conflicts for symbols used for classes and in the user's code.  For
+storing and loading of metaobjects, now the
+\lisp{*default-persistent-heap*}\ is used again.
+
+\subsection{Version 2.08}
+
+Released December 1, 1998.
+
+\subsubsection{64 bit proof}
+
+1998-11-05: The code is now 64 bit proof; the btree interface and code
+had to be changed a lot, since this code was written with the
+assumption that \texttt{sizeof ( int )}\ \texttt{==}\ \texttt{sizeof (
+  void* )}; this has been fixed. A pointer can now have any size.
+
+\subsubsection{Bignums for ACL 5.0}
+
+1998-11-19: Bignums are now handled correctly for ACL 5.0.
+
+\subsubsection{Rewritten plobdadmin utility}
+
+1998-11-25: The \lisp{plobdadmin}\ has been rewritten in C. Its source
+code can be found in \lisp{plob-\thisversion/}\lisp{src/}\lisp{admin/}.
+
+\subsubsection{Heterogenous architectures for client and server}
+
+The client/server code has been fixed; arguments are now marshalled
+correctly for all client/server combinations of heterogenous
+architectures. The `values' section of a postore vector is now
+transferred along with a type tag, so that marshalling can select the
+right procedure.
+
+\subsection{Version 2.09}
+
+Released May 22, 2000.
+
+\subsubsection{Multiple servers}
+
+The code for running multiple servers on a single host has been fixed.
+Prior to 2.09, the RPC version number was used to discriminate between
+different databases. The ONC RPC documentation says that only for
+adjacent version numbers the portmap daemon ensures a correct mapping
+to the registered server. Since \plob\ did not obey this rule, the
+success of connecting to a database not being the master database
+was more or less given by chance.
+
+\subsubsection{LispWorks Common LISP on Linux}
+
+2000-05-22: \lwcl\ 4.1 on Linux is now supported. Although not tested,
+\lwcl\ 4.1 on Solaris should work, too. \lwcl\ 4.1 on Linux and
+Solaris have the restriction that strings cannot exceed the length of
+\lisp{plob::+max-ff-string-length+}.
+
+\section{Known bugs and limitations}
+
+This section contains known bugs still left to be fixed for the next
+release. When one of the following bugs has been fixed in a next
+release, it will either be removed completely or be moved to section
+\Nameref{sec:BugFixes} or \Nameref{sec:Changes}.
+
+\subsection{Crash on transfer of large persistent vectors}
+
+There is one bug not associated directly with \plobwoexcl, but with
+one of the RPC layers of \unix: When a RPC call requests to transfer
+very big data blocks, the server or client may crash because it can't
+allocate enough memory. The affected RPC layer is the xdr-layer, doing
+the data conversion between the client and the server process. The
+xdr-layer is coded (by the provider of the used \unix\ system) rather
+straight-forward: It allocates as much memory as it needs and does
+\emph{no} blockwise transfer for big data blocks. IMHO, doing a `good'
+blockwise transfer would also increase the fault tolerance of the
+connection between client and server; a feature which should be
+implemented by the RPC layer and \emph{not} the RPC-using application
+layer.
+
+In a few words, the consequences for \plob\ are that the server or
+client may crash if and only if a very large persistent vector
+(`vector' in the sense of \cl) is transferred between client and
+server. The concrete length coupled with `very large' depends on the
+amount of memory which is available to the xdr-layer, so it is
+difficult to name a concrete length here. All which can be said is
+that it should be possible to transfer vectors with at least some
+thousand elements; for vectors with some tenthousand elements, this
+may not be possible.
+
+Since vectors are used in the internal representation of arrays,
+this bug may also occure when transferring large arrays. In persistent
+structure and \clos\ objects, persistent vectors are used for
+representing the instance data contained in their slots too (one
+element per slot), but I don't think that there will be persistent
+structure or \clos\ objects containing thousands of slots.
+
+\plob\ is already prepared to do a blockwise transfer for
+large vectors, but up to now (March 4th, 1997) I had no time to
+complete the code for the blockwise transfer.
+
+\subsection{Transferring of large, complicated graph-like structures}
+
+The code for transferring the state of objects between
+transient and persistent memory is a recursive-descent algorithm on
+each of an object's slots. For large, complicated graph-like
+structures this will grow the LISP stack very much; more worse, the
+time needed for one object transfer increases with the LISP stack
+size, too. `Large' in this sense means some hundred objects in the
+transitive closure of an instance to store or load.
+
+It would be a good idea to make something like a `store-plan' or a
+`load-plan' for the transfer of all object states referenced by the
+transitive closure of an instance to be stored or loaded, for example,
+transfer the states of referenced objects before the states of
+referencing objects.
+
+\subsection{Cache littering LISP memory}%
+\label{sec:CacheLitteringMemory}
+
+Since \plob\ uses a cache internally in the LISP code, this cache may
+become very large after some storing or loading of persistent objects.
+The cache can be cleared by a call to \fcite{clear-cache}, but this
+will also break the bindings of some transient LISP objects to their
+persistent identity.
+
+The correct solution to this problem would be using weak pointers in
+the hash tables implementing the cache. Unfortunately, \lwcl\ has no
+weak pointers at all. \allegrocl\ 4.3 has weak pointers on vectors,
+\allegrocl\ 5.0 will support hash tables with weak pointers.
+
+\subsection{Changes to database not propagated to each client's cache}
+
+When one client changes the state of a persistent object, this change
+isn't propagated to other clients holding the object's state too in
+their cache. The new object's state will be seen by the other
+clients on a next reload of the object (this can be forced by
+evaluating \lisp{(clear-cache)}\ and \lisp{(load-object
+\emph<objid>)}\ in each of the client's listener which should see the
+new state).
+
+A solution would be to add a lock mode \lisp{cached}\ to the already
+existing lock modes \lisp{read}, \lisp{read-only}, \lisp{write}\ and
+the \lisp{\ldots-intent}\ modes. So, when the object's state changes,
+each of the clients holding the object in its cache could be notified
+of the change.
+
+There would be a siginificant amount of overhead on maintaining
+consistency between the \lisp{cache}-locks represented in the
+persistent heap on the server side and the cache represented in the
+client's LISP process.
+
+Idea: Do the communication between client and server in an own thread
+started at least by the client. So, a client waiting for input will do
+this in its own thread and won't block the `main' client (LISP)
+process.
+
+\subsection[Missing `use-package' feature]{Missing
+  \protect\lisp{use-package}\ feature}%
+\label{sec:MissingUsePackage}
+
+A \lisp{use-package}\ feature for persistent packages would be
+necessary to resolve ambiguities among the names of persistent classes
+used across more than one LISP system (for details see remarks at
+\fcite{p-find-class}). At the moment, there is no support for a
+\lisp{use-package}\ feature for persistent packages.
+
+\subsection[Slot option :extent :persistent]{Slot option
+  \protect\lisp{:extent}\protect\lisp{\ % 
+    }\protect\lisp{:persistent}}
+
+Limitation for \allegro: The extent \lisp{:persistent}\ will also
+allocate transient memory for the slot.  This is a limitation of
+\allegro's MOP, since it allows only for \lisp{:instance}\ and
+\lisp{:class}\ slot allocations.
+
+For \lw, \lisp{:extent :persistent}\ slots are not represented in
+transient memory, since \plob\ patches the class metaobjects of \lw\ 
+to have the desired effect.
+
+\subsection[slot-value for classes with :metaclass
+:persistent-metaclass]{slot-value for classes with
+  \protect\lisp{:metaclass}\protect\lisp{\ %
+  }\protect\lisp{persistent-metaclass}}
+
+\plob\ will only gain control over a slot's state for classes with a
+class option \lisp{:metaclass persistent-\lb{}metaclass}. Only for
+those classes, \fcite{slot-value}\ and \fcite{(setf slot-value)}\ call
+their \fcite{slot-value-using-class}\ and \fcite{(setf
+  slot-value-using-class)}\ counterparts with methods specialized in
+\plobwoexcl.
+
+\subsection{Solaris 2.6}
+
+Use either the newest Solaris' \lisp{cc}\ or \lisp{gcc}\ version 2.8.0
+for compiling under Solaris 2.6, \lisp{gcc}\ version 2.7.2 does not
+work under Solaris 2.6 at all.
+
+\subsection{Schema evolution}
+
+Schema evolution still seems to be a bit buggy; the LISP code for
+schema evolution should be translated to C and moved to the server's
+side.
+
+\subsection{Missing compare methods}%
+\label{sec:MissingCompareMethods}
+
+The compare methods for ratios and bignums are still missing. For
+complex numbers, 2-dimensional indexes are missing.
+
+\subsection{LispWorks 3.2.0}
+
+\plobwoexcl's LISP code will not compile under LispWorks 3.2.0, since
+some defsystem features and the foreign function interface have been
+changed by Harlequin with 3.2.2. An upgrade to LispWorks 3.2.2 or
+4.0.1 is necessary.
+
+\subsection{LispWorks 4.0.1}
+
+With \lwcl\ 4.0.1 for Windows/NT, bit vectors cannot be stored.
+
+\subsection{Function subtypep in ACL 4.3.0}
+
+In Allegro CL 4.3.0, function subtypep may return incorrect results or
+raise an error instead of returning a result. If the stack backtrace
+in the debugger tells that the error is within function subtypep,
+an upgrade to Allegro CL 4.3.1 is necessary or the appropriate
+patches should be downloaded from Franz' ftp site.
+
+\section{To do and future features}
+
+This section contains things still left to be done for the next
+release. When one of the following topics has been implemented in a
+next release, it will be moved to section \Nameref{sec:Changes}.
+
+\subsection{Views onto persistent objects}%
+\label{sec:Views}
+
+Write function [GS]etSlotValues (replacement for
+SH\us{}read\us{}indices(), SH\us{}write\us{}indices()) which takes the
+\objid\ of an object and the \objid\ of an `expected class'; coerce
+internal physical representation to/from class expected. With
+GetSlotValues, a list of added, transient slots should be returned,
+too; these slots are then initialized by LISP by a call to
+shared-initialize.
+
+In the server, differences between two versions of a class should be
+represented by a kind of `Delta-object', which can transform from the
+`old' to the `new' physical representation. This would also be useful
+for establishing views onto objects. Views are considered as `weak
+classes', allowing no durable (but only transient) schema evolution
+onto its instances.
+
+On the LISP side, add a slot \lisp{descr}\ to
+\fcite{persistent-clos-object}, containing the class description the
+object actually has. This class description stored within each
+instance can be used to detect if the object should undergo a schema
+evolution.  Problem for loose-bounded classes: Where should the
+information about the class description go? Perhaps into the cache;
+entries into the cache for loose bound \clos\ objects should be a
+\lisp{defstruct}\ mapping a transient object onto its objid and actual
+class description.
+
+Create bultin class ViewSet, which contains instances belonging to a
+single view with equal slot values. Could also be used within btrees
+to represent the set of objects belonging to a single, non-unique key.
+
+\subsection{Multidimensional indexes}
+
+Add multidimensional indexes, for example x-trees
+\cite{bib:Berchtold-et-al-96,bib:Beckmann-et-al-90}.
+
+\subsection{Multi-threaded server}
+
+With moderate effort, the server could be made multithreaded. This
+could be used to reactivate the suspend- and wakeup-algorithms
+implemented in \plob\ 1.0 used for clients waiting on locks to be
+granted. Also, integrating some event support would be nice.
+
+\subsection{Name spaces}
+
+Add more name spaces, for example a hierarchical name space, similar
+to a file system. There is alr
+
+\subsection{Better representation}
+
+Introduce explicit or better representations for databases (these are
+not represented at all) and transactions (these are represented as
+transaction ids embedded into a session).
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "userg"
+%%% End: 
