@@ -1,0 +1,18 @@
+
+	plobdadmin - PLOB administration utility
+	========================================
+
+Heiko Kirschke
+November 30, 1998
+
+ - For plobdadmin to run, the library librpclientplob.so must be found
+   in LD_LIBRARY_PATH (for UNIX) or in PATH (for Windows/NT).
+
+ - The plobdadmin administration utility has help texts; call:
+	~/plob-2.08>plobdadmin
+	tcp://localhost/database>help
+   to read the help text.
+
+ - The directory scripts contains some example scripts which can be
+   run by plobdadmin; see the comments in the example scripts for
+   details.
