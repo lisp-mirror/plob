@@ -1,0 +1,15 @@
+default:
+	@echo Set ARCH to the architecture the code should be compiled for.
+	@echo Either set environment variable ARCH or call make with:
+	@echo     [n]make ARCH=... [-f makedos]
+	@echo with ARCH set to one of:
+	@echo     win32 - Windows/NT 4.0, Visual C 5.00, nmake
+	@echo     i586  - Linux, gcc, make
+	@echo     mips  - SGI IRIX 6.x, cc, make
+	@echo     alpha - DEC Alpha, cc, make
+	@echo     sun5  - Solaris 2.x, cc, make
+	@echo     sun4  - SunOS 4.x, not supported any longer
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

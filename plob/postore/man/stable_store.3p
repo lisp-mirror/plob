@@ -1,0 +1,424 @@
+.TH STABLE_STORE 3P "25 May 1992" "Libpostore v2" "PERSISTENT OBJECT STORE"
+.SH NAME
+SS_close, SS_configuration, SS_dontneedVM, SS_first_address, SS_get_restart_clock, 
+SS_get_sheap_version, SS_last_address, SS_read_word, SS_read_words, SS_real_address, 
+SS_reserveVM, SS_saveVM, SS_scratchVM, SS_set_lock, SS_set_restart_clock, 
+SS_set_sheap_version, SS_stabilise, SS_statistics, SS_write_word, SS_write_words, 
+SS_Xmemlock - interface functions to a stable store.
+.SH SYNOPSIS
+\fB
+.nf
+.ta 8n 30n
+#include <postore.h>
+
+#define REAL_ADDRESS	((psint) 0x01)
+#define SHADOW_PAGING	((psint) 0x02)
+#define UNLIMITED_SHADOW	((psint) 0x04)
+
+struct stablestore_configuration
+{
+	psint configuration_flags ;
+	psint page_size ;
+} ;
+
+struct stablestore_statistics
+{
+	psint dummy ;
+} ;
+
+void	SS_close() ;
+void	SS_configuration() ;
+void	SS_dontneedVM() ;
+psint	SS_first_address() ;
+psint	SS_get_restart_clock() ;
+psint	SS_get_sheap_version() ;
+psint	SS_last_address() ;
+psint	SS_read_word() ;
+void	SS_read_words() ;
+psint	* SS_real_address() ;
+psint	SS_reserveVM() ;
+psint	SS_saveVM() ;
+psint	SS_scratchVM() ;
+psint	SS_set_lock() ;
+void	SS_set_restart_clock() ;
+void	SS_set_sheap_version() ;
+void	SS_stabilise() ;
+void	SS_statistics() ;
+void	SS_write_word() ;
+void	SS_write_words() ;
+psint	SS_Xmemlock() ;
+.ta
+.nf
+\fR
+.SH DESCRIPTION
+.LP
+The definition of each interface function is as follows:
+
+.SS void SS_close()
+.LP
+.BR SS_close ()
+is called when a user program has finished using the stable store interface. 
+Prior to execution
+.BR SS_close ()
+calls the user supplied function
+.IR save .
+Following a call to 
+.BR SS_close ()
+the operation of the stable store interface is undefined.
+
+.SS void SS_configuration( config )
+.SS struct stablestore_configuration *config ;
+.LP
+.BR SS_configuration ()
+initialises a stablestore_configuration structure pointed to by 
+the
+.I config
+parameter. The configuration of the stable store may be determined from the 
+flags contained in the
+.I configuration_flags
+field of the structure. The defined flags are:
+.TP 20
+REAL_ADDRESS:
+.BR SS_real_address ()
+is implemented.
+.TP
+SHADOW_PAGING:
+the stable store is implemented via a shadow paging 
+mechanism. The page size used is reported, in bytes, by 
+the structure field
+.IR page_size .
+The page size is a power 
+of 2 and the address of the start of a page is always a 
+multiple of the page size.
+.TP
+UNLIMITED_SHADOW:
+the stable store has sufficient shadow storage to permit 
+the entire stable store to be changed between calls of 
+.BR SS_stabilise ().
+.ta
+
+.SS void SS_dontneedVM( addr1,addr2 )
+.SS psint addr1,addr2 ;
+.LP
+.BR SS_dontneedVM ()
+informs the stable storage that the words in the range
+.I addr1
+to
+.I addr2 
+are no longer in use and therefore do not require any system resources to be allocated to 
+them. Once called, the state of the subsequent state of the address range is undefined and 
+any data that it contained may be lost. However, the state of the address range at the 
+previous checkpoint is unaffected. In some implementations calls to
+.BR SS_dontneedVM () 
+may be ignored.
+
+.SS psint SS_first_address()
+.LP
+.BR SS_first_address ()
+returns the first address in stable storage that may be accessed by a 
+user program. If the stable store is implemented via a shadow paging mechanism then the 
+address will be an exact multiple of the page size reported by
+.BR SS_configuration ().
+
+.SS psint SS_get_restart_clock()
+.LP
+.BR SS_get_restart_clock ()
+returns the value of the
+.I restart clock
+maintained by the stable store implementation.
+The clock is incremented when the stable store is opened but is only saved if a call to
+.BR SS_stabilise ()
+occurs.
+
+.SS psint SS_get_sheap_version()
+.LP
+.BR SS_get_sheap_version ()
+returns the version number recorded by the stable heap 
+supported by this instance of the stable store.
+
+.SS psint SS_last_address()
+.LP
+.BR SS_last_address ()
+returns the address of the last word in stable storage that may be 
+accessed by a user program. If the stable store is implemented via a shadow paging 
+mechanism then the address will refer to the last word of the last usable page.
+
+.SS psint SS_open( dirname,error,save,restore,write_fault,page_fault )
+.SS char *dirname ;
+.SS void (*error)(),(*save)(),(*restore)(),(*write_fault)(),(*page_fault)() ;
+.LP
+.BR SS_open ()
+returns a pointer to the interface functions for the stable store held in the file 
+.IR dirname/stablestore .
+.BR SS_open ()
+should only be called once and prior to this single call the 
+operation of the stable store interface is undefined. The arguments to
+.BR SS_open ()
+provide the interface with a mechanism for reporting errors, saving cached data to the stable store 
+and restoring cached data from the stable store. Prior to successful completion, 
+.BR SS_open ()
+will call the
+.I restore
+function to complete the open.
+.LP
+The argument function
+.I save
+is called before the store operation
+.I stabilise
+that requires the stable store to be in a self consistent state. Following this operation
+.I restore
+is called. The argument functions
+.I save
+and
+.I restore
+allow a program using the stable store to automate the management of cached data held outwith the stable store.
+.LP
+The argument function
+.I write_fault
+is called if an attempt to modify a word of stable storage 
+fails. This will occur if the word of stable storage has not been included in an address range 
+specified by
+.BR SS_saveVM ()
+or
+.BR SS_scratchVM ().
+In order to decide on the appropriate corrective action
+.I write_fault
+is passed the stable storage address of the word to be 
+modified. The corrective action required prior to resumption may be a successful call to either
+.BR SS_saveVM (),
+.BR SS_scratchVM ()
+or 
+.BR SS_stabilise ().
+.LP
+It should be noted that prior to a call of
+.BR SS_stabilise ()
+a user program must accurately record its current state. To support this
+.I write_fault
+is passed a second parameter that is a 
+pointer to a context structure which has been coerced to (psint *). The context structure is 
+generated when a signal is received by the host operating system, see
+.BR sigvec (2),
+as a result of direct access to the stable storage. If
+.I write_fault
+returns, the user program will be restarted from the position indicated by the context structure.
+.LP
+The pointer to the context structure is (psint *) 0 when
+.I write_fault
+is called from within a stable store interface function. In this case the interface function is resumed when the call of 
+.I write_fault
+returns.
+.LP
+The final argument function
+.I page_fault
+is called if a page fault occurs that is not the result 
+of writing on a read only page of the stable store.When this occurs it is the responsibility of 
+the user program to take appropriate action. To aid the user program the arguments to the 
+.I page_fault
+function are precisely those passed to the stable store's signal handler, see 
+.BR sigvec (2)
+for the signal handler definition.
+.LP
+.BR SS_open ()
+returns (psint) 0 if it succeeds or (psint) 1 if it fails. If an error does occur 
+then the implementation may force the user program to exit.
+
+.SS psint SS_read_word( addr ) ;
+.SS psint addr ;
+.LP
+.BR SS_read_word ()
+returns the word held at stable store address
+.IR addr .
+
+.SS void SS_read_words( addr,buffer,nwords ) ;
+.SS psint addr,*buffer,nwords ;
+.LP
+.BR SS_read_words ()
+copies
+.I nwords
+starting at stable store address
+.I addr
+to the specified
+.IR buffer .
+
+.SS psint *SS_real_address( addr )
+.SS psint addr ;
+.LP
+.BR SS_real_address ()
+converts the stable store address
+.I addr
+into the corresponding physical address. The physical address remains valid until the next call of the
+.I save 
+function. If
+.BR SS_real_address ()
+is not implemented the result is (psint *) 0.  If
+.BR SS_real_address ()
+is implemented then a fixed mapping from stable storage 
+addresses to physical addresses can be calculated. This is performed by converting the 
+result of
+.BR SS_first_address (),
+which we will call
+.IR First,
+into the corresponding physical address, which we will call
+.IR Base ,
+via
+.BR SS_real_address ().
+If the value of
+.I Base - First
+is held in an address register then the stable storage may be addressed by indexing the address 
+register with stable storage addresses. The mapping must be recalculated each time the 
+stable storage is opened.
+
+.SS psint SS_reserveVM( addr1,addr2 )
+.SS psint addr1,addr2 ;
+.LP
+.BR SS_reserveVM ()
+informs the stable storage that the words in the range
+.I addr1
+to
+.I addr2 
+may be used in the future. It does not guarantee that the state of the address range may be 
+modified before the next checkpoint. If the stable store can allocate system resources to the 
+address range then
+.BR SS_reserveVM ()
+returns 1 to indicate success otherwise it returns 0. 
+Once called, the state of the address range is undefined and any data that it contained may 
+be lost. However, the state of the address range at the previous checkpoint is unaffected. 
+The system resources allocated to the address range are retained over a checkpoint.
+
+.SS psint SS_saveVM( addr1,addr2 )
+.SS psint addr1,addr2 ;
+.LP
+.BR SS_saveVM ()
+informs the stable storage that the words in the range
+.I addr1
+to
+.I addr2
+are to 
+be changed and that the changes must be saved by the next checkpoint. If the stable store 
+can allocate the necessary system resources to support this then
+.BR SS_saveVM ()
+returns 1 
+to indicate the requested use is permitted otherwise it returns 0. Following the next 
+checkpoint the address range is treated as read only. This call does not affect the current 
+state of the address range or its state at the last checkpoint.
+.LP
+If the stable store is implemented via shadow paging then the call of
+.BR SS_saveVM ()
+is applied to every page that contains any part of the address range. This is safe because the 
+existing data within the pages is not affected by the call of
+.BR SS_saveVM ().
+
+.SS psint SS_scratchVM( addr1,addr2 )
+.SS psint addr1,addr2 ;
+.LP
+.BR SS_scratchVM ()
+informs the stable storage that the words in the range
+.I addr1
+to
+.I addr2 
+are to be used to hold temporary data that need not be saved by the next checkpoint. If the 
+stable store can allocate the necessary system resources to support this then 
+.BR SS_scratchVM ()
+returns 1 to indicate the requested use is permitted otherwise it returns 
+0. The state of the address range is undefined and any data that it contained may be lost. 
+However, the state of the address range at the previous checkpoint in unaffected. The 
+requested use is remembered over a checkpoint but if a failure occurs the state of the 
+address range is undefined and any data that it contained may be lost.
+.LP
+If the stable store is implemented via shadow paging then the call of
+.BR SS_scratchVM () 
+may result in the pages at either end of the address range containing temporary data and 
+read only data. To ensure the read only data is not lost these pages are the subject of a call 
+to
+.BR SS_saveVM ()
+rather than
+.BR SS_scratchVM ().
+
+.SS psint SS_set_lock( addr )
+.SS psint addr ;
+.LP
+.BR SS_set_lock ()
+attempts to set a lock on the word specified by
+.IR addr .
+If it succeeds it 
+returns the previous value of the word with the top bit set. The values of the other bits in 
+the most significant byte of the word are undefined. If the call fails (psint) 0 is returned. If 
+necessary, this is implemented using the
+.BR SS_Xmemlock ()
+interface function, described below.
+
+.SS void SS_set_restart_clock( tim )
+.SS psint tim ;
+.LP
+.BR SS_set_restart_clock ()
+sets the current value of the
+.I restart_clock
+maintained by the stable store implementation to the value
+.IR tim .
+
+.SS void SS_set_sheap_version( vnum )
+.SS psint vnum ;
+.LP
+.BR SS_set_sheap_version ()
+sets the version number for the supported stable heap to be 
+.IR vnum .
+
+.SS void SS_stabilise () ;
+.LP
+.BR SS_stabilise ()
+forces the entire state of the stable store to be written to non-volatile 
+storage as an atomic action. This checkpoints the stable storage. Prior to executing the 
+checkpointing operation the user defined
+.I save
+function is called. Once the checkpoint is complete the user supplied
+.I restore
+function is called.
+
+.SS void SS_statistics( stats ) ;
+.SS struct stableheapstats *stats ;
+.LP
+.BR SS_statistics ()
+currently does nothing. In future releases appropriate statistics fill be placed in the
+.I stablestorestats
+structure pointed to by the
+.I stats
+paramater.
+
+.SS void SS_write_word( addr,word )
+.SS psint addr,word ;
+.LP
+.BR SS_write_word ()
+copies
+.I word
+to the word in the stable store with address
+.IR addr .
+
+.SS void SS_write_words( addr,buffer,nwords )
+.SS psint addr,*buffer,nwords ;
+.LP
+.BR SS_write_words ()
+copies the
+.I nwords
+in the
+.I buffer
+to the stable store starting at address 
+.IR addr .
+
+.SS psint SS_Xmemlock( phys_addr )
+.SS psint phys_addr ;
+.LP
+.BR SS_Xmemlock ()
+attempts to set a lock on the word specified by the physical address 
+.IR phys_addr .
+If it succeeds it returns the previous value of the word with the top bit set. The 
+values of the other bits in the most significant byte of the word are undefined. If the call 
+fails (psint) 0 is returned. This function operates as an atomic action and guarantees that 
+multiple calls appear to execute serially.
+.BR SS_Xmemlock ()
+may not be provided by some implementations precluding true parallel access to the stable store.
+.SH ERRORS
+.LP
+Fatal errors are reported in the form of a single character pointer passed to the
+.I error
+argument function originally passed to
+.BR SS_open ().

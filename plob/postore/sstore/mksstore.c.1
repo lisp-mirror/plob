@@ -1,0 +1,184 @@
+/*******************************************************/
+/*                                                     */
+/* This is a stand alone program that can be used to   */
+/* create an instance of the stable store.	       */
+/* It is used as follows:                              */
+/*        mksstore <path-name>			       */
+/* The size of a disk block is found from the file     */
+/* "sstore.h".                                         */
+/*                                                     */
+/*  created   1/ 6/91     DSM			       */
+/*  modified 18/ 5/92     DSM			       */
+/*                                                     */
+/*******************************************************/
+
+#include "sstore.h"					/* interpreter definitions */
+#include <sys/file.h>					/* file locking macros */
+#include <errno.h>					/* definitions of system error numbers */
+
+extern char *strcpy() ;
+extern char *strcat() ;
+
+extern int errno ;					/* system variable that holds error numbers */
+root_pg	root_page ;					/* root page structure used in the store file */
+
+fill_root_page()				/* fill in the root page for the given store size */
+{
+	psint i,plen ;
+	psint blockNo,flags ;
+	char *s ;
+
+	s = ( char * )( &root_page ) ;				/* initialise the root page to 0s */
+	for( i = ( psint ) 0 ; i < PAGESIZE ; i++ )
+		s[ i ] = ( char ) 0 ;
+
+	root_page.sstoreMagic = SSTOREMAGIC ;			/* magic number for stable store */
+	root_page.sheapMagic = ( psint ) -1 ;			/* magic number for stable heap - unset value */
+	root_page.page_size = PAGESIZE ;			/* page size in the store file */
+	root_page.data_start = DATAPAGESTART ;			/* length of VA space in bytes */
+	root_page.data_end = VASPACESIZE - WORDSIZE ;		/* length of VA space in bytes */
+	root_page.no_syncs = ( psint ) 1 ;			/* count 1 for the initial set of reserved pages */
+	root_page.no_mod_pages = PT1PAGES + RESERVEDPAGES ;	/* on init the page table and reserved pages are written */
+
+	blockNo = ( psint ) 2 ;
+
+        for ( i = ( psint ) 0 ; i < PT1PAGES ; i++ )
+        {
+                root_page.pteWhere[ i ]  = blockNo++ ;
+	}
+}
+
+writepagetablestart( fd )
+int fd ;
+{
+        psint i,pindex,blockNo ;
+        psint page[ WPAGESIZE ] ;
+
+        for ( i = ( psint ) 0 ; i < WPAGESIZE ; i++ )	/* zero the page copy */
+        {
+                page[ i ] = ( psint ) 0 ;
+        }
+	pindex = DATAPAGESTART >> PAGEPWROF2 ;			/* setup the pte for the reserved pages */
+	blockNo = DATABLOCKSTART ;
+	for ( i = 0 ; i < RESERVEDPAGES ; i++ )
+	{
+		page[ pindex ] = WRITTEN | blockNo ;
+		blockNo++ ; pindex++ ;
+	}
+        if ( write( fd,( char * ) page,( int )( PAGESIZE ) ) != ( int )( PAGESIZE ) )
+        {
+		printf( "sstoreformat: failed to format the store, errno %d\n",( int ) errno ) ;
+		exit( -1 ) ;
+	}
+}
+
+writezeropages( fd,len )
+int fd ; psint len ;
+{
+#define	BUFFER	( PT1PAGES << PAGEPWROF2 )
+        psint i ;
+        char page[ BUFFER ] ;
+
+        for ( i = ( psint ) 0 ; i < BUFFER ; i++ )
+        {
+                page[ i ] = ( char ) 0 ;
+        }
+	len <<= PAGEPWROF2 ;
+	while ( len > ( psint ) 0 )
+        {
+                i = write( fd,page,( int )( len >= BUFFER ? BUFFER : len ) ) ;
+		if ( i > 0 )
+		{
+			len -= i ;
+		} else
+                {
+			if ( i < 0 && errno != EINTR )
+			{
+				printf( "sstoreformat: failed to format the store, errno %d\n",( int ) errno ) ;
+				exit( -1 ) ;
+			}
+                }
+        }
+}
+
+main( argc,argv )
+int argc ; char **argv ;
+{
+	int lfd,fd,status ;
+	psint len,slen,maxslen ;
+	char sfname[ 81920 ] ;
+	char lfname[ 81920 ] ;
+	char hostname[ 64 ] ;
+	struct flock file_lock ;
+
+	if ( argc != 2 )
+	{
+		printf( "usage: sstoreformat <path-name>\n" ) ;
+		exit( -1 ) ;
+	}
+
+	strcpy( lfname,argv[ 1 ] ) ;
+	strcat( lfname,LOCKSUFFIX ) ;
+	umask( 0 ) ;						/* set all mode bits during a create */
+	lfd = open( lfname,O_RDWR | O_CREAT | O_EXCL,0666 ) ;
+	if ( lfd < 0 )
+	{
+		if ( errno == EEXIST )
+		{
+			printf( "sstoreformat: the directory %s may already contain an object store\n",argv[ 1 ] ) ;
+		} else
+		{
+			printf( "sstoreformat: failed to create the lockfile %s errno:%d\n",lfname,errno ) ;
+		}
+		exit( -1 ) ;
+	}
+	if ( flock( lfd,LOCK_EX | LOCK_NB ) )
+	{
+		printf( "sstoreformat: cannot lock the store" ) ;
+		exit( -1 ) ;
+	}
+	gethostname( hostname,64 ) ;			/* get our hostname */
+	hostname[ 63 ] = ( char ) 0 ;			/* make sure its null terminated */
+	if ( write( lfd,hostname,64 ) != 64 )
+	{
+		printf( "sstoreformat: write error occurred while creating the lockfile: %d\n",errno ) ;
+		exit( -1 ) ;
+	}
+
+	strcpy( sfname,argv[ 1 ] ) ;
+	strcat( sfname,STORESUFFIX ) ;
+
+	umask( 0 ) ;			/* set all mode bits during a create */
+	fd = open( sfname,O_RDWR | O_CREAT | O_EXCL,0666 ) ;
+	if ( fd < 0 )
+	{
+		if ( errno == EEXIST )
+		{
+			printf( "sstoreformat: the directory %s may already contain an object store\n",argv[ 1 ] ) ;
+		} else
+		{
+			printf( "sstoreformat: failed to create the lockfile %s errno:%d\n",sfname,errno ) ;
+		}
+		exit( -1 ) ;
+	}
+	fill_root_page() ;
+	if ( write( fd,( char * )( &root_page ),( int )( PAGESIZE ) ) != ( int )( PAGESIZE ) ||
+	     write( fd,( char * )( &root_page ),( int )( PAGESIZE ) ) != ( int )( PAGESIZE ) )
+	{
+		printf( "sstoreformat: failed to write root pages to %s errno %d\n",sfname,errno ) ;
+		exit( -1 ) ;
+	}
+	writepagetablestart( fd ) ;		/* write the first page of the page table */
+						/* write 0 pages for blocks of page table, page table shadows and res. pages */
+	writezeropages( fd,RESERVEDPAGES + DATABLOCKSTART - ROOTPAGES - ( psint ) 1 ) ;
+	flock( lfd,LOCK_UN ) ;
+	close( lfd ) ;
+	close( fd ) ;
+	printf( "sstoreformat: %s has been successfully initialised as a stable store\n",argv[ 1 ] ) ;
+}
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/

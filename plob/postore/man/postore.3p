@@ -1,0 +1,187 @@
+.TH POSTORE 3P "25 May 1992" "Libpostore v2" "PERSISTENT OBJECT STORE"
+.SH NAME
+intro - introduction to the persistent object store library
+.SH DESCRIPTION
+.LP
+The Persistent Object Store (POS) library provides C programs with two interfaces one for a 
+stable virtual memory and one for a stable heap. Each interface corresponds to a layer of the 
+PISA layered architecture[bro89,bro90a,bro90b]. To use one of the interfaces a stable store 
+must first be created using the
+.I sstoreformat
+utility. The stable virtual memory accessed via the 
+.I stable_store
+interface maps directly onto a stable store file whereas the stable heap accessed via 
+the
+.I stable_heap
+interface is a logical organisation of a stable virtual memory provided by the 
+.I stable_store
+interface.
+.LP
+To aid efficient use of these interfaces,
+.I save
+and
+.I restore
+user functions may be specified to 
+automatically manage data caches outwith the stable store. Whenever the stable store is required 
+to be in a self consistent state the user supplied
+.I save
+function is called to copy any cached data 
+to the stable store. Similarly, whenever the stable store is restarted, or following a store 
+operation that required
+.I save
+to be called, the user supplied
+.I restore
+function is called.
+.I restore 
+will reinitialise any cached data required by the user progam.
+.LP
+An inline expansion file,
+.I /usr/lib/libpostore.il,
+is provided with the POS library to optimise 
+calls to the library interface from C.
+.LP
+The
+.I stable_heap
+and
+.I stable_store
+interfaces both provide facilities that may allow the interface 
+functions to be by passed. For example, the
+.I stable_store
+interface provides a mechanism for calculating a mapping from stable storage addresses to physical addresses.
+It also provides a mechanism for handling page faults thereby allowing stable storage to be updated without prior 
+use of the dynamic configuration facilities. Similar facilities are provided by the
+.I stable_heap 
+interface.
+.LP
+In both cases the interfaces must be interrogated each time a store or heap is opened to discover 
+which facilities are currently available. This permits the layer implementations to be changed 
+without invalidating previously compiled programs. However, if certain facilities are essential 
+to the correct operation of a user program then the user program should not attempt to use an 
+implementation of a store or heap that does not provide those facilities.
+.SH WARNINGS
+.LP
+The POS library should not be used in conjunction with calls to
+.BR fork (2)
+and similar system calls.
+.BR fork (2)
+results in two processes both with copies of the POS library that can both update 
+it. However, each has no knowledge of the other and this may result in the corruption of an 
+open persistent object store. Concurrent access is best implemented by light weight processes 
+operating within a single UNIX process.
+.LP
+The POS library may need to make use of certain signals as part of its implementation. 
+Currently, the only signal used by any of the implementations is
+.SM SIGSEGV\s0,
+see
+.BR sigvec (2).
+It is 
+recommended that the user program sets up its own signal handlers prior to opening the POS 
+library. The library can then replace any previously specified handlers with its own.
+In the case of the
+.SM SIGSEGV
+signal a call is made to a user function
+.I page_fault
+which is passed precisely those parameters passed to any signal handler by the host operating system.
+.SH ERRORS
+.LP
+The POS library will report any errors in the form of a single character pointer passed to an 
+.I error
+function. The
+.I error
+function is supplied to the library, together with the
+.I save
+and
+.I restore 
+functions, when obtaining access to a stable virtual memory or a stable heap.
+.SH FILES
+.PD 0
+.TP 20
+.I /usr/include/postore.h
+include file for the POS library.
+.TP
+.I /usr/lib/libpostore.a
+C library for linking C programs to the POS library.
+.TP
+.I /usr/lib/libpostore.il
+Inline expansions for optimising C programs using the library.
+.TP
+.I dirname/stablestore
+a formatted stable store possibly containing a stable heap.
+.TP
+.I dirname/lockfile
+a lockfile for
+.I dirname/stablestore.
+.PD
+.SH REFERENCE
+.TP 10
+[bro89]
+Brown A.L. (Ph.D. Thesis) Persistent Object Stores. Universities of Glasgow and St.Andrews PPRR-71, Scotland, 1989.
+.TP
+[bro90a]
+Brown A.L., Dearle A., Morrison R., Munro D. & Rosenberg J. A Layered Architecture 
+for Napier88. Proc. International Workshop on Computer Architectures to Support 
+Security and Persistence of Information, Bremen, Federal Republic of Germany, May 
+1990, pp6-1->6-17.
+.TP
+[bro90b]
+Brown A.L. & Rosenberg J. Persistent Object Stores: An Implementation Technique.
+Proc. Fourth International Workshop on Persistent Object Systems: Their Design 
+Implementation and Use, Martha's Vineyard, Massachusetts, USA, September 1990.
+.SH "LIST OF LIBRARY FUNCTIONS"
+.sp
+.if t .ta 25n; +20n
+.if n .ta 20n; +20n
+.nf
+.B Name	Appears on Page	Description
+.sp
+.nr zZ 1
+SH_can_modify()	stable_heap(3P)	can an object be modified?
+SH_close()	stable_heap(3P)	finish using the stable heap interface
+SH_configuration()	stable_heap(3P)	return the stable heap configuration
+SH_create_object()	stable_heap(3P)	create an object
+SH_destroy_object()	stable_heap(3P)	destroy an object
+SH_first_object()	stable_heap(3P)	return the root object for the stable heap
+SH_full_garbage_collect()	stable_heap(3P)	garbage collect entire stable heap
+SH_garbage_collect()	stable_heap(3P)	garbage collect
+SH_get_restart_clock()	stable_heap(3P)	return the number of system restarts
+SH_incremental_garbage_collect()	stable_heap(3P)	incremental step of garbage collection
+SH_key_to_address()	stable_heap(3P)	convert a key to a physical address
+SH_open()	stable_heap(3P)	initialise the stable heap interface
+SH_read_byte()	stable_heap(3P)	read a byte from an object
+SH_read_key()	stable_heap(3P)	read a key from an object
+SH_read_lock()	stable_heap(3P)	read the lock word from an object
+SH_read_word()	stable_heap(3P)	read a word from an object
+SH_read_words()	stable_heap(3P)	copy words from an object to a buffer
+SH_set_lock()	stable_heap(3P)	set an atomic lock on a specified object
+SH_set_restart_clock()	stable_heap(3P)	set the number of system restarts
+SH_stabilise()	stable_heap(3P)	checkpoint the state of the stable heap
+SH_statistics()	stable_heap(3P)	return statistics on the stable heap
+SH_write_byte()	stable_heap(3P)	write a byte to an object
+SH_write_key()	stable_heap(3P)	write a key to an object
+SH_write_lock()	stable_heap(3P)	write the lock word of an object
+SH_write_word()	stable_heap(3P)	write a word to an object
+SH_write_words()	stable_heap(3P)	copy words from a buffer to an object
+SS_close()	stable_store(3P)	finish using the stable store interface
+SS_configuration()	stable_store(3P)	return the stable store configuration
+SS_dontneedVM()	stable_store(3P)	the given stable storage is not in use
+SS_first_address()	stable_store(3P)	the first usable address in stable store
+SS_get_restart_clock()	stable_store(3P)	return the number of system restarts
+SS_get_sheap_version()	stable_store(3P)	return the stable heap version number
+SS_last_address()	stable_store(3P)	the address of the last word of stable store
+SS_open()	stable_store(3P)	return a stable store interface
+SS_read_word()	stable_store(3P)	read a word from stable store
+SS_read_words()	stable_store(3P)	copy words in stable storage to a buffer
+SS_real_address()	stable_store(3P)	convert an address to a physical address
+SS_reserveVM()	stable_store(3P)	the given stable storage may be required
+SS_saveVM()	stable_store(3P)	stabilise saves the given stable storage
+SS_scratchVM()	stable_store(3P)	do not save the given stable storage
+SS_set_lock()	stable_store(3P)	set an atomic lock in a specified word
+SS_set_restart_clock()	stable_store(3P)	set the number of system restarts
+SS_set_sheap_version()	stable_store(3P)	set the stable heap version number
+SS_stabilise()	stable_store(3P)	checkpoint the state of the stable store
+SS_statistics()	stable_store(3P)	return some stable store statistics
+SS_write_word()	stable_store(3P)	write a word to stable storage
+SS_write_words()	stable_store(3P)	copy a buffer into stable storage
+SS_Xmemlock()	stable_store(3P)	set an atomic lock at a physical address
+.nr zZ 0
+.fi

@@ -1,0 +1,12 @@
+
+# 1998/02/18 HK: Makefile for DOS nmake
+# Call with nmake -f makedos
+
+POSTOREDIR=..
+include ..\win32_Makefile
+include ..\cl_Makefile
+include makefile.all
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

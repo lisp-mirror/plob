@@ -1,0 +1,40 @@
+.TH SH_CAN_MODIFY 3P "26 May 1992" "Libpostore v2" "PERSISTENT OBJECT STORE"
+.SH NAME
+SH_can_modify - request permission to modify a persistent object.
+.SH SYNOPSIS
+\fB
+.nf
+psint SH_can_modify( key )
+psint key ;
+.fi
+\fR
+.SH DESCRIPTION
+.LP
+.BR SH_can_modify ()
+tests to see if the object identified by the given
+.I key
+may be safely 
+modified before the next call to
+.BR SH_stabilise (3P).
+If there is sufficient shadow storage to record 
+any changes to the object then the result is 1 for true otherwise the result is 0 for false. An 
+object may be modified without calling
+.BR SH_can_modify ()
+but may fail if the changes cannot be recorded in shadow storage. All such failures are reported via the
+.I stabilise 
+argument function passed to
+.BR SH_open (3P).
+.SH RETURN VALUE
+.LP
+1 is returned on success, 0 otherwise.
+.SH ERRORS
+.SH SEE ALSO
+.BR sstoreformat (1P),
+.BR sheapgc (1P),
+.BR sheapstats (1P),
+.BR intro (3P),
+.BR SH_can_modify (3P),
+.BR SH_create_object (3P),
+.BR SH_read (3P),
+.BR SH_write (3P).
+

@@ -1,0 +1,46 @@
+
+LINKOBJECTS=\
+$(ARCH)_svmstore.$(OBJ) $(SSTOREO)
+
+all: optimised profiled debug
+
+optimised: $(ARCH)_svmstore.$(OBJ) $(ARCH)_mksstore$(EXE) $(ARCH)_sstorelockhost$(EXE)
+
+profiled: $(ARCH)_pvmstore.$(OBJ)
+
+debug: $(ARCH)_gvmstore.$(OBJ)
+
+$(ARCH)_mksstore$(EXE): sstore.h mksstore.c $(LINKOBJECTS) $(STDLIB)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) mksstore.c \
+	$(LDFLAGS) $(OUTPUT_OPTION_EXE) $(LINKOBJECTS)
+
+$(ARCH)_sstorelockhost$(EXE): sstore.h sstorelockhost.c $(LINKOBJECTS) $(STDLIB)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) sstorelockhost.c \
+	$(LDFLAGS) $(OUTPUT_OPTION_EXE) $(LINKOBJECTS)
+
+$(POSTOREDIR)$(SL)sstore$(SL)sstore_$(ARCH).$(OBJ) : sstore_$(ARCH).s
+	$(AS) $(OUTPUT_OPTION_AS) sstore_$(ARCH).s
+
+$(ARCH)_svmstore.$(OBJ): sstore.h svmstore.c
+	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) svmstore.c
+
+$(ARCH)_pvmstore.$(OBJ): sstore.h svmstore.c
+	$(CC) $(CFLAGS) $(CFLAGSPRO) $(OUTPUT_OPTION_OBJ) svmstore.c
+
+$(ARCH)_gvmstore.$(OBJ): sstore.h svmstore.c
+	$(CC) $(CFLAGS) $(CFLAGSDEB) $(OUTPUT_OPTION_OBJ) svmstore.c
+
+clean:
+	$(RM) *.o
+	$(RM) *.obj
+	$(RM) *_mksstore
+	$(RM) *_mksstore.exe
+	$(RM) *_sstorelockhost
+	$(RM) *_sstorelockhost.exe
+	$(RM) *.ilk
+	$(RM) *.opt
+	$(RM) *.pdb
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

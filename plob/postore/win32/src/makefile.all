@@ -1,0 +1,41 @@
+
+STDINCLUDE=u2win32.h
+LIBDIR=$(POSTOREDIR)$(SL)release$(SL)$(ARCH)lib
+INCDIR=$(POSTOREDIR)$(SL)$(ARCH)$(SL)include
+DIRECTORIES=$(LIBDIR)
+OBJECTS=\
+$(ARCH)_file.$(OBJ) \
+$(ARCH)_mman.$(OBJ) \
+$(ARCH)_win32sig.$(OBJ) \
+$(ARCH)_unistd.$(OBJ) \
+$(ARCH)_u2win32.$(OBJ)
+
+all:$(DIRECTORIES) optimised
+
+optimised: $(LIBDIR)$(SL)u2win32.$(LIB)
+
+$(DIRECTORIES):
+	mkdir $@
+$(LIBDIR)$(SL)u2win32.$(LIB) : $(OBJECTS)
+	$(AR) $(ARFLAGS) $(OUTPUT_OPTION_LIB) $(OBJECTS)
+
+$(ARCH)_file.$(OBJ): $(INCDIR)$(SL)sys$(SL)file.h file.c $(STDINCLUDE)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) file.c
+$(ARCH)_mman.$(OBJ): $(INCDIR)$(SL)sys$(SL)mman.h mman.c $(STDINCLUDE)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) mman.c
+$(ARCH)_win32sig.$(OBJ): $(INCDIR)$(SL)win32sig.h win32sig.c $(STDINCLUDE)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) win32sig.c
+$(ARCH)_unistd.$(OBJ): $(INCDIR)$(SL)unistd.h unistd.c $(STDINCLUDE)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) unistd.c
+$(ARCH)_u2win32.$(OBJ): u2win32.h u2win32.c
+	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) u2win32.c
+
+clean:
+	$(RM) *.$(OBJ)
+	$(RM) *.ilk
+	$(RM) *.opt
+	$(RM) *.pdb
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

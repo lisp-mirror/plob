@@ -1,0 +1,41 @@
+echo
+echo -----     Napier Authorisation     -----
+echo
+echo Copying keys to ../../release/exec
+
+if [ ! -d ../../release ]
+then
+	echo creating directory ../../release
+	mkdir ../../release
+	chmod 755 ../../release
+fi
+
+if [ ! -d ../../release/exec ]
+then
+	echo creating directory ../../release/exec
+	mkdir ../../release/exec
+	chmod 755 ../../release/exec
+fi
+
+( cd ../../release/exec ;
+	if [ -f PSKEYS ]
+	then
+		echo chmod 755 PSKEYS
+		chmod 755 PSKEYS
+	fi
+)
+
+set -x
+
+if [  -f secure/NISKEYS ]
+then
+	cp secure/NISKEYS ../../release/exec/PSKEYS
+else
+	cp secure/PSKEYS ../../release/exec/PSKEYS
+fi
+
+( cd ../../release/exec ; chmod 444 PSKEYS )
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

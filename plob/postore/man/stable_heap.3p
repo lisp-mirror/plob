@@ -1,0 +1,576 @@
+'\" t
+.TH STABLE_HEAP 3P "25 May 1992" "Libpostore v2" "PERSISTENT OBJECT STORE"
+.SH NAME
+SH_can_modify, SH_close, SH_configuration, SH_create_object, SH_destroy_object, 
+SH_first_object, SH_full_garbage_collect, SH_garbage_collect, SH_get_restart_clock, 
+SH_incremental_garbage_collect, SH_key_to_address, SH_open, SH_read_byte, 
+SH_read_key, SH_read_lock, SH_read_word, SH_read_words, SH_set_lock, 
+SH_set_restart_clock, SH_stabilise, SH_statistics, SH_write_byte, SH_write_key, 
+SH_write_lock, SH_write_word, SH_write_words - interface functions to a stable heap.
+.SH SYNOPSIS
+\fB
+.nf
+.ta 8n 34n
+#include <postore.h>
+
+typedef int psint
+
+#define KEY_TO_ADDR	((psint) 0x001)
+#define KEY_TO_ADDR_FAILS	((psint) 0x002)
+#define KEYS_FIXED_FOR_LIFE	((psint) 0x004)
+#define KEY_RANGE	((psint) 0x008)
+#define NO_KEY_MAPPING	((psint) 0x010)
+#define KEYS_ARE_ADDRS	((psint) 0x020)
+#define KEYS_ARE_INDIRECT	((psint) 0x040)
+#define REQUEST_STABILISE	((psint) 0x080)
+#define INCREMENTAL_GC	((psint) 0x100)
+
+struct stableheap_configuration
+{
+	psint configuration_flags ;
+	psint minimum_key ;
+	psint maximum_key ;
+	psint key_alignment ;
+} ;
+
+struct stableheap_statistics
+{
+	psint maximum_space ;
+	psint allocated_space ;
+	psint unallocated_space ;
+	psint unused_allocated_space ;
+	psint allocated_management_space ;
+	psint number_of_objects ;
+} ;
+
+psint	SH_can_modify() ;
+void	SH_close() ;
+psint	SH_create_object() ;
+void	SH_configuration() ;
+void	SH_destroy_object() ;
+psint	SH_first_object() ;
+void	SH_full_garbage_collect() ;
+void	SH_garbage_collect() ;
+psint	SH_get_restart_clock() ;
+void	SH_incremental_garbage_collect() ;
+psint	*SH_key_to_address() ;
+psint	SH_open() ;
+psint	SH_read_byte() ;
+psint	SH_read_key() ;
+psint	SH_read_lock() ;
+psint	SH_read_word() ;
+void	SH_read_words() ;
+psint	SH_set_lock() ;
+void	SH_set_restart_clock() ;
+void	SH_stabilise() ;
+void	SH_statistics() ;
+void	SH_write_byte() ;
+void	SH_write_key() ;
+void	SH_write_lock() ;
+void	SH_write_word() ;
+void	SH_write_words() ;
+.ta
+.fi
+\fR
+.SH DESCRIPTION
+.LP
+The format of a stable heap object and the operation of the interface functions are as follows:
+.SS "Object format"
+.LP
+All objects are an integral number of 32 bit words in length. The first word, word 0, 
+contains the number of object key fields and the second word, word 1, contains the total 
+size of the object in words. Following the two header words are all the object key fields, 
+one per word. The interpretation of the remainder of an object is the responsibility of the 
+user program. All objects must contain the two header words. The object format is 
+illustrated in Figure 1.
+                                                        
+.TS
+center tab (/) ;
+_ _ _ _ _
+|c|c|c|c|c|
+|c|c|c|c|c|
+_ _ _ _ _
+c c c c c .
+////
+Lock-Word/Number of Keys/Size/(m) Keys/(n-m-2) Non-Keys
+/(m)/(n)//
+////
+Word -1/Word 0/Word 1/Words 2..m-2/Words m-1..n-1
+.TE
+.ce 1
+Figure 1: Object format.
+.LP
+To support object locking, every object is prefixed by a 32 bit lock word. The locking 
+protocol records a lock by negating the lock word using atomic test and set operations. A 
+lock may be cleared by setting the lock word to a positive value. Since locking an object 
+requires a modification to the store,
+.BR SH_can_modify ()
+should be used prior to an attempted lock.
+.LP
+Read locking may be simulated by reading the lock word, checking that the object is not 
+locked, reading the desired data, reading the lock word and finally testing if the lock word 
+has changed. If either of the two tests fail the read operation should be restarted. To ensure 
+that changes to an object are visible to the locking protocol, a lock should be cleared by 
+setting the value of the lock word to one greater than it was before the object was locked.
+
+.SS psint SH_can_modify( key )
+.SS psint key ;
+.LP
+.BR SH_can_modify ()
+tests to see if the object identified by the given
+.I key
+may be safely 
+modified before the next
+.BR SH_stabilise ().
+If there is sufficient shadow storage to record 
+any changes to the object then the result is 1 for true otherwise the result is 0 for false. An 
+object may be modified without calling
+.BR SH_can_modify ()
+but may fail if the changes 
+cannot be recorded in shadow storage. All such failures are reported via the
+.I stabilise 
+argument function passed to
+.BR SH_open ().
+
+.SS void SH_close()
+.LP
+.BR SH_close ()
+is called when the user program has finished with the stable heap. Prior to 
+execution
+.BR SH_close ()
+calls the user supplied function
+.IR save .
+Following a call to 
+.BR SH_close ()
+the operation of the stable heap interface is undefined.
+
+.SS void SH_configuration( config )
+.SS struct stableheap_configuration *config ;
+.BR SH_configuration ()
+initialises a
+.I stableheap_configuration
+structure pointed to by the
+.I config
+parameter. The configuration of the stable heap may be determined from the 
+flags contained in the
+.I configuration_flags
+field of the structure. The defined flags are:
+.ta 20
+.TP 20
+KEY_TO_ADDR:
+SH_key_to_address() is implemented.
+.TP
+KEY_TO_ADDR_FAILS:
+SH_key_to_address() may fail.
+.TP
+KEYS_FIXED_FOR_LIFE:
+the key allocated to an object will not change during the lifetime of the object.
+.TP
+KEY_RANGE:
+all keys are greater than or equal to the value of the structure field
+.IR minimum_key ,
+are less than or equal to 
+the value of the structure field
+.I maximum_key
+and are a 
+multiple of the structure field
+.IR key_alignment .
+If this flag is set, any value found in a key field which does not 
+correspond to a legal key will be ignored for the 
+purposes of garbage collection. However, values that 
+do correspond to legal keys must be legal keys. If the 
+flag
+.I KEYS_FIXED_FOR_LIFE
+is also set, then the garbage collector will never modify the contents of a key field.
+.TP
+NO_KEY_MAPPING:
+keys may only be converted to physical addresses via 
+.BR SH_key_to_address ().
+.TP
+KEYS_ARE_ADDRS:
+a key is the stable storage address of the key's object.
+.TP
+KEYS_ARE_INDIRECT:
+a key is the stable storage address of a word containing 
+the stable storage address of the key's object.
+.TP
+REQUEST_STABILISE:
+the stable virtual memory may exhaust the available 
+shadow storage and request a call to
+.BR SH_stabilise (). 
+If this flag is not set there is no need to make use of the 
+.BR SH_can_modify ()
+interface function.
+.TP
+INCREMENTAL_GC:
+the stable heap supports incremental garbage collection 
+and requires calls to be made at regular intervals to 
+.BR SH_incremental_garbage_collect ().
+.LP
+If a mapping from keys to stable storage addresses is available, a direct mapping from keys 
+to physical addresses may be established via the
+.I stable_store
+interface function 
+.BR SS_real_address ().
+This is described in
+.BR stable_heap (3P).
+
+.SS psint SH_create_object( size )
+.SS psint size ;
+.LP
+.BR SH_create_object ()
+attempts to create an object of the given
+.IR size ,
+in words. If successful the result is the key for the new object otherwise the result is 0.
+
+.SS void SH_destroy_object( key )
+.SS psint key ;
+.LP
+.BR SH_destroy_object ()
+attempts to free the stable storage allocated to the object with the given
+.IR key .
+This function will only succeed if the stable heap supports this operation. It 
+should not be applied to any object that is still reachable from the root object of the stable 
+heap. Failure is not reported since this function is merely an optimisation facility.
+
+.SS psint SH_first_object()
+.LP
+The key for the root object of the stable heap is returned by
+.BR SH_first_object ().
+All data may be accessed by following keys starting with the first key field of the root object. No 
+other part of the root object may be accessed. When a stable heap is initialised, the first key 
+field of the root object contains the result of
+.BR SH_first_object ().
+
+.SS void SH_full_garbage_collect()
+.LP
+A garbage collection of the entire stable heap, circumventing any generation scavenging or 
+other containment techniques, is invoked by
+.BR SH_full_garbage_collect ().
+Prior to 
+garbage collection the user supplied function
+.I save
+is called to copy any cached data to the 
+stable heap. On completion of the garbage collection the user supplied function
+.I restore
+is called to restore the data cache maintained by the user program. It should be noted that the 
+mapping of keys to objects may be changed by
+.BR SH_full_garbage_collect ().
+
+.SS void SH_get_restart_clock()
+.LP
+.BR SH_get_restart_clock ()
+returns the current value of the
+.I restart_clock
+maintained by the 
+stable store interface function
+.BR SS_get_restart_clock ().
+The clock is incremented each time the system is started but it is only saved if a call to
+.BR SS_stabilise ()
+is made.
+
+.SS void SH_garbage_collect()
+.LP
+A garbage collection of the stable heap is invoked by
+.BR SH_garbage_collect ().
+Prior to garbage collection the user supplied function
+.I save
+is called to copy any cached data to the 
+stable heap. On completion of the garbage collection the user supplied function
+.I restore
+is called to restore the data cache maintained by the user program. It should be noted that the 
+mapping of keys to objects may be changed by
+.BR SH_garbage_collect ().
+
+.SS void SH_incremental_garbage_collect()
+.LP
+If the stable heap supports incremental garbage collection, calls may be made at regular 
+intervals to
+.BR SH_incremental_garbage_collect ().
+Prior to any incremental garbage collection the user supplied function
+.I save
+is called to copy any cached data to the stable 
+heap. On completion of the garbage collection the user supplied function
+.I restore
+is called to restore the data cache maintained by the user program. If incremental garbage collection is 
+not supported then this interface function will simply return to the caller. The mapping of 
+keys to objects may be changed by a call of
+.BR SH_incremental_garbage_collect ().
+
+.SS psint *SH_key_to_address( key )
+.SS psint key ;
+.LP
+To support efficient access to frequently used persistent objects
+.BR SH_key_to_address () 
+provides the physical address of the object with the given
+.IR key .
+The physical address remains valid until the next call of the user supplied
+.I save
+function but may only be used to access the object with the given
+.IR key .
+If a valid physical address cannot be obtained the result is (psint *) 0.
+
+.SS psint SH_open( dirname,error,save,restore,stabilise,page_fault )
+.SS char *dirname ;
+.SS void (*error)(),(*save)(),(*restore)(),(*stabilise)(),(*page_fault)() ;
+.LP
+.BR SH_open ()
+initialises the interface functions for the stable heap held in the file 
+.IR dirname/stablestore .
+.BR SH_open ()
+should only be called once and prior to this single call 
+the operation of the stable heap interface is undefined. The arguments to
+.BR SH_open ()
+provide the interface with a mechanism for reporting errors, saving cached data to the stable 
+heap and restoring cached data from the stable heap. Prior to successful completion, 
+.BR SH_open ()
+will call the
+.I restore
+function to complete the open.
+.LP
+The argument function
+.I save
+is called before store operations such as 
+.BR SH_garbage_collect ()
+and
+.BR SH_stabilise ()
+that require the stable heap to be in a self 
+consistent state. Following these operations
+.I restore
+is called. The argument functions
+.I save
+and
+.I restore
+allow a program using the stable heap to automate the management of cached 
+data held outwith the stable heap.
+.LP
+The argument function
+.I stabilise
+is called if a modification to an object cannot be performed 
+because there is insufficient shadow storage to record the changes. This may occur during 
+the normal operation of a program which directly accesses objects or as the result of calling 
+one of the stable heap interface functions.
+.LP
+The first situation cannot arise if
+.BR SH_can_modify ()
+is called prior to modifying an 
+object. In order to allow the update to proceed, a call to
+.BR SH_stabilise ()
+must be performed. However, prior to calling
+.BR SH_stabilise ()
+the user program must ensure that 
+it has accurately recorded its current state. To support this
+.I stabilise
+is passed a pointer to a 
+context structure which has been coerced to (psint *). The context structure is generated 
+when a signal is received by the host operating system, see
+.BR sigvec (2).
+If
+.I stabilise
+returns, the user program will be restarted from the position indicated by the context structure.
+.LP
+If
+.I stabilise
+is called as a result of calling an interface function then the pointer to the context 
+structure is (psint *) 0. On a normal return from such a call to stabilise the interface 
+function performs a call to
+.BR SH_stabilise ()
+and then resumes the interrupted operation. 
+The call of
+.BR SH_stabilise ()
+will only invoke the user supplied
+.I save
+and
+.I restore
+functions if the interface function does not.
+.LP
+In certain circumstances the user program may wish to restrict checkpoints of the stable 
+heap to explicit calls to
+.BR SH_stabilise ().
+Therefore, if
+.I stabilise
+is called during the execution of an interface function a user program has the option of declaring a fatal run-
+time error and exiting.
+.LP
+The final argument function
+.IR page_fault
+is called if a segmentation violation signal, see
+.BR sigvec (2), 
+is detected that is not handled by the stable heap or the stable store. When this occurs it is 
+the responsibility of the user program to take appropriate action. To aid the user program 
+the arguments to the
+.IR page_fault
+function are precisely those passed to the original signal handler.
+.BR SH_open ()
+returns (psint) 1 if it succeeds or (psint) 0 if it fails. If an error does occur 
+then the implementation may force the user program to exit, in which case
+.BR SH_open ()
+will not return.
+
+.SS psint SH_read_byte( key,index )
+.SS psint key,index ;
+.LP
+.BR SH_read_byte ()
+returns the byte held at byte
+.I index
+of the object identified by
+.IR key .
+
+.SS psint SH_read_key( key,index )
+.SS psint key,index ;
+.LP
+.BR SH_read_key ()
+returns the key held at word
+.I index
+of the object identified by
+.IR key .
+
+.SS psint SH_read_lock( key )
+.SS psint key ;
+.LP
+.BR SH_read_lock ()
+returns the lock word which is held at word -1 of the object identified 
+by
+.IR key .
+
+.SS psint SH_read_word( key,index )
+.SS psint key,index ;
+.LP
+.BR SH_read_word ()
+returns the word held at word
+.I index
+of the object identified by
+.IR key .
+
+.SS void SH_read_words( key,index,buffer,nwords )
+.SS psint key,index,*buffer,nwords ;
+.LP
+.BR SH_read_words ()
+copies
+.I nwords
+starting from word
+.I index
+in the object identified by 
+.I key
+to the supplied
+.IR buffer .
+
+.SS psint SH_set_lock( key )
+.SS psint key ;
+.LP
+.BR SH_set_lock ()
+attempts to set a lock on the object specified by
+.IR key .
+If it succeeds it 
+returns the previous value of the object's lock word with the top bit set. The value of other 
+bits in the most significant byte of the lock word is undefined. If the call fails (psint) 0 is 
+returned. This is implemented using the
+.BR SS_set_lock ()
+interface function provided by the 
+stable store.
+
+.SS void SH_set_restart_clock( tim )
+.SS psint tim ;
+.LP
+.BR SH_set_restart_clock ()
+sets the current value of the
+.I restart_clock
+to
+.I tim
+using the stable store interface function
+.BR SS_set_restart_clock ().
+
+.SS void SH_stabilise()
+.LP
+.BR SH_stabilise ()
+forces the entire state of the stable heap to be written to the underlying 
+stable virtual memory. The
+.BR SS_stabilise ()
+function in the stable store interface is then 
+called to checkpoint the stable virtual memory. Prior to executing the checkpointing 
+operation the user defined
+.I save
+function is called. Once the checkpoint is complete the user supplied
+.I restore
+function is called. The mapping of keys to objects will not be changed by a call to
+.BR SH_stabilise ().
+
+.SS void SH_statistics( stats )
+.SS struct stableheap_statistics *stats ;
+.LP
+.BR SH_statistics ()
+returns the maximum size that stable heap could grow to, the amount of 
+space allocated to objects, the amount of unallocated space, the amount of allocated space 
+that is not in use and the amount of space allocated to stable heap management. Each of 
+these statistics are recorded in bytes. In addition to the space information, a count of the 
+number of objects is also returned. The accuracy of these statistics is dependent on the 
+stable heap implementation and they may be distorted by the effects of garbage collection. 
+The statistics are returned by overwriting a
+.I stableheap_statistics
+structure pointed to by 
+the
+.I stats
+parameter.
+
+.SS void SH_write_key( key,index,thekey )
+.SS psint key,index,thekey ;
+.LP
+.BR SH_write_key ()
+writes
+.I thekey
+to word
+.I index
+of the object identified by
+.IR key .
+
+.SS void SH_write_byte( key,index,thebyte )
+.SS psint key,index,thebyte ;
+.LP
+.BR SH_write_byte ()
+writes
+.I thebyte
+to byte
+.I index
+of the object identified by
+.IR key .
+
+.SS void SH_write_lock( key,theword )
+.SS psint key,theword ;
+.LP
+.BR SH_write_lock ()
+writes
+.I theword
+to the lock word which is word -1 of the object 
+identified by 
+.IR key .
+
+.SS void SH_write_word( key,index,theword )
+.SS psint key,index,theword ;
+.LP
+.BR SH_write_word ()
+writes
+.I theword
+to word
+.I index
+of the object identified by 
+.IR key .
+
+.SS void SH_write_words( key,index,buffer,nwords )
+.SS psint key,index,*buffer,nwords ;
+.LP
+.BR SH_write_words ()
+copies
+.I nwords
+from the
+.I buffer
+to the object identified by the given 
+.I key
+starting at word
+.I index
+of the object.
+.SH ERRORS
+.LP
+Fatal errors are reported in the form of a single character pointer passed to the
+.I error
+argument function originally passed to
+.BR SH_open ().

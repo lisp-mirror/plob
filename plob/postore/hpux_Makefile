@@ -1,0 +1,26 @@
+
+# 1998/05/20 HK: Makefile settings for use with HP-UX
+
+ARCH=hpux
+
+CC=aCC
+
+CAT=cat
+CHMOD=chmod
+CP=cp
+ECHO=echo '
+ENDECHO='
+MAKE=make
+MKDIR=mkdir
+RANLIB=ranlib -t
+RM=rm -f
+SL=/
+
+MAKEFILE=makefile
+MAKEWIN32=:
+STDLIB=
+SSTOREO=
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

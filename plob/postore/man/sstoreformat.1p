@@ -1,0 +1,41 @@
+.TH SSTOREFORMAT 1P "21 May 1992" "Libpostore v2" "PERSISTENT OBJECT STORE"
+.SH NAME
+sstoreformat - format a UNIX file as a stable store
+.SH SYNOPSIS
+.B sstoreformat
+.I dirname
+.SH DESCRIPTION
+.LP
+.B sstoreformat
+creates the file
+.I stablestore
+in the directory
+.I dirname
+and formats it as a stable store.
+.B sstoreformat
+also creates a file
+.I lockfile
+in the directory
+.I dirname
+to control access to the formatted stable store.
+.SH FILES
+.PD 0
+.TP 20
+.I dirname/stablestore
+a formatted stable store possibly containing a stable heap.
+.TP
+.I dirname/lockfile
+a lockfile for
+.I dirname/stablestore.
+.PD
+.SH DIAGNOSTICS
+.LP
+Exit status is normally 0 unless an error occurs in which case it is -1.
+.B sstoreformat
+will fail if the directory
+.I dirname
+does not exist, if
+.I stablestore
+or
+.I lockfile
+exists or if an I/O error occurs.

@@ -1,0 +1,37 @@
+
+# 1998/02/18 HK: Makefile settings for use with Visual C 5.00.
+# Please care that MSVCPATH points to the root directory of the local
+# MS Visual C installation.
+
+CC=cl
+CFLAGSOPT=-Ox
+# CFLAGSOPT=-Zi
+CFLAGSDEB=-Zi
+CFLAGSPRO=
+CFLAGS=-DArch_$(ARCH) -D_NTSDK \
+-I$(POSTOREDIR)/win32/include \
+-I$(POSTOREDIR)/sstore \
+-I$(MSVCPATH)/include
+OUTPUT_OPTION_OBJ=-c -Fo$@
+OBJ=obj
+
+AS=masm
+OUTPUT_OPTION_AS=-out:$@
+
+AR=lib
+ARFLAGS=
+OUTPUT_OPTION_LIB=-out:$@
+LIB=lib
+
+LD=link
+LDFLAGS=-link -nodefaultlib \
+-debug \
+-libpath:../release/win32lib \
+-libpath:$(MSVCPATH)/lib \
+u2win32.lib msvcrt.lib wsock32.lib kernel32.lib
+OUTPUT_OPTION_EXE=-out:$@
+EXE=.exe
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

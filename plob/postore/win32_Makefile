@@ -1,0 +1,26 @@
+
+# 1998/02/18 HK: Makefile settings for use with Windows/NT
+
+ARCH=win32
+
+CC=cl
+
+CAT=type
+CHMOD=: rem chmod
+CP=copy
+ECHO=echo
+ENDECHO=
+MAKE=nmake
+MKDIR=mkdir
+RANLIB=: rem ranlib
+RM=del
+SL=\\
+
+MAKEFILE=makedos
+MAKEWIN32=cd win32 && cd src && $(MAKE) -f $(MAKEFILE)
+STDLIB=$(POSTOREDIR)$(SL)release$(SL)$(ARCH)lib$(SL)u2win32.lib
+SSTOREO=
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

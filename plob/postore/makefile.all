@@ -1,0 +1,128 @@
+
+OBJECTS=\
+ sstore$(SL)$(ARCH)_svmstore.$(OBJ)\
+ $(SSTOREO)\
+ sheap$(SL)$(ARCH)_sheap.$(OBJ)
+
+OBJECTS_G=\
+ sstore$(SL)$(ARCH)_gvmstore.$(OBJ)\
+ $(SSTOREO)\
+ sheap$(SL)$(ARCH)_gsheap.$(OBJ)
+
+OBJECTS_P=\
+ sstore$(SL)$(ARCH)_pvmstore.$(OBJ)\
+ $(SSTOREO)\
+ sheap$(SL)$(ARCH)_psheap.$(OBJ)
+
+INSTALLINC=$(SL)opt$(SL)include
+INSTALLLIB=$(SL)opt$(SL)lib
+INSTALLBIN=$(SL)opt$(SL)bin
+
+all: components release
+
+components:
+	$(MAKEWIN32)
+	cd sstore && $(MAKE) -f $(MAKEFILE)
+	cd sheap  && $(MAKE) -f $(MAKEFILE)
+
+release: lib bin ifs
+
+lib:	release$(SL)$(ARCH)lib \
+	release$(SL)$(ARCH)lib$(SL)libpostore.$(LIB) \
+	release$(SL)$(ARCH)lib$(SL)libpostore_p.$(LIB) \
+	release$(SL)$(ARCH)lib$(SL)libpostore_g.$(LIB)
+
+release$(SL)$(ARCH)lib:
+	-$(MKDIR) $@
+
+release$(SL)$(ARCH)lib$(SL)libpostore.$(LIB): $(OBJECTS) $(STDLIB)
+	$(RM) $@
+	$(AR) $(ARFLAGS) $(OUTPUT_OPTION_LIB) $(OBJECTS) $(STDLIB)
+	$(RANLIB) $@
+	$(CHMOD) 444 release$(SL)$(ARCH)lib$(SL)libpostore.$(LIB)
+
+release$(SL)$(ARCH)lib$(SL)libpostore_g.$(LIB): $(OBJECTS_G) $(STDLIB)
+	$(RM) $@
+	$(AR) $(ARFLAGS) $(OUTPUT_OPTION_LIB) $(OBJECTS_G) $(STDLIB)
+	$(RANLIB) $@
+	$(CHMOD) 444 $@
+
+release$(SL)$(ARCH)lib$(SL)libpostore_p.$(LIB): $(OBJECTS_P) $(STDLIB)
+	$(RM) $@
+	$(AR) $(ARFLAGS) $(OUTPUT_OPTION_LIB) $(OBJECTS_P) $(STDLIB)
+	$(RANLIB) $@
+	$(CHMOD) 444 $@
+
+bin:	release$(SL)$(ARCH)bin \
+	release$(SL)$(ARCH)bin$(SL)sstoreformat$(EXE) \
+	release$(SL)$(ARCH)bin$(SL)sstorelockhost$(EXE) \
+	release$(SL)$(ARCH)bin$(SL)sheapgc$(EXE) \
+	release$(SL)$(ARCH)bin$(SL)sheapstats$(EXE) \
+	release$(SL)$(ARCH)bin$(SL)psheapgc$(EXE) \
+	release$(SL)$(ARCH)bin$(SL)gsheapgc$(EXE) \
+	release$(SL)$(ARCH)bin$(SL)sstorecompact$(EXE)
+
+release$(SL)$(ARCH)bin:
+	-$(MKDIR) $@
+
+release$(SL)$(ARCH)bin$(SL)sstoreformat$(EXE): sstore$(SL)$(ARCH)_mksstore$(EXE)
+	$(RM) $@
+	$(CP) sstore$(SL)$(ARCH)_mksstore$(EXE) $@
+	$(CHMOD) 555 $@
+
+release$(SL)$(ARCH)bin$(SL)sstorelockhost$(EXE): sstore$(SL)$(ARCH)_sstorelockhost$(EXE)
+	$(RM) $@
+	$(CP) sstore$(SL)$(ARCH)_sstorelockhost$(EXE) $@
+	$(CHMOD) 555 $@
+
+release$(SL)$(ARCH)bin$(SL)sheapgc$(EXE): sheap$(SL)$(ARCH)_gcstore$(EXE)
+	$(RM) $@
+	$(CP) sheap$(SL)$(ARCH)_gcstore$(EXE) $@
+	$(CHMOD) 555 $@
+
+release$(SL)$(ARCH)bin$(SL)sheapstats$(EXE): sheap$(SL)$(ARCH)_stats$(EXE)
+	$(RM) $@
+	$(CP) sheap$(SL)$(ARCH)_stats$(EXE) $@
+	$(CHMOD) 555 $@
+
+release$(SL)$(ARCH)bin$(SL)psheapgc$(EXE): sheap$(SL)$(ARCH)_pgcstore$(EXE)
+	$(RM) $@
+	$(CP) sheap$(SL)$(ARCH)_pgcstore$(EXE) $@
+	$(CHMOD) 555 $@
+
+release$(SL)$(ARCH)bin$(SL)gsheapgc$(EXE): sheap$(SL)$(ARCH)_ggcstore$(EXE)
+	$(RM) $@
+	$(CP) sheap$(SL)$(ARCH)_ggcstore$(EXE) $@
+	$(CHMOD) 555 $@
+
+release$(SL)$(ARCH)bin$(SL)sstorecompact$(EXE): sheap$(SL)$(ARCH)_sstorecompact$(EXE)
+	$(RM) $@
+	$(CP) sheap$(SL)$(ARCH)_sstorecompact$(EXE) $@
+	$(CHMOD) 555 $@
+
+ifs: release$(SL)include$(SL)postore.h
+
+release$(SL)include$(SL)postore.h: sstore$(SL)sstoreif.h sheap$(SL)sheapif.h
+	-$(MKDIR) release$(SL)include
+	$(RM) $@
+	$(ECHO) typedef int psint; $(ENDECHO) > $@
+	$(CAT) sstore$(SL)sstoreif.h >> $@
+	$(CAT) sheap$(SL)sheapif.h >> $@
+	$(CHMOD) 444 $@
+
+install:
+	$(CP) release$(SL)include$(SL)* $(INSTALLINC)
+	$(CP) release$(SL)$(ARCH)lib$(SL)* $(INSTALLLIB)
+	$(RANLIB) $(INSTALLLIB)$(SL)libpostore.$(LIB)
+	$(RANLIB) $(INSTALLLIB)$(SL)libpostore_p.$(LIB)
+	$(RANLIB) $(INSTALLLIB)$(SL)libpostore_g.$(LIB)
+	$(CP) release$(SL)$(ARCH)bin$(SL)* $(INSTALLBIN)
+
+clean:
+	$(MAKEWIN32) clean
+	cd sstore && $(MAKE) -f $(MAKEFILE) clean
+	cd sheap  && $(MAKE) -f $(MAKEFILE) clean
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

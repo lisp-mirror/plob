@@ -1,0 +1,53 @@
+.TH SHEAPSTATS 1P "21 May 1992" "Libpostore v2" "PERSISTENT OBJECT STORE"
+.SH NAME
+sheapstats - print statistics for a stable heap
+.SH SYNOPSIS
+.B sheapstats
+.I dirname
+.SH DESCRIPTION
+.LP
+.B sheapstats
+inspects the stable heap held in the file
+.I stablestore
+in the directory
+.I dirname.
+It then prints the following statistics:
+.RS 2
+the maximum size that stable heap could grow to,
+.br
+the amount of space allocated to objects,
+.br
+the amount of unallocated space,
+.br
+the amount of allocated space that is not in use,
+.br
+the amount of space allocated to stable heap management,
+.br
+the previous four amounts as percentages of their sum and
+.br
+the number of objects
+.RE
+.SH FILES
+.PD 0
+.TP 20
+.I dirname/stablestore
+a formatted stable store possibly containing a stable heap.
+.TP
+.I dirname/lockfile
+a lockfile for
+.I dirname/stablestore.
+.PD
+.SH DIAGNOSTICS
+.LP
+Exit status is normally 0 unless an error occurs in which case it is -1.
+.B sheapstats
+will fail if the directory
+.I dirname
+does not exist, if the
+.I lockfile
+exists and is locked, if the
+.I lockfile
+or 
+.I stablestore
+files cannot be found, if the stable heap is a different version or if an I/O error 
+occurs.

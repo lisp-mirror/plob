@@ -1,0 +1,47 @@
+echo
+echo -----     Napier Stable Storage    ----
+echo
+echo Copying source to $1/source/postore/sstore
+echo
+
+if [ x$1 = x ]
+then
+echo destination source+release directory not specified
+exit 1
+fi
+
+if [ ! -d $1 ]
+then
+echo cannot find the source+release directory $1
+exit 1
+fi
+
+if [ ! -d $1/source ]
+then
+echo making the directory $1/source
+mkdir $1/source
+fi
+
+if [ ! -d $1/source/postore ]
+then
+echo making the directory $1/source/postore
+mkdir $1/source/postore
+fi
+
+if [ ! -d $1/source/postore/sstore ]
+then
+echo making the directory $1/source/postore/sstore
+mkdir $1/source/postore/sstore
+fi
+
+set -x
+
+cp -p COPY Makefile $1/source/postore/sstore
+cp -p *.h $1/source/postore/sstore
+cp -p *.c $1/source/postore/sstore
+chmod 444 $1/source/postore/sstore/*
+chmod 555 $1/source/postore/sstore/COPY
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

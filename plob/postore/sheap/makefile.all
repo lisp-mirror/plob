@@ -1,0 +1,75 @@
+
+LINKOBJECTS=\
+$(POSTOREDIR)$(SL)sstore$(SL)$(ARCH)_svmstore.$(OBJ) $(SSTOREO) \
+$(ARCH)_sheap.$(OBJ)
+
+all: optimised profiled debug
+
+optimised: $(ARCH)_sheap.$(OBJ) \
+	   $(ARCH)_gcstore$(EXE) \
+	   $(ARCH)_stats$(EXE) \
+	   $(ARCH)_sstorecompact$(EXE)
+
+profiled: $(ARCH)_psheap.$(OBJ) \
+	  $(ARCH)_pgcstore$(EXE)
+
+debug: $(ARCH)_gsheap.$(OBJ) \
+       $(ARCH)_ggcstore$(EXE)
+
+tests: $(ARCH)_gctest$(EXE)
+
+$(ARCH)_gcstore$(EXE) : gcstore.c $(LINKOBJECTS) $(STDLIB)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) gcstore.c \
+	$(LDFLAGS) $(OUTPUT_OPTION_EXE) $(LINKOBJECTS)
+
+$(ARCH)_pgcstore$(EXE) : gcstore.c $(LINKOBJECTS) $(STDLIB)
+	$(CC) $(CFLAGS) $(CFLAGSPRO) gcstore.c \
+	$(LDFLAGS) $(OUTPUT_OPTION_EXE) $(LINKOBJECTS)
+
+$(ARCH)_ggcstore$(EXE) : gcstore.c $(LINKOBJECTS) $(STDLIB)
+	$(CC) $(CFLAGS) $(CFLAGSDEB) gcstore.c \
+	$(LDFLAGS) $(OUTPUT_OPTION_EXE) $(LINKOBJECTS)
+
+$(ARCH)_stats$(EXE) : stats.c $(LINKOBJECTS) $(STDLIB)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) stats.c \
+	$(LDFLAGS) $(OUTPUT_OPTION_EXE) $(LINKOBJECTS)
+
+$(ARCH)_gctest$(EXE) : gctest.c $(LINKOBJECTS) $(STDLIB)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) gctest.c \
+	$(LDFLAGS) $(OUTPUT_OPTION_EXE) $(LINKOBJECTS)
+
+$(ARCH)_sstorecompact$(EXE) : compact.c $(LINKOBJECTS) $(STDLIB)
+	$(CC) $(CFLAGS) $(CFLAGSOPT) compact.c \
+	$(LDFLAGS) $(OUTPUT_OPTION_EXE) $(LINKOBJECTS)
+
+$(ARCH)_sheap.$(OBJ): sheap.h sheapif.h sheap.c
+	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) sheap.c
+
+$(ARCH)_psheap.$(OBJ): sheap.h sheapif.h sheap.c
+	$(CC) $(CFLAGS) $(CFLAGSPRO) $(OUTPUT_OPTION_OBJ) sheap.c
+
+$(ARCH)_gsheap.$(OBJ): sheap.h sheapif.h sheap.c
+	$(CC) $(CFLAGS) $(CFLAGSDEB) $(OUTPUT_OPTION_OBJ) sheap.c
+
+clean:
+	$(RM) *.o
+	$(RM) *.obj
+	$(RM) *_gcstore
+	$(RM) *_gcstore.exe
+	$(RM) *_stats
+	$(RM) *_stats.exe
+	$(RM) *_sstorecompact
+	$(RM) *_sstorecompact.exe
+	$(RM) *_pgcstore
+	$(RM) *_pgcstore.exe
+	$(RM) *_ggcstore
+	$(RM) *_ggcstore.exe
+	$(RM) *_gctest
+	$(RM) *_gctest.exe
+	$(RM) *.ilk
+	$(RM) *.opt
+	$(RM) *.pdb
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

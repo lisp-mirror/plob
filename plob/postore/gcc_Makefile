@@ -1,0 +1,28 @@
+
+# 1998/02/18 HK: Makefile settings for use with gcc.
+
+CC=gcc
+CFLAGSOPT=-O2
+# CFLAGSOPT=-g2
+CFLAGSDEB=-g2
+CFLAGSPRO=-p
+CFLAGS=-fPIC -DArch_$(ARCH) -I$(POSTOREDIR)/sstore
+OUTPUT_OPTION_OBJ=-c -o $@
+OBJ=o
+
+AS=as
+OUTPUT_OPTION_AS=-o $@
+
+AR=ar
+ARFLAGS=rc
+OUTPUT_OPTION_LIB=$@
+LIB=a
+
+LD=gcc
+LDFLAGS=-lc
+OUTPUT_OPTION_EXE=-o $@
+EXE=
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:
