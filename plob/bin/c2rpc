@@ -1,0 +1,261 @@
+#!/bin/sh
+# 1996/09/17 HK kirschke@informatik.uni-hamburg.de
+
+# set -vx
+
+# Translate .h in .x files
+
+# Constants:
+CPP='gcc -E -P'
+PATH="${PATH}:`dirname $0`"; export PATH
+szScript='c2rpc'; export szScript
+szSpaces='     '
+nPID="$$"; export nPID
+
+if [ -n "${TMP}" ]; then
+  TMP="`echo \"${TMP}\"|sed 's|\\\\|/|'`"
+elif [ -n "${TEMP}" ]; then
+  TMP="`echo \"${TEMP}\"|sed 's|\\\\|/|'`"
+elif [ -n "${TMPDIR}" ]; then
+  TMP="`echo \"${TMPDIR}\"|sed 's|\\\\|/|'`"
+elif [ -n "${TEMPDIR}" ]; then
+  TMP="`echo \"${TEMPDIR}\"|sed 's|\\\\|/|'`"
+else
+  TMP="/tmp"
+fi
+export TMP
+
+szTmpCfile="${TMP}/${nPID}_${szScript}.c"
+
+# Defaults:
+szDefaultDefines='-D RPC=1'
+szDefaultIncludes="`pwd`:${PATH}"
+nDefaultProgram='0x20000100'
+nDefaultVersion='1'
+
+set +e
+
+# ----------------------------------------------------------------------
+# Function	fnSearchPath
+# Argument(s)	$1	name of program to search
+# Description	Search a program or script in the PATH variable
+# ----------------------------------------------------------------------
+fnSearchPath ()
+{
+  if [ -x "$1" -o -s "$1" ]; then
+    echo "$1"
+    return 0
+  fi
+  if [ -z "${szPathList}" ]; then
+    szPathList="`echo \"${PATH}\"|sed 's/:/ /g'`"
+  fi
+  for dir in ${szPathList}; do
+    if [ -x "${dir}/$1" -o -s "${dir}/$1" ]; then
+      echo "${dir}/$1"
+      return 0
+      break
+    fi
+  done
+  return 1
+} # fnSearchPath
+
+# ----------------------------------------------------------------------
+# Funktion	fnUsage
+# Argumente	---
+# Beschreibung	Gibt einen Hilfstext aus.
+# ----------------------------------------------------------------------
+fnUsage () {
+  echo "\
+Usage: ${szScript} [-CPP <ANSI C preprocessor>]
+       ${szSpaces} [-D <define>] [-I <include dir>{:<more include dirs>}]
+       ${szSpaces} [-h] [-o <.x file>|-|--] [-v] [{<.h files>}]
+Description:
+    Generates a rpcgen-suitable <.x file> from <.h files>.
+Options:
+    -CPP Use <ANSI C preprocessor> instead of '${CPP}'.
+    -D	#define <define> to .h file.
+    -I	Prepend <include dir> to standard #include dirs.
+    -h	Show this help text.
+    -o	Specifies the output file; '-' and '--' mean writing to
+	stdout.
+    -v	Verbous flag: show some information during processing." 1>&2
+  exit 1
+} # fnUsage
+
+# ----------------------------------------------------------------------
+# Funktion	fnTrimRpcFile
+# Argumente	---
+# Beschreibung	Entfernt ueberfluessige Leerzeilen und -zeichen.
+# ----------------------------------------------------------------------
+fnTrimRpcFile () {
+  szOutputFile="$1";
+  nProgram="$2";
+  nVersion="$3";
+  szAwk="`fnSearchPath nawk`"
+  if [ -z "${szAwk}" ]; then
+    szAwk="`fnSearchPath gawk`"
+  fi
+  if [ -z "${szAwk}" ]; then
+    echo "${szScript}: Can't locate neither nawk nor gawk in your PATH." 1>&2
+    return 1
+  fi
+  szC2RpcScript="`fnSearchPath c2rpc.awk`"
+  if [ -z "${szC2RpcScript}" ]; then
+    echo "${szScript}: Can't locate script c2rpc.awk in your PATH." 1>&2
+    return 2
+  fi
+  sed -n '
+# s/^M//g
+s/[	 ][	 ]*/ /g
+/^[^!-~]*$/ !b nempty
+s/^[^!-~]*$//
+p
+:skip
+/^[^!-~]*$/ {
+  n
+  b skip
+}
+:nempty
+:rmblank
+/@[	 ][	 ]*\([bgstn]\)[	 ]*@/ {
+  s/[	 ]*@[	 ][	 ]*\([bgstn]\)[	 ]*@[	 ]*/@\1@/g
+  b rmblank
+}
+/@[	 ]*\([bgstn]\)[	 ][	 ]*@/ {
+  s/[	 ]*@[	 ]*\([bgstn]\)[	 ][	 ]*@[	 ]*/@\1@/g
+  b rmblank
+}
+/@[	 ][	 ]*\([bgstn]\)[	 ][	 ]*@/ {
+  s/[	 ][	 ]*@[	 ]*\([bgstn]\)[	 ][	 ]*@[	 ]*/@\1@/g
+  b rmblank
+}
+:loopglu
+/@g@/ {
+ s/[	 ]*@g@[	 ]*//g
+ b loopglu
+}
+s/- \([1-9]\)/-\1/g
+s/[^!-~]*$//
+s/=||/#/g
+s/\([,`]\)[^!-~]*/\1/g
+:loop
+/@n@/ {
+  h
+  s/[^!-~]*@n@.*$//
+  p
+  g
+  s/@n@/@newline@/
+  s/^.*@newline@//
+  b loop
+}
+s/^[	 ]*;[	 ]*$//
+p'|sed 's/^.ident.*$//'|${szAwk} -v nProgram="${nProgram}" -v nVersion="${nVersion}" \
+	    -v szScript="${szScript}" -v szDate="`date`" \
+	    -v szOutputFile="${szOutputFile}" -v szAwk="${szAwk}" \
+	    -f "${szC2RpcScript}"
+} # fnTrimRpcFile
+
+# ----------------------------------------------------------------------
+# Mainline
+# ----------------------------------------------------------------------
+
+trap "rm -f ${TMP}/${nPID}_${szScript}.*; exit 15" 1 2
+
+unset szDefines szHeaderFile szRpcFile
+bVerbous='false'
+szIncludes="${szDefaultIncludes}"
+unset nProgram nVersion
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+  '-CPP')	CPP="$2"; shift;;
+  '-D')		szDefines="${szDefines} $1$2"; shift;;
+  '-D'*)	szDefines="${szDefines} $1";;
+  '-I')		szIncludes="$2:${szIncludes}"; shift;;
+  '-I'*)	szIncludes="`echo "$1"|sed 's/^-I *//'`:${szIncludes}";;
+  '-h')		fnUsage; exit 1;;
+  '-o')		szRpcFile="$2"; shift;;
+  '+o')		unset szRpcFile;;
+  '-P')		nProgram="$2"; shift;;
+  '+P')		unset nProgram;;
+  '-V')		nVersion="$2"; shift;;
+  '+V')		unset nVersion;;
+  '-v')		bVerbous='true';;
+  '+v')		bVerbous='false';;
+  '-'|'--')	shift; szHeaderFile="$*"; break;;
+  '-'*|'+'*)	echo "${szScript}: W01: Ignoring unknown option '$1'" 1>&2;;
+  *)		szHeaderFile="$*"; break;;
+  esac
+  shift
+done
+
+if [ -z "${szDefines}" ]; then
+  szDefines="${szDefaultDefines}"
+fi
+if [ -z "${nProgram}" ]; then
+  nProgram="${nDefaultProgram}"
+fi
+if [ -z "${nVersion}" ]; then
+  nVersion="${nDefaultVersion}"
+fi
+
+case "${szRpcFile}" in
+'-'|'--')	unset szRpcFile;;
+esac
+
+echo "/* Junk C file generated by ${szScript} */
+#define PROGRAMID ${nProgram}
+#define VERSION ${nVersion}
+#include	<c2rpc.h>" > ${szTmpCfile}
+
+if [ -z "${szHeaderFile}" ]; then
+  cat >> ${szTmpCfile}
+else
+  for f in ${szHeaderFile}; do
+    if [ -r "${f}" ]; then
+      reldir="`dirname ${f}`"
+      absdir="`cd ${reldir};pwd`"
+      echo '#include	"'"${absdir}/`basename ${f}`"'"' >> ${szTmpCfile}
+    else
+      echo "${szScript}: E02: Can't read file ${f}" 1>&2
+    fi
+  done
+fi
+
+szCmdLine="${CPP}"
+if ${bVerbous}; then
+  szCmdLine="${szCmdLine} -v"
+fi
+szIncludes="`echo "${szIncludes}"|sed 's/:/ -I/g'`"
+szCmdLine="${szCmdLine} ${szDefines} -I${szIncludes} ${szTmpCfile}"
+
+if [ -z "${szRpcFile}" ]; then
+  if ${bVerbous}; then
+    echo "${szCmdLine}" 1>&2
+  fi
+  ${szCmdLine}|fnTrimRpcFile 'stdout' "${nProgram}" "${nVersion}"
+  nExitCode="$?"
+else
+  if ${bVerbous}; then
+    echo "${szCmdLine} > ${szRpcFile}" 1>&2
+  fi
+  ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" > ${szRpcFile}
+  case "`uname`" in
+  *[cC][yY][gG][wW][iI][nN]*)
+    ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" >${TMP}/${nPID}_${szScript}.cr
+    dos2unix ${TMP}/${nPID}_${szScript}.cr ${szRpcFile};;
+  *)
+    ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" >${szRpcFile}
+  esac
+  nExitCode="$?"
+fi
+
+if [ ${nExitCode} -eq 0 ]; then
+  unset szRpcFile
+fi
+rm -f ${TMP}/${nPID}_${szScript}.* ${szRpcFile}
+exit ${nExitCode}
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:
