@@ -85,7 +85,8 @@ static LPFILE	fnAdminStreamIn		( PADMINAPPL	pAdmin );
 static LPFILE	fnAdminStreamOut	( PADMINAPPL	pAdmin );
 
 static BOOL	fnAdminAssertOpen	( PADMINAPPL	pAdmin );
-static void	fnAdminClose		( PADMINAPPL	pAdmin );
+static void	fnAdminClose		( PADMINAPPL	pAdmin,
+					  BOOL		bWithGC );
 
 static LPSTR	fnAdminSetRootDirectory	( PADMINAPPL	pAdmin,
 					  LPCSTR	pszRootDirectory );
@@ -210,8 +211,11 @@ static const DISPATCHENTRY GlobalDispatchTable []	= {
     "Start a PLOB server process and open a database.",
     fnAdminCmdStart },
 
-  { "close",
-    "Close the current database.",
+  { "close [gc]",
+    "Close the current database.\n"
+    "\t  If the additional keyword gc is passed, a garbage collection\n"
+    "\t  is triggered if the number of clients dropped to 0, i.e. when\n"
+    "\t  the admin tool was the one and only client using the database.",
     fnAdminCmdClose },
 
   { "create [<url>]",
@@ -505,7 +509,7 @@ static void	fnAdminDeInit		( PADMINAPPL	pAdmin )
     pAdmin->ppszCommand	= NULL;
   }
 
-  fnAdminClose ( pAdmin );
+  fnAdminClose ( pAdmin, FALSE );
 
   fnAdminSetRootDirectory ( pAdmin, NULL );
 
@@ -613,12 +617,13 @@ static BOOL	fnAdminAssertOpen	( PADMINAPPL	pAdmin )
 } /* fnAdminAssertOpen */
 
 /* ----------------------------------------------------------------------- */
-static void	fnAdminClose		( PADMINAPPL	pAdmin )
+static void	fnAdminClose		( PADMINAPPL	pAdmin,
+					  BOOL		bWithGC )
 {
   PROCEDURE	( fnAdminClose );
 
   if ( pAdmin->oHeap != NULLOBJID ) {
-    fnClientDbClose ( pAdmin->oHeap, FALSE );
+    fnClientDbClose ( pAdmin->oHeap, bWithGC );
     pAdmin->oHeap	= NULLOBJID;
   }
 
@@ -1039,11 +1044,23 @@ static LPSTR	fnAdminArgGet		( PADMINAPPL	pAdmin,
 static BOOL	fnAdminCmdClose		( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory )
 {
+  static const char	szKeywordGC []	= "gc";
+
   BOOL		bFinish	= FALSE;
+  LPSTR		pszToken;
+  BOOL		bWithGC = FALSE;
 
   PROCEDURE	( fnAdminCmdClose );
 
-  fnAdminClose ( pAdmin );
+  pszToken	= fnAdminArgPeekNotOption ( pAdmin );
+  if ( pszToken != NULL ) {
+    bWithGC	= ( strcmp ( pszToken, szKeywordGC ) == 0 );
+    if ( bWithGC ) {
+      /* Pop gc keyword from argument stack: */
+      fnAdminArgPop ( pAdmin, NULL, 0 );
+    }
+  }
+  fnAdminClose ( pAdmin, bWithGC );
 
   RETURN ( bFinish );
 } /* fnAdminCmdClose */
@@ -1185,7 +1202,7 @@ static int	fnAdminCreateStartRemote( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCreateStartRemote );
 
-  fnAdminClose ( pAdmin );
+  fnAdminClose ( pAdmin, FALSE );
   if ( fnStartRemoteServer ( pszURL, eAction ) < 0 ) {
     nErrors++;
   }
@@ -1256,7 +1273,7 @@ static BOOL	fnAdminCreateStart	( PADMINAPPL	pAdmin,
     }
     /* Set the URL: */
     if ( szURL [ 0 ] != '\0' ) {
-      fnAdminClose ( pAdmin );
+      fnAdminClose ( pAdmin, FALSE );
       fnAdminSetURL ( pAdmin, szURL );
     }
   }
@@ -1304,7 +1321,7 @@ static BOOL	fnAdminCmdStop		( PADMINAPPL	pAdmin,
     RETURN ( bFinish );
   }
 
-  fnAdminClose ( pAdmin );
+  fnAdminClose ( pAdmin, FALSE );
   fnClientExit ( pszURL, TRUE );
 
   if ( szURL [ 0 ] != '\0' ) {
@@ -1389,7 +1406,7 @@ static BOOL	fnAdminCmdReset		( PADMINAPPL	pAdmin,
   if ( pAdmin->pszURL == NULL ) {
     fnAdminCmdURL ( pAdmin, TRUE );
     pszURL	= pAdmin->pszURL;
-  } else if ( fnAdminArgPeekNotOption ( pAdmin ) != NULL ) {
+ } else if ( fnAdminArgPeekNotOption ( pAdmin ) != NULL ) {
     fnAdminReadURL ( pAdmin, szURL, sizeof ( szURL ) );
     pszURL	= szURL;
   } else {
@@ -1400,7 +1417,7 @@ static BOOL	fnAdminCmdReset		( PADMINAPPL	pAdmin,
     RETURN ( bFinish );
   }
 
-  fnAdminClose ( pAdmin );
+  fnAdminClose ( pAdmin, FALSE );
   fnClientDbReset ( pszURL, TRUE );
 
   if ( szURL [ 0 ] != '\0' ) {
@@ -1435,7 +1452,7 @@ static BOOL	fnAdminCmdRestart	( PADMINAPPL	pAdmin,
     RETURN ( bFinish );
   }
 
-  fnAdminClose ( pAdmin );
+  fnAdminClose ( pAdmin, FALSE );
   fnClientRestart ( pszURL, TRUE );
 
   if ( szURL [ 0 ] != '\0' ) {
@@ -1600,7 +1617,7 @@ static BOOL	fnAdminCmdURL		( PADMINAPPL	pAdmin,
   if ( bMandatory || fnAdminArgPeekNotOption ( pAdmin ) != NULL ) {
     char	szURL [ MAX_URL ];
     if ( fnAdminReadURL ( pAdmin, szURL, sizeof ( szURL ) ) != NULL ) {
-      fnAdminClose ( pAdmin );
+      fnAdminClose ( pAdmin, FALSE );
       fnAdminSetURL ( pAdmin, szURL );
     }
   } else if ( pAdmin->pszURL != NULL ) {
