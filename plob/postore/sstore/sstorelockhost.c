@@ -43,8 +43,8 @@
 #define   F_TEST    3   /* Test section for other processes locks */      
 #endif
 
-extern char *strcpy() ;
-extern char *strcat() ;
+/* extern char *strcpy() ; */
+/* extern char *strcat() ; */
 
 static char	storefname[ 81920 ] ;		/* char * to hold the name of stable store file */
 static int	pstorefd ;			/* fd for the psstore */
