@@ -1,0 +1,20 @@
+\def\thistitle{%
+Application Programming Interface}
+\def\thispartnumber{APIRM}
+\input{plobman}
+\readaux{\Path/../iref/\NoOfSides/iref}{bib:PLOB-internals}{iref.pdf}
+\begin{document}
+\input{manrefg}%
+\input{ploberef}\clearpage%
+\numberingon%
+\bibliographystyle{cdnamed}
+\bibliography{bibdefs,bibstrings,plob}
+\thispagestyle{plain}\cleardoublepage%
+\appendix%
+\numberingoff%
+\include{manexam}%
+\numberingon\fussy%
+\thispagestyle{plain}\cleardoublepage%
+\include{manappdx}%
+%
+\end{document}%
