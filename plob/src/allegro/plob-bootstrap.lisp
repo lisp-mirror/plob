@@ -5,7 +5,7 @@
 ;;;; Date	7.2.94
 ;;;; Description	PLOB bootstrap
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -1292,6 +1292,7 @@
   (&optional (url *database-url*))
   (labels ((do-load-root
 	       (&optional (url *database-url*))
+
 	     (close-heap)
 
 	     (when (and *verbose* (>= *verbose* 3))
@@ -1303,7 +1304,7 @@
 		    (root-persistent-heap
 		     (make-persistent-heap root-persistent-heap-objid)))
 
-	       (setf *root-persistent-heap-objid*
+ 	       (setf *root-persistent-heap-objid*
 		 root-persistent-heap-objid)
 	       (setf (persistent-object-objid *root-persistent-heap*)
 		 *root-persistent-heap-objid*)

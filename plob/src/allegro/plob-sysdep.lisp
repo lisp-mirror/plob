@@ -20,7 +20,7 @@
 ;;;;		The Art of the Metaobject Protocol
 ;;;;		The MIT Press, Cambridge, Massachusetts, 1991
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -154,6 +154,8 @@
   (or
    #+(and :allegro (version>= 5))
    excl::*null-stream*
+   #+:lispworks4.2
+   system::*null-stream*
    #+(and :lispworks4 (not :lispworks4.1))
    (io::make-null-stream)
    #+:lispworks3
@@ -1289,12 +1291,13 @@
 
   (assert-structure-class class-of-structure)
   #+:allegro
-  (let ((slot (if (symbolp slot-name-symbol)
-		  (find slot-name-symbol
-			(class-slots class-of-structure)
-			:key #'slot-definition-name)
-		slot-name-symbol)))
-    (slot-definition-initform slot))
+    (let ((slot (if (symbolp slot-name-symbol)
+		    (find slot-name-symbol
+			  (class-slots class-of-structure)
+			  :key #'slot-definition-name)
+		  slot-name-symbol)))
+      (when slot
+	(slot-definition-initform slot)))
   #+:lispworks
   (multiple-value-bind (slot-p slot-type slot-reader slot-default-init)
       (structure:structure-slot-details class-of-structure slot-name-symbol)
@@ -1383,7 +1386,8 @@
 			(class-slots class-of-structure)
 			:key #'slot-definition-name)
 		slot-name-symbol)))
-    (slot-definition-type slot))
+    (when slot
+      (slot-definition-type slot)))
   #+:lispworks
   (multiple-value-bind (slot-p slot-type slot-reader slot-default-init)
       (structure:structure-slot-details class-of-structure slot-name-symbol)

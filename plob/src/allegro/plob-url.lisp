@@ -5,7 +5,7 @@
 ;;;; Date	1998/02/06
 ;;;; Description	URLs for naming databases
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of

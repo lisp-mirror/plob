@@ -5,7 +5,7 @@
 ;;;; Date	1997/03/11
 ;;;; Description	PLOB error handling functions
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -90,7 +90,7 @@
  followed by two semicolons."
   (let ((substituted-message (copy-seq message))
         (length-left-part 0) (length-replace-by (length replace-by)))
-    (loop for position-newline of-type fixnum =
+    (loop for position-newline =
           (position #\Newline substituted-message
 		    :start length-left-part)
           while position-newline

@@ -6,7 +6,7 @@
 ;;;; Description	PLOB - Persistent Lisp OBjects
 ;;;;		defsystem file
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -118,38 +118,42 @@
 
 ;;; --------------------------------------------------------------------------
 (setf (logical-pathname-translations "PLOB")
-      `(("SOURCE;**;*.lisp"
-	 ,(concatenate 'string +plob-dir+ "/src/"
-		       +plob-lisp-directory+ "/**/*.lisp"))
-	("SOURCE;**;*.fasl"
-	 ,(concatenate 'string +plob-dir+ "/src/"
-		       +plob-lisp-directory+
-		       +plob-target-lisp-directory+
-		       "/*.fasl"))
-	("UTIL;**;*.lisp"
-	 ,(concatenate 'string +plob-dir+ "/src/util/**/*.lisp"))
-	("UTIL;**;*.fasl"
-	 ,(concatenate 'string +plob-dir+ "/src/util"
-		       +plob-target-lisp-directory+
-		       "/*.fasl"))
-	("EXAMPLE;**;*.*"
-	 ,(concatenate 'string +plob-dir+ "/src/example/**/"))
-	("CCODE;**;*.o"
-	 ,(concatenate 'string +plob-dir+ "/src/**/" +plob-opsys+ "/*."
-		       +plob-obj-suffix+))
-        ("CLIBS;**;*.so"
-	 ,(concatenate 'string +plob-dir+ "/lib/" +plob-opsys+ "/**/*."
-		       +plob-shared-obj-suffix+))
-        ("INCLUDE;**;*.*"
-	 ,(concatenate 'string +plob-dir+ "/src/include/"
-		       +plob-include-lisp-directory+ "/**/"))
-        ("BIN;**;*.*"
-	 ,(concatenate 'string +plob-dir+ "/bin/" +plob-opsys+ "/**/"))
-        ("APIMANUAL;**;*.tex"
-	 ,(concatenate 'string +plob-dir+ "/tex/eref/**/*.tex"))
-        ("INTMANUAL;**;*.tex"
-	 ,(concatenate 'string +plob-dir+ "/tex/iref/**/*.tex"))
-	))
+  `(#-:lispworks
+    ("SOURCE;"
+     ,(concatenate 'string +plob-dir+ "/src/"
+                   +plob-lisp-directory+))
+    ("SOURCE;**;*.lisp"
+     ,(concatenate 'string +plob-dir+ "/src/"
+                   +plob-lisp-directory+ "/**/*.lisp"))
+    ("SOURCE;**;*.fasl"
+     ,(concatenate 'string +plob-dir+ "/src/"
+                   +plob-lisp-directory+
+                   +plob-target-lisp-directory+
+                   "/*.fasl"))
+    ("UTIL;**;*.lisp"
+     ,(concatenate 'string +plob-dir+ "/src/util/**/*.lisp"))
+    ("UTIL;**;*.fasl"
+     ,(concatenate 'string +plob-dir+ "/src/util"
+                   +plob-target-lisp-directory+
+                   "/*.fasl"))
+    ("EXAMPLE;**;*.*"
+     ,(concatenate 'string +plob-dir+ "/src/example/**/"))
+    ("CCODE;**;*.o"
+     ,(concatenate 'string +plob-dir+ "/src/**/" +plob-opsys+ "/*."
+                   +plob-obj-suffix+))
+    ("CLIBS;**;*.so"
+     ,(concatenate 'string +plob-dir+ "/lib/" +plob-opsys+ "/**/*."
+                   +plob-shared-obj-suffix+))
+    ("INCLUDE;**;*.*"
+     ,(concatenate 'string +plob-dir+ "/src/include/"
+                   +plob-include-lisp-directory+ "/**/"))
+    ("BIN;**;*.*"
+     ,(concatenate 'string +plob-dir+ "/bin/" +plob-opsys+ "/**/"))
+    ("APIMANUAL;**;*.tex"
+     ,(concatenate 'string +plob-dir+ "/tex/eref/**/*.tex"))
+    ("INTMANUAL;**;*.tex"
+     ,(concatenate 'string +plob-dir+ "/tex/iref/**/*.tex"))
+    ))
 
 ;;; --------------------------------------------------------------------------
 (defconstant +plob-non-documented-members+

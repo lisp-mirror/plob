@@ -16,7 +16,7 @@
 ;;;;		The Art of the Metaobject Protocol
 ;;;;		The MIT Press, Cambridge, Massachusetts, 1991
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -2087,7 +2087,10 @@
 
   (loop for method in
 	#+:allegro
-	(car (slot-value the-class 'clos::direct-methods))
+	(car (slot-value the-class #-(version>= 6)
+				   'clos::direct-methods
+				   #+(version>= 6)
+				   'excl::direct-methods))
 	#-:allegro
 	(class-direct-methods the-class)
         as class-of-method = (class-of method)

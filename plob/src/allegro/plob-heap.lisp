@@ -5,7 +5,7 @@
 ;;;; Date	30.11.93
 ;;;; Description	PLOB persistent heap class methods.
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -953,6 +953,7 @@
 
   (declare (type fixnum the-p-marker at-location
 		 expecting-type-tag expecting-class))
+  #-:lispworks4.2
   (assert (typep the-p-marker 'p-marker-type))
   (sh-write-index (persistent-object-objid p-heap)
 		  (persistent-object-objid p-objid) at-location

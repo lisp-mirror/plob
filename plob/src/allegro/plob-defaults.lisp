@@ -5,7 +5,7 @@
 ;;;; Date	1996/10/02
 ;;;; Description	Defaults for PLOB!
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -169,11 +169,16 @@
 ;;; LISP system name
 ;;; ---------------------------------------------------------------------------
 (defconstant +lisp-symbolic-system-name+
-    #+:lispworks3 :lispworks3
-    #+:lispworks4 :lispworks4
-    #+(and :allegro (version>= 5))       :allegro5
-    #+(and :allegro (not (version>= 5))) :allegro4
-    "
+  (or
+   #+:lispworks3 :lispworks3
+   #+:lispworks4 :lispworks4
+   #+(and :allegro (version>= 9))       :allegro9
+   #+(and :allegro (version>= 8))       :allegro8
+   #+(and :allegro (version>= 7))       :allegro7
+   #+(and :allegro (version>= 6))       :allegro6
+   #+(and :allegro (version>= 5))       :allegro5
+   #+(and :allegro (not (version>= 5))) :allegro4)
+  "
 \\Purposelabel
  The name of the current LISP system as a keyword symbol.")
 

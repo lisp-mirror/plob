@@ -5,7 +5,7 @@
 ;;;; Date	15.11.93
 ;;;; Description	More LISP suitable interface to PLOB stable heap.
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -398,7 +398,6 @@ Return a string describing the Stable Heap to be created."
   Flush the object referenced by \\funarg{p-objid}.
  \\Seealsolabel
   \\Fcite{flush-object}."
-  (declare (type fixnum p-heap-objid p-objid))
   (when *lib-plob-loaded*
     (c-sh-flush-object (if p-heap-objid p-heap-objid +null-objid+)
 		       (if p-objid p-objid +null-objid+)
