@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -vx
+
+if [ -n "$1" ]; then
+  szSubDirs="$*"
+else
+  szSubDirs='eref install iref userg'
+fi
+
+(
+  cd ../src/include
+  make -f win32/makefile doc
+)
+
+for pass in 1 2 3 4 5 6 7 8; do
+  for dir in ${szSubDirs}; do
+    for pages in oneside twoside; do
+      (
+        cd ${dir}/${pages}
+	case "${pass}" in
+	1|[34])	nice latex ${dir};;
+	2)	nice bibtex ${dir};;
+	5)	nice dvips -o ${dir}.ps ${dir}.dvi;;
+	6)	if [ "${pages}" = "oneside" ]; then
+		  nice ps2pdf ${dir}
+		fi;;
+	7)	if [ "${pages}" = "oneside" ]; then
+		  cp ${dir}.pdf ../../../ps
+		else
+		  cp ${dir}.ps ../../../ps
+		fi;;
+	8)	if [ "${pages}" = "twoside" ]; then
+		  gzip -9 -c ../../../ps/${dir}.ps > ../../../ps/${dir}.ps.gz
+		fi;;
+	esac
+      )
+    done
+  done
+done
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:
