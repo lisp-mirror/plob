@@ -252,7 +252,7 @@ else
     nExitCode='1'
   fi
 fi
-# rm -f ${TMP}/${nPID}_${szScript}.*
+rm -f ${TMP}/${nPID}_${szScript}.*
 exit ${nExitCode}
 
 # Local variables:
