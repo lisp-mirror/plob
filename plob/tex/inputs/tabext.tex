@@ -1,0 +1,102 @@
+% -*-LaTeX-*-
+\ifx\Path\undefined%
+\def\Path{.}%
+\fi%
+\ifx\labeltabextent\undefined\def\labeltabextent{tab:extent}\fi
+\begin{figure}[htbp]\centering%
+\begin{small}%
+\def\coli{25ex}%
+\def\colii{0.95\textwidth}%
+\begin{tabular}{|p{\coli}ccl|}
+\hline
+\textbf{Value of slot}
+        & \multicolumn{2}{|c|}{\textbf{Represent.}}&\\
+\textbf{option \lisp{:extent}}
+        & \multicolumn{1}{|c|}{\textbf{Tr.}}
+        & \multicolumn{1}{|c|}{\textbf{Pe.}}
+        & \textbf{Explanation}\\
+
+\hline\hline
+{\lisp{:transient}} & Yes & No &\\
+\multicolumn{4}{|p{\colii}|}{%
+The slot will only be represented in transient memory but will not be
+represented in persistent memory. This slot is `ignored' by
+\plob\ w.r.t.\ persistency.}\\
+
+\hline
+\lisp{:cached} & Yes & Yes &\\
+\multicolumn{4}{|p{\colii}|}{%
+The slot will be represented both in transient and persistent memory.
+Slot reading is done from the transient slot's state.
+Slot writing only affects the transient slot's state;
+no changes of the transient representation will be propagated
+automatically to persistent memory. The slot's state will only be
+promoted to persistent memory by a call to \fcite{store-object}\ on
+the \clos\ instance the slot belongs to.}\\
+
+\hline
+\lisp{:cached-write-through} & Yes & Yes &\\
+\multicolumn{4}{|p{\colii}|}{%
+The slot will be represented in transient and persistent memory.
+Slot reading is done from the transient slot's state.
+Changes of the transient representation will be propagated
+automatically and immediately to persistent memory.}\\
+
+\hline
+\lisp{:persistent} & No & Yes &\\
+\multicolumn{4}{|p{\colii}|}{%
+The slot will only be represented in persistent memory but will not be
+represented in transient memory. Reading is done directly from the
+persistent memory. For writing, this slot extent implies that changes
+to the slot's state will be propagated automatically to persistent
+memory. Use of this extent is depreciated, since it is very resource
+consuming.}\\
+
+\hline
+\lisp{:object} & Yes & Yes &\\
+\multicolumn{4}{|p{\colii}|}{%
+This extent indicates that a direct persistent representation should
+be used for the slot's state: The slot will not contain a transient
+representation of a persistent object, but a forward object
+referencing the persistent object.}\\
+
+\hline
+\lisp{:objid} & Yes & Yes &\\
+\multicolumn{4}{|p{\colii}|}{%
+This extent indicates that a direct persistent representation should
+be used for the slot's state: The slot will not contain a
+transient representation of a persistent object, but a numeric \objid\
+referencing the persistent object.}\\
+
+\hline
+\end{tabular}\end{small}%
+\caption{Slot extent, transient and persistent object representation}%
+\label{\labeltabextent}
+\end{figure}%
+
+\ifx\labelfigextent\undefined\def\labelfigextent{fig:extent}\fi
+\vspace*{\bigskipamount}\noindent Figure~\ref{\labelfigextent} shows
+how the slot extent affects the slot representation and promoting of
+the slot's state between the transient and persistent representation
+of an object; the structure and class definitions of this example are:
+\begin{CompactCode}
+(defstruct persistent-example-structure slot-1 slot-2)
+(setf (class-extent (find-class 'persistent-example-structure))
+      :cached-demand-load)
+
+(defclass persistent-example-class ()
+  ((slot-3  :extent :transient)
+   (slot-4  :extent :transient)
+   (slot-5  :extent :cached)
+   (slot-6  :extent :cached)
+   (slot-7  :extent :cached-write-through)
+   (slot-8  :extent :cached-write-through)
+   (slot-9  :extent :persistent)
+   (slot-10 :extent :persistent))
+  (:metaclass persistent-metaclass))
+\end{CompactCode}
+\begin{figure}[htbp]
+\centerline{\psfig{figure=\Path/../manual/manext.eps}}
+\caption{Transient object, persistent object and slot extent}%
+\label{\labelfigextent}
+\end{figure}%
