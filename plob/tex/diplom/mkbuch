@@ -1,0 +1,2 @@
+#!/bin/sh
+tar fcv buch.tar mf screendumps/plinesna.eps twelvept/* buch.dvi buch.ps plinesna.eps
