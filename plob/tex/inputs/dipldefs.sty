@@ -1,0 +1,563 @@
+%       This is -*-LaTeX-*-
+%
+% dipldefs.sty
+% 21.09.1993 Heiko Kirschke, Fachbereich Informatik, Uni Hamburg
+% e-mail: kirschke@informatik.uni-hamburg.de
+%
+% Switches
+%
+% Fuer Vorab-Drucke \nodiagram, \notableofcontents ein- und \nothink
+% ausschalten:
+%       \def\nodiagram{}        % Wg. xypic: Ist seeehr laaangsaaaaam
+%       \def\notableofcontents{}% Um Inhaltsverzeichnis auszuschalten
+%       %\def\nothink{}         % Um die Kommentare sichtbar zu machen
+% Fuer druckfertige Version \nodiagram, \notableofcontents aus- und \nothink
+% einschalten:
+%       %\def\nodiagram{}       % Um Diagrammgenerierung einzuschalten
+%       %\def\notableofcontents{}% Um Inhaltsverzeichnis einzuschalten
+%       \def\nothink{}          % Um die Kommentare verschwinden zu lassen
+%
+%\def\nodiagram{}               % Unterdrueckt Diagramm-Generierung
+%\def\notableofcontents{}       % Unterdrueckt Inhaltsverzeichnis
+%\def\nothink{}                 % Unterdrueckt Kommentare
+%
+% Aktuelle Versions-Nummer
+%\def\version{1.00}
+% wird jetzt automatisch gepflegt
+%
+% Logos
+%
+\def\allegro{{\sc Allegro}}             % Allegro Logo
+\def\allegrocl{\allegro\ \cl}           % Allegro Common LISP Logo
+\def\clogo{\mbox{C}}                    % C Logo
+\def\closette{{\sc Closette}}           % Closette Logo
+\def\cpp{\mbox{C++}}                    % C++ Logo
+\def\eiffel{\mbox{Eiffel}}              % Eiffel
+\def\enscldescr{(en\-sure-class-de\-scrip\-ti\-on)}%
+\def\ensstdescr{(en\-sure-struc\-ture-de\-scrip\-ti\-on)}%
+\def\gnu{\mbox{GNU}}                    % GNU
+\def\ia{im allgemeinen}                 % im allgemeinen
+\def\ingres{{\sc in\-gres}}             % INGRES Logo
+\def\itasca{{\sc itasca}}               % ITASCA (Nachfolger von \orion)
+\def\lw{{\sc LispWorks}}                % LispWorks Logo
+\def\lwcl{\lw\ \cl}                     % LispWorks Common LISP Logo
+\def\mop{\mbox{MOP}}                    % MOP Logo
+\def\nonnil{non-{\tt nil}}              % Lisp non-NIL
+\def\orion{{\sc orion}}                 % ORION (o-o Datenbank)
+\def\oscar{\mbox{OSCAR}}                % OSCAR Logo
+\def\pascal{\mbox{\sc Pascal}}          % PASCAL Logo
+\def\pascalr{\mbox{\sc Pascal/R}}       % PASCAL/R Logo
+\def\pcl{\mbox{PCL}}                    % PCL Logo
+\def\pclos{\mbox{PCLOS}}                % PCLOS Logo
+\def\picasso{{\sc Pi\-cas\-so}}         % Picasso Logo
+\def\plobraw%                           % PLOB Logo without exclamation mark
+{P%
+\kern-.083333em\lower.5ex\hbox{L}%
+\kern-.333333em\hbox{O}%
+\kern-.083333em\lower.5ex\hbox{B}%
+}%
+\def\plobwoexcl%                        % PLOB Logo without exclamation mark
+{{\sf\plobraw}}
+\def\plob%                              % PLOB Logo
+{{\sf\plobraw%
+\kern-.055556em\hbox{!}}}%
+\def\offline{{\em off-line}}            % off-line
+\def\online{{\em on-line}}              % on-line
+\def\orion{{\sc orion}}                 % ORION (o-o Datenbank)
+\def\postgres{{\sc post\-gres}}         % Postgres Logo
+\def\postore{{\sc po\-sto\-re}}         % Postore Logo
+\def\postquel{{\sc post\-quel}}         % Postquel Logo
+\def\smalltalk{Smalltalk-80}            % Smalltalk Logo
+\def\soh{\mbox{SOH}}                    % SOH Logo
+\def\sh{Stable Heap}                    % Stable Heap Logo
+\def\symbolics{{\sc Symbolics}} % Symbolics Logo
+\def\ua{unter anderem}                  % unter anderem
+\def\unix{\mbox{\sc Unix}}              % UNIX Logo
+\def\wood{\mbox{WOOD}}                  % Wood Logo
+\def\zeitgeist{{\sc Zeitgeist}}         % ZEITGEIST Logo
+%
+% Namen
+%
+\def\namei{Schmol\discretionary{-}{}{}ler}
+\def\nameii{Kl\"{o}b\discretionary{-}{}{}ner}
+%
+% Abkuerzungen fuer Begriffe
+%
+\def\hash{{\em Hash}\/}                 % Hash
+\def\hashtbl{{\em Hash}\/-Tabelle}      % Hash-Tabelle
+%
+\def\lobjid{{\em long}\ \objid}         % long objid
+\def\sobjid{{\em short}\ \objid}        % short objid
+%
+\def\representation{%
+Re\discretionary{-}{}{}%
+pr\"{a}\discretionary{-}{}{}%
+sen\discretionary{-}{}{}%
+ta\discretionary{-}{}{}%
+tion}
+\def\representations{%
+Re\discretionary{-}{}{}%
+pr\"{a}\discretionary{-}{}{}%
+sen\discretionary{-}{}{}%
+ta\discretionary{-}{}{}%
+tio\discretionary{-}{}{}%
+nen}
+\def\representationform{%
+Re\discretionary{-}{}{}%
+pr\"{a}\discretionary{-}{}{}%
+sen\discretionary{-}{}{}%
+ta\discretionary{-}{}{}%
+tions\discretionary{-}{}{}%
+form}
+\def\representationforms{%
+Re\discretionary{-}{}{}%
+pr\"{a}\discretionary{-}{}{}%
+sen\discretionary{-}{}{}%
+ta\discretionary{-}{}{}%
+tions\discretionary{-}{}{}%
+formen}
+%
+% ACID: Atomicity, Consistency, Isolation, Durability:
+\def\acid{{\sc acid}}
+%
+% Additional shorthands
+%
+\def\diplrefgerman{%
+%
+\@namedef{dip@cache}{Cache}\@namedef{dip@cacheattr}{\em}%
+\@namedef{dip@debugger}{Debugger}\@namedef{dip@debuggerattr}{\em}%
+\@namedef{dip@descriptionobject}{Be\-schrei\-bungs\-ob\-jekt}%
+\@namedef{dip@handle}{Handle}\@namedef{dip@handleattr}{\em}%
+\@namedef{dip@heap}{Heap}\@namedef{dip@heapattr}{\em}%
+\@namedef{dip@immediate}{Immediate}\@namedef{dip@immediateattr}{\em}%
+\@namedef{dip@og}{oben genannt}%
+\@namedef{dip@swizzling}{Swizzling}\@namedef{dip@swizzlingattr}{\em}%
+\@namedef{dip@twophasetr}{%
+Zwei-Pha\-sen-\discretionary{}{}{}Trans\-ak\-tion}%
+\@namedef{dip@twophasetrs}{%
+Zwei-Pha\-sen-\discretionary{}{}{}Trans\-ak\-tio\-nen}%
+%
+}
+
+\def\diplrefenglish{%
+%
+\@namedef{dip@cache}{cache}%
+\@namedef{dip@debugger}{debugger}%
+\@namedef{dip@descriptionobject}{description-object}%
+\@namedef{dip@handle}{handle}%
+\@namedef{dip@heap}{heap}%
+\@namedef{dip@immediate}{immediate}%
+\@namedef{dip@swizzling}{swizzling}%
+\@namedef{dip@twophasetr}{two-phase-transaction}%
+\@namedef{dip@twophasetrs}{two-phase-transactions}%
+%
+}
+
+\AtBeginDocument{\iflanguage{german}{\diplrefgerman}{\diplrefenglish}}
+
+\def\bad#1{\@warning{Bad \string#1}#1}
+
+\def\cache{\@nocasei{dip@cache}}%       cache[]
+\def\clsdc%                             class description-object class[]
+{\clss[]\@nameuse{crf@dash}\dec}
+\def\clsdo%                             class description-object[]
+{\clss[]\@nameuse{crf@dash}\deo}
+\def\debugger{\@nocasei{dip@debugger}}% debugger[]
+\def\dec%                               description-object class[]
+{\deo[]\@nameuse{crf@dash}\cls}
+\def\deo%                               description-object[]
+{\@nocasei{dip@descriptionobject}}%
+\def\handle%                            handle[]
+{\@nocasei{dip@handle}}%
+\def\heap%                              heap[]
+{\@nocasei{dip@heap}}%
+\def\immval%                            immediate[]
+{\@nocasei{dip@immediate}}%
+\def\og%                                oben genannte[]
+{\@nocasei{dip@og}}%
+\def\sltdc%                             slot descriptionm-object class[]
+{\sltdo[]\@nameuse{crf@dash}\cls}
+\def\sltdo%                             slot description-object[]
+{\slt[]\@nameuse{crf@dash}\deo}
+\def\swizzling{%                        Swizzling[]
+\@nocasei{dip@swizzling}}
+\def\twophasetr%                        two-phase-transaction
+{\@nocasei{dip@twophasetr}}%
+\def\twophasetrs%                       two-phase-transactions
+{\@nocasei{dip@twophasetrs}}%
+%
+% Beispiel-Klassen, generische Funktionen usw.
+%
+\def\exclsi{moving-object}
+\def\exclsii{ship}
+\def\exgeni{move-to}
+%
+\def\exclsiii{show-std-class}
+\def\exmclsi{meta-show-std-class}
+%
+\def\exucls{example}
+%
+% LISP-Ausdruecke im laufenden Text
+%
+%\def\statement#1{{\tt #1}}     % Allg. Programm-Statements 
+% HK 29.6.94: Statt \statement{} jetzt \lisp{} benutzen
+%\def\stcls#1{\lisp{#1}}                % Klasse
+% HK 6.7.94: Statt \stcls{} jetzt \class{} benutzen
+\def\stfn#1{{\bf#1}}            % Funktion
+\def\stgf#1{{\bf#1}}            % Generische Funktion
+\def\stkey#1{{\bf#1}}           % Keyword
+\def\stmc#1{{\bf#1}}            % Metaobjekt-Klasse
+\def\stmcr#1{{\bf#1}}           % Makro
+\def\stmtd#1{{\bf#1}}           % Methode
+\def\stslt#1{{\bf#1}}           % Slot
+\def\stvar#1{{\bf#1}}           % Variable
+%
+% Laengenangaben
+%
+\newlength{\ishwidth}\setlength{\ishwidth}{7cm} % Breite Kasten innere Schicht
+\newlength{\oshwidth}\setlength{\oshwidth}{8cm} % Breite K. aeussere Schicht
+%
+% Sonstige Kommandos
+%
+\def\captionfrom#1#2{%
+\def\@tempa{#2}%
+\ifx\@tempa\@empty\caption{#1}\else\caption[#1]{#1\ (nach #2)}\fi}
+%
+\def\checked{{\usefont{U}{pzd}{m}{n}\char52}}
+\def\crossed{{\usefont{U}{pzd}{m}{n}\char56}}
+%
+\def\relation#1{{\bf#1}}                % Datenbank-Relation
+%
+\def\attr#1#2%                          % Datenbank-Attribut
+% #1: Relationen-Name
+% #2: Attribut-Name
+{{\bf#2}}
+%
+\def\mdash{\mbox{-}}                    % Bindestrich im Math Mode
+%\def\td{\raisebox{-.5ex}{\~{ }}}       % ASCII-Tilde
+%
+\newlength{\wcircl}%                            % Temp. Laenge fuer \circl
+\def\circl#1#2#3{%                              % Umkreistes Zeichen, z.B.
+\mbox{#1%                                       % \circl{1} ergibt
+$\bigcirc$\settowidth{\wcircl}{$\bigcirc$}%     %        -
+\edef\hwcirc{0.5\wcircl}%                       %       |1|
+\hspace*{-\hwcirc}%                             %        -
+{#2\settowidth{\wcircl}{#3}%
+\hspace*{-0.5\wcircl}#3\hspace*{-0.5\wcircl}}%
+\hspace*{\hwcirc}}}%
+\def\normalcircl#1{\circl{\normalsize}{\footnotesize}{#1}}
+\def\onull{\normalcircl{0}}%
+\def\oi{\normalcircl{1}}%
+\def\oii{\normalcircl{2}}%
+\def\oiii{\normalcircl{3}}%
+\def\oiv{\normalcircl{4}}%
+\def\ov{\normalcircl{5}}%
+\def\ovi{\normalcircl{6}}%
+\def\ovii{\normalcircl{7}}%
+\def\oiix{\normalcircl{8}}%
+\def\oix{\normalcircl{9}}%
+\def\smallcircl#1{\circl{\footnotesize}{\scriptsize}{#1}}
+\def\smallonull{\smallcircl{0}}%
+\def\smalloi{\smallcircl{1}}%
+\def\smalloii{\smallcircl{2}}%
+\def\smalloiii{\smallcircl{3}}%
+\def\smalloiv{\smallcircl{4}}%
+\def\smallov{\smallcircl{5}}%
+\def\smallovi{\smallcircl{6}}%
+\def\smallovii{\smallcircl{7}}%
+\def\smalloiix{\smallcircl{8}}%
+\def\smalloix{\smallcircl{9}}%
+%
+\def\settocdepth#1{%            % Setzen Tiefe des Inhaltsverzeichnisses
+\setcounter{tocdepth}{#1}%
+\ifnum#1>2%
+\def\contentsname{Ausf\"{u}hrliches Inhaltsverzeichnis}%
+\fi}%
+%
+\def\us{\underline{\ }}         % Produces an underscore
+%
+\def\amopcite#1{%               % Citation from AMOP
+\def\@tempam{#1}%
+\ifx\@tempam\@empty\cite{bib:AMOP}%
+\else\cite[\citepage{#1}]{bib:AMOP}\fi}%
+\def\stcite#1{%                 % Citation from Steele
+\cite[\citepage{#1}]{bib:CLtLII}%
+}%
+%
+\def\shcite#1#2#3%              % Citation from Brown-92
+{\postore\ #1 {\bf #2} \cite[\citepage{#3}]{bib:Brown-92}}%
+%
+\def\note{{\sl Note}\/:}        % `Note:'-label
+%
+\def\tabularheader#1{\textbf{#1}}       % Attribut fuer Kopfzeilen von Tabellen
+%
+\def\titledate{\@date}
+% 
+% Environments bzw. Environment-aehnliche Kommandos
+%
+\edef\@normalparindent{\the\parindent}%
+\newlength{\fortunewidth}\setlength{\fortunewidth}{10cm}
+\def\fortune{%
+\@ifnextchar [%
+ {\@tempswatrue\@fortune}%
+ {\@tempswafalse\@fortune[\fortunewidth]}}
+
+\def\@fortune[#1]{%             % Env. fuer kluge Sprueche
+ % \fromwonl meint: \from without newline; wird in einem \fortune
+ % benutzt, in dem vor dem \from bereits ein \newline steht:
+ \begingroup%
+ \def\fromwonl##1{%
+  \setlength{\wcircl}{#1}\addtolength{\wcircl}{-1cm}%
+  \hspace*{\fill}\parbox{\wcircl}{\raggedleft{}---\ ##1}}%
+ \def\from##1{\\[\medskipamount]\fromwonl{##1}}%
+ \hspace*{\fill}%                       % Rechtsbuendige ...
+ \begin{minipage}{#1}%                  % ... minipage
+  %\ifx\avb\undefined\small\else\avb\footnotesize\fi%
+  \small%
+%   \begin{sf}%
+}%
+
+\def\endfortune{%
+%   \end{sf}%
+ \end{minipage}%
+ \newline\vspace{\medskipamount}\newline%
+ %\par\noindent%
+ \endgroup%
+}
+
+\newcount\@infdepth\@infdepth\z@
+
+% INFOL, another ALGOL derivate:
+\def\infol{%                    % Env. fuer Protokoll-Spez.
+\leftmargini\labelwidth%
+\advance\leftmargini-\labelsep%
+\begin{enumerate}%
+\def\figurename{Protokoll}%
+\ifnum\@infdepth=0\else%        % For coding these lines, it took 2 hours. 
+\@topsepadd\z@\@topsep\z@%      % I **really** like LaTeX ...
+\fi%                            % ... especially it's good documentation
+\advance\@infdepth\@ne%
+\topsep\z@\parskip\z@\partopsep\z@\itemsep\z@\parsep\z@%
+%
+\let\block\infol\let\endblock\endinfol%
+%
+\def\acaption##1{%
+\@ifnextchar [%
+ {\@tempswatrue\@acaption{##1}{}}%
+ {\@tempswafalse\@acaption{##1}{}[]}}%
+\def\captionfrom##1##2{%
+\@ifnextchar [%
+ {\@tempswatrue\@acaption{##1}{##2}}%
+ {\@tempswafalse\@acaption{##1}{##2}[]}}%
+\def\@acaption##1##2[##3]{%
+\def\@tempa{##2}%
+\ifx\@tempa\@empty%
+\caption[##1]{##1:\if@tempswa\\{\bf##3}\fi}%
+\else%
+\caption[##1]{##1\ (nach ##2):\if@tempswa\\{\bf##3}\fi}%
+\fi}
+%
+\def\@captype{figure}%
+\long\def\@makecaption##1##2{{%
+\parshape=0\item[]##1: ##2\par}}
+%
+\def\theenumi{\arabic{enumi}}%
+\def\labelenumi{\theenumi}%
+\def\p@enumi{}%
+%
+\def\theenumii{\arabic{enumii}}%
+\def\labelenumii{\theenumi.\theenumii}%
+\def\p@enumii{\theenumi.}%
+%
+\def\theenumiii{\arabic{enumiii}}%
+\def\labelenumiii{\theenumi.\theenumii.\theenumiii}%
+\def\p@enumiii{\theenumi.\theenumii.}%
+%
+\def\p@enumiv{\theenumi.\theenumii.\theenumiii.}%
+}%
+
+\def\endinfol{%
+\advance\@infdepth\m@ne%
+\end{enumerate}%
+}
+
+\def\listing{%
+\@ifnextchar [%
+ {\@tempswatrue\@listing}%
+ {\@tempswafalse\@listing[\tt\small]}}
+
+\def\@listing[#1]{%                     % Environment fuer Listings
+\begingroup%
+\def\@captype{figure}%
+\def\caption{%
+ \\[10\p@]\refstepcounter\@captype%
+ \@dblarg{\@caption\@captype}}%
+\long\def\@makecaption##1##2{%
+   \setbox\@tempboxa\hbox{\reset@font##1: ##2}%
+   \ifdim \wd\@tempboxa >\hsize%
+       \hspace*{-\leftmargini}\parbox{\hsize}{\reset@font##1: ##2}%
+     \else%
+       \hspace*{-\leftmargini}{\hbox to\hsize{\hfil\box\@tempboxa\hfil}}%
+   \fi}%
+\begin{list}{}{}%                               % KEIN trivlist benutzen!
+\item[]#1%
+\begin{tabbing}%
+}%
+
+\def\endlisting{%
+\end{tabbing}%
+\end{list}%
+\endgroup%
+}%
+
+\newcounter{chistory}                           % LISTENER-Zaehler
+\newcommand{\lprompt}[1]{CL-USER~#1}            % LISTENER-Prompt
+\newcommand{\ResetListener}{\setcounter{chistory}{0}}%
+\newcommand{\listener}{%                        % LISTENER-Prompt mit Zaehler
+ \refstepcounter{chistory}%                     % Zaehler erhoehen ...
+ \lprompt{\thechistory}\ \gt\ %                   % ... und Prompt basteln
+}
+\newcommand{\errlistener}{%                     % LISTENER-Prompt mit Zaehler
+ \refstepcounter{chistory}%                     % Zaehler erhoehen ...
+ [1] \lprompt{\thechistory}\ :\ %               % ... und Prompt basteln
+}
+
+%
+% Function cross references
+%
+\ifx\makeflabel\undefined\relax\else
+% Please NOTE: \flabel redefines `%' as a `normal' character for its
+%              arguments
+\makeflabel{\gfn}{accessor-method-slot-definition}{\amopcite{220}}
+\makeflabel{\fn}{adjustable-array-p}{\stcite{452}}
+\makeflabel{\fn}{apropos}{\stcite{701}}
+\makeflabel{\fn}{array-dimensions}{\stcite{449}}
+\makeflabel{\fn}{array-element-type}{\stcite{448}}
+\makeflabel{\fn}{array-rank}{\stcite{448}}
+\makeflabel{\fn}{array-total-size}{\stcite{449}}
+\makeflabel{\fn}{arrayp}{\stcite{102}}
+\makeflabel{\fn}{bit-vector-p}{\stcite{101}}
+\makeflabel{\fn}{boundp}{\stcite{120}}
+\makeflabel{\gfn}{canonicalize-defclass-options}{\amopcite{95, 287}}
+\makeflabel{\gfn}{canonicalize-direct-slot}{\amopcite{20, 286}}
+\makeflabel{\fn}{car}{\stcite{411}}
+\makeflabel{\fn}{(setf car)}{\stcite{423}}
+\makeflabel{\fn}{cdr}{\stcite{411}}
+\makeflabel{\fn}{(setf cdr)}{\stcite{423}}
+\makeflabel{\fn}{compile}{\stcite{677}}
+\makeflabel{\fn}{complexp}{\stcite{101}}
+\makeflabel{\fn}{cons}{\stcite{413}}
+\makeflabel{\fn}{consp}{\stcite{100}}
+\makeflabel{\gfn}{class-direct-methods}{\amopcite{50}}
+\makeflabel{\gfn}{class-direct-slots}{\amopcite{213}}
+\makeflabel{\gfn}{class-direct-superclasses}{\amopcite{213}}
+\makeflabel{\gfn}{class-name}{\amopcite{213}}
+\makeflabel{\gfn}{class-precedence-list}{\amopcite{214}}
+\makeflabel{\gfn}{class-prototype}{\amopcite{214}}
+\makeflabel{\gfn}{class-slots}{\amopcite{214}}
+\makeflabel{\fn}{clrhash}{\stcite{439}}
+\makeflabel{\gfn}{compute-effective-slot-definition}{\amopcite{177}}
+\makeflabel{\mac}{defstruct}{\stcite{471}}
+\makeflabel{\fn}{delete-package}{\stcite{265}}
+\makeflabel{\fn}{denominator}{\stcite{351}}
+\makeflabel{\gfn}{direct-slot-definition-class}{\amopcite{180}}
+\makeflabel{\gfn}{effective-slot-definition-class}{\amopcite{181}}
+\makeflabel{\fn}{ensure-process-cleanup}
+{\cite[\citepage{E-6}]{bib:Harlequin-94}}
+\makeflabel{\fn}{fboundp}{\stcite{120}}
+\makeflabel{\fn}{fill-pointer}{\stcite{455}}
+\makeflabel{\fn}{(setf fill-pointer)}{\stcite{455}}
+\makeflabel{\gfn}{finalize-inheritance}{\amopcite{190}}
+\makeflabel{\fn}{find-class}{\stcite{843}}
+\makeflabel{\fn}{find-package}{\stcite{264}}
+\makeflabel{\fn}{find-symbol}{\stcite{267}}
+\makeflabel{\fn}{floatp}{\stcite{101}}
+\makeflabel{\fn}{fmakunbound}{\stcite{123}}
+\makeflabel{\fn}{format}{\stcite{581}}
+\makeflabel{\fn}{functionp}{\stcite{102}}
+\makeflabel{\fn}{generate-defclass}{\amopcite{53}}
+\makeflabel{\fn}{gethash}{\stcite{438}}
+\makeflabel{\fn}{(setf gethash)}{\stcite{438}}
+\makeflabel{\fn}{get-inspector-values}{\cite[\citepage{G-8}]{bib:ha94}}
+\makeflabel{\fn}{hash-table-count}{\stcite{439}}
+\makeflabel{\fn}{hash-table-rehash-size}{\stcite{440}}
+\makeflabel{\fn}{hash-table-rehash-threshold}{\stcite{440}}
+\makeflabel{\fn}{hash-table-size}{\stcite{440}}
+\makeflabel{\fn}{hash-table-test}{\stcite{440}}
+\makeflabel{\fn}{imagpart}{\stcite{356}}
+\makeflabel{\gfn}{initialize-instance}{\stcite{847}}
+\makeflabel{\fn}{integerp}{\stcite{100}}
+\makeflabel{\fn}{intern}{\stcite{266}}
+\makeflabel{\fn}{make-array}{\stcite{442}}
+\makeflabel{\fn}{make-hash-table}{\stcite{436}}
+\makeflabel{\gfn}{make-instance}{\stcite{848}}
+\makeflabel{\mtd}{make-instance (standard-class)}{\stcite{848}}
+\makeflabel{\gfn}{make-instances-obsolete}{\stcite{848}}
+\makeflabel{\gfn}{make-load-form}{\stcite{659}}
+\makeflabel{\gfn}{make-method-lambda}{\amopcite{207}}
+\makeflabel{\fn}{makunbound}{\stcite{123}}
+\makeflabel{\fn}{mapappend}{\amopcite{280}}
+\makeflabel{\fn}{mapcar}{\stcite{171}}
+\makeflabel{\fn}{maphash}{\stcite{438}}
+\makeflabel{\fn}{merge-pathnames}{\stcite{641--642}}
+\makeflabel{\gfn}{method-function}{\amopcite{219}}
+\makeflabel{\gfn}{method-generic-function}{\amopcite{219}}
+\makeflabel{\gfn}{method-lambda-list}{\amopcite{219}}
+\makeflabel{\gfn}{method-qualifiers}{\amopcite{219}}
+\makeflabel{\gfn}{method-specializers}{\amopcite{219}}
+\makeflabel{\fn}{namestring}{\stcite{644}}
+\makeflabel{\fn}{numerator}{\stcite{351}}
+\makeflabel{\fn}{package-name}{\stcite{264}}
+\makeflabel{\fn}{packagep}{\stcite{102}}
+\makeflabel{\gfn}{print-object}{\stcite{850}}
+\makeflabel{\fn}{prompt-for}{\stcite{876}}
+\makeflabel{\mac}{push}{\stcite{420}}
+\makeflabel{\mac}{push-on-end}{\amopcite{280}}
+\makeflabel{\fn}{rationalp}{\stcite{101}}
+\makeflabel{\gfn}{reader-method-class}{\amopcite{224}}
+\makeflabel{\fn}{realpart}{\stcite{356}}
+\makeflabel{\gfn}{reinitialize-instance}{\stcite{852}}
+\makeflabel{\fn}{remhash}{\stcite{438}}
+\makeflabel{\fn}{set-dispatch-macro-character}{\stcite{546}}
+\makeflabel{\spfrm}{setf}{\stcite{124--125}}
+\makeflabel{\spfrm}{setq}{\stcite{121}}
+\makeflabel{\gfn}{shared-initialize}{\stcite{853}}
+\makeflabel{\mtd}{shared-initialize (standard-object)}{\amopcite{309}}
+\makeflabel{\fn}{slot-boundp}{\stcite{855}}
+\makeflabel{\gfn}{slot-boundp-using-class}{\amopcite{233}}
+\makeflabel{\gfn}{slot-definition-allocation}{\amopcite{221}}
+\makeflabel{\gfn}{slot-definition-initargs}{\amopcite{221}}
+\makeflabel{\gfn}{slot-definition-initform}{\amopcite{221}}
+\makeflabel{\gfn}{slot-definition-initfunction}{\amopcite{222}}
+\makeflabel{\gfn}{slot-definition-location}{\amopcite{224}}
+\makeflabel{\gfn}{slot-definition-name}{\amopcite{222}}
+\makeflabel{\gfn}{slot-definition-readers}{\amopcite{223}}
+\makeflabel{\gfn}{slot-definition-type}{\amopcite{222}}
+\makeflabel{\gfn}{slot-definition-writers}{\amopcite{223}}
+\makeflabel{\fn}{slot-makunbound}{\stcite{855}}
+\makeflabel{\gfn}{slot-makunbound-using-class}{\amopcite{234}}
+\makeflabel{\fn}{slot-missing}{\stcite{856}}
+\makeflabel{\fn}{slot-value}{\stcite{857}}
+\makeflabel{\fn}{(setf slot-value)}{\stcite{857}}
+\makeflabel{\gfn}{slot-value-using-class}{\amopcite{235}}
+\makeflabel{\gfn}{(setf slot-value-using-class)}{\amopcite{231}}
+\makeflabel{\cls}{standard-class}{\stcite{800}}
+\makeflabel{\fn}{stringp}{\stcite{101}}
+\makeflabel{\fn}{svref}{\stcite{448}}
+\makeflabel{\fn}{(setf svref)}{\stcite{448}}
+\makeflabel{\fn}{symbol-function}{\stcite{119}}
+\makeflabel{\fn}{(setf symbol-function)}{\stcite{119}}
+\makeflabel{\fn}{symbol-name}{\stcite{243}}
+\makeflabel{\fn}{symbol-package}{\stcite{246}}
+\makeflabel{\fn}{symbol-plist}{\stcite{241}}
+\makeflabel{\fn}{(setf symbol-plist)}{\stcite{241}}
+\makeflabel{\fn}{symbol-value}{\stcite{119}}
+\makeflabel{\fn}{(setf symbol-value)}{\stcite{119}}
+\makeflabel{\fn}{symbolp}{\stcite{99}}
+\makeflabel{\fn}{unintern}{\stcite{267}}
+\makeflabel{\gfn}{update-instance-for-redefined-class}{\stcite{859}}
+\makeflabel{\fn}{upgraded-array-element-type}{\stcite{67}}
+\makeflabel{\gfn}{validate-superclass}{\amopcite{241}}
+\makeflabel{\fn}{vectorp}{\stcite{102}}
+\makeflabel{\gfn}{writer-method-class}{\amopcite{242}}
+\fi
