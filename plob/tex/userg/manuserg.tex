@@ -1,0 +1,1811 @@
+% This is -*-LaTeX-*-
+%
+% userg.tex
+% HK 26.5.94
+% Rewritten 1997/09
+
+\chapter[Using PLOB]%
+{Using \protect\plob}
+%
+\begin{fortune}%
+A rose is a rose is a rose is a rose.
+\from{Gertrude Stein}
+\begin{tt}\CompactCodeSize\begin{tabbing}%
+(d\={}efun is-a (the-object the-class-object)\\
+  \>{}(w\={}hen (eq (class-of the-object) the-class-object)\\
+  \>    \>{}the-class-object))\\[\smallskipamount]
+(is-a \={}(is-a \={}(is-a \={}(find-class 'standard-class)\\
+      \>{}      \>{}      \>{}(find-class 'standard-class))\\
+      \>{}      \>{}(find-class 'standard-class))\\
+      \>{}(find-class 'standard-class))
+\end{tabbing}\end{tt}%
+\fromwonl{\clos}%
+\end{fortune}%
+%
+\ResetListener%
+%  
+\noindent{}This chapter focuses on \plobwoexcl's API, starting from the
+mostly transparent high-level \clos\ interface going towards the LISP
+objects interface and the direct persistent object interface.
+Persistency is supported with three kinds of operation:
+\begin{description}
+
+\item[Tight binding] The tight binding is available for instances of
+  \clos\ classes intended to use persistency explicitely
+  (section \Nameref{sec:TightBinding}). This interface is the most
+  transparent one.
+
+\item[Loose binding] The loose binding gives the possibility of making
+  any LISP object persistent where either the class definition is out
+  of scope or not available at all
+  (section \Nameref{sec:LooseBinding}).  It can also be used for
+  instances of \clos\ classes where persistency is not a so important
+  feature to pay the (performance) price of the tight binding.
+
+\item[Direct representation] It is also possible to work on persistent
+  objects directly (section \Nameref{sec:DirectBinding}).  Since
+  \plobwoexcl's typing is adapted to LISP, this interface looks
+  similar to the interface defined in \cite{bib:CLtLII}. Also,
+  instances of database specific types can be manipulated
+  directly, for example persistent btrees (section
+  \Nameref{sec:PersistentBTree}).
+
+\end{description}
+All these interfaces can be mixed; a decision for using one of those
+interfaces at a certain place does not exclude usage of another (but
+lower-level) interface at another place.
+
+Many of the examples given in the following text correspond to the
+code found in module
+\lisp{plob-\thisversion/}\lisp{src/}\lisp{example/}\lisp{plob-example}, so it is a
+completement to the more low-level example module documentation of the
+example code in \fcite{Example Module}.
+
+\section{Objects and identity}
+
+A reference to an object can be achieved by thinking of an object's
+\emph{identity}\marginlabel{An object's represented identity makes it
+  possible to refer it.}: The identity of an object is something
+unique to it, making it distingushable from all other objects in a
+set. So, a representation of identity can be used for establishing an
+unambigous reference to an object. In transient LISP systems, the
+memory address of a non-immediate object is used for representing its
+identity (for \allegrocl, the hexadecimal number behind the `@'
+character in the output of the standard print-method).  In a LISP
+system, these identity representations are almost never visible at top
+level, since references on top level are handled by symbols; anyway,
+LISP has a defined notion of identity for objects.
+
+\subsection[Identification of objects]%
+{Identification of persistent objects by their
+\protect\objid}%
+\label{sec:IdByObjId}
+
+\begin{fortune}%
+We are using tokens or tokens of tokens as long as we do not have
+access to the things themselves.
+\from{Umberto Eco: The Name of the Rose}
+\end{fortune}%
+
+In \plobwoexcl, the representation of a persistent object's identity
+is not hidden in the internals, but visible at the top-level API, for
+the purpose of working directly on the persistent object's
+representation.  This representation is called \objid\ (\emph{obj}ect
+\emph{id}entifier), so an \objid\ can be used to reference a
+persistent object. As explained later in
+section \Nameref{sec:PersistentSymbol}), the LISP way-of-working
+with persistent symbols referencing persistent objects is possible,
+too.
+
+An \objid\ itself is represented by a fixnum\marginlabel{In
+  \protect\plobwoexcl, {\protect\objid[s]}\ are represented by
+  fixnums.}; sometimes it is necessary to distinguish an \objid\ from
+a fixnum.  This is accomplished by wrapping the fixnum into an
+instance of \fcite{persistent-object}\ for non-immediate persistent
+objects and, if necessary, into an instance of
+\fcite{persistent-immediate-object}\ for immediate objects. The
+correct class is choosen by \fcite{make-persistent-object}.
+
+\refpar \Fcite{make-persistent-object}
+
+\subsection{Identity, persistent and transient objects}
+
+Object access in \plob\ is done by \emph{swizzling}: A persistent
+object's state is transferred from the server's objectspace
+\marginlabel{Objects are represented twice, in persistent and
+  transient memory.}into a transient representation of the client's
+objectspace, and the state manipulating functions of the client work
+on such a transient counterpart. At appropiate moments, both
+representations are equalized (for example, when calling
+\fcite*{store-object} or \fcite*{load-object}, see section
+\Nameref{sec:LooseBinding}). For doing such an equalization, the
+reference of a transient representation to its persistent object must
+be known, to transfer the transient state into the `correct'
+persistent object, that means, the persistent object the transient
+representation was filled from. This reference itself is represented
+by an \objid. For transient representations generated using the tight
+binding (section \Nameref{sec:TightBinding}), this \objid\ is stored
+within each transient representation and can be requested when
+necessary. For \clos\ instances not using the tight binding and
+instances of all other LISP classes, a table is maintained mapping a
+transient representation onto its \objid. The \objid\ of a transient
+representation can be requested by a call to
+\fcite{persistent-object-objid}.
+
+\refpar \Fcite{persistent-object-objid}.
+
+\subsection{Identity and caching}%
+\label{sec:IdAndCache}
+
+\begin{fortune}%
+  \hspace*{\fill}Entia non sunt multiplicanda praeter necessitatem.\\ 
+  \hspace*{\fill}[Entities must not be copied unnecessarily.]
+\from{William of Occam}%
+\end{fortune}%
+
+Since this table references \objid[s]\ and transient representations,
+it serves as an object cache, too.\think{Perhaps it is not a so good
+  idea to couple an object's identity with caching its state.  Since
+  there is a difference between identity and caching, both should be
+  kept seperately.} At the moment, there is the unsatisfying situation
+that either the cache has to be cleared sometimes explicitely (section
+\Nameref{sec:CacheLitteringMemory}) or is cleared by \plob\ itself
+(section \Nameref{sec:TransactionAbort}).  This clearing will break
+the binding between all transient representations contained in this
+table to their persistent counterparts.
+
+For strings and numbers, \fcite{*cache-strings*}\ and
+\fcite{*cache-numbers*}\ decide if strings and numbers should be
+cached at all. Especially numbers often have a more `immediate'
+character, and so it is desirable not to maintain the persistent
+identity of each of such instances, since this would fill the cache
+with many small objects.
+
+\refpar \Fcite{clear-cache};
+\fcite{*cache-strings*}, \fcite{*cache-numbers*}.
+
+\section[Tight binding]%
+{Making \protect\clos\ objects persistent: Tight binding}%
+\label{sec:TightBinding}
+
+A tight binding means \marginlabel{Within the tight binding, \plob\ 
+  takes control over \clos\ instances.}that \plob\ takes control over
+the creation and state of a persistent \clos\ object. All creation,
+state requesting and state changing calls to a persistent object with
+a tight bounded class are bypassed to \plobwoexcl. The tight binding
+itself is achieved with the help of the Meta Object Protocol (MOP), an
+integral part of \clos\ and is described in detail in \cite{bib:AMOP}.
+Because of technical restrictions, the tight binding can only be
+offered for \clos\ classes. The binding is obtained by adding the
+class option
+\lisp{:metaclass}\hspace{\lispblank}\lisp{persistent-metaclass}\ to a
+class declaration:
+\begin{IndentedCompactCode}
+(defclass \comment{\lt{}class name\gt}\ (\comment{\,\{\,\lt{}superclasses\gt\,\}\,})
+  (\comment{\,\{\,\lt{}slots\gt\,\}\,})
+  \underline{(:metaclass persistent-metaclass)})
+\end{IndentedCompactCode}
+
+Using this class option, additional slot and class options are
+enabled, which can be used to steer persistency for the class
+declared. Section \Nameref{sec:ToplevelDeclarations} contains further
+details how persistency can be influenced by top level declarations.
+
+\subsection{Additional slot options}%
+\label{sec:AdditionalSlotOptions}
+
+Within the tight binding, additional slot options \marginlabel{The
+  tight binding adds the slot options \lisp{:extent}, \lisp{:index}\ 
+  and \lisp{:location}.} can be used to steer persistency on a
+per-slot level. Here is an overview of the additional slot options:
+\begin{IndentedCompactCode}
+(defclass \comment{\lt{}class name\gt}\ (\comment{\,\{\,\lt{}superclasses\gt\,\}\,})
+  ((\comment{\lt{}slot name\gt}
+    \underline{:extent \comment{\lt{}keyword\gt}}
+    \underline{:index \comment{\lt{}index definition\gt}} \comment{;; Explained in section \ref{sec:SlotIndex}, \citepage{\pageref{sec:SlotIndex}}}
+    \underline{:location \comment{\lt{}fixnum constant\gt}}
+    \comment{\{\,\lt{}other slot options\gt\,\}\,})
+   \comment{\{\,\lt{}more slots\gt\,\}\,})
+  (:metaclass persistent-metaclass))
+\end{IndentedCompactCode}
+
+The slot option \lisp{:allocation}\ is obeyed by \plob\ as defined in
+\stcite{776, 779}; in other words, shared slots among instances of
+a class are made persistent, too, and keep their property of being
+shared slots.
+
+\subsubsection{Slot option \protect\lisp{:extent}}%
+\label{sec:SlotExtent}
+
+Declare the extent of the slot\marginlabel{The slot option
+  \lisp{:extent}\ tells how a slot is represented.}. Normally, each
+slot of a persistent object is represented twice, in persistent and
+transient memory (the second representation being for performance
+reasons).  The \lisp{:extent}\ slot option influences when and how the
+slot's state is transferred between the transient and persistent
+memory (figures~\ref{tab:usr:SlotExtent} and
+\ref{fig:usr:SlotExtent}).
+%%%
+\def\labeltabextent{tab:usr:SlotExtent}
+\def\labelfigextent{fig:usr:SlotExtent}
+\input{tabext}
+%%%
+If a slot has no slot option \lisp{:extent}, the value of class option
+\lisp{:extent}\ will be used by default.
+
+\subsubsection{Slot option \protect\lisp{:location}}%
+\label{sec:SlotLocation}
+
+The slot option \lisp{:location}\ \marginlabel{The slot option
+  \lisp{:location}\ tells where a slot is represented.} is used to
+enforce a user-defined ordering for the slots of a class. This is
+important if persistent instances are to be used as keys for an index
+or a btree, since the slot ordering represents the significance of the
+values contained in the object's slots.
+
+Consider for example the following class declaration:
+\begin{CompactCode}
+\listener{}(defclass ordered-instance (\comment{\,\{\,\lt{}superclasses\gt\,\}\,})
+              ((most-specific-slot \underline{:location 10}
+                                   \comment{\,\{\,\lt{}other slot options\gt\,\}\,})
+               (medium-specific-slot \underline{:location 20}
+                                     \comment{\,\{\,\lt{}other slot options\gt\,\}\,})
+               (least-specific-slot \underline{:location 30}
+                                    \comment{\,\{\,\lt{}other slot options\gt\,\}\,})
+               \comment{\{\,\lt{}more slots\gt\,\}\,})
+              (:metaclass persistent-metaclass))
+\end{CompactCode}
+
+By default, the slot locations are computed after the slots have been
+ordered alphabetically by name.  Specifying each slot with a
+\lisp{:location}\ option will enforce that the slots of instances of
+\class{ordered-instance}\ will be arranged in the order as given by
+the numeric argument passed to the \lisp{:location}\ option.  The
+numbers passed with the \lisp{:location}\ option are used only for
+changing the default ordering, they are not directly used as slot
+locations in persistent objects representations.  Now, when instances
+of \class{ordered-instance}\ are used as keys for btrees with an
+\lisp{equal}\ test mode, the instances will be inserted into the btree
+according to the specified slot ordering, that means, the value of
+slot \textbf{most-specific-slot}\ will be the primary key, the value
+of slot \textbf{medium-specific-slot}\ will be the secondary key, and
+the value of slot \textbf{lowest-specific-slot}\ will be used as
+ternary key.
+
+\refpar[for all additional slot options] \Fcite{persistent-metaclass},
+\fcite{(setf slot-extent)}.
+
+\subsection{Additional class options}%
+\label{sec:AdditionalClassOptions}
+
+Within the tight binding, additional class options \marginlabel{The
+  tight binding adds the class options \lisp{:constructor},
+  \lisp{:dependent}, \lisp{:extent}\ and \lisp{:schema-evolution}.} can
+  be used to steer persistency. Here is an overview of the additional
+  class options:
+
+\begin{IndentedCompactCode}
+(defclass \comment{\lt{}class name\gt}\ (\comment{\,\{\,\lt{}superclasses\gt\,\}\,})
+  (\comment{\,\{\,\lt{}slots\gt\,\}\,})
+  (:metaclass persistent-metaclass)
+  \underline{(:constructor \comment{\lt{}funcallable object\gt})}  \comment{;; usage deprecated}
+  \underline{(:dependent \comment{\lt{}boolean\gt})}
+  \underline{(:extent \comment{\lt{}keyword\gt})}
+  \underline{(:schema-evolution \comment{\lt{}keyword\gt})}
+  \comment{\{\,\lt{}other class options\gt\,\}\,})
+\end{IndentedCompactCode}
+
+\subsubsection[Class option \protect\lisp{:constructor}]%
+{Class option \protect\lisp{:constructor}\ \protect\emph{(usage
+  deprecated)}}%
+\label{sec:ClassConstructor}
+
+Set the constructor function for instances of the class to the
+option's argument\marginlabel{The class option \lisp{:constructor}\ 
+  declares a constructor for transient representations of a persistent
+  class.}, which is a function being declared as \lisp{(defun}\ 
+\textrm{\emph{\lt{}constructor\gt}}\ \lisp{(p-objid depth p-heap)
+  \ldots)}.  The constructor is called for creating transient
+instances of the class being loaded from the persistent heap into
+transient memory. For persistent \clos\ objects, the constructor is
+called with 3 arguments:
+\begin{description}
+
+\item[\funarg{p-objid}] The \objid\ of the object to load from the
+  persistent heap (section \Nameref{sec:IdByObjId}).
+
+\item[\funarg{depth}] The depth the object should be loaded to.
+
+\item[\funarg{p-heap}] The persistent heap the object should be loaded
+  from.
+
+\end{description}
+The constructor is responsible for creating the transient instance and
+filling the transient instance from its persistent representation.  If
+this class option is not passed, \plob\ will create the transient
+representation automatically.  This class option is meant for
+instances which can not be created the standard way \plob\ does it;
+for establishing side effects on storing or loading of objects, use
+the mechanisms described in section \Nameref{sec:HookIntoTransfer}.
+To make things clear, \emph{usage of this class option is strongly
+  deprecated}.
+
+\subsubsection{Class option \protect\lisp{:dependent}}%
+\label{sec:ClassDependent}
+
+Declaring a class as being \lisp{:dependent}\ \marginlabel{The class
+  option \lisp{:dependent}\ tells if instances of a persistent class
+  should be transferred from server to client among with objects
+  referencing those instances.}with an option argument of \nonnil\ 
+will result in instances of that class to be transferred from the
+server to the client together with the object referencing such
+instances. Use this option if you have classes whose instances are
+more or less `embedded' into the referencing instance, and are only
+referenced from this `embedding' instance. This is the case when it is
+known in advance that when the client loads the referencing instance,
+the referenced instance will be loaded in the same transaction in
+almost all cases, too.  For example, consider a class for geometric
+lines ended by two points.
+\begin{CompactCode}
+\listener{}(defclass point ()
+              ((x :type float :initarg :x :initform 0.0)
+               (y :type float :initarg :y :initform 0.0))
+              (:metaclass persistent-metaclass)
+              \comment{;; Transfer a \class{point}\ from server to client}
+              \comment{;; when its referencing object is to be transferred.}
+              \underline{(:dependent t)})
+
+\listener{}(defclass line ()
+              (\comment{;; Instances of class \class{point}\ will almost ever be referenced}
+               \comment{;; by exactly one instance of class \class{line}.}
+               (point-1 :type point :initform nil)
+               (point-2 :type point :initform nil))
+              (:metaclass persistent-metaclass))
+\end{CompactCode}
+
+If it is known in advance that the end points are always needed when a
+\class{line}\ instance is loaded into transient memory, it would make
+sense to mark the class \class{point}\ as being \lisp{:dependent}.  A
+rule of thumb is if the slot of a class (\class{line}\ in the example
+above) is typed by a \lisp{:type}\ slot option (like slots
+\textbf{point-1}\ and \textbf{point-2}), a \lisp{:dependent}\ class
+option should be given with the class the slot is typed to
+(\class{point}\ in this example).
+
+Please note that the \lisp{:dependent}\ flag is placed onto the
+referenced object, and not on the referencing object.  Clever usage of
+this option will result in much faster access to instances of
+\lisp{:dependent}\ marked classes being referenced by other instances,
+since communication overhead is dramatically reduced for such
+instances.  Exhaustive use of this option may result in big, maybe
+redundant data packages transferred from the server to the client.
+
+A \lisp{:dependent}\ flag can be placed on individual objects, too
+(see \fcite{(setf p-dependent)}).  Consider for example a cons cell
+which should be loaded from persistent memory. If it is known that the
+object referenced by the cdr of the cons cell should be loaded too,
+marking the cdr object as being \lisp{:dependend}\ will transfer the
+cdr object together with the cons cell.
+
+\subsubsection{Class option \protect\lisp{:extent}}%
+\label{sec:ClassExtent}
+
+This option's argument will be used as default for the slot extent of
+each slot of the class\marginlabel{The class option \lisp{:extent}\ 
+  declares a default slot extent for a class.}. If a slot has an
+\lisp{:extent}\ slot option specified, the slot option's value takes
+precendence over the class option's value. The default class extent
+for classes with tight binding (that means, with a \lisp{:metaclass}\ 
+of \lisp{persistent-metaclass}) is specified by the value of
+\fcite{*default-plob-slot-extent*}.
+
+\subsubsection{Class option \protect\lisp{:schema-evolution}}%
+\label{sec:ClassSchemaEvolution}
+
+The value of the \lisp{:schema-evolution}\ class option
+\marginlabel{The class option \lisp{:schema-evolution}\ tells how a
+  change of a transient class definition should be promoted to its
+  persistent \clsdc.}decides on how transient class redefintions
+should be promoted to the instances of the class in persistent memory
+(section \Nameref{sec:SchemaEvolution}).
+
+\refpar[for all additional class options]
+\Fcite{persistent-metaclass}, \fcite{(setf class-constructor)},
+\fcite{(setf class-dependent)}, \fcite{(setf class-extent)},
+\fcite{(setf class-dependent)}, \fcite{(setf p-dependent)},
+\fcite{(setf schema-evolution)}.
+
+\section{Declaring an index on a slot}%
+\label{sec:SlotIndex}
+
+For the tight binding \clos\ interface, an index can be declared on a
+slot\marginlabel{The slot otion \lisp{:index}\ declares an index to be
+  maintained on the slot values.}: The additional slot option
+\lisp{:index}\ declares an index to be maintained for the slot's
+values.  An index maps the slot value of the slot it is declared for
+of all instances to the instance having the corresponding slot value.
+Currently, indexes are represented by persistent btrees; those will be
+explained in detail in section \Nameref{sec:PersistentBTree}. For the
+moment, it is sufficient to assume that a btree is like a hash table
+having its key values arranged always sorted.  An index is always a
+1:1 mapping from a slot value to the instance having that slot value.
+For example, this class will maintain an index on its slot named
+\lisp{soc-sec-\#}:
+\begin{CompactCode}
+\listener{}(defclass person (\comment{\,\{\,\lt{}superclasses\gt\,\}\,})
+              ((soc-sec-# :initarg :soc-sec-#
+                          :accessor person-soc-sec-#
+                          :extent :cached-write-through
+                          \underline{:index (btree :test equal)})
+               \comment{\{\,\lt{}more slots\gt\,\}\,})
+              (:metaclass persistent-metaclass))
+\end{CompactCode}
+
+Since an index has to be unique in its key, either no
+\lisp{:initform}\ at all should be declared for the slot or the
+\lisp{:initform}\ must not return the same value for two non-identical
+instances; it must always return a different value. Indexes are
+inherited to subclasses.
+
+\subsection{Inserting objects into an index}
+
+Objects will be inserted into the index \marginlabel{Setting a slot's
+  value of an object will insert the object into the index.}as soon as
+the slot for which an index has been declared is set to a value,
+either by a call to \fcite{(setf slot-value)}\ or by a call to a
+writer method defined on the slot. Since \plob\ cares for calling
+\fcite{(setf slot-value)}\ when initializing an instance, it is
+possible to pass the slot value to be maintained in an index as an
+\lisp{:init-arg}\ to \fcite{make-instance}.
+\begin{CompactCode}
+\listener{}(setf *ps-1* (make-instance 'person :soc-sec-# 1))
+;;;;; Stored #<instance class-description person 1.00
+;;;;;                   slots=1/2 short-objid=50327387>.
+;;;;; Stored #<structure structure-description persistent-btree
+;;;;;                    1.00 slots=0/2 short-objid=50326860>.
+#<instance person soc-sec-#=1 short-objid=50326730>
+\listener{}(setf *ps-2* (make-instance 'person :soc-sec-# 2))
+#<instance person soc-sec-#=2 short-objid=50326732>
+\end{CompactCode}
+
+This example abstracts for now from the problem of referencing the
+created persistent instance in a later LISP session, where the binding
+of the transient symbol \lisp{*ps-1*}\ to the persistent object does
+no longer exist; this problem and its solution is handled in
+section \Nameref{sec:PersistentSymbol}.
+
+The requirement of an index being unique \marginlabel{Index keys have
+  to be unique.}in its key will result in an error message if the
+passed \lisp{:soc-sec-\#}\ is not unique in all of the index' current
+keys.
+\begin{CompactCode}
+\listener{}(setf *ps-b* (make-instance 'person :soc-sec-# 2))
+Error: Trying to set duplicate slot value 2 for index
+       #<btree equal 2/678 short-objid=50327130> on slot
+       #<instance effective-slot-description soc-sec-#
+                  extent=cached-write-through
+                  short-objid=50327645>
+       of object #<instance person soc-sec-#=#<unbound-marker=0x104>
+                            short-objid=50326734>;
+       object which captures the value already is
+       #<instance person soc-sec-#=2 short-objid=50326732>.
+\end{CompactCode}
+
+Changing the slot's value of an instance contained in an index will
+remove the association from the slot's old value to the instance and
+will set up an association from the slot's new value to the instance.
+\begin{CompactCode}
+\listener{}(setf (slot-value *ps-2* 'soc-sec-#) 3)
+3
+\end{CompactCode}
+Now, the index key of \lisp{2}\ is not bound any more and can be used
+for another instance:
+\begin{CompactCode}
+\listener{}(setf *ps-b* (make-instance 'person :soc-sec-# 2))
+#<instance person soc-sec-#=2 short-objid=50326736>
+\end{CompactCode}
+
+As explained in section \Nameref{sec:PersistentBTree}, it is
+also possible for an index represented by a btree to hold persistent
+vectors as keys; this makes it possible to work with primary,
+secondary, \ldots, \emph{n}ary keys on slots, where \emph{n} is the
+(\emph{n\,-\,1})\,th componenent of the persistent vector. Also, this
+can be used to enforce uniqueness for btree keys by using a vector
+with an additional, unique-guaranteeing component compared to the
+non-unique, non-vector key.
+
+\subsection{Removing objects from an index}
+%
+\begin{fortune}[11cm]%
+\hfill\begin{tabular}{lp{9cm}}
+Don:    & I didn't know you had a cousin Penelope, Bill!  Was she
+          pretty?\\
+W.\ C.: & Well, her face was so wrinkled it looked like seven miles of
+          bad road.  She had so many gold teeth, Don, she
+% Aus /usr/games/lib/fortunes.dat; da steht wirklich ,,use'', nicht
+% das korrekte ,,used''
+          % use {\em (sic!)\/} %
+          used
+          to have to sleep with her head in a safe.
+          She died in Bolivia.\\
+Don:    & Oh Bill, it must be hard to lose a relative.\\
+W.\ C.: & It's almost impossible.
+\end{tabular}%
+\from{W.\ C.\ Fields}%
+\end{fortune}%
+\noindent{}An instance will be removed from an index
+\marginlabel{Unbinding the slot of an object will remove the object
+  from the index.} by making the slot's value unbound.
+\begin{CompactCode}
+\listener{}(slot-makunbound *ps-1* 'soc-sec-#)
+#<instance person soc-sec-#=#<unbound-marker=0x104> short-objid=50326730>
+\end{CompactCode}
+
+Unbounding the slot's value of an instance contained in an index will
+remove the association from the slot's value to the instance. Except
+that the slot's state is set to be unbound, the instance itself is not
+changed or destroyed in any way. Unless there are other references to
+the instance, it now may disappear with the next garbage collection.
+
+\subsection{Querying an index}%
+\label{sec:IndexQuery}
+
+The \fcite{p-select}\ will query for all instances having specific
+values in a slot with a declared index.\marginlabel{\Fcite{p-select}\ 
+  is used to query an index.} It is possible to ask for a single value
+or for a range of values. For example:
+\begin{CompactCode}
+\listener{}(p-select 'person :where 'soc-sec-# := 2)
+#<instance person soc-sec-#=2 short-objid=50326732>
+\listener{}(soc-sec-# (p-select 'person :where 'soc-sec-# := 2))
+2
+\listener{}(p-select 'person :where 'soc-sec-# :< 3)
+(#<instance person soc-sec-#=2 short-objid=50326732>)
+\end{CompactCode}
+
+An index can also be used to retrieve all objects of a class:
+\begin{CompactCode}
+\listener{}(p-select 'person :where 'soc-sec-#)
+(#<instance person soc-sec-#=2 short-objid=50326732>
+ #<instance person soc-sec-#=3 short-objid=50326734>)
+\end{CompactCode}
+
+At the moment, no SQL- or OQL-like interface is available.
+
+\subsection{Indexes and reachability}%
+\label{sec:SlotIndexAndReachability}%
+
+An index-representing object has references to all objects it
+contains\marginlabel{Objects in an index are always reachable and
+  therefore persistent.}. \plob\ implements persistency by
+reachability: As long as a persistent object is reachable from a
+persistent root object, it will remain persistent. All persistent
+classes (represented by \clsdo[s]) known to \plob\ are implicit
+reachable. Since an index-representing object is bound to the
+persistent \sltdo\ holding the slot's description, and this \sltdo\ is
+bound to the persistent \clsdo, all instances contained in an
+index-representing object are reachable and therefore
+persistent.\footnote{In some persistent systems, such an object
+  referencing all objects of a class is called an \emph{allset}.} Here
+is the complete reference chain for the example class \class{person}\ 
+given above:
+\begin{quote}
+  Persistent root $\rightarrow$ class table $\rightarrow$ \clsdo[{ of
+    class \class{person}}] $\rightarrow$ \sltdo[ of slot
+  {\textbf{soc-sec-\#}}] $\rightarrow$ index-representing object (a
+  btree) $\stackrel{*}{\rightarrow}$ instance of class
+  {\class{person}}
+\end{quote}
+So, the only possibility to get rid of an object of a class with a
+declared index is to remove the object from the index.
+
+\refpar Section~\Nameref{sec:PersistentBTree},
+\fcite{p-select}, \fcite{+plob-slot-write-through-extents+},
+\fcite{slot-makunbound}.
+
+\section[Loose Binding]%
+{Making objects persistent: Loose binding}%
+\label{sec:LooseBinding}
+
+The loose binding is established by a store/load interface made up by
+the two functions \fcite*{store-object}\ and
+\fcite*{load-object}\marginlabel{`Loose binding' means explicite
+  equalization of an object's state between its transient and
+  persistent representation.}.  Their purpose is to destructively
+equalize between the state of an object in persistent memory and the
+state of its counterpart in transient memory.  It lacks some of the
+features of the tight binding, for example no automatic index
+administration is possible for instances handled this way. Some other
+functionality is brought back by the top-level declarations which can
+be used to influence persistency for instances of loose-bound classes,
+too, see section \Nameref{sec:ToplevelDeclarations}. The loose binding is
+done by storing an instance by a call to \fcite{store-object}:
+\begin{CompactCode}
+\listener{}(setf *objid* (store-object \textrm{\emph{\lt{}object\gt}}))
+\comment{;; To be more specific, for a call like}
+\comment{;; \texttt{\listener{}(store-object "A string.")}}
+\comment{;; \texttt{#<simple-string `A string' short-objid=50327649>}}
+\comment{;; is returned.}
+\end{CompactCode}
+
+Any LISP object can be stored this way, \emph{\lt{}object\gt} is not
+limited to be a \clos\ instance. The term `any' is to be understood
+literally here, the only exception is binary function code (see
+section \Nameref{sec:BinaryCode}).  The reason for offering a loose
+binding for general LISP and \clos\ objects is that getting control
+over the access to the state of non-\clos\ and general \clos\ 
+instances would mean to overwrite many system-supplied functions
+working on those objects, with unforeseeable side effects, like system
+instability, loss of overall system performance etc.
+
+The example call above returned an \objid\ which acts as a proxy for
+the persistent representation of the stored transient object. This
+proxy can be used in turn to load the object:
+\begin{CompactCode}
+\listener{}(load-object *objid*) \comment{;; returns \textrm{\emph{\lt{}object\gt}}}
+\comment{;; For the string stored above,}
+\comment{;; \texttt{"A string."}}
+\comment{;; is returned.}
+\end{CompactCode}
+Besides loading the whole persistent representation into a transient
+object, the \objid\ (proxy) can be used to work directly on the
+persistent representation; this is explained in
+section \Nameref{sec:DirectBinding}.
+
+This call will return the object currently stored. As mentioned
+already in an example above, this one abstracts too from the problem
+of referencing the created persistent instance in a later LISP
+session, where the binding of the transient symbol \lisp{*objid*}\ to
+the \objid\ does no longer exist; this problem and its solution is
+handled in section \Nameref{sec:PersistentSymbol}.
+
+Though it is also possible to pass the numeric \objid\ as shown in the
+output behind the \textbf{store-object}\ call directly to
+\fcite{load-object}\ for loading the object, this is no good way to
+reference a persistent object. This numeric \objid\ is temporary,
+since it will change its value with the next garbage collection on the
+persistent heap; using persistent symbols (section
+\Nameref{sec:PersistentSymbol}) for addressing is safe.
+
+\refpar \Fcite{store-object}, \fcite{load-object}.
+
+\subsection{Setting the depth of storing or loading an object}
+
+Both functions \fcite*{store-object}\ and \fcite*{load-object}\ have a
+\funarg{depth}\ argument telling how `deep' the object's state should
+be transferred between transient and persistent memory. The
+\funarg{depth}\ argument is an optional argument with its default
+being the value of \fcite{*default-depth*}.
+
+\subsubsection{Specifying a \protect\funarg{depth}\ of
+  \protect\lisp{:cached}}
+
+A depth of \lisp{:cached}\ will transfer an object's state and all
+objects referenced in its slots if and only if the objects are not
+found in the cache. Some calls do an object storing and implicit
+caching. For example, if an instance of a tight bounded persistent
+\clos\ class is created by a call to \fcite{make-instance}\ and at
+least one slot of the class has an \lisp{:initform}, the created
+object will be stored and put into the cache. Depending on the system
+configuration, strings and numbers might not be cached at all (section
+\Nameref{sec:IdAndCache}) and so will always be stored with a depth of
+\lisp{:cached}.
+
+\subsubsection{Specifying a \protect\funarg{depth}\ of
+  \protect\lisp{:flat}}
+
+A depth of \lisp{:flat}\ will transfer always the top-level of an
+object's state.  The objects referenced in its slots will be
+transferred if and only if they are not found in the cache.
+
+\subsubsection{Specifying a \protect\funarg{depth}\ of
+  \protect\lisp{:deep}}
+
+A depth of \lisp{:deep}\ will transfer always the top-level of an
+object's state and all the objects referenced in its slots.
+
+\subsubsection{Specifying a \protect\funarg{depth}\ of
+  \protect\lisp{:objid}\ or \protect\lisp{:object}}
+
+This will result in a do-nothing in both functions, since this depth
+indicates that the caller is working directly on the persistent
+representation of the object passed, so no transfer is necessary.
+
+\subsection[Tight vs. loose binding]{Tight vs.\ loose binding:
+  Benefits and drawbacks}
+
+The benefits of using a tight binding is a very high degree of
+transparency for persistency: Besides knowing of the above mentioned
+additional slot and class options, the user of the tight-binding
+interface can use persistent objects with few knowledge of what is
+happening back-stage in \plobwoexcl. Also, the tight binding offers
+more functionality than the loose binding interface, for example the
+automatic administration of indexes.  The drawback is a possible loss
+in overall performance on instances of classes with tight binding to
+persistency, since the tight binding is very generic. Also, many LISP
+systems (both \lwcl\ and \allegrocl\ belonging to them) do heavily
+optimizations to slot accesses of instances whose class is a direct
+instance of the \clsmc\ \class{standard-class}; this advantage is lost
+for exactly the classes using the tight binding.
+
+A further benefit on using the loose binding besides keeping the
+optimized slot access is that instances whose class declaration is
+unknown or out of scope can be stored and loaded, too. A drawback is
+that some functionality is lost w.r.t.\ the tight binding interface.
+
+\section[Direct Interface]%
+{Working directly on persistent objects}%
+\label{sec:DirectBinding}
+
+This section explains how to work directly on the persistent
+representations of persistent objects. This way of working is
+sometimes needed for efficiently establishing side
+effects.\footnote{This kind of working would be completely unnecessary
+  when designing a persistent LISP system from scratch on, but this
+  was beyond the scope of this work.} For example, when working
+destructively on lists which should be kept persistent, there are at
+least two methods how to do this:
+\begin{enumerate}
+
+\item\label{enu:WorkTransient} Do destructive changes to the transient
+  representation of the list and store the list anew (for example, by
+  a call to \fcite{store-object}) after all modifications have been
+  done.
+
+\item\label{enu:WorkDirect} Do destructive changes directly to the
+  persistent list and, if necessary, load the list anew after all
+  modifications have been done (for example, by a call to
+  \fcite{load-object}) .
+
+\end{enumerate}
+Solution~\ref{enu:WorkTransient} has the benefit of being simple to
+code, but will store not only the list itself anew, but eventually all
+objects referenced by the list. \plob\ does not distinguish on a
+per-class basis between objects to be stored and objects not to be
+stored during a store operation. Instead, all objects referenced by
+the object to store are written to the persistent heap.
+
+By working directly on persistent objects,
+solution~\ref{enu:WorkDirect} does not suffer from this problem, but
+another application interface has to be used. At a first glance, this
+solution sounds similar to the first one the other way round. This
+worked in practice when building up a database in an offline phase
+(\emph{not} [re]loading the [modified] persistent objects) and using
+it (more or less read-only) in an online phase. The lists have been
+referenced by slots of persistent \clos\ instances representing nodes
+of a graph. In that application, the lists have not been loaded
+explicit by calls to \fcite{load-object}, but when a persistent
+\clos\ instance was loaded on-demand and its slot value containing the
+list has been accessed.
+
+\subsection{Immediates}
+
+An \hyperlink{link:Immediate}{immediate}\ is an object whose
+representation of state captures fewer bits than an \objid\ 
+identifying the object, so it is much more efficient to represent the
+immediate object's state directly in a
+(type marked) \objid. Table~\ref{tab:Immediates} %
+\begin{figure}[htbp]\centering
+\begin{tabular}{|l|r|l|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Type}}
+        &\multicolumn{1}{c|}{\textbf{Width [bits]}}
+        &\textbf{See also}\\
+\hline
+\hline
+character       &    8 & \\
+bitmask         & 24+5 & reserved, but not yet implemented\\
+short-float     &   28 & \\
+fixnum          &   30 & \\
+marker          &   29 & section \Nameref{sec:Markers}\\
+\hline
+\end{tabular}
+\caption{Immediate represented types and their data width in bits}%
+\label{tab:Immediates}
+\end{figure}
+shows all types whose instances are represented as immediates in
+\plobwoexcl. Therefore, instances of these types have no functions for
+direct access. True \class{short-float}s are only represented in
+\lwcl, in \allegrocl\ they are always coerced to type
+\class{single-float}.
+
+\subsection{Establishing a context for direct working}
+
+For establishing a context for direct working, there are the following
+two posibilities.
+
+\subsubsection{Macro \textbf{with-direct-representation}}
+
+\Fcite{with-direct-representation}\ establishes a context on its
+\funarg{forms}\ argument where direct representation is used for all
+following direct interface functions. Since all what
+\fcite{with-direct-representation}\ does is binding a special variable
+to a new value, the scope of this context is dymnamic and not
+lexical.
+Consider for example:
+\begin{IndentedCompactCode}
+\listener{}(p-cons "The CAR" "The CDR")\marginnumber{\smalloi}
+("The CAR" . "The CDR")
+\listener{}(with-direct-representation () (p-cons "The CAR" "The CDR"))\marginnumber{\smalloii}
+#<cons (#<simple-string `The CAR' short-objid=50327142> .
+        #<simple-string `The CDR' short-objid=50327141>)
+        short-objid=50327160>
+\end{IndentedCompactCode}
+
+The first example call \oi\ returns a transient representation for the
+created persistent cons cell, whereas the second call \oii\ returns an
+object referencing the persistent cons cell. In \oii, no transient
+cons cell is created at all.
+
+\Fcite{with-transient-representation}\ can be used to switch to a
+context where transient representations are generated for persistent
+objects; the transient representation is the default representation
+selected by \plobwoexcl.
+
+\subsubsection{Overwrite optional \protect\funarg{depth}\ argument}
+
+Many of the direct interface functions have an optional
+\funarg{depth}\ argument. When this optional argument is set to
+\lisp{:object}, the function will work directly on a persistent
+representation. Consider for example:
+\begin{IndentedCompactCode}
+\listener{}(p-cons "The CAR" "The CDR" :object)\marginnumber{\smalloii}
+#<cons (#<simple-string `The CAR' short-objid=50327145> .
+        #<simple-string `The CDR' short-objid=50327144>)
+        short-objid=50327160>
+\end{IndentedCompactCode}
+
+[See the explanations given with the example code before.]
+
+\subsection{Common issues for the following sections}
+
+In the following sections, many classes have a function
+\textbf{p-allocate-}\emph{\lt{}class name\gt}. These functions
+allocate an instance of the class named \emph{\lt{}class name\gt} in
+the persistent heap and initialize it to some specific state
+(normally, all slots are set to be unbound). In the following
+sections, they are marked by an \textbf{\AllocatorLabel} label.
+
+The functions named \textbf{p-make-}\emph{\lt{}class name\gt} allocate
+an instance of the class named \emph{\lt{}class name\gt} in the
+persistent heap and write the state of its \funarg{t-from}\ argument
+into the fresh allocated persistent object.  In the following
+sections, they are marked by a \textbf{\CreatorLabel} label.
+
+The functions named \textbf{p-}\emph{\lt{}class name\gt}\textbf{p} or
+\textbf{p-}\emph{\lt{}class name\gt}\textbf{-p} are predicates taking
+an \objid\ as argument. They check if the persistent object referenced
+by the \objid\ is an instance of the class named \emph{\lt{}class
+  name\gt}. In the following sections, those functions are maked by a
+\textbf{\TypePredicateLabel} label.
+
+With the direct interface, it is possible to work either on single
+slots of a persistent object or on the state of a persistent object as
+a whole.
+
+The functions working on single slots are named similar to the ones
+defined in \cite{bib:CLtLII}\ with a prefix of \textbf{p-}, for
+example, \fcite{p-car}\ works on the car of a persistent cons cell. In
+the following sections, those functions are marked marked by a
+\textbf{\SlotAccessorLabel} label in general or by a
+\textbf{\SlotReaderLabel} or \textbf{\SlotWriterLabel} label if
+appropiate.
+
+All functions whose name is matching \textbf{(setf p-}\emph{\lt{}class
+  name\gt}\textbf{)} store a transient instance of the class named
+\emph{\lt{}class name\gt} to the persistent heap as a whole. A
+persistent instance is allocated, if appropiate, and its state is set
+to the state of the transient object passed as the \funarg{new-value}\ 
+function argument.  In the following sections, those functions are
+marked by an \textbf{\ObjectStoreLabel} label.
+
+All functions whose name is matching \textbf{p-}\emph{\lt{}class
+  name\gt} load a persistent instance of the class named
+\emph{\lt{}class name\gt} from the persistent heap. A transient
+instance is allocated, if appropiate, and its state is set to the
+state of the persistent object referenced by the passed \objid\ 
+function argument.  In the following sections, those functions are
+marked by an \textbf{\ObjectLoadLabel} label.
+
+Some persistent classes have functions returning some kind of
+information about its instances. In the following sections, those
+functions are marked by an \textbf{\InformationLabel} label.
+
+\refpar All functions named \textbf{p-allocate-}\emph{\lt{}class
+  name\gt}; all functions named \textbf{p-}\emph{\lt{}class
+  name\gt}\textbf{p} or \textbf{p-}\emph{\lt{}class
+  name\gt}\textbf{-p}; all \textbf{p-\hbox{\lt\emph{fn}\gt}}\ 
+functions with \lt\emph{fn}\gt\ being one function defined in
+\cite{bib:CLtLII}; all functions named \textbf{(setf p-}\emph{\lt{}class
+  name\gt}\textbf{)} and \textbf{p-}\emph{\lt{}class name\gt}.
+
+\subsection[Persistent numbers]{Working directly on persistent
+  numbers}
+
+Figure~\ref{fig:NumericClasses} %
+\begin{figure}[htbp]
+\centerline{\psfig{figure=\Path/numtax.eps}}
+\caption{Numeric classes}%
+\label{fig:NumericClasses}
+\end{figure}%
+shows all numeric classes implemented as built in types in
+\plobwoexcl. Not all of these classes might be available in the actual
+LISP system used, for example, none of the \allegrocl\ versions and
+only pre-4.0.1 versions of \lwcl\ do support short floats. \lwcl\ 
+4.0.1 does not support single floats, too; all floats are represented
+by double floats. Class fixnum is the class of all 30 bit wide
+persistent fixnums; transient integers of the actual LISP system used
+will be transformed into persistent 30 bit fixnums, if possible.
+
+\refpar[for type bignum] 
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-bignum}
+\Creator \Fcite{p-make-bignum}
+\TypePredicate \Fcite{p-bignum-p}
+\ObjectStore \Fcite{(setf p-bignum)}
+\ObjectLoad \Fcite{p-bignum}
+\end{NarrowRefList}
+
+\refpar[for type single float]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-single-float}
+\Creator \Fcite{p-make-single-float}
+\TypePredicate \Fcite{p-single-float-p}
+\ObjectStore \Fcite{(setf p-single-float)}
+\ObjectLoad \Fcite{p-single-float}
+\end{NarrowRefList}
+
+\refpar[for type double float]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-double-float}
+\Creator \Fcite{p-make-double-float}
+\TypePredicate \Fcite{p-double-float-p}
+\ObjectStore \Fcite{(setf p-double-float)}
+\ObjectLoad \Fcite{p-double-float}
+\end{NarrowRefList}
+
+\refpar[for type ratio]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-ratio}
+%\Creator       \Fcite{p-make-}
+\TypePredicate \Fcite{p-ratiop}
+\ObjectStore \Fcite{(setf p-ratio)}
+\ObjectLoad \Fcite{p-ratio}
+\SlotReader \Fcite{p-numerator}, \fcite{p-denominator}
+\end{NarrowRefList}
+
+\refpar[for type complex]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-complex}
+%\Creator        \Fcite{p-make-}
+\TypePredicate \Fcite{p-complexp}
+\ObjectStore \Fcite{(setf p-complex)}
+\ObjectLoad \Fcite{p-complex}
+\SlotReader \Fcite{p-realpart}, \fcite{p-imagpart}
+\end{NarrowRefList}
+
+\subsection[Persistent lists]{Working directly on persistent lists}
+
+Lists are handled as sequences, that means, a load or store operation
+will be done for the cdr of each cons cell, too.
+
+\refpar[for type cons]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-cons}
+\Creator \Fcite{p-cons}
+\TypePredicate \Fcite{p-consp}
+\ObjectStore \Fcite{(setf p-list)}
+\ObjectLoad \Fcite{p-list}
+\SlotReader \Fcite{p-car}, \fcite{p-cdr}
+\SlotWriter \Fcite{(setf p-car)}, \fcite{(setf p-cdr)}
+\end{NarrowRefList}
+Addtionally, \fcite{p-null}\ is a predicate which checks for its
+argument being either a transient or persistent \lispnil.
+
+\subsection[Persistent arrays]{Working directly on persistent arrays}
+
+If possible, specialized arrays, that means, arrays with an
+\lisp{:element-type}\ $\neq$ \class{t}, are stored with the element
+type they are specialized to:
+\begin{CompactCode}
+\listener{}(store-object (make-array '(2 3)
+                                       :element-type '(unsigned-byte 8)
+                                       :initial-element 0))
+#<array (unsigned-byte 8) (2 3) short-objid=50327320>
+\end{CompactCode}
+
+This is only done if and only if \lwcl\ or \allegrocl\ do not
+downcast the element type to type \class{t}; no downcast to type
+\class{t}\ is induced by \plob\ itself on array elements:
+\begin{CompactCode}
+\listener{}(array-element-type (make-array '(2 3)
+                                             :element-type 'float
+                                             :initial-element 0.0))
+T
+\end{CompactCode}
+
+In this case, a downcast to type \class{t} is done by \allegrocl, so
+the array elements will also be stored as non-specialized instances.
+
+\refpar[for type array]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-array}
+%\Creator        \Fcite{p-make-}
+\TypePredicate \Fcite{p-arrayp}
+\ObjectStore \Fcite{(setf p-array)}
+\ObjectLoad \Fcite{p-array}
+\SlotAccessor \Fcite{p-array-data-vector}\ (direct usage
+  deprecated)
+\Information \Fcite{(setf p-array-fill-pointer)},
+  \fcite{p-array-fill-pointer}, \fcite{p-array-displaced-offset},
+  \fcite{p-array-adjustable}, \fcite{p-array-rank},
+  \fcite{p-array-dimensions}, \fcite{p-array-element-type}
+\end{NarrowRefList}
+For the moment, there is no \textbf{p-aref} function for direct access
+to persistent array elements. The workaround is that a persistent
+array must be stored or loaded as a whole for accessing its
+elements.
+
+\subsection[Persistent vectors]{Working directly on persistent
+  vectors}
+
+The following functions work on simple vectors, that means, vectors
+without a fill pointer and their element type specialized to type
+\class{t}. Non simple vectors are handled as 1-dimensional arrays.
+
+\refpar[for type vector]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-vector}
+%\Creator        \Fcite{p-make-}
+\TypePredicate \Fcite{p-vectorp}
+\ObjectStore \Fcite{(setf p-vector)}
+\ObjectLoad \Fcite{p-vector}
+\SlotReader \Fcite{p-svref}
+\SlotWriter \Fcite{(setf p-svref)}
+\Information \Fcite{p-vector-length}
+\end{NarrowRefList}
+
+\subsection[Persistent bit vectors]{Working directly on persistent bit
+  vectors}
+
+\refpar[for type bit-vector]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-bit-vector}
+%\Creator        \Fcite{p-make-}
+\TypePredicate \Fcite{p-bit-vector-p}
+\ObjectStore \Fcite{(setf p-bit-vector)}
+\ObjectLoad \Fcite{p-bit-vector}
+%\SlotReader  \Fcite{p-}
+%\SlotWriter  \Fcite{(setf p-)}
+\Information \Fcite{p-bit-vector-length},
+  \fcite{p-bit-vector-max-length}
+\end{NarrowRefList}
+Because a bit vector has single bit elements and all allocations are
+done to word boundaries, there are \lisp{(- (p-bit-vector-max-length
+  \emph{\lt{}bit-vector\gt}) (p-bit-vector-length
+  \emph{\lt{}bit-vector\gt}))} overhead bits allocated with each bit
+vector.
+
+For the moment, there is no \textbf{p-aref} function for direct access
+to persistent bit vector elements. The workaround is that a persistent
+bit vector must be stored or loaded as a whole for accessing its
+elements. In the future, persistent bit vectors with their number of
+elements $\leq$ 24 may be represented as immediates.
+
+\subsection[Persistent strings]{Working directly on persistent
+  strings}
+
+\refpar[for type string]
+\begin{NarrowRefList}
+\Allocator \Fcite{p-allocate-string}
+%\Creator        \Fcite{p-make-}
+\TypePredicate \Fcite{p-stringp}
+\ObjectStore \Fcite{(setf p-string)}
+\ObjectLoad \Fcite{p-string}
+\Information \Fcite{p-string-length},
+  \fcite{p-string-max-length}
+\end{NarrowRefList}
+Because a string has single byte elements and all allocations are done
+to word boundaries, there are \lisp{(- (p-string-max-length
+\emph{\lt{}string\gt}) (p-string-length \emph{\lt{}string\gt}))}
+overhead bytes allocated with each string.
+
+Meta bits and the like are not supported for characters contained in a
+persistent string.
+
+In the future, persistent strings with their number of characters
+$\leq$ 3 may be represented as immediates.
+
+\subsection[Persistent functions]{Working directly on persistent
+  functions}
+
+\refpar[for type function]
+\begin{NarrowRefList}
+
+  \Allocator \Fcite{p-allocate-function}
+
+%\Creator        \Fcite{p-make-}
+
+  \TypePredicate \Fcite{p-functionp}
+
+  \ObjectStore \Fcite{(setf p-function)}
+
+  \ObjectLoad \Fcite{p-function}
+
+  \SlotReader \Fcite{p-function-code}, \fcite{p-function-language},
+  \fcite{p-function-name}
+
+  \SlotWriter \Fcite{(setf p-function-code)}, \fcite{(setf
+    p-function-language)}, \fcite{(setf p-function-name)}
+
+\end{NarrowRefList}
+Direct storing and loading of binary function code is not supported,
+see section \Nameref{sec:BinaryCode} for details and the implemented
+solution.
+
+\subsection[Persistent hash tables]{Working directly on persistent
+  hash tables}
+
+In many LISP systems, hash tables are stored internally as instances
+of a \lisp{defstruct}\ class, so \plob\ would be able to store hash
+table instances without any special intervention. Since the names
+choosen for the class whose instances represent hash tables and its
+slots vary among the LISP system implementators, and for efficiency
+reasons, hash tables are explicit represented in persistent memory by
+instances of \fcite{persistent-hash-table}.  \refpar[for type
+hash-table]
+\begin{NarrowRefList}
+%\Allocator      \Fcite{p-allocate-hash-table}
+%\Creator        \Fcite{p-make-}
+%\TypePredicate  \Fcite{p-hash-table-p}
+\ObjectStore \Fcite{(setf p-hash-table)}
+\ObjectLoad \Fcite{p-hash-table}
+%\Information \Fcite{p-hash-table-}
+\end{NarrowRefList}
+Using a persistent btree could be more suitable than using a
+persistent hash table (section \Nameref{sec:PersistentBTree}, and
+section \Nameref{sec:DataModeling}).
+
+\subsection[Persistent CLOS instances]{Working directly on persistent
+  \protect\clos\ instances}
+
+The direct way of working on persistent structures and \clos\ 
+instances is business as usual, \marginlabel{\Fcite*{slot-value}\ and
+  companions work on both structure and \clos \ objects.}this can be
+done by calling the functions \fcite*{(setf slot-value)},
+\fcite*{slot-value}, \fcite*{slot-boundp}\ and
+\fcite*{slot-makunbound}. In \allegrocl, there is a problem with those
+functions working directly on persistent objects: They expect their
+\funarg{object}\ argument to be an instance of a \clos\ class
+effectively having the slot whose \funarg{slot-name}\ was passed; this
+is not the case for the direct access interface, since this interface
+works on \emph{references} to persistent objects but not on true
+\clos\ objects themselves. As a workaround, when using the direct
+interface on \clos\ instances in \allegrocl, the functions
+\fcite*{(setf p-slot-value)}, \fcite*{p-slot-value},
+\fcite*{p-slot-boundp}\ and \fcite*{p-slot-makunbound}\ must be used.
+Please note that \emph{this workaround must only be used under these
+  described circumstances.}
+\begin{RefList}\itemsep0pt
+
+  \Allocator \Fcite{p-allocate-instance}. Direct usage is deprecated;
+  instead, the proceeding described at \textbf{\CreatorLabel} should
+  be used for creating objects.
+
+  \Creator \Fcite{make-instance}\ should be called, and, if necessary,
+  the instance should be stored by a call to \fcite{store-object}.
+
+  \TypePredicate \Fcite{p-instancep}
+
+%\ObjectStore \Fcite{p-}
+%\ObjectLoad \Fcite{p-}
+
+  \SlotReader For \lwcl: \fcite{slot-value}. For \allegrocl:
+  \fcite{p-slot-value}
+
+  \SlotWriter For \lwcl: \Fcite{(setf slot-value)},
+  \fcite{slot-makunbound}.  For \allegrocl: \Fcite{(setf
+    p-slot-value)}, \fcite{p-slot-makunbound}
+
+ \Information For \lwcl: \Fcite{slot-boundp}. For \allegrocl:
+ \Fcite{p-slot-boundp}
+
+\end{RefList}
+
+\subsection[Persistent structure instances]{Working directly on
+ persistent structure instances}
+
+\begin{RefList}\itemsep0pt
+
+  \Allocator \Fcite{p-allocate-structure}. Direct usage is deprecated;
+  instead, the proceeding described at \textbf{\CreatorLabel} should
+  be used for creating objects.
+
+  \Creator The system generated structure constructor should be called
+  and the object should be stored by a call to \fcite{store-object}.
+
+  \TypePredicate \Fcite{p-structurep}
+
+  \SlotReader For \lwcl: \fcite{slot-value}. For \allegrocl:
+  \fcite{p-slot-value}
+
+  \SlotWriter For \lwcl: \Fcite{(setf slot-value)},
+  \fcite{slot-makunbound}.  For \allegrocl: \Fcite{(setf
+    p-slot-value)}, \fcite{p-slot-makunbound}
+
+ \Information For \lwcl: \Fcite{slot-boundp}. For \allegrocl:
+ \Fcite{p-slot-boundp}
+
+\end{RefList}
+
+\refpar %
+%
+\Fcite{(setf slot-value-using-class) (t structure-class persistent-object symbol)},
+%
+\fcite{slot-value-using-class (structure-class persistent-object t)},
+%
+\fcite{slot-boundp-using-class (structure-class persistent-object t)},
+%
+\fcite{slot-makunbound-using-class (structure-class persistent-object symbol)}.
+
+\think{Some of the methods above are specialized with their
+  slot-name argument to \class{t}, others to \class{symbol}. Make
+  this uniform for the different methods.}
+
+\section{Binary function code}%
+\label{sec:BinaryCode}
+
+Binary function code \marginlabel{Binary function code can not be
+  stored directly.}is the only exception to the orthogonal persistency
+principle obeyed elsewhere in \plobwoexcl. Because of the expected
+relocation problems and highly system dependent memory layout without
+a lacking norm between different LISP systems, storing and loading of
+binary function code is not supported.  Because no binary function
+code can be stored, no methods are stored too. Future versions of
+\plob\ may support direct storing of binary function code. Currently
+implemented are two workarounds for this situation.
+
+\refpar \Fcite{persistent-s-expression}.
+
+\subsection{Storing functions by name}
+
+By the standard set in \plob\marginlabel{Functions are stored by name,
+  if the name can be retrieved.}, `storing' of a function code object
+is done by trying to retrieve the function's symbolic name and marking
+the persistent symbol as being fbound'ed; `loading' means just to look
+for this symbolic name in the current LISP image and return the
+function object bound to it.
+\begin{CompactCode}
+\listener{}(store-object #'car)
+#<function CAR short-objid=50326928>
+\listener{}(setf #!*persistent-car* *)
+#<function CAR short-objid=50326928>
+\listener{}#!*persistent-car*
+#<Function CAR>
+\listener{}(funcall #!*persistent-car* '(1 2))
+1
+\end{CompactCode}
+
+If the symbol found at load time has no function binding, a dummy
+function object is generated which signals an error when being called.
+This way functions found in the LISP image can be `stored', and, for
+standard functions as defined in \cite{bib:CLtLII}, even in a
+system-independent manner. Persistent function objects are explicitely
+represented in \plobwoexcl.
+
+\subsection{Persistent s-expressions}
+
+\plob\ has a \fcite{persistent-s-expression}\marginlabel{Given access
+  to a function's source code, it can be stored as a persistent
+  s-expression.}, which copes with persistent s-expressions. As a
+special case, when the s-expression has a \lisp{car}\ of \lisp{defun},
+the s-expression is handled as a function definition. Usage of
+s-expressions requires access to a function's $\lambda$
+expression's source code.  Considering functions and $\lambda$
+expressions generated at application runtime, this surely is not a
+very strong restriction.  Since \fcite{persistent-s-expression}\ is a
+straight-forward defined persistent CLOS class, persistent
+s-expressions are represented explicitely, too.
+\begin{CompactCode}
+\listener{}(setf #!*code*
+               (make-instance 'persistent-s-expression
+                              :source '(lambda (x)
+                                        (format t "X is ~A~%" x)
+                                        x)))
+#<instance persistent-s-expression short-objid=50326545>
+\listener{}(funcall (sexpr-code #!*code*) 1)
+X is 1
+1
+\end{CompactCode}
+
+The expression given with the \lisp{:source}\ initarg has to be a
+$\lambda$ list and \emph{not} a function-quoted expression
+(\lisp{\#'(\ldots)}), since function quotes might be compiled into
+binary function code; this binary function code cannot be stored by
+\plobwoexcl.
+
+\section{Hooking into object storing or loading}%
+\label{sec:HookIntoTransfer}
+
+For objects of some classes, it might be necessary to have side
+effects coupled to store and load operations on the object. This
+section describes how objects are notified if they are about to be
+stored or if they have been loaded from a persistent heap.
+
+\subsection{Object storing}
+
+\think{}Application interface is still insufficient, for now needs
+methods specialized to \fcite{t-object-to-p-objid}. Introduce generic
+function \lisp{passivate}?
+
+\subsection{Object loading}
+
+\think{}Application interface is still insufficient, for now needs
+methods specialized to \fcite{initialize-instance}\ and looking for
+\lisp{\&key}\ argument \lisp{:objid}. Introduce generic function
+\lisp{activate}? Problem: Mangled handling of creating and
+initializing a \clos\ instance in \fcite{make-instance}.
+
+\section{Top level declarations}%
+\label{sec:ToplevelDeclarations}
+
+Instances of built in classes, structure classes and \clos\ classes
+\marginlabel{Top level declarations as a substitute for missing slot
+  and class options.}with their definition being not available at all
+can not use the tight binding described in
+section \Nameref{sec:TightBinding}.  For built in and structure
+classes, there is no principal way of achieving a tight binding.  For
+\clos\ classes, this would require a change to the original class
+definition (that means, adding a class option \lisp{:metaclass
+  persistent-metaclass}); this is possible in principle, but doing so
+to system defined classes would be a rather dangerous attempt, since a
+loss in overall system performance or stability could be the result.
+So, no additional class and slot options can be given to those classes
+within their definition. To bypass this situation, top level
+declarations can be used to give \plob\ the hints necessary for
+handling persistency for those classes. When \plob\ encounters a class
+not being made persistent up to that moment, the top level
+declarations for the class are evaluated and stored within the
+persistent \clsdo. This means that the top level declarations for a
+class must be given \emph{before} the first instance of the class is
+stored, since this will store the \clsdo, too. As with the additional
+slot (section \Nameref{sec:AdditionalSlotOptions}) and class options
+(section \Nameref{sec:AdditionalClassOptions}), these declarations
+determine a class' or a slot's extent
+(section \Nameref{sec:SlotExtent}, and
+section \Nameref{sec:ClassExtent}, its constructor
+(section \Nameref{sec:ClassConstructor}), dependent flag
+(section \Nameref{sec:ClassDependent}), and its schema evolution
+(section \Nameref{sec:ClassSchemaEvolution}). For other additional
+slot and class options not mentioned here there are no corresponding
+top level declarations, since their functionality can not be achieved
+for non tight bound classes.
+
+\subsection{Declaring a slot's extent}
+
+The extent declaration is the most important one and is evaluated on
+following levels, going from the least to the most significant
+level. If a declaration is found on a more siginificant level, it will
+overwrite a declaration from the less significant level.
+\begin{description}
+
+\item[Default value] If none of the following levels package, class or
+  slot specifies an extent, a class specific default value is used.
+  For structure classes, this is the value of
+  \fcite{*default-structure-slot-extent*}. For \clos\ classes
+  \emph{not} using the tight binding, this is the value of
+  \fcite{*default-clos-slot-extent*}. For \clos\ classes using the
+  tight binding, this is the value of
+  \fcite{*default-plob-slot-extent*}.
+
+\item[Package level] An extent can be declared on package level by
+  calling \fcite{(setf package-extent)}, for example:
+\begin{IndentedCompactCode}
+(setf (package-extent (find-package \comment{\lt{}package name\gt})) :transient)
+\end{IndentedCompactCode}
+
+  This extent is used for all classes whose naming symbol is in the
+  package the declaration was made for; in the above example, the
+  slots of all classes defined in package \emph{\lt{}package name\gt}
+  belonging to that package would become transient by default.
+
+\item[Class level] An extent can be declared on class level by calling
+  \fcite{(setf class-extent)}. For example, to make all slots of the
+  class named \emph{\lt{}class name\gt} transient:
+\begin{IndentedCompactCode}
+(setf (class-extent (find-class \comment{\lt{}class name\gt})) :transient)
+\end{IndentedCompactCode}
+
+\item[Slot level] An extent can be declared for a slot in a class
+  by calling \fcite{(setf slot-extent)}. For example, to make
+  the slot named \emph{\lt{}slot name\gt} of the class named
+  \emph{\lt{}class name\gt} transient:
+\begin{IndentedCompactCode}
+(setf (slot-extent \comment{\lt{}slot name\gt} (find-class \comment{\lt{}class name\gt})) :transient)
+\end{IndentedCompactCode}
+\end{description}
+
+\refpar Section \Nameref{sec:SlotExtent};
+\fcite{*default-structure-slot-extent*},
+\fcite{*default-clos-slot-extent*},
+\fcite{*default-plob-slot-extent*}; \fcite{(setf package-extent)},
+\fcite{(setf class-extent)}, \fcite{(setf slot-extent)}.
+
+\subsection{Declaring a class' constructor}
+
+A class' constructor can be declared for a class by calling
+\fcite{(setf class-constructor)}, for example:
+\begin{IndentedCompactCode}
+(setf (class-constructor (find-class \comment{\lt{}class name\gt})) \comment{\lt{}funcallable object\gt})
+\end{IndentedCompactCode}
+
+\refpar Section \Nameref{sec:ClassConstructor}; \fcite{(setf
+  class-constructor)}.
+
+\subsection{Declaring a class' dependent flag}
+
+A class' dependent flag can be declared for a class by calling
+\fcite{(setf class-dependent)}, for example:
+\begin{IndentedCompactCode}
+(setf (class-dependent (find-class \comment{\lt{}class name\gt})) \comment{\lt{}boolean\gt})
+\end{IndentedCompactCode}
+
+\refpar Section \Nameref{sec:ClassDependent}; \fcite{(setf
+  class-dependent)}.
+
+\subsection{Declaring a class' schema evolution}
+
+A class' schema evolution can be declared for a class by calling
+\fcite{(setf schema-evolution)}, for example:
+\begin{IndentedCompactCode}
+(setf (schema-evolution (find-class \comment{\lt{}class name\gt})) \comment{\lt{}keyword\gt})
+\end{IndentedCompactCode}
+
+\refpar Section \Nameref{sec:ClassSchemaEvolution}; \fcite{(setf
+  schema-evolution)}.
+%
+% \fcite{(setf slot-initarg)}, %
+% Overwrites the \lisp{:initarg}\ of a slot. Not used.
+%
+% \fcite{(setf slot-location)}
+% Set a slot's location, used only internally.
+%
+\subsection{Making objects read-only}
+
+Marking objects as read-only will raise an error on requesting a write
+lock onto the object or onto one of its slots:
+\begin{CompactCode}
+\listener{}(setf #!*precious* "A very precious string.")
+"A very precious string."
+\listener{}(setf (p-read-only (p-intern '*precious*)) t)\marginnumber{\smalloi}
+T
+\listener{}(setf #!*precious* "A not-so-precious string.")\marginnumber{\smalloii}
+;;; Info from server at executing client:fnSHwriteIndex:
+;;; Waiting for lock level vector, mode wi on object
+;;; #<symbol common-lisp-user::*precious* short-objid=50328919> by
+;;; #<heap kirschke@localhost `Initial Lisp Listener'
+;;;        transaction=2466 short-objid=50327650>.
+Error: Locking read-only object #<symbol common-lisp-user::*precious*
+       short-objid=50328919> by #<heap kirschke@localhost `Initial
+       Lisp Listener' transaction=2466 short-objid=50327650> failed.
+  [condition type: SIMPLE-ERROR]
+Restart actions (select using :continue):
+ 0: Remove all other locks brute-force from object & retry locking.
+ 1: Retry to lock the object.
+[1] \listener{}:pop\marginnumber{\smalloiii}
+\listener{}(setf (p-read-only (p-intern '*precious*)) nil)\marginnumber{\smalloiv}
+NIL
+\listener{}(setf #!*precious* "A not-so-precious string.")\marginnumber{\smallov}
+"A not-so-precious string."
+\end{CompactCode}
+
+The persistent symbol is marked as read-only \oi. The attempt to set
+the persistent symbol to a new value raises a continuable error \oii.
+Here, the error is aborted \oiii; choosing continue instead of
+aborting would remove the read-only lock and would set the symbol to
+the new value. After the read-ony lock has been removed \oiv, the
+symbol can be set to a new value \ov.
+
+\refpar \Fcite{(setf p-read-only)},
+\fcite{p-read-only}.
+
+\section{Programming with persistent data}
+%
+\begin{fortune}%
+Time is not the main point. Time is the one and only point.
+\from{Miles Davis}
+\end{fortune}%
+
+This section contains some hints on how to program with using
+persistent objects. Persistency in \plob\ is rather transparent, and
+this is paid with a certain performance penalty compared to a pure
+transient system. By doing careful data modeling and coding this
+penalty can be kept to a minimum.
+
+\subsection{Overhead associated with an object transfer}
+
+Because the memory overhead with an object's transfer is rather low,
+it is neglected here; considered is only the time needed for an
+object's state transfer between client and server.
+
+The total overhead $O_{total}(slots,mode)$ associated with an object
+transfer can be splitted into the communication overhead
+$O_{comm}(slots)$ needed by TCP/IP\marginlabel{TCP/IP is the transfer
+  protocol used by the operating system for transfer of data.} for
+transferring an object's state between client and server and the
+overhead $O_{server}(slots,mode)$ needed by the server for working on
+an object.
+%
+\begin{displaymath}\begin{array}{rcl}
+%
+O_{total}(slots,mode)  &=
+        & O_{comm}(slots) + O_{server}(slots,mode)\\[\smallskipamount]
+%
+slots &\equiv& \textrm{number of object slots}\\
+mode &\in& \{ \texttt{read}, \texttt{write} \}
+%
+\end{array}\end{displaymath}
+\marginlabel{The term $slots$ is valid here also for objects of built
+  in classes; for example, a cons cell has 2 $slots$, a symbol 5
+  $slots$ etc.}
+%
+The server overhead can be splitted into $O_{lock}$ needed for
+locking the object and $O_{trans}(slots,mode)$ for saving the
+object's lock and its state into the transaction log file.
+%
+\begin{displaymath}\begin{array}{rcl}
+O_{server}(slots,mode) &=& O_{lock} + O_{trans}(slots,mode)
+\end{array}\end{displaymath}%
+%
+These overheads can be modeled by:
+%
+\begin{displaymath}\begin{array}{rcl}
+%
+O_{comm}(slots) &\sim& \lceil \frac{slots}{blocksize} \rceil\\
+%
+blocksize &\equiv
+        &\textrm{TCP/IP block size of appr.\ 1500 bytes = 375
+        $slots$}\\[\smallskipamount]
+%
+O_{lock} &=& constant\\[\smallskipamount]
+%
+O_{trans}(slots,mode) &\sim
+        & \left\{%
+\begin{array}{ll}%
+constant & \textrm{if}\ mode = \texttt{read}\\
+slots    & \textrm{if}\ mode = \texttt{write}
+\end{array}\right .\\[\smallskipamount]
+%
+\end{array}\end{displaymath}
+%
+For the most common cases, that means, for objects with fewer than 375
+slots, the following inequality holds:
+%
+\begin{displaymath}
+O_{lock} \ll O_{trans} \ll O_{comm}
+\end{displaymath}
+%
+The communication overhead $O_{comm}$ will contribute at most to the
+total overhead $O_{total}$, and so should be kept to a minimum.
+%
+\subsection{Consequences for data modeling}%
+\label{sec:DataModeling}
+
+Because $O_{comm}(slots)$ is proportional to the ceiling function on the
+number of slots, the overhead up to a total of around 375 slots will
+always be the same. A consequence which can be drawn from this is that
+sequences represented by vectors should be used instead of general
+lists whereever possible.
+
+Also, when needing associative access to data, it should be thought of
+using a btree instead of a hash table, since the access to btrees can
+be done on a per-element basis, whereas persistent hash tables are
+always transferred as a whole.
+
+\subsection{Consequences for transaction handling}
+
+The transaction handling incures much more overhead on the server than
+on the client's side. The server will write at least the lock state of
+each object into a transaction log file; if a write lock is placed
+onto an object, the object's state will be written to the transaction
+log file, too. So, the consequences for transaction handling in the
+client's code are not so stringent as the consequences with the data
+modeling: Transactions should not last too long, since this might
+overflow the server's disk file space.
+
+\subsection{Storing or loading lots of data}%
+\label{sec:LotsOfData}
+
+\plob\ has implemented fine-granularity locking and transactions, to
+ensure a high level of isolation on database operations. For this
+feature, a performance price is paid, which does not shine up very
+stringent in doing online work with the database, but when lots of
+data should be written to or read from the database. One of these
+cases is the initial populating of a database, that means when a
+database should be filled with objects drawn from other, external
+sources. The proposal is to do these operations offline from the
+application's point of view, in an extra process reserving the whole
+database for the operation as a whole. This is no performance trick to
+bypass the resource-intensive locking; the proposal's intent is to
+lock the whole database on the coarsest level instead of locking each
+object seperately, which will gain a performance improvement of about
+a magnitude.\footnote{The performance improvement at storing objects
+  is reached because \plobwoexcl's client C code checks if the client
+  process holds a write lock on store level. When such a lock is
+  found, the server is not asked at all to lock fresh created objects.
+  This reduces the communication overhead dramaticaly. Instead, the
+  objects are created into the C code client's cache, filled by the
+  LISP level, and flushed to the server when they have been filled
+  completely.}
+
+To cope with circular references, \plob\ uses the object-level locking
+during a transaction for store or load operations to check if an
+object has already been stored or loaded within that transaction; so,
+when abonding object-level locking in favor of locking the whole
+store, \plob\ must be instructed to use another algorithm to look for
+already stored or loaded objects. This can be done by telling \plob\ 
+not to store or load objects found in its internal cache.  To be more
+concrete, here are two code examples.
+
+\subsubsection{Populating a database}
+
+Here, the term `populating' means reading objects from an external
+source and write them into a database.
+
+\begin{IndentedCompactCode}
+(defun populate-database ()
+  (let (\comment{;; Make sure storing ends at the first object found in the cache:}
+        (plob::*default-depth* :cached))
+    (clear-cache) \comment{;; make sure the cache is empty}
+    \comment{;; All locking has to be done in a transaction, so start one now: }
+    (with-transaction ()
+      \comment{;; Write-lock the whole store; the store lock will extend to the}
+      \comment{;; end of the transaction opened in the \lisp{{\CompactCodeSize{}(with-transaction \ldots)}}\ block:}
+      (write-lock-store)
+      \comment{;; The `effective' populating function:}
+      (read-external-objects-and-write-them-to-database))))
+\end{IndentedCompactCode}
+
+\refpar \Fcite{*default-depth*}, \fcite{clear-cache},
+\fcite{with-transaction}, \fcite{write-lock-store}.
+
+\subsubsection{Dumping a database}
+
+Here, the term `dumping' means reading objects from a database and
+write them to an external sink.
+
+\begin{IndentedCompactCode}
+(defun dump-database ()
+  (let (\comment{;; Make sure loading ends at the first object found in the cache:}
+        (plob::*default-depth* :cached))
+    (clear-cache) \comment{;; make sure the cache is empty}
+    \comment{;; All locking has to be done in a transaction, so start one now:}
+    (with-transaction ()
+      \comment{;; Read-lock the whole store; the store lock will extend to the}
+      \comment{;; end of the transaction opened in the \lisp{{\CompactCodeSize{}(with-transaction \ldots)}}\ block:}
+      (read-lock-store)
+      \comment{;; The `effective' dump function:}
+      (read-database-objects-and-write-them-to-external-sink))))
+\end{IndentedCompactCode}
+
+\refpar \Fcite{*default-depth*}, \fcite{clear-cache},
+\fcite{with-transaction}, \fcite{read-lock-store}.
+
+\section[PLOB in existing applications]%
+{Using \protect\plob\ with existing applications}
+
+It is possible to use \plob\ for making instances of existing
+applications persistent. This proceeding has been used already in
+\plob\ internally for integrating some LISP built in types as
+persistent classes.
+
+\subsection{Example: Persistent logical pathnames}
+
+For example, following steps have been done to create a persistent
+class for the built in class \class{logical-pathname}\ of \lwcl:
+\begin{enumerate}
+
+\item A constructor \fcite{make-logical-pathname-by-plob}\ is defined,
+  which creates a transient instance of class
+  \class{logical-pathname}:
+\begin{CompactCode}
+#+LispWorks
+(defun make-logical-pathname-by-plob
+     (&key host directory name type version)
+  "Create a LispWorks logical pathname which is loaded by PLOB"
+  (system::make-logical-pathname-from-components
+   host directory name type version))
+\end{CompactCode}
+
+Since instances of class \class{logical-pathname}\ in \lwcl\ are
+represented as structure instances, the arguments of this constructor
+resemble the \lisp{\&key}\ arguments given to a system generated
+structure constructor function for a `normal' \lisp{defstruct}\ class.
+
+\item This instance constructor is registered as constructor function
+  for instances of class \class{logical-pathname}\ into \plobwoexcl:
+\begin{CompactCode}
+#+LispWorks
+(setf (class-constructor (find-class 'logical-pathname))
+      'make-logical-pathname-by-plob)
+\end{CompactCode}
+
+\item The class extent of class \class{logical-pathname}\ is set to
+  \lisp{:cached}:
+\begin{CompactCode}
+#+LispWorks
+(setf (class-extent (find-class 'logical-pathname)) :cached)
+\end{CompactCode}
+
+\item The slot \textbf{system::device}\ of class
+  \class{logical-pathname}\ is made transient, since it is not needed
+  in the persistent representation:
+\begin{CompactCode}
+#+LispWorks
+(setf (slot-extent 'system::device (find-class 'logical-pathname))
+      :transient)
+\end{CompactCode}
+
+\end{enumerate}
+Now, instances of the \lwcl\ built in class \class{logical-pathname}\ 
+are handled as persistent structure instances. The approach for
+\allegrocl\ would be similar as shown here.
+
+\subsection{General proceeding for legacy systems}
+
+\begin{fortune}
+\hspace*{\fill}Give me all your lupines, please!
+\from{Monty Python}
+\end{fortune}
+
+Using \plob\ with existing applications depends of course very much on
+the application in consideration, so more general rules and hints are
+given here. One of the following two proposals or a combination of
+them should be feasible to make instances of existing applications
+persistent.
+
+\subsubsection{Using the loose binding}
+
+The loose binding (section \Nameref{sec:LooseBinding}) could be used
+for example by `hooking' into the application at appropiate places,
+calling functions \fcite*{store-object}\ and \fcite*{load-object}\ on
+the objects to make persistent. A load could be done at application
+startup and a store at application shutdown. It should be checked if
+the application has generic functions for doing this.
+
+Top-level declarations (section \Nameref{sec:ToplevelDeclarations})
+can be used to accomplish or optimize this binding. It is important to
+declare those slots as being \lisp{:transient}\ which reference
+pure-transient data, because the transitive closure of such data could
+become very large.
+
+\subsubsection{Using the tight binding}
+
+The tight binding (section \Nameref{sec:TightBinding}) could be used
+by trying at first to retrieve the original class definitions of the
+classes whose instance should be made persistent, for example with the
+help of the LISP inspector. After having obtained the original class
+definition, there are two possibilities to continue, either to
+redefine the `old' class definition or to create a new one.
+
+\paragraph{Redefine old definition} This is accomplished by adding the
+class option \lisp{(:metaclass persistent-metaclass)}\ to the
+original class definition, and the modified definition is evaluated.
+This would add a true tight binding, but might slow down the
+application considerably or might cause other problems, like
+application instability.
+
+\paragraph{Create a new class definition} This is accomplished by
+creating a new class with another name and a class option
+\lisp{(:metaclass persistent-metaclass)}, having more or less the same
+slots as the original class definition.  This would create a new,
+persistent class tree besides the existing, transient one. The
+way-of-working is similar to the solution proposed by employing the
+loose binding: There must be some equalization between instances of
+both trees. Or, \lisp{(change-class)}\ could be used on those (single)
+transient instances which should be held persistent.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "userg"
+%%% End: 
