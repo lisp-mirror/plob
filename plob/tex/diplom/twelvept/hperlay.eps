@@ -1,0 +1,200 @@
+%!PS-Adobe-2.0 EPSF-2.0
+%%Creator: kirschke at ki10
+%%Title: hperlay.dvi
+%%CreationDate: Mon Mar 10 15:44:34 1997
+%%BoundingBox: 110 610 470 710 
+%%EndComments
+%
+% dviteps: WARNING: Files included by dvips have been removed by
+%          dviteps for efficency reasons.
+%          Please make sure that the enclosing PostScript file
+%          includes the files deleted here; it are:
+% dviteps: texc.pro
+% dviteps: texps.pro
+%
+%DVIPSCommandLine: dvips -o /tmp/8120_dteps.t1 -D 600
+%+ twelvept/hperlay.dvi
+%DVIPSParameters: dpi=600, compressed, comments removed
+%DVIPSSource:  TeX output 1997.03.10:1544
+%%BeginProcSet: texc.pro
+% dviteps: Deleted including file
+%%EndProcSet
+%%BeginFont: Times-Roman
+% @psencodingfile{
+%   author = "P. MacKay, Alan Jeffrey, S. Rahtz, K. Berry, B. Horn",
+%   version = "0.2",
+%   date = "7 September 94",
+%   filename = "8r.enc",
+%   email = "kb@cs.umb.edu",
+%   address = "135 Center Hill Rd. // Plymouth, MA 02360",
+%   codetable = "ISO/ASCII",
+%   checksum = "xx",
+%   docstring = "Encoding for TrueType or Type 1 fonts to be used with TeX."
+% }
+% 
+% Idea is to have all the characters normally included in Type 1 fonts
+% available for typesetting. This is effectively the characters in Adobe
+% Standard Encoding + ISO Latin 1 + extra characters from Lucida.
+% 
+% Character code assignments were made as follows:
+% 
+% (1) the Windows ANSI characters are in their Windows ANSI positions,
+% because Windows users cannot easily reencode the fonts, and it makes
+% no difference on other systems. The only Windows ANSI characters not
+% available are those that make no sense for typesetting -- rubout
+% (127 decimal), nobreakspace (160), softhyphen (173).
+% 
+% (2) The caron and dotlessi characters are in the positions used by
+% Y&Y for their modified ATM encoding.
+% 
+% (3) Remaining characters are assigned arbitrarily to the first few
+% positions.
+% 
+% (4) (Y&Y) Lucida Bright includes some extra text characters; in the
+% hopes that other PostScript fonts, perhaps created for public
+% consumption, will include them, they are included starting at 0x10.
+% 
+% (5) Remaining positions left undefined are for use in (hopefully)
+% upward-compatible revisions, if someday more characters are generally
+% available in the Type 1 fonts.
+% 
+% Ligatures are omitted, since this encoding is intended for use at the
+% driver end. Including ligatures and kerns would make the TFM files
+% much larger, to no particular purpose. If someone actually wants to
+% typeset in this encoding, they can pick a different name, and regenerate
+% the fonts.
+ 
+/TeXBase1Encoding [
+% 0x00 (encoded characters from Adobe Standard not in Windows 3.1)
+  /breve /dotaccent /fi /fl
+  /fraction /hungarumlaut /Lslash /lslash
+  /ogonek /ring /tilde /minus
+  % These are the only two remaining unencoded characters, so may as
+  % well include them.
+  /Zcaron /zcaron /.notdef /.notdef
+% 0x10 (TeX characters from, e.g., Lucida Bright)
+ /dotlessj /ff /ffi /ffl /.notdef /.notdef /.notdef /.notdef
+ /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+% 0x20 (ASCII begins)
+ /space /exclam /quotedbl /numbersign
+ /dollar /percent /ampersand /quotesingle
+ /parenleft /parenright /asterisk /plus /comma /hyphen /period /slash
+% 0x30
+ /zero /one /two /three /four /five /six /seven
+ /eight /nine /colon /semicolon /less /equal /greater /question
+% 0x40
+ /at /A /B /C /D /E /F /G /H /I /J /K /L /M /N /O
+% 0x50
+ /P /Q /R /S /T /U /V /W
+ /X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore
+% 0x60
+ /grave /a /b /c /d /e /f /g /h /i /j /k /l /m /n /o
+% 0x70
+ /p /q /r /s /t /u /v /w
+ /x /y /z /braceleft /bar /braceright /asciitilde
+ /.notdef % rubout; ASCII ends
+% 0x80
+ /.notdef /.notdef /quotesinglbase /florin
+ /quotedblbase /ellipsis /dagger /daggerdbl
+ /circumflex /perthousand /Scaron /guilsinglleft
+ /OE
+ /caron % Y&Y
+ /.notdef
+ /.notdef
+% 0x90
+ /.notdef /quoteleft /quoteright /quotedblleft
+ /quotedblright /bullet /endash /emdash
+ /tildeaccent /trademark /scaron /guilsinglright
+ /oe
+ /dotlessi % Y&Y
+ /.notdef
+ /Ydieresis
+% 0xA0
+ /.notdef % nobreakspace
+ /exclamdown /cent /sterling
+ /currency /yen /brokenbar /section
+ /dieresis /copyright /ordfeminine /guillemotleft
+ /logicalnot
+ /hyphen % Y&Y (also at 45); Windows' softhyphen
+ /registered
+ /macron
+% 0xD0
+ /degree /plusminus /twosuperior /threesuperior
+ /acute /mu /paragraph /periodcentered
+ /cedilla /onesuperior /ordmasculine /guillemotright
+ /onequarter /onehalf /threequarters /questiondown
+% 0xC0
+ /Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla
+ /Egrave /Eacute /Ecircumflex /Edieresis
+ /Igrave /Iacute /Icircumflex /Idieresis
+% 0xD0
+ /Eth /Ntilde /Ograve /Oacute
+ /Ocircumflex /Otilde /Odieresis /multiply
+ /Oslash /Ugrave /Uacute /Ucircumflex
+ /Udieresis /Yacute /Thorn /germandbls
+% 0xE0
+ /agrave /aacute /acircumflex /atilde
+ /adieresis /aring /ae /ccedilla
+ /egrave /eacute /ecircumflex /edieresis
+ /igrave /iacute /icircumflex /idieresis
+% 0xF0
+ /eth /ntilde /ograve /oacute
+ /ocircumflex /otilde /odieresis /divide
+ /oslash /ugrave /uacute /ucircumflex
+ /udieresis /yacute /thorn /ydieresis
+] def
+%%EndFont
+%%BeginProcSet: texps.pro
+% dviteps: Deleted including file
+%%EndProcSet
+TeXDict begin 39158280 55380996 1000 600 600 (twelvept/hperlay.dvi)
+@start /Fa 2 114 df<126012F812FEEA7F806C7EEA0FF0EA03FCC6B4FCEB7FC0EB1FE0
+EB07F8EB01FE9038007F806E7EEC0FF0EC03FCEC00FFED7FC0ED1FE0ED07F8ED01FEED00
+7F163F160F281882812A>77 D<160F163F167FED01FEED07F8ED1FE0ED3FC0EDFF00EC03
+FCEC0FF0EC3FE0EC7F80D901FEC7FCEB07F8EB1FE0495A01FFC8FCEA03FCEA0FF0EA3FC0
+485A00FEC9FC12F81260281882952A>113 D E /Fb 4 121 df<EAFFF0EBFFE0ECFF8015
+F8D8001F13FFD9003F13E0020013FC92380FFF80030113E09238003FF8EE07FC16001738
+2E0DAC8A00>38 D<ED0180ED07C0150FED3F80ED7F0015FC4A5AEC07F04A5AEC1F804AC7
+FC147E5C495A495A495A495A495A49C8FC133E5B13FC485A485A5B485A120F485A90C9FC
+123E127E127C5AA25A12202224A08100>56 D<127012FCB47EEA7FF0EA1FFE3807FFC0C6
+13FC90381FFFF00103EBFFE0D9007FEBFFFC1407EC001FED003F2E0D828100>102
+D<5DED03C01507A2ED0F80151F1600153E157E5D5D4A5A14034A5A4A5A5D4AC7FC5C147E
+5C495A495A495A495A495A49C8FC137E485A485AEA07E0485AEA3F8048C9FC12FC5A1260
+222482A100>120 D E /Fc 4 121 df<122012F07EA2127C127E123E7E7F6C7E12076C7E
+7F6C7E6C7E137C7F133F6D7E6D7E6D7E6D7E6D7E6D7E147E806E7EEC0FE06E7EEC01F86E
+7E157FED3F80ED0FC01507ED01802224A0A100>38 D<173817FC1607EE3FF8923801FFE0
+030F13809238FFFC00023F13E0011FB5C7FCB612F8158002E0C8FC01F0C9FC2E0DAC8100
+>56 D<126012F87E127F6C7EEA0FC06C7EEA03F86C7EEA007E7F6D7E6D7E6D7E6D7E6D7E
+6D7E147E80806E7E816E7E6E7E14016E7E81157E153E811680150FED07C0A21503ED0100
+2224828100>102 D<EE3FFCED1FFF0207B5FC147F0103B5EAE000011F01F0C7FCD9FFFC
+C8FC000713C0D81FFEC9FCEA7FF0EAFF8000FCCAFC12702E0D828A00>120
+D E /Fd 134[50 4[28 39 33 1[50 50 50 78 28 50 28 28 50
+2[44 1[44 50 44 12[61 55 2[55 72 13[72 65[{
+TeXBase1Encoding ReEncodeFont}22 100.000000 /Times-Roman
+rf end
+%%EndProlog
+%%BeginSetup
+%%Feature: *Resolution 600dpi
+TeXDict begin
+%%PaperSize: a4
+
+%%EndSetup
+%%Page: 1 1
+1 0 bop 1021 514 1595 4 v 2614 812 4 300 v 1021 813 1595
+4 v 1020 812 4 300 v 1580 685 a Fd(Applikation)p 324
+1038 1395 4 v 1717 1336 4 300 v 324 1337 1395 4 v 322
+1336 4 300 v 1420 812 a Fc(8)p Fb(8)1021 1036 y Fc(x)p
+Fb(x)1383 832 y Fa(q)1351 851 y(q)1318 869 y(q)1285 888
+y(q)1252 906 y(q)1219 925 y(q)1186 943 y(q)1153 962 y(q)1120
+980 y(q)1087 999 y(q)1054 1017 y(q)1021 1036 y(q)p 1918
+1038 1395 4 v 3311 1336 4 300 v 1918 1337 1395 4 v 1916
+1336 4 300 v 2217 812 a Fc(f)p Fb(f)2615 1036 y Fc(&)p
+Fb(&)2217 812 y Fa(M)2250 830 y(M)2283 849 y(M)2316 867
+y(M)2348 886 y(M)2381 904 y(M)2414 923 y(M)2447 941 y(M)2480
+960 y(M)2513 979 y(M)2546 997 y(M)2579 1016 y(M)507 1209
+y Fd(T)m(ransientes)24 b(Objektsystem)658 b(Persistenter)25
+b(Speicher)p eop
+%%Trailer
+end
+userdict /end-hook known{end-hook}if
+%%EOF

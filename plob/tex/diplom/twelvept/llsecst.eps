@@ -1,0 +1,245 @@
+%!PS-Adobe-2.0 EPSF-2.0
+%%Creator: kirschke at ki10
+%%Title: llsecst.dvi
+%%CreationDate: Mon Mar 10 15:45:42 1997
+%%BoundingBox: 110 517 446 710 
+%%EndComments
+%
+% dviteps: WARNING: Files included by dvips have been removed by
+%          dviteps for efficency reasons.
+%          Please make sure that the enclosing PostScript file
+%          includes the files deleted here; it are:
+% dviteps: texc.pro
+% dviteps: texps.pro
+%
+%DVIPSCommandLine: dvips -o /tmp/8358_dteps.t1 -D 600
+%+ twelvept/llsecst.dvi
+%DVIPSParameters: dpi=600, compressed, comments removed
+%DVIPSSource:  TeX output 1997.03.10:1545
+%%BeginProcSet: texc.pro
+% dviteps: Deleted including file
+%%EndProcSet
+%%BeginFont: Times-Roman
+% @psencodingfile{
+%   author = "P. MacKay, Alan Jeffrey, S. Rahtz, K. Berry, B. Horn",
+%   version = "0.2",
+%   date = "7 September 94",
+%   filename = "8r.enc",
+%   email = "kb@cs.umb.edu",
+%   address = "135 Center Hill Rd. // Plymouth, MA 02360",
+%   codetable = "ISO/ASCII",
+%   checksum = "xx",
+%   docstring = "Encoding for TrueType or Type 1 fonts to be used with TeX."
+% }
+% 
+% Idea is to have all the characters normally included in Type 1 fonts
+% available for typesetting. This is effectively the characters in Adobe
+% Standard Encoding + ISO Latin 1 + extra characters from Lucida.
+% 
+% Character code assignments were made as follows:
+% 
+% (1) the Windows ANSI characters are in their Windows ANSI positions,
+% because Windows users cannot easily reencode the fonts, and it makes
+% no difference on other systems. The only Windows ANSI characters not
+% available are those that make no sense for typesetting -- rubout
+% (127 decimal), nobreakspace (160), softhyphen (173).
+% 
+% (2) The caron and dotlessi characters are in the positions used by
+% Y&Y for their modified ATM encoding.
+% 
+% (3) Remaining characters are assigned arbitrarily to the first few
+% positions.
+% 
+% (4) (Y&Y) Lucida Bright includes some extra text characters; in the
+% hopes that other PostScript fonts, perhaps created for public
+% consumption, will include them, they are included starting at 0x10.
+% 
+% (5) Remaining positions left undefined are for use in (hopefully)
+% upward-compatible revisions, if someday more characters are generally
+% available in the Type 1 fonts.
+% 
+% Ligatures are omitted, since this encoding is intended for use at the
+% driver end. Including ligatures and kerns would make the TFM files
+% much larger, to no particular purpose. If someone actually wants to
+% typeset in this encoding, they can pick a different name, and regenerate
+% the fonts.
+ 
+/TeXBase1Encoding [
+% 0x00 (encoded characters from Adobe Standard not in Windows 3.1)
+  /breve /dotaccent /fi /fl
+  /fraction /hungarumlaut /Lslash /lslash
+  /ogonek /ring /tilde /minus
+  % These are the only two remaining unencoded characters, so may as
+  % well include them.
+  /Zcaron /zcaron /.notdef /.notdef
+% 0x10 (TeX characters from, e.g., Lucida Bright)
+ /dotlessj /ff /ffi /ffl /.notdef /.notdef /.notdef /.notdef
+ /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+% 0x20 (ASCII begins)
+ /space /exclam /quotedbl /numbersign
+ /dollar /percent /ampersand /quotesingle
+ /parenleft /parenright /asterisk /plus /comma /hyphen /period /slash
+% 0x30
+ /zero /one /two /three /four /five /six /seven
+ /eight /nine /colon /semicolon /less /equal /greater /question
+% 0x40
+ /at /A /B /C /D /E /F /G /H /I /J /K /L /M /N /O
+% 0x50
+ /P /Q /R /S /T /U /V /W
+ /X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore
+% 0x60
+ /grave /a /b /c /d /e /f /g /h /i /j /k /l /m /n /o
+% 0x70
+ /p /q /r /s /t /u /v /w
+ /x /y /z /braceleft /bar /braceright /asciitilde
+ /.notdef % rubout; ASCII ends
+% 0x80
+ /.notdef /.notdef /quotesinglbase /florin
+ /quotedblbase /ellipsis /dagger /daggerdbl
+ /circumflex /perthousand /Scaron /guilsinglleft
+ /OE
+ /caron % Y&Y
+ /.notdef
+ /.notdef
+% 0x90
+ /.notdef /quoteleft /quoteright /quotedblleft
+ /quotedblright /bullet /endash /emdash
+ /tildeaccent /trademark /scaron /guilsinglright
+ /oe
+ /dotlessi % Y&Y
+ /.notdef
+ /Ydieresis
+% 0xA0
+ /.notdef % nobreakspace
+ /exclamdown /cent /sterling
+ /currency /yen /brokenbar /section
+ /dieresis /copyright /ordfeminine /guillemotleft
+ /logicalnot
+ /hyphen % Y&Y (also at 45); Windows' softhyphen
+ /registered
+ /macron
+% 0xD0
+ /degree /plusminus /twosuperior /threesuperior
+ /acute /mu /paragraph /periodcentered
+ /cedilla /onesuperior /ordmasculine /guillemotright
+ /onequarter /onehalf /threequarters /questiondown
+% 0xC0
+ /Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla
+ /Egrave /Eacute /Ecircumflex /Edieresis
+ /Igrave /Iacute /Icircumflex /Idieresis
+% 0xD0
+ /Eth /Ntilde /Ograve /Oacute
+ /Ocircumflex /Otilde /Odieresis /multiply
+ /Oslash /Ugrave /Uacute /Ucircumflex
+ /Udieresis /Yacute /Thorn /germandbls
+% 0xE0
+ /agrave /aacute /acircumflex /atilde
+ /adieresis /aring /ae /ccedilla
+ /egrave /eacute /ecircumflex /edieresis
+ /igrave /iacute /icircumflex /idieresis
+% 0xF0
+ /eth /ntilde /ograve /oacute
+ /ocircumflex /otilde /odieresis /divide
+ /oslash /ugrave /uacute /ucircumflex
+ /udieresis /yacute /thorn /ydieresis
+] def
+%%EndFont
+%%BeginProcSet: texps.pro
+% dviteps: Deleted including file
+%%EndProcSet
+TeXDict begin 39158280 55380996 1000 600 600 (twelvept/llsecst.dvi)
+@start /Fa 1 37 df<0278151EA402F8151F4A81A20101834A150701038349486F7EA2
+49486F7E49CA7E4983017E177E49834848EF1F804848EF0FC0D80FE0EF07F0003FBA12FC
+BCFCA2003F19FCD80FE0CAEA07F0D803F0EF0FC06C6CEF1F806C6CEF3F00017E177E6D5F
+6D5F6D6C4B5A6D6C4B5AA26D6C4B5A01015F6E150F010094C7FCA26E5D0278151EA4482C
+7BAA53>36 D E /Fb 32[42 101[42 3[42 23 32 28 1[42 1[42
+65 1[42 23 23 42 2[37 1[37 42 37 12[51 46 2[46 60 10[60
+64[46 3[{TeXBase1Encoding ReEncodeFont}23 83.333336 /Times-Roman
+rf /Fc 4 112 df<122012F07EA2127CA27EA27EA26C7EA212077FA26C7EA212017FA212
+007FA21378A2137CA2133C133EA2131EA3131FA27FA41480A21307A4EB0300112E8FAB00
+>15 D<EE01F8EE3FFCED07FF037F13F80203B51200021F13E0DAFFFCC7FC010713C0D91F
+FEC8FCEB7FF03801FF80D807FCC9FCEA1FF0EA7FC048CAFC12FC12702E11AC8100>47
+D<126012F0A47EA21278A4127CA2123CA3123EA2121E121FA27EA27FA212077FA212037F
+A26C7EA212007FA2137CA27FA27FA2EB0F80A21307EB0200112E828100>79
+D<173817FC1603EE0FF8EE3FE0EEFF80923807FE00ED3FF8913801FFE0020F1380DAFFFC
+C7FC011F13E00003B5C8FC007F13F8B5128001F0C9FC007ECAFC2E11828E00>111
+D E /Fd 4 112 df<1302EB0780130FA2EB1F00A2133EA25BA25BA25B1201A2485AA25B
+1207A25B120FA290C7FCA25AA2121E123EA2123CA3127CA21278A412F8A25AA41260112E
+82AB00>15 D<127012FCB4FCEA7FC0EA1FF0EA07FC3801FF8038007FF0EB1FFE903807FF
+C0010013FC91381FFFE0020313FFDA007F13F8030713FCED003FEE01F82E11AC8E00>47
+D<1303EB0780A4130FA21400A45BA2131EA3133EA2133C137CA21378A213F8A25B1201A2
+5B1203A2485AA25B120FA248C7FCA2123EA25AA25AA25A1220112E8F8100>79
+D<127EEAFFF0EBFF806C13F8000313FFD8001F13E0010013FC91380FFF80020113E09138
+003FF8ED07FE923800FF80EE3FE0EE0FF8EE03FC160017382E11828100>111
+D E /Fe 134[50 4[28 39 33 1[50 50 50 78 1[50 28 28 50
+2[44 1[44 50 44 13[55 2[55 72 2[61 2[33 4[72 66 21[33
+45[{TeXBase1Encoding ReEncodeFont}24 100.000000 /Times-Roman
+rf /Ff 2 96 df<126012F0B3B3A81260042E828100>31 D<007FB712F8B812FCA26C16
+F82E0482812A>95 D E end
+%%EndProlog
+%%BeginSetup
+%%Feature: *Resolution 600dpi
+TeXDict begin
+%%PaperSize: a4
+
+%%EndSetup
+%%Page: 1 1
+1 0 bop 1137 512 a Ff(_)-123 b(_)g(_)f(_)h(_)g(_)f(_)h(_)g(_)f(_)h(_)
+1179 1905 y(\037)1179 1823 y(\037)1179 1741 y(\037)1179
+1659 y(\037)1179 1577 y(\037)1179 1495 y(\037)1179 1413
+y(\037)1179 1331 y(\037)1179 1249 y(\037)1179 1167 y(\037)1179
+1086 y(\037)1179 1004 y(\037)1179 922 y(\037)1179 840
+y(\037)1179 758 y(\037)1179 676 y(\037)1179 594 y(\037)1179
+512 y(\037)324 1946 y(_)39 b(_)h(_)f(_)g(_)h(_)f(_)g(_)h(_)f(_)g(_)324
+512 y(\037)324 594 y(\037)324 676 y(\037)324 758 y(\037)324
+840 y(\037)324 922 y(\037)324 1004 y(\037)324 1086 y(\037)324
+1167 y(\037)324 1249 y(\037)324 1331 y(\037)324 1413
+y(\037)324 1495 y(\037)324 1577 y(\037)324 1659 y(\037)324
+1741 y(\037)324 1823 y(\037)324 1905 y(\037)2183 512
+y(_)-124 b(_)g(_)g(_)f(_)h(_)g(_)g(_)f(_)h(_)g(_)g(_)2225
+1905 y(\037)2225 1823 y(\037)2225 1741 y(\037)2225 1659
+y(\037)2225 1577 y(\037)2225 1495 y(\037)2225 1413 y(\037)2225
+1331 y(\037)2225 1249 y(\037)2225 1167 y(\037)2225 1086
+y(\037)2225 1004 y(\037)2225 922 y(\037)2225 840 y(\037)2225
+758 y(\037)2225 676 y(\037)2225 594 y(\037)2225 512 y(\037)1279
+1946 y(_)40 b(_)g(_)g(_)h(_)f(_)g(_)g(_)h(_)f(_)g(_)g(_)1279
+512 y(\037)1279 594 y(\037)1279 676 y(\037)1279 758 y(\037)1279
+840 y(\037)1279 922 y(\037)1279 1004 y(\037)1279 1086
+y(\037)1279 1167 y(\037)1279 1249 y(\037)1279 1331 y(\037)1279
+1413 y(\037)1279 1495 y(\037)1279 1577 y(\037)1279 1659
+y(\037)1279 1741 y(\037)1279 1823 y(\037)1279 1905 y(\037)3069
+512 y(_)-125 b(_)h(_)f(_)g(_)g(_)h(_)f(_)g(_)h(_)3110
+1905 y(\037)3110 1823 y(\037)3110 1741 y(\037)3110 1659
+y(\037)3110 1577 y(\037)3110 1495 y(\037)3110 1413 y(\037)3110
+1331 y(\037)3110 1249 y(\037)3110 1167 y(\037)3110 1086
+y(\037)3110 1004 y(\037)3110 922 y(\037)3110 840 y(\037)3110
+758 y(\037)3110 676 y(\037)3110 594 y(\037)3110 512 y(\037)2325
+1946 y(_)40 b(_)h(_)g(_)f(_)h(_)g(_)g(_)f(_)h(_)2325
+512 y(\037)2325 594 y(\037)2325 676 y(\037)2325 758 y(\037)2325
+840 y(\037)2325 922 y(\037)2325 1004 y(\037)2325 1086
+y(\037)2325 1167 y(\037)2325 1249 y(\037)2325 1331 y(\037)2325
+1413 y(\037)2325 1495 y(\037)2325 1577 y(\037)2325 1659
+y(\037)2325 1741 y(\037)2325 1823 y(\037)2325 1905 y(\037)p
+423 603 656 4 v 1078 980 4 379 v 423 982 656 4 v 422
+980 4 379 v 1378 603 748 4 v 2124 980 4 379 v 1378 982
+748 4 v 1377 980 4 379 v 624 824 a Fe(CLOS)1378 791 y
+Fd(/)p Fc(/)-299 b Fd(o)p Fc(o)p 1079 793 299 4 v 1517
+759 a Fe(Persistentes)1478 869 y(Objektsystem)751 1204
+y Fd(\017)p Fc(\017)751 980 y Fd(O)p Fc(O)p 750 1204
+4 225 v 1752 1204 a Fd(\017)p Fc(\017)1752 980 y Fd(O)p
+Fc(O)p 1750 1204 V 423 1206 656 4 v 1078 1583 4 379 v
+423 1584 656 4 v 422 1583 4 379 v 1378 1206 748 4 v 2124
+1583 4 379 v 1378 1584 748 4 v 1377 1583 4 379 v 2424
+1206 587 4 v 3009 1583 4 379 v 2424 1584 587 4 v 2423
+1583 4 379 v 566 1372 a Fe(Common)649 1482 y(LISP)1378
+1394 y Fd(/)p Fc(/)g Fd(o)p Fc(o)p 1079 1395 299 4 v
+1600 1362 a Fe(Objekt-)1577 1472 y(Speicher)2424 1394
+y Fd(/)p Fc(/)g Fd(o)p Fc(o)p 2125 1395 V 2610 1427 a
+Fe(Datei)561 1729 y Fb(T)m(ransientes)523 1839 y(Objektsystem)1556
+1729 y(Persistentes)1523 1839 y(Objektsystem)2524 1729
+y(Persistenter)2572 1839 y(Speicher)2502 2109 y Fa($)21
+b Fb(Daten\003u\337)p eop
+%%Trailer
+end
+userdict /end-hook known{end-hook}if
+%%EOF

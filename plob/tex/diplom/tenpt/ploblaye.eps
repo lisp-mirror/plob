@@ -1,0 +1,423 @@
+%!PS-Adobe-2.0 EPSF-2.0
+%%Creator: kirschke at ki10
+%%Title: ploblaye.dvi
+%%CreationDate: Mon Mar 10 15:30:13 1997
+%%BoundingBox: 133 600 341 711 
+%%EndComments
+%
+% dviteps: WARNING: Files included by dvips have been removed by
+%          dviteps for efficency reasons.
+%          Please make sure that the enclosing PostScript file
+%          includes the files deleted here; it are:
+% dviteps: texc.pro
+% dviteps: texps.pro
+% dviteps: special.pro
+%
+%DVIPSCommandLine: dvips -o /tmp/7545_dteps.t1 -D 600 tenpt/ploblaye.dvi
+%DVIPSParameters: dpi=600, compressed, comments removed
+%DVIPSSource:  TeX output 1997.03.10:1530
+%%BeginProcSet: texc.pro
+% dviteps: Deleted including file
+%%EndProcSet
+%%BeginFont: Times-Roman
+% @psencodingfile{
+%   author = "P. MacKay, Alan Jeffrey, S. Rahtz, K. Berry, B. Horn",
+%   version = "0.2",
+%   date = "7 September 94",
+%   filename = "8r.enc",
+%   email = "kb@cs.umb.edu",
+%   address = "135 Center Hill Rd. // Plymouth, MA 02360",
+%   codetable = "ISO/ASCII",
+%   checksum = "xx",
+%   docstring = "Encoding for TrueType or Type 1 fonts to be used with TeX."
+% }
+% 
+% Idea is to have all the characters normally included in Type 1 fonts
+% available for typesetting. This is effectively the characters in Adobe
+% Standard Encoding + ISO Latin 1 + extra characters from Lucida.
+% 
+% Character code assignments were made as follows:
+% 
+% (1) the Windows ANSI characters are in their Windows ANSI positions,
+% because Windows users cannot easily reencode the fonts, and it makes
+% no difference on other systems. The only Windows ANSI characters not
+% available are those that make no sense for typesetting -- rubout
+% (127 decimal), nobreakspace (160), softhyphen (173).
+% 
+% (2) The caron and dotlessi characters are in the positions used by
+% Y&Y for their modified ATM encoding.
+% 
+% (3) Remaining characters are assigned arbitrarily to the first few
+% positions.
+% 
+% (4) (Y&Y) Lucida Bright includes some extra text characters; in the
+% hopes that other PostScript fonts, perhaps created for public
+% consumption, will include them, they are included starting at 0x10.
+% 
+% (5) Remaining positions left undefined are for use in (hopefully)
+% upward-compatible revisions, if someday more characters are generally
+% available in the Type 1 fonts.
+% 
+% Ligatures are omitted, since this encoding is intended for use at the
+% driver end. Including ligatures and kerns would make the TFM files
+% much larger, to no particular purpose. If someone actually wants to
+% typeset in this encoding, they can pick a different name, and regenerate
+% the fonts.
+ 
+/TeXBase1Encoding [
+% 0x00 (encoded characters from Adobe Standard not in Windows 3.1)
+  /breve /dotaccent /fi /fl
+  /fraction /hungarumlaut /Lslash /lslash
+  /ogonek /ring /tilde /minus
+  % These are the only two remaining unencoded characters, so may as
+  % well include them.
+  /Zcaron /zcaron /.notdef /.notdef
+% 0x10 (TeX characters from, e.g., Lucida Bright)
+ /dotlessj /ff /ffi /ffl /.notdef /.notdef /.notdef /.notdef
+ /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+% 0x20 (ASCII begins)
+ /space /exclam /quotedbl /numbersign
+ /dollar /percent /ampersand /quotesingle
+ /parenleft /parenright /asterisk /plus /comma /hyphen /period /slash
+% 0x30
+ /zero /one /two /three /four /five /six /seven
+ /eight /nine /colon /semicolon /less /equal /greater /question
+% 0x40
+ /at /A /B /C /D /E /F /G /H /I /J /K /L /M /N /O
+% 0x50
+ /P /Q /R /S /T /U /V /W
+ /X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore
+% 0x60
+ /grave /a /b /c /d /e /f /g /h /i /j /k /l /m /n /o
+% 0x70
+ /p /q /r /s /t /u /v /w
+ /x /y /z /braceleft /bar /braceright /asciitilde
+ /.notdef % rubout; ASCII ends
+% 0x80
+ /.notdef /.notdef /quotesinglbase /florin
+ /quotedblbase /ellipsis /dagger /daggerdbl
+ /circumflex /perthousand /Scaron /guilsinglleft
+ /OE
+ /caron % Y&Y
+ /.notdef
+ /.notdef
+% 0x90
+ /.notdef /quoteleft /quoteright /quotedblleft
+ /quotedblright /bullet /endash /emdash
+ /tildeaccent /trademark /scaron /guilsinglright
+ /oe
+ /dotlessi % Y&Y
+ /.notdef
+ /Ydieresis
+% 0xA0
+ /.notdef % nobreakspace
+ /exclamdown /cent /sterling
+ /currency /yen /brokenbar /section
+ /dieresis /copyright /ordfeminine /guillemotleft
+ /logicalnot
+ /hyphen % Y&Y (also at 45); Windows' softhyphen
+ /registered
+ /macron
+% 0xD0
+ /degree /plusminus /twosuperior /threesuperior
+ /acute /mu /paragraph /periodcentered
+ /cedilla /onesuperior /ordmasculine /guillemotright
+ /onequarter /onehalf /threequarters /questiondown
+% 0xC0
+ /Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla
+ /Egrave /Eacute /Ecircumflex /Edieresis
+ /Igrave /Iacute /Icircumflex /Idieresis
+% 0xD0
+ /Eth /Ntilde /Ograve /Oacute
+ /Ocircumflex /Otilde /Odieresis /multiply
+ /Oslash /Ugrave /Uacute /Ucircumflex
+ /Udieresis /Yacute /Thorn /germandbls
+% 0xE0
+ /agrave /aacute /acircumflex /atilde
+ /adieresis /aring /ae /ccedilla
+ /egrave /eacute /ecircumflex /edieresis
+ /igrave /iacute /icircumflex /idieresis
+% 0xF0
+ /eth /ntilde /ograve /oacute
+ /ocircumflex /otilde /odieresis /divide
+ /oslash /ugrave /uacute /ucircumflex
+ /udieresis /yacute /thorn /ydieresis
+] def
+%%EndFont
+%%BeginProcSet: texps.pro
+% dviteps: Deleted including file
+%%EndProcSet
+%%BeginProcSet: special.pro
+% dviteps: Deleted including file
+%%EndProcSet
+TeXDict begin 39158280 55380996 1000 600 600 (tenpt/ploblaye.dvi)
+@start /Fa 175[50 58 2[42 9[50 32[21 33[{TeXBase1Encoding ReEncodeFont}
+5 75.000000 /Helvetica rf /Fb 2 103 df<1270B4FC13E0EA7FFE381FFFC0000113
+FC39003FFFC0010313F89039007FFF80020713F09138007FFF030F13E0030013F0161F16
+012C0F82812A>86 D<17F0EE0FF8ED01FF031F13F00203B51280027FEBF8000107B5C7FC
+90B512F0000F49C8FC007F13C0D8FFFCC9FC13800078CAFC2D0D828A2A>102
+D E /Fc 8 116 df<122012F07EA2127CA27EA27EA26C7EA212077FA26C7EA212017FA2
+12007FA21378A2137CA2133C133EA2131EA3131FA27FA41480A21307A4EB0300112E8FAB
+00>15 D<023FB51280013FB612FC0007B712FE127FB500E0C712FC01E0C9FC00FCCAFC2F
+07AD8200>43 D<EE01F8EE3FFCED07FF037F13F80203B51200021F13E0DAFFFCC7FC0107
+13C0D91FFEC8FCEB7FF03801FF80D807FCC9FCEA1FF0EA7FC048CAFC12FC12702E11AC81
+00>47 D<1607EE1F8016FF03031300ED0FFCED3FF0EDFF80DA03FEC7FCEC0FF8EC1FE0EC
+7F8002FEC8FCEB03F8495AEB1FC0495A01FEC9FC485AEA03F0485AEA1FC0485A007ECAFC
+5A5A5A1240291BA78100>51 D<126012F0A47EA21278A4127CA2123CA3123EA2121E121F
+A27EA27FA212077FA212037FA26C7EA212007FA2137CA27FA27FA2EB0F80A21307EB0200
+112E828100>79 D<177EEE0FFE007EEC0FFFB812FC17C06CEDF800000302F8C7FC2F0782
+8300>107 D<173817FC1603EE0FF8EE3FE0EEFF80923807FE00ED3FF8913801FFE0020F
+1380DAFFFCC7FC011F13E00003B5C8FC007F13F8B5128001F0C9FC007ECAFC2E11828E00
+>111 D<5EEE0780160F161FEE3F0016FE4B5AED03F04B5AED1FC04B5A03FEC7FC4A5AEC
+07F04A5AEC3F8002FFC8FCEB03FCEB0FF8EB3FE0EBFF80D807FEC9FCEA1FF8EA7FE0EAFF
+8000FCCAFC1270291B829800>115 D E /Fd 8 116 df<1302EB0780130FA2EB1F00A213
+3EA25BA25BA25B1201A2485AA25B1207A25B120FA290C7FCA25AA2121E123EA2123CA312
+7CA21278A412F8A25AA41260112E82AB00>15 D<124012F07E7E127E6C7E6C7EEA07E06C
+7EEA01FC6C7EEB3F806D7EEB07F06D7EEB00FEEC7F80EC1FE0EC0FF8EC03FE913800FF80
+ED3FF0ED0FFCED03FF03001380161FEE0700291BA79800>43 D<127012FCB4FCEA7FC0EA
+1FF0EA07FC3801FF8038007FF0EB1FFE903807FFC0010013FC91381FFFE0020313FFDA00
+7F13F8030713FCED003FEE01F82E11AC8E00>47 D<12FCEAFFE0D9FFE014FC6C90B612FE
+1207D8003F15FCD9003F14802F07AD8300>51 D<1303EB0780A4130FA21400A45BA2131E
+A3133EA2133C137CA21378A213F8A25B1201A25B1203A2485AA25B120FA248C7FCA2123E
+A25AA25AA25A1220112E8F8100>79 D<127012FCB47EEA7FE0EA1FF8EA07FEC66C7EEB3F
+E0EB0FF8EB03FCEB00FFEC3F80EC0FE06E7EEC01FC6E7EED3F806F7EED07E06F7EED01FC
+6F7E163FEE1F80160F1607EE0100291B828100>107 D<127EEAFFF0EBFF806C13F80003
+13FFD8001F13E0010013FC91380FFF80020113E09138003FF8ED07FE923800FF80EE3FE0
+EE0FF8EE03FC160017382E11828100>111 D<0003B512F8007FECFFF8B812C017FC007E
+C7000F13FEC9120FEE007E2F07828200>115 D E /Fe 139[21 29
+25 1[37 37 37 1[21 2[21 1[37 1[33 1[33 37 33 11[54 46
+42 50 1[42 54 54 5[54 2[46 54 50 21[25 42[42 2[{
+TeXBase1Encoding ReEncodeFont}26 75.000000 /Times-Roman
+rf end
+%%EndProlog
+%%BeginSetup
+%%Feature: *Resolution 600dpi
+TeXDict begin
+%%PaperSize: a4
+
+%%EndSetup
+%%Page: 1 1
+1 0 bop 616 613 a Fe(Session)p 515 505 431 4 v 515 671
+4 167 v 941 671 V 515 674 431 4 v 750 w(Session)p 1493
+505 V 1493 671 4 167 v 1920 671 V 1493 674 431 4 v 966
+743 a Fd(+)p Fc(+)730 680 y Fd(k)p Fc(k)926 732 y Fb(V)887
+722 y(V)848 711 y(V)808 701 y(V)769 690 y(V)730 680 y(V)1396
+751 y Fd(s)p Fc(s)1708 680 y Fd(3)p Fc(3)1396 750 y Fb(f)1435
+741 y(f)1474 733 y(f)1513 724 y(f)1551 715 y(f)1590 706
+y(f)1629 697 y(f)1668 688 y(f)p 966 717 V 966 883 4 167
+v 1393 883 V 966 886 431 4 v 1092 817 a Fa(P)1136 837
+y(L)1152 817 y(O)1204 837 y(B)1250 817 y(!)1720 829 y
+Fe(T)m(ransaction)1668 911 y(UNDO)18 b(log\002les)p 966
+970 V 966 1136 4 167 v 1393 1136 V 966 1139 431 4 v 1181
+886 a Fd(O)p Fc(O)1181 967 y Fd(\017)p Fc(\017)p 1180
+967 4 81 v 1055 1071 a Fe(C-)p Fa(P)1174 1090 y(L)1190
+1071 y(O)1242 1090 y(B)1287 1071 y(!)1596 1053 y Fd(/)p
+Fc(/)-200 b Fd(o)p Fc(o)p 1396 1055 200 4 v 1596 1153
+a @beginspecial 0 @llx 0 @lly 27 @urx 24 @ury 270 @rwi
+@setspecial
+%%BeginDocument: diskfile.eps
+/$F2psDict 200 dict def 
+$F2psDict begin
+$F2psDict /mtrx matrix put
+/l {lineto} bind def
+/m {moveto} bind def
+/s {stroke} bind def
+/n {newpath} bind def
+/gs {gsave} bind def
+/gr {grestore} bind def
+/clp {closepath} bind def
+/graycol {dup dup currentrgbcolor 4 -2 roll mul 4 -2 roll mul
+4 -2 roll mul setrgbcolor} bind def
+/col-1 {} def
+/col0 {0 0 0 setrgbcolor} bind def
+/col1 {0 0 1 setrgbcolor} bind def
+/col2 {0 1 0 setrgbcolor} bind def
+/col3 {0 1 1 setrgbcolor} bind def
+/col4 {1 0 0 setrgbcolor} bind def
+/col5 {1 0 1 setrgbcolor} bind def
+/col6 {1 1 0 setrgbcolor} bind def
+/col7 {1 1 1 setrgbcolor} bind def
+/col8 {.68 .85 .9 setrgbcolor} bind def
+/col9 {0 .39 0 setrgbcolor} bind def
+/col10 {.65 .17 .17 setrgbcolor} bind def
+/col11 {1 .51 0 setrgbcolor} bind def
+/col12 {.63 .13 .94 setrgbcolor} bind def
+/col13 {1 .75 .8 setrgbcolor} bind def
+/col14 {.7 .13 .13 setrgbcolor} bind def
+/col15 {1 .84 0 setrgbcolor} bind def
+ /DrawEllipse {
+	/endangle exch def
+	/startangle exch def
+	/yrad exch def
+	/xrad exch def
+	/y exch def
+	/x exch def
+	/savematrix mtrx currentmatrix def
+	x y translate xrad yrad scale 0 0 1 startangle endangle arc
+	savematrix setmatrix
+	} def
+
+	end
+/$F2psBegin {$F2psDict begin /$F2psEnteredState save def} def
+/$F2psEnd {$F2psEnteredState restore end} def
+
+$F2psBegin
+0 setlinecap 0 setlinejoin
+-41.0 52.0 translate 0.900 -0.900 scale
+0.500 setlinewidth
+% Ellipse
+n 60 52 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 47 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 41 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 36 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+$F2psEnd
+%%EndDocument
+ @endspecial 424 w @beginspecial 0 @llx 0 @lly 27 @urx
+24 @ury 270 @rwi @setspecial
+%%BeginDocument: diskfile.eps
+/$F2psDict 200 dict def 
+$F2psDict begin
+$F2psDict /mtrx matrix put
+/l {lineto} bind def
+/m {moveto} bind def
+/s {stroke} bind def
+/n {newpath} bind def
+/gs {gsave} bind def
+/gr {grestore} bind def
+/clp {closepath} bind def
+/graycol {dup dup currentrgbcolor 4 -2 roll mul 4 -2 roll mul
+4 -2 roll mul setrgbcolor} bind def
+/col-1 {} def
+/col0 {0 0 0 setrgbcolor} bind def
+/col1 {0 0 1 setrgbcolor} bind def
+/col2 {0 1 0 setrgbcolor} bind def
+/col3 {0 1 1 setrgbcolor} bind def
+/col4 {1 0 0 setrgbcolor} bind def
+/col5 {1 0 1 setrgbcolor} bind def
+/col6 {1 1 0 setrgbcolor} bind def
+/col7 {1 1 1 setrgbcolor} bind def
+/col8 {.68 .85 .9 setrgbcolor} bind def
+/col9 {0 .39 0 setrgbcolor} bind def
+/col10 {.65 .17 .17 setrgbcolor} bind def
+/col11 {1 .51 0 setrgbcolor} bind def
+/col12 {.63 .13 .94 setrgbcolor} bind def
+/col13 {1 .75 .8 setrgbcolor} bind def
+/col14 {.7 .13 .13 setrgbcolor} bind def
+/col15 {1 .84 0 setrgbcolor} bind def
+ /DrawEllipse {
+	/endangle exch def
+	/startangle exch def
+	/yrad exch def
+	/xrad exch def
+	/y exch def
+	/x exch def
+	/savematrix mtrx currentmatrix def
+	x y translate xrad yrad scale 0 0 1 startangle endangle arc
+	savematrix setmatrix
+	} def
+
+	end
+/$F2psBegin {$F2psDict begin /$F2psEnteredState save def} def
+/$F2psEnd {$F2psEnteredState restore end} def
+
+$F2psBegin
+0 setlinecap 0 setlinejoin
+-41.0 52.0 translate 0.900 -0.900 scale
+0.500 setlinewidth
+% Ellipse
+n 60 52 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 47 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 41 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 36 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+$F2psEnd
+%%EndDocument
+ @endspecial 966 1237 431 4 v 966 1403 4 167 v 1393 1403
+V 966 1406 431 4 v 1181 1140 a Fd(O)p Fc(O)1181 1234
+y Fd(\017)p Fc(\017)p 1180 1234 4 95 v 1016 1345 a Fe(POST)o(ORE)1596
+1320 y Fd(/)p Fc(/)g Fd(o)p Fc(o)p 1396 1322 200 4 v
+1596 1420 a @beginspecial 0 @llx 0 @lly 27 @urx 24 @ury
+270 @rwi @setspecial
+%%BeginDocument: diskfile.eps
+/$F2psDict 200 dict def 
+$F2psDict begin
+$F2psDict /mtrx matrix put
+/l {lineto} bind def
+/m {moveto} bind def
+/s {stroke} bind def
+/n {newpath} bind def
+/gs {gsave} bind def
+/gr {grestore} bind def
+/clp {closepath} bind def
+/graycol {dup dup currentrgbcolor 4 -2 roll mul 4 -2 roll mul
+4 -2 roll mul setrgbcolor} bind def
+/col-1 {} def
+/col0 {0 0 0 setrgbcolor} bind def
+/col1 {0 0 1 setrgbcolor} bind def
+/col2 {0 1 0 setrgbcolor} bind def
+/col3 {0 1 1 setrgbcolor} bind def
+/col4 {1 0 0 setrgbcolor} bind def
+/col5 {1 0 1 setrgbcolor} bind def
+/col6 {1 1 0 setrgbcolor} bind def
+/col7 {1 1 1 setrgbcolor} bind def
+/col8 {.68 .85 .9 setrgbcolor} bind def
+/col9 {0 .39 0 setrgbcolor} bind def
+/col10 {.65 .17 .17 setrgbcolor} bind def
+/col11 {1 .51 0 setrgbcolor} bind def
+/col12 {.63 .13 .94 setrgbcolor} bind def
+/col13 {1 .75 .8 setrgbcolor} bind def
+/col14 {.7 .13 .13 setrgbcolor} bind def
+/col15 {1 .84 0 setrgbcolor} bind def
+ /DrawEllipse {
+	/endangle exch def
+	/startangle exch def
+	/yrad exch def
+	/xrad exch def
+	/y exch def
+	/x exch def
+	/savematrix mtrx currentmatrix def
+	x y translate xrad yrad scale 0 0 1 startangle endangle arc
+	savematrix setmatrix
+	} def
+
+	end
+/$F2psBegin {$F2psDict begin /$F2psEnteredState save def} def
+/$F2psEnd {$F2psEnteredState restore end} def
+
+$F2psBegin
+0 setlinecap 0 setlinejoin
+-41.0 52.0 translate 0.900 -0.900 scale
+0.500 setlinewidth
+% Ellipse
+n 60 52 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 47 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 41 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+% Ellipse
+n 60 36 15 5 0 360 DrawEllipse gs 0.75 setgray fill gr
+gs col-1 s gr
+$F2psEnd
+%%EndDocument
+ @endspecial 1876 1304 a Fe(Stable)19 b(Heap)2010 1387
+y(\002le)p eop
+%%Trailer
+end
+userdict /end-hook known{end-hook}if
+%%EOF
