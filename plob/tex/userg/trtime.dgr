@@ -1,0 +1,50 @@
+%       This is -*-LaTeX-*-
+%
+% 11.8.94
+%
+\input{diagdefs}%
+%
+\newlength{\csep}\setlength{\csep}{6em}%
+\newlength{\coliiw}\settowidth{\coliiw}{Abbruch}%
+%
+\newlength{\blskip}\setlength{\blskip}{\baselineskip}%
+%
+\def\Nultext#1{\save\Drop{\Text{\textrm{#1}}}\restore}
+\def\vbar{\left|\right.}%
+\def\tidx#1{\vbar\save\go+<0em,-2.5ex>\Drop{t_{#1}}\restore}%
+%
+\spreaddiagramrows{-1pc}%
+\spreaddiagramcolumns{-1.5pc}%
+\objectmargin{0pt}%
+%
+\begin{diagram}%
+%
+&\Nultext{Database state}
+        &&\rule{\csep}{0ex}%
+                &\rule{\csep}{0ex}\\
+\\
+\text{\textrm{z$_{n+1}$}}&\Nultext{---}%
+         &&&\xline[0,1]&
+                \raisebox{0.5ex}[0pt][0pt]{%
+                \parbox{\coliiw}{\flushleft\ end}}\\
+        &&&&\xdotted[1,0]&&\text{\textrm{of transaction}}\\
+\text{\textrm{z$_{n}$}}&
+ \save\go+<-0.5em,0ex>\xline[0,2]\restore
+        &&\xdotted[-2,1]\xdotted[-1,1]
+                &\xline[0,1]&
+                 \raisebox{0.5ex}[0pt][0pt]{%
+                 \parbox{\coliiw}{\flushleft\ abort}}\\
+%
+&\xto[-5,0]+<0ex,-1em>
+\xto[0,4]_>{\text{\textrm{\small time}}}
+&&\tidx{n}&\tidx{n+1}&
+&&\save\go+<0pt,0.5\blskip>\Drop{\parbox{10em}{\footnotesize%
+---: consistent state\\
+\raisebox{0.5ex}{\ldots}: inconsistent state
+}}\restore\\
+&&&\vbar%
+\rto%
+^{\text{\textrm{\small active}}}%
+_{\text{\textrm{\small transaction}}}&\vbar
+%
+\end{diagram}%
