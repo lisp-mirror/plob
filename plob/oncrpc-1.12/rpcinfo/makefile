@@ -9,9 +9,11 @@ RPCINCLUDEPATH = ..
 # you have to give the path to it here.
 RPCLIBPATH = ..\bin\\
 
-OBJS= rpcinfo.obj
-
+OBJS=rpcinfo.obj
 GOAL=rpcinfo.exe
+
+.c.obj:
+	$(cc) /I$(RPCINCLUDEPATH) $(cdebug) $(cflags) $(cvarsdll) $*.c
 
 $(GOAL): $(OBJS) $(RPCLIBPATH)\oncrpc.lib
 	$(link) $(ldebug) $(conflags) $(OBJS) -out:$(GOAL) $(conlibsdll) $(RPCLIBPATH)\oncrpc.lib wsock32.lib
@@ -20,8 +22,8 @@ $(GOAL): $(OBJS) $(RPCLIBPATH)\oncrpc.lib
 clean:
 	-del $(GOAL) $(OBJS)
 
-.c.obj:
-    $(cc) /I$(RPCINCLUDEPATH) $(cdebug) $(cflags) $(cvarsdll) $*.c
-
 rpcinfo.obj: rpcinfo.c getopt.c
 
+#### Local variables:
+#### buffer-file-coding-system: raw-text-dos
+#### End:
