@@ -444,8 +444,10 @@ rule ( target, \
 
 #define MkCopyRule(target,source,file)\
 rule ( paste2(target,file), \
-       paste2(source,file), \
-       cp option1(p) spc paste2(source,file) spc paste2(target,file) )
+       noDependencies, \
+       if [ option1(r) paste2(source,file) spc ]; then bsnl \
+         cp option1(p) spc paste2(source,file) spc paste2(target,file); bsnl \
+       fi )
 
 #define MkLispRule(prefix,filename,suffix)\
 rule ( paste3(prefix,filename,dot lisp), \
