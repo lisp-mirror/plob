@@ -321,6 +321,8 @@ Return a string describing the Stable Heap to be created."
      (+ (max #x30000000 #x64000000) *heap-spare-size*)
      #+(and :allegro :solaris2)
      (+ (max #x8000000 #x5000000) *heap-spare-size*)
+     #+(and :allegro :linux86 (version>= 6))
+     (+ (max #x71000000 #xa0000000) *heap-spare-size*)
      #+(and :allegro :linux86)
      (+ (max #x20000000 #x64000000) *heap-spare-size*)
      #+(and :lispworks :solaris2)

@@ -42,7 +42,7 @@
 
 ;;; --------------------------------------------------------------------------
 (defconstant +plob-dir+ ;; "/replace/this/by/your/PLOB/installation/directory"
-    #+:linux "/import/home0/hkirschk/plob-2.10"
+    #+:linux "/home/hkirschk/plob-2.10"
     #+:solaris2 "/home/hkirschk/plob-2.10"
     #+(or :win32 :mswindows) ;; "h:/plob-2.10"
     "c:/home/hkirschk/plob-2.10"

@@ -208,7 +208,7 @@ szCmdLine="${CPP}"
 if ${bVerbous}; then
   szCmdLine="${szCmdLine} -v"
 fi
-szIncludes="`echo \"-I${szIncludes}\"|sed -e "s/[:]/' -I'/g"`"
+szIncludes="`echo \"'-I${szIncludes}'\"|sed -e "s/[:]/' -I'/g"`"
 szCmdLine="${szCmdLine} ${szDefines} ${szIncludes} '${szTmpCfile}'"
 
 if [ -z "${szMakeFile}" ]; then

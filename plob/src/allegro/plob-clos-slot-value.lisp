@@ -138,8 +138,9 @@
       (setf (persistent-object-objid object) p-objid))
     (let* ((p-objid-vector +null-objid+) (slot-location 0)
            (expect-type-tag +null-type-tag+)
-           (slot-allocation (slot-definition-allocation slot-description)))
-      (declare (type fixnum p-objid-vector slot-location expect-type-tag))
+           (slot-allocation (slot-definition-allocation
+                             slot-description)))
+      (declare (type fixnum slot-location expect-type-tag))
       (ecase slot-allocation
         (:structure
 	 (setf p-objid-vector p-objid)

@@ -50,10 +50,10 @@ drule ( initial, \
 	noActions )
 
 rule ( allegro dash directories, \
-       allegro4 allegro5, \
+       allegro4 allegro5 allegro6, \
        noActions )
 
-rule ( allegro4 allegro5, \
+rule ( allegro4 allegro5 allegro6, \
        noDependencies, \
        mkdir ruleTarget )
 

@@ -430,8 +430,7 @@
 				           slot-descr))
                            (sub-objid +null-objid+)
                            (sub-type-tag +null-type-tag+))
-		      (declare (type fixnum p-objid-vector location
-                                     sub-objid sub-type-tag)
+		      (declare (type fixnum sub-objid sub-type-tag)
 			       #-:lispworks4 ;; and hopefully not later
 			       (dynamic-extent slot-name slot-allocation
 					       slot-extent slot-deferred

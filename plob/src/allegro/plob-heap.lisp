@@ -953,6 +953,8 @@
 
   (declare (type fixnum the-p-marker at-location
 		 expecting-type-tag expecting-class))
+  ;; 2002-04-19 HK: The (assert ...) prevents LWL from writing a
+  ;; .fasl:
   #-:lispworks4.2
   (assert (typep the-p-marker 'p-marker-type))
   (sh-write-index (persistent-object-objid p-heap)

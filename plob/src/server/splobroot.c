@@ -1261,7 +1261,7 @@ BeginFunction ( SHORTOBJID,
 	  " napier@dcs.st-and.ac.uk\n"
 	  "PLOB! comes with ABSOLUTELY NO WARRANTY;"
 	  " for details, look into the\n"
-	  " user's guide `plob/ps/userg.ps'"
+	  " user's guide `userg.pdf'"
 	  " provided within the distribution.",
 	  szUnderline, szVersion, szUnderline,
 	  fnGetCopyrightString () ));
