@@ -1,0 +1,57 @@
+% Think document style release 1.0 from 28 June 1993	-*-LaTeX-*-
+%   for LaTeX version 2.09
+% Copyright (C) 1993 by Heiko Kirschke
+% kirschke@informatik.uni-hamburg.de
+%
+% Macros exported:
+%   \think{<comment>}[<optional answer>]
+% Description:
+%   A style option for comments inserted into running text. Each
+%   <comment> is preceeded by \"{U}berlegen:. If the <optional answer>
+%   is given, it is appended as Antwort: to the <comment>; if the
+%   <optional answer> is missing, a warning is \typedout. Each
+%   unanswered <comment> is marked with a \Leftarrow (<=) at the
+%   right margin; an answered <comment> is marked with a \leftarrow
+%   (<-) at the right margin.
+%   A \def\nothink{} BEFORE the LaTeX \documentstyle line switches
+%   all comments off.
+%
+\def\fileversion{1}
+\def\filedate{94/11/09}
+\def\docdate {94/11/09}
+\ProvidesPackage{think}[\filedate\space\fileversion\space
+ LaTeX2e `think' package]
+
+\newif\ifdothink\dothinktrue
+
+\DeclareOption{nothink}{\dothinkfalse}
+\ProcessOptions
+
+%
+\long\def\@think#1[#2]{%
+% #1: Text, was denn noch zu ueberlegen sei
+% #2: Antwort auf die Ueberlegung; fehlt diese, wird eine Meldung
+%     ausgegeben 
+\ifdothink
+\if@tempswa%
+\def\useleft{$\rightarrow$}%
+\def\useright{$\leftarrow$}%
+\else%
+\def\useleft{? $\Rightarrow$}%
+\def\useright{$\Leftarrow$ ?}%
+\fi%
+{\em{} T}\marginpar[{\useleft}]{{\useright}}%
+{\em{}hink of: #1\ }%
+\if@tempswa%
+\edef\@nswer{#2}%
+\ifx\@nswer\empty\else%
+{\em{}Answer: #2}\fi%
+\else%
+\PackageWarning{think}{Unanswered \string\think \space comment}%
+\fi\fi%
+}%
+%
+\long\def\think#1{%
+\@ifnextchar[%
+{\@tempswatrue\@think{#1}}%
+{\@tempswafalse\@think{#1}[\relax]}}%
