@@ -1,0 +1,66 @@
+% This is -*-LaTeX-*-
+% trailer.tex
+% 1998/01/30 HK
+
+\def\NoOfSides{twoside}%
+\def\WideOption{12pt}%
+\def\ClassName{article}
+\def\thistitle{version \thisversion\ available}
+\def\thispartnumber{}
+\input{plobhyper}%
+
+\addtolength\textwidth      {20mm}%
+\addtolength\evensidemargin {-20mm}%
+\addtolength\textheight     {16.10072mm}%
+
+\begin{document}
+
+\pagestyle{empty}
+\thispagestyle{empty}
+
+\title{\ifx\avb\undefined\relax\else\avb\fi%
+Persistent LISP Objects\\
+\plob\ \thistitle}
+\author{\thisauthor\\%
+\normalsize Beim Alten Sch\"{u}tzenhof 4 $\bullet$ %
+D 22083 Hamburg}%
+\maketitle
+\pagestyle{empty}
+\thispagestyle{empty}
+
+\noindent\plob\ version \thisversion, the general purpose,
+object-oriented database for LISP and \clos, will be released in
+February 1998; check out
+\texttt{{\small\url{http://www.lisp.de/software/plob/}}}\ for details.
+It is available for Solaris 2.x, IRIX 6.x and Linux kernel version
+2.x. Supported LISP systems are \allegrocl\ 4.3\ and \lwcl\ 3.2.
+\plob\ is distributed as free software.
+Some new features:
+\begin{deflist}[Documentation]
+
+\item[Documentation] The documentation has been revised completely; it
+  is offered in PostScript and PDF format, the PDF files being
+  hyperlinked.
+
+  A completely new User's Guide is available now, explaining the
+  rationale behind \plob, with many example code, hints for
+  programming with persistent data etc.
+
+\item[API] The LISP API has been made more stringent.
+
+\item[New classes] New persistent utility classes have been added, for
+  example, a class for persistent s-expressions.
+
+\item[Example code] The example code showing much of \plob's
+  capabilities has been revised.
+
+\item[Platforms] \plob\ will now run stable on Linux. A port to DEC
+  Alpha is in progress.
+
+\end{deflist}
+
+\noindent Attached find an excerpt from \plobwoexcl's User's Guide
+  explaining the design of \plobwoexcl.
+
+\cleardoublepage
+\end{document}
