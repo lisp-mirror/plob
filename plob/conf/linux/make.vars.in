@@ -40,7 +40,7 @@
 | Configuration settings
  ---------------------------------------------------------------------- */
 
-PLOBDIR=/home/hkirschk/plob-2.09
+PLOBDIR=/home/hkirschk/plob-2.10
 
 #define HasAuth			AUTH_NONE
 #define HasClient		yes

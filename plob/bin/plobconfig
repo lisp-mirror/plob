@@ -1044,6 +1044,17 @@ fnStartServer ()
    If not started now, a daemon can be started later by using program
    ${szConfDataRoot}/plobdadmin, see its help text
    for further details."; then
+      case "${szopsys}" in
+      'irix')
+        SHARED_LIBRARY_PATH="${SHARED_LIBRARY_PATH}:${szConfDataRoot}"
+	export SHARED_LIBRARY_PATH;;
+      'win32')
+        PATH="${PATH}:${szConfDataRoot}"
+	export PATH;;
+      *)
+        LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${szConfDataRoot}"
+	export LD_LIBRARY_PATH;;
+      esac
       ${szConfDataRoot}/plobdadmin -start
     fi
   fi

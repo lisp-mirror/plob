@@ -57,7 +57,8 @@ rule ( server dash stage dash 1, \
        $(DEFAULTROOT) slash fileDll(librpclientplob) spc \
        $(DEFAULTROOT) slash fileExe(plobdadmin) spc \
        $(DEFAULTROOT) slash plobdmon spc \
-       $(DEFAULTROOT) slash fileExe(plobd), \
+       $(DEFAULTROOT) slash fileExe(plobd) spc \
+       $(HOME) slash dot plobdrc, \
        noActions )
 
 rule ( server dash all, \
@@ -87,6 +88,15 @@ rule ( $(LIBDIR) slash fileDll(librpclientplob) spc \
        echo "*** Please check if file $@ exists and copy it to"; bsnl \
        echo "*** $(DEFAULTROOT) on host `hostname` manually."; bsnl \
        exit 1 )
+
+rule ( $(HOME) slash dot plobdrc,
+       noDependencies, \
+       silent echo "root $(DEFAULTROOT)" > ruleTarget; bsnl \
+       echo "echo -n root is set to" >> ruleTarget; bsnl \
+       echo "root" >> ruleTarget; bsnl \
+       echo "url $(DEFAULTTRANS)://$(DEFAULTHOST)/$(DEFAULTBASE)" >> ruleTarget; bsnl \
+       echo "echo -n url is set to" >> ruleTarget; bsnl \
+       echo "url" >> ruleTarget )
 
 MkCopyRule($(DEFAULTROOT) slash, \
            $(LIBDIR) slash, \
