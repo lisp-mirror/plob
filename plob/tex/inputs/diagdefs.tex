@@ -1,0 +1,174 @@
+%       This is -*-LaTeX-*-
+%
+% diagdefs.tex
+% 21.09.1993 Heiko Kirschke, Fachbereich Informatik, Uni Hamburg
+% e-mail: kirschke@informatik.uni-hamburg.de
+%
+% Enthaelt diverse Definitionen fuer Diagramme
+%
+%
+% Masse
+%
+% Rand um Objekte in Diagrammen:
+\newlength{\stdomargin}%
+\setlength{\stdomargin}{0.6em}%
+%
+% Breite eines Textkastens:
+\newlength{\ucrtxtw}%
+\setlength{\ucrtxtw}{4em}                       % sehr schmal
+\newlength{\smltxtw}%
+\setlength{\smltxtw}{8em}                       % schmal
+\newlength{\stdtxtw}%
+\setlength{\stdtxtw}{10em}                      % normal
+\newlength{\bigtxtw}%
+\setlength{\bigtxtw}{12em}                      % breit
+%
+% Masse fuer strid*.dgr:
+%
+% Spaltenbreiten
+\let\cstiw\stdtxtw%                     % Breite erste Spalte
+\def\cstiiw{5.5em}%                     % Breite zweite Spalte
+\let\cstiiiw\smltxtw%                   % Breite dritte Spalte
+%
+\newlength{\ocstiw}\setlength{\ocstiw}{\cstiw}%
+\addtolength{\ocstiw}{3\stdomargin}%
+\newlength{\ocstiiw}\setlength{\ocstiiw}{\cstiiw}%
+\addtolength{\ocstiiw}{3\stdomargin}%
+\newlength{\ocstiiiw}\setlength{\ocstiiiw}{\cstiiiw}%
+\addtolength{\ocstiiiw}{3\stdomargin}%
+%
+% 'Sonderzeichen'
+%
+\def\mkdasharrow{%
+\ifx\dasharrow\undefined%
+\newsavebox{\dashabox}\sbox{\dashabox}{%
+\spreaddiagramcolumns{-1pc}%
+\begin{diagram}\xdashed[0,1]|>{\tip}&\end{diagram}}%
+\def\dasharrow{\usebox{\dashabox}}%
+\fi}%
+%
+\def\mkddotarrow{%
+\ifx\ddotarrow\undefined%
+\newsavebox{\ddotabox}\sbox{\ddotabox}{%
+\spreaddiagramcolumns{-1pc}%
+\begin{diagram}\xdotted[0,1]|<{\rotate\tip}|>{\tip}&\end{diagram}}%
+\def\ddotarrow{\usebox{\ddotabox}}%
+\fi}%
+%
+\def\mkdotdarrow{%
+\ifx\dotdarrow\undefined%
+\newsavebox{\dotdabox}\sbox{\dotdabox}{%
+\spreaddiagramcolumns{-1pc}%
+\begin{diagram}\xdotted[0,1]|>{\tip}&\end{diagram}}%
+\def\dotdarrow{\usebox{\dotdabox}}%
+\fi}%
+%
+\def\mklinearrow{%
+\ifx\linearrow\undefined%
+\newsavebox{\lineabox}\sbox{\lineabox}{%
+\spreaddiagramcolumns{-1pc}%
+\begin{diagram}\xto[0,1]&\end{diagram}}%
+\def\linearrow{\usebox{\lineabox}}%
+\fi}%
+%
+\def\stolu{%
+\xto~{`[0,0]+<-\cL,0ex>[0,0]+<-\cL,\cH>+<8pt,0ex>}%
+`l+<0em,8pt>`[0,0]+<0em,8pt>+<0em,10pt>}%
+%
+\newcommand{\nonull}{\raisebox{0ex}[0ex][0ex]{\onull}}%
+\newcommand{\noi}{\raisebox{0ex}[0ex][0ex]{\oi}}%
+\newcommand{\noii}{\raisebox{0ex}[0ex][0ex]{\oii}}%
+\newcommand{\noiii}{\raisebox{0ex}[0ex][0ex]{\oiii}}%
+\newcommand{\noiv}{\raisebox{0ex}[0ex][0ex]{\oiv}}%
+\newcommand{\nov}{\raisebox{0ex}[0ex][0ex]{\ov}}%
+\newcommand{\novi}{\raisebox{0ex}[0ex][0ex]{\ovi}}%
+\newcommand{\novii}{\raisebox{0ex}[0ex][0ex]{\ovii}}%
+\newcommand{\noiix}{\raisebox{0ex}[0ex][0ex]{\oiix}}%
+\newcommand{\noix}{\raisebox{0ex}[0ex][0ex]{\oix}}%
+%
+\let\subclassof\xline%
+\let\stip\tip%
+\let\instanceof\xdouble%
+\let\itip\Tip%
+%
+% Legenden
+%
+\def\mkhleg{%                           % Box mit Kl.hier.-Legende
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+\spreaddiagramcolumns{2pt}%
+\footnotesize\begin{diagram}%
+\text{\textrm{$\uparrow$ Subklasse von}}
+ & \text{\textrm{$\Uparrow$ Instanz von}} \\%
+\dgmc{\textrm{\mc}} & \dgc{\textrm{\cls}} & \dgi{\textrm{Instanz}}%
+\end{diagram}}%
+%
+\def\mkmleg{%                           % Box mit Kl.hier.-Legende
+\spreaddiagramrows{-2pc}%
+%\spreaddiagramrows{4pt}%
+\spreaddiagramcolumns{-2pc}%
+%\spreaddiagramcolumns{2pt}%
+\footnotesize\begin{diagram}%
+\dgc{\textrm{\std-\cls}}\\%
+\text{\textrm{$\uparrow$ Subklasse von}}\\%
+\dgmc{\textrm{\dec}}%
+\end{diagram}}%
+%
+\def\mknleg{%                           % Box mit Kl.hier.-Legende
+\spreaddiagramrows{-2pc}%
+%\spreaddiagramrows{4pt}%
+\spreaddiagramcolumns{-2pc}%
+%\spreaddiagramcolumns{2pt}%
+\footnotesize\begin{diagram}%
+\dgc{\textrm{\std-}\\{}\textrm{\mc}}\\%
+\text{\textrm{$\uparrow$ Subklasse von}}\\%
+\dgmc{\textrm{\Spc}\\{}\textrm{\mc}}%
+\end{diagram}}%
+%
+\def\mksleg{%                           % Box mit Kl.hier.-Legende
+\spreaddiagramrows{-2pc}%
+%\spreaddiagramrows{4pt}%
+\spreaddiagramcolumns{-2pc}%
+%\spreaddiagramcolumns{2pt}%
+\footnotesize\begin{diagram}%
+\dgc{\textrm{Struktur-\cls}}\\%
+\text{\textrm{$\uparrow$ Subklasse von}}\\%
+\dgmc{\textrm{\dec}}%
+\end{diagram}}%
+%
+% diagram: Metaobjekt-Klasse
+\def\dgmc#1{\Framed<5pt>\grow{\Text{#1}}}%
+% diagram: Klasse
+\def\dgc#1{\framed<5pt>\grow{\Text{#1}}}%
+% diagram: Instanz
+\def\dgi#1{\framed\grow{\Text{#1}}}%
+%
+\def\mkcleg{%                   % Box mit Klassen-Legende
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+\footnotesize\begin{diagram}%
+\text{\textrm{Instanz\ }}
+                &\framed<5pt>{\parbox{6em}{\centering\smallskip%
+                        Klassenname\\[-\smallskipamount]
+                        \makebox[6em]{\hrulefill}\\[\smallskipamount]
+                        \slt[s]\smallskip}}
+\end{diagram}}%
+%
+\def\mktleg{%                   % Box mit Tupel-Legende
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+\footnotesize\begin{diagram}%
+\text{\textrm{Tupel\ }}
+                &\framed<5pt>{\parbox{12em}{\centering\smallskip%
+                        Name der Tupel-Relation\\[-\smallskipamount]
+                        \makebox[10em]{\hrulefill}\\[\smallskipamount]
+                        Identifizierendes Attribut\\[-\smallskipamount]
+                        \makebox[11em]{\dotfill}\\[\smallskipamount]
+                        Sonstige Attribute\smallskip}}
+\end{diagram}}%
+%
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "~/plob/tex/diplom/main"
+%%% End: 
