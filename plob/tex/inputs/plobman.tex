@@ -1,0 +1,94 @@
+% This is -*-LaTeX-*-
+%
+% manual.tex
+% HK 27.4.94
+%
+%
+% Switches
+%
+% Fuer Vorab-Drucke \nodiagram, \notableofcontents ein- und \nothink
+% ausschalten:
+%       \def\notableofcontents{}% Um Inhaltsverzeichnis auszuschalten
+%       %\def\nothink{}         % Um die Kommentare sichtbar zu machen
+% Fuer druckfertige Version \nodiagram, \notableofcontents aus- und \nothink
+% einschalten:
+%       %\def\notableofcontents{}% Um Inhaltsverzeichnis einzuschalten
+%       \def\nothink{}          % Um die Kommentare verschwinden zu lassen
+%
+%\def\notableofcontents{}       % Unterdrueckt Inhaltsverzeichnis
+%\nofiles%
+%
+% One-sided manual:
+%\documentclass[a4paper,wide]{pretty}%
+% Two-sided manual:
+%
+\input{mandate}%
+\def\WideOption{wide}
+\input{plobhyper}%
+%
+\readaux{\Path/../userg/\NoOfSides/userg}{bib:PLOB-UsersGuide}{userg.pdf}
+\readaux{\Path/../userg/\NoOfSides/manudis}{bib:PLOB-UsersGuide}{userg.pdf}
+%
+% Tiefe des Inhaltsverzeichnis; wird von report.sty standardmaessig
+% auf 2 gesetzt:
+%\def\mytocdepth{99}
+%
+% Commands
+%
+\newcommand{\idxadmfn}%                 % Index admin. function
+{Index administration function}
+
+\newcommand{\isabtree}[1]%              % The ... is a BTree.
+{\isa{#1}{a persistent BTree}}
+%
+\newcommand{\isacbtree}[1]%             % The ... is a cached BTree.
+{\isa{#1}{a cached persistent BTree}}
+%
+\newcommand{\isaidxtable}[1]%           % The ... is an index table.
+{\isa{#1}%
+     {a (persistent) object which maintains an index for a slot,
+      i.e.\ which maps the value of a slot to the persistent
+      \clos\ instance with that value in the slot.}}
+%
+\newcommand{\isakey}[2]%                % The ... is BTree key.
+{\isa{#1}%
+     {a \cl\ \obj\ whose type is
+      compatible with all types of all keys stored in
+      the persistent BTree #2\ so far and which obeys the
+      \plob\ restrictions on \cl\ types for keys
+      of persistent BTrees}}
+
+\newcommand{\basecls}[1]{%
+\par{}Class {\bf #1} is a \plob\ base class; this imposes following
+restrictions on changes to its definition:
+\begin{enumerate}
+
+\item The persistent memory layout of this class is defined in the C
+level; adding or removing slots must be propagated to the
+constants definitions for the \sh\ vector indices
+for this class in the C header files and a recompilation of the
+C files must be started.
+
+\item After a class change, the \sh\ {\sl must} be
+reformatted by calling \fcite{format-plob-root}.
+ 
+\end{enumerate}}%
+
+\newcommand{\horrible}{{\sc {\it h}\/o{\bf r}ri{\underline b}l{\sf e}}}
+
+\newcommand{\retoldmode}[2]{%
+Returns the previous lock information held by #1\ for the persistent
+object referenced by #2. This is a bitwise-or of the constant values of
+{\bf *lock-level-\ldots{}*}
+(table~\ref{tab:lock-levels}%
+%% 1998/01/07: This makes problems with hyperref:
+%% \fcitepage{\pageref{tab:lock-levels}}%
+)
+with {\bf *lock-mode-\ldots{}*}%
+(table~\ref{tab:lock-modes}
+%% 1998/01/07: This makes problems with hyperref:
+%% \fcitepage{\pageref{tab:lock-modes}}
+)
+.}
+
+\newcommand{\lb}{\linebreak[0]}                 % Linebreaks in \tt
