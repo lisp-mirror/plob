@@ -1,0 +1,12 @@
+%Filename: Upzd.fd
+%Created by: Heiko Kirschke, kirschke@informatik.uni-hamburg.de
+
+%THIS FILE SHOULD BE PUT IN A TEX INPUTS DIRECTORY
+
+\DeclareFontFamily{U}{pzd}{}
+
+\DeclareFontShape{U}{pzd}{m}{n}{
+<-> fixed * pzdr
+}{}
+
+\endinput
