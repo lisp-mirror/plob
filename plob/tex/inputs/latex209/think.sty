@@ -1,0 +1,57 @@
+% Think document style release 1.0 from 28 June 1993	-*-LaTeX-*-
+%   for LaTeX version 2.09
+% Copyright (C) 1993 by Heiko Kirschke
+% kirschke@informatik.uni-hamburg.de
+%
+% Macros exported:
+%   \think{<comment>}[<optional answer>]
+% Description:
+%   A style option for comments inserted into running text. Each
+%   <comment> is preceeded by "Uberlegen:. If the <optional answer>
+%   is given, it is appended as Antwort: to the <comment>; if the
+%   <optional answer> is missing, a warning is \typedout. Each
+%   unanswered <comment> is marked with a \Leftarrow (<=) at the
+%   right margin; an answered <comment> is marked with a \leftarrow
+%   (<-) at the right margin.
+%   A \def\nothink{} BEFORE the LaTeX \documentstyle line switches
+%   all comments off.
+%
+\typeout{Document Style Option `think' Version 1.0 of 28 Jun 93.}%
+%
+\ifx\nothink\undefined%
+%
+\def\n@think{n@think}
+\def\@xthink[#1]{%
+% \@thinktxt: Text, was denn noch zu ueberlegen sei
+% #1: Antwort auf die Ueberlegung; fehlt diese, wird eine Meldung
+%     ausgegeben 
+\edef\answer{#1}%
+\ifx\answer\n@think%
+\def\useleft{? $\Rightarrow$}%
+\def\useright{$\Leftarrow$ ?}%
+\else%
+\def\useleft{$\rightarrow$}%
+\def\useright{$\leftarrow$}%
+\fi%
+{\em{} "U}\marginpar[\useleft]{\useright}%
+{\em{}ber\-le\-gen: \@thinktxt\ }%
+\ifx\answer\n@think%
+\ifx\on@line\undefined\def\on@line{ on page \thepage }\fi%
+\typeout{think.sty: Unanswered \string\think \space comment\on@line}%
+\else\ifx\answer\empty\else%
+{\em{}Ant\-wort: \answer}%
+\fi\fi%
+}%
+\long\def\think#1{%
+\long\def\@thinktxt{#1}%
+\@ifnextchar[%
+{\@xthink}%
+{\@xthink[\n@think]}}%
+%
+\else%
+%
+\typeout{think.sty: Style option abonded because of \string\def\string\nothink{}}%
+\def\@xthink[#1]{}%
+\long\def\think#1{\@ifnextchar[{\@xthink}{\@xthink[\empty]}}%
+%
+\fi

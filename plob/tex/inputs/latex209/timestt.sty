@@ -1,0 +1,34 @@
+\def\fileversion{PSNFSS 2.4}
+\def\filedate{26.2.93}
+\immediate\write\sixt@@n{File: `times.sty' 
+\fileversion\space <\filedate> (SPQR)}
+% Sebastian Rahtz
+% 12 Cygnet Street, York Y02 1AG
+%
+%spqr@uk.ac.york.minster
+\@ifundefined{selectfont}
+     {\@latexerr{`times' style option can only be used
+                  with the new font selection scheme}\@eha
+      \endinput}{}
+%
+\ifx\declare@font\undefined
+  \input{psnfss.sup}\fi
+%
+%\def\load@courier{%
+%\postscript@fontdef{Courier}{courier}%
+%{pcrr}{pcrro}{pcrb}{pcrbo}{pcrr}{pcrr}
+%}
+\def\load@helvetica{%
+\postscript@fontdef{Helvetica}{helvetica}%
+{phvr}{phvro}{phvb}{phvbo}{phvrc}{phvro}
+}
+\def\load@times{%
+\postscript@fontdef{Times}{times}%
+{ptmr}{ptmri}{ptmb}{ptmbi}{ptmrc}{ptmro}
+}
+%
+\romanfont{times}
+\sansfont{helvetica}
+%\typewriterfont{courier}
+%\late@extra@def{courier}{\hyphenchar #1\m@ne}{}
+\endinput

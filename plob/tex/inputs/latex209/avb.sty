@@ -1,0 +1,28 @@
+% -*-LaTeX-*-
+% AvantGarde-Book PostScript font
+% Copyright (C) 1994 by Heiko Kirschke
+% kirschke@informatik.uni-hamburg.de
+%
+\def\fileversion{PSNFSS 2.4}
+\def\filedate{25.4.94}
+%
+\immediate\write\sixt@@n{File: `avb.sty' 
+\fileversion\space <\filedate> (SPQR)}
+%
+\@ifundefined{selectfont}
+     {\@latexerr{`avb' style option can only be used
+                  with the new font selection scheme}\@eha
+      \endinput}{}
+%
+\ifx\declare@font\undefined
+  \input{psnfss.sup}\fi
+%
+\def\load@avantgarde{%
+\postscript@fontdef{AvantGarde}{avb}%
+{pagk}{pagko}{pagd}{pagdo}{pagkc}{pagko}%
+}%
+\def\avb{%
+\load@avantgarde%
+\fontfamily{avb}\fontseries{m}\fontshape{n}%
+\selectfont%
+\ignorespaces}%
