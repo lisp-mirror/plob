@@ -34,6 +34,8 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  ------------------------------------------------------------------------- */
 
 #ifndef C2ALLEGRO6_H
