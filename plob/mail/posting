@@ -1,0 +1,35 @@
+From: kirschke@informatik.uni-hamburg.de
+Subject: Free persistency! (for LispWorks Common LISP)
+Newsgroups: comp.lang.lisp
+Date: 30 Oct 1996 17:06:44 +0100
+Organization: Dept. of Computer Science, University of Hamburg, Germany
+Path: news.rrz.uni-hamburg.de!news
+Lines: 23
+Sender: kirschke@ki8
+Message-ID: <xreaft48mi3.fsf@ki8.i-have-a-misconfigured-system-so-shoot-me>
+NNTP-Posting-Host: ki8.informatik.uni-hamburg.de
+X-Newsreader: Gnus v5.2.25/XEmacs 19.14
+
+Hello LispWorkers,
+
+tired of writing make-load-forms for exotic LISP structures? Don't
+want to bury LISP and CLOS objects in dumped .wfasls? No interest in
+weird SQL interfaces and transforming references in relational joins?
+Don't want to spent thousands of bucks for SQL database licenses?  Try
+my system for persistent LISP objects (PLOB!), under URLs:
+
+http://lki-www.informatik.uni-hamburg.de/~kirschke/diplom/#PLOB!
+ftp://ftp.informatik.uni-hamburg.de/pub/unihh/informatik/movis/plob/plob.tar.gz
+
+Uses POSTORE (included in the distribution), runs under LispWorks
+3.2.2, Solaris 2.5 & 2.5.1, SPARCstation & UltraSPARC. The persistency
+paradigm is similar to that of WOOD.
+
+Best regards, Heiko
+--
+Labor fuer Kuenstliche Intelligenz              Heiko Kirschke  | |
+Fachbereich Informatik                 Tel: +49 (40) 5494-2612  | | ||// ||
+Universitaet Hamburg                   Fax: +49 (40) 5494-2572  | | ||\\ ||
+Vogt-Koelln-Strasse 30      kirschke@informatik.uni-hamburg.de  |  ---------
+D 22527 Hamburg                                      Raum R017   -----------
+World Wide Web: http://lki-www.informatik.uni-hamburg.de/~kirschke/
