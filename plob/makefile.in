@@ -1,0 +1,41 @@
+/* ----------------------------------------------------------------------
+|
+|		PLOB - Persistent Lisp OBjects
+|		       =	  =    ==
+|
+| Script	Makefile
+| Copyright	(C) 14.6.1994 Heiko Kirschke
+|		kirschke@informatik.uni-hamburg.de
+| Description	Makefile for this directory
+ ---------------------------------------------------------------------- */
+
+#define	relPlobDir	dot
+#include		"./conf/make.rules.in"
+
+/* ----------------------------------------------------------------------
+| Standard settings
+ ---------------------------------------------------------------------- */
+SUBDIRS=lib bin src
+
+/* ----------------------------------------------------------------------
+| Main targets
+ ---------------------------------------------------------------------- */
+drule ( $(STDTARGETS), \
+	noDependencies, \
+	@$(MAKE) default dash ruleTarget nln \
+	tab @$(MAKECMD) "$(SUBDIRS)" ruleTarget )
+
+drule ( all, \
+	noDependencies, \
+	noActions )
+
+/* Target doc generates the documentation: */
+rule ( doc, \
+       noDependencies, \
+       @$(MAKECMD) "tex" all )
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/

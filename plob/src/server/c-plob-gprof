@@ -1,0 +1,18 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+ set -- 10000
+fi
+
+rm -f gmon.out c-plob-test.gprof
+echo "p
+l $1
+l $1
+q
+q"|c-plob-test
+
+gprof c-plob-test gmon.out > c-plob-test.gprof
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:
