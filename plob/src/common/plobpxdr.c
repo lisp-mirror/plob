@@ -118,6 +118,37 @@ static const char	szNoClassInfoFound []		=
 /* ----------------------------------------------------------------------- */
 static bool_t	xdr_values_vector_allocate	( XDR		* pXdr,
 						  LPVOID	* ppVal,
+						  u_int		nSizeInBytes );
+static bool_t	xdr_values_vector_elements	( XDR		* pXdr,
+						  SHTYPETAG	eTyp,
+						  u_int		* pLen,
+						  LPVOID	* ppVal,
+						  bool_t	bIsEmbedded,
+						  u_int		nSizeInWords,
+						  u_int		nSizeOfElement,
+						  xdrproc_t	pfnElement );
+static bool_t	xdr_values_vector_typed		( XDR		* pXdr,
+						  SHTYPETAG	eTyp,
+						  u_int		* pLen,
+						  LPVOID	* ppVal,
+						  bool_t	bIsEmbedded,
+						  u_int		nSizeInWords,
+						  u_int	nSizeOfElement );
+static bool_t	xdr_values_vector_opaque	( XDR		* pXdr,
+						  SHTYPETAG	eTyp,
+						  u_int		nLen,
+						  LPVOID	* ppVal,
+						  bool_t	bIsEmbedded );
+static bool_t	xdr_values_vector_t	( XDR		* pXdr,
+					  SHTYPETAG	* pTyp,
+					  u_int		* pLen,
+					  LPVOID	* ppVal,
+					  bool_t	bIsEmbedded,
+					  u_int		* pnSizeInBytes );
+
+/* ----------------------------------------------------------------------- */
+static bool_t	xdr_values_vector_allocate	( XDR		* pXdr,
+						  LPVOID	* ppVal,
 						  u_int		nSizeInBytes )
 {
   bool_t	bDone	= FALSE;
@@ -477,6 +508,7 @@ bool_t	xdr_fnPatchedServerObjectReadValues_rets
 
   if ( ! xdr_values_vector_t ( pXdr, &pArguments->pnElementTypeTagOut,
 			       &pArguments->pnSizeInElementsOut,
+			       (LPVOID *)
 			       &pArguments->pBuffer.void_vector_t_val,
 			       FALSE,
 			       &pArguments->pBuffer.void_vector_t_len ) ) {
@@ -552,6 +584,7 @@ bool_t	xdr_fnPatchedServerObjectWriteValues_args
 
   if ( ! xdr_values_vector_t ( pXdr, &pArguments->nElementTypeTag,
 			       &pArguments->nSizeInElements,
+			       (LPVOID *)
 			       &pArguments->pBuffer.void_vector_t_val,
 			       FALSE,
 			       &pArguments->pBuffer.void_vector_t_len ) ) {
@@ -628,7 +661,7 @@ bool_t	xdr_fnPatchedServerObjectPeekValues_rets
 			       pnSizesInElementsOut.u_int_vector_t_val );
 	nSizeInBytes	= nTotalSizeInWords * nSizeOfPostoreWord;
 	bDone	=
-	  xdr_values_vector_allocate ( pXdr,
+	  xdr_values_vector_allocate ( pXdr, (LPVOID *)
 				       &pArguments->pBuffer.void_vector_t_val,
 				       nSizeInBytes );
 	if ( ! bDone ) {
@@ -749,6 +782,7 @@ bool_t	xdr_fnPatchedServerObjectPoke_args
 
   if ( ! xdr_values_vector_t ( pXdr, &pArguments->nElementTypeTag,
 			       &pArguments->nSizeInElements,
+			       (LPVOID *)
 			       &pArguments->pValues.void_vector_t_val,
 			       FALSE,
 			       &pArguments->pValues.void_vector_t_len ) ) {
