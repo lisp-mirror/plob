@@ -1,0 +1,92 @@
+#!/net/athena/usr/home/heikok/plob-2.08/bin/solaris/plobdadmin -source
+# For calling this script directly under Unix, replace the path to
+# plobdadmin in the above line to the path matching the local Plob
+# installation.
+
+# -------------------------------------------------------------------
+# Script	plobdrc
+#
+# Description	Example script for plobdadmin
+#
+#		To run this script, call:
+#			plobdadmin -source scripts/plobdrc
+#		or start plobdadmin interactively by calling:
+#			plobdadmin
+#		and type:
+#			source scripts/plobdrc
+#		at plobdadmin's prompt.
+#
+#		This script can be used as an example startup script
+#		to put into the HOME directory. If it is used for this
+#		purpose, it must be stored under ${HOME}/.plobdrc in
+#		order to be read in by plobdadmin. See the help text
+#		of plobdadmin's source command for details.
+#
+# Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+#		All rights reserved.
+#
+# Unlimited use, reproduction, modification and distribution of this
+# software is permitted.  Any copy or modified version of this
+# software must include both the above copyright notice of
+# Heiko Kirschke and this paragraph; for each modified version, an
+# additional statement must be added telling the year of modification
+# and quoting the author of the modification.  Any distribution of
+# this software must comply with all applicable German export control
+# laws.  This software is made available AS IS, and HEIKO KIRSCHKE
+# DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT
+# LIMITATION THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE, AND NOTWITHSTANDING ANY OTHER PROVISION
+# CONTAINED HEREIN, ANY LIABILITY FOR DAMAGES RESULTING FROM THE
+# SOFTWARE OR ITS USE IS EXPRESSLY DISCLAIMED, WHETHER ARISING IN
+# CONTRACT, TORT (INCLUDING NEGLIGENCE) OR STRICT LIABILITY, EVEN IF
+# HEIKO KIRSCHKE IS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+#
+# Please note that these license terms adhere only to the code of
+# PLOB!  itself. PLOB! uses POSTORE (Persistent Object Store) as a
+# low-level persistent memory; it is provided in binary form within
+# PLOB! with the permission of the University of St. Andrews
+# (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
+# University of St. Andrews for getting their license terms on
+# POSTORE.
+# -------------------------------------------------------------------
+
+# echo Sourcing script plobdrc ...
+
+# Set the database root directory. This directory is
+# installation-specific. The contents of this directory should be:
+# 1. A copy of plobd[.exe], the server process
+# 2. A copy of plobdadmin[.exe], the administration utility
+# 3. A copy of librpclientplob[.so,.dll], this is the DLL needed by
+#    plobdadmin[.exe]
+root c:/opt/data/jungle/plob
+
+# Echo an empty line
+echo
+
+# Echo the current database root directory:
+echo -n database root directory is now
+root
+
+# Set url to tcp://localhost/database; this is a bit redundant, since
+# this is already the default url at plobdadmin's startup:
+url tcp://localhost/database
+
+# Echo the current url:
+echo -n url is now
+url
+
+# Make sure that the master server process on localhost is running:
+echo -n Starting master server ...
+start
+echo done!
+
+# Echo an empty line:
+echo
+
+# Show who is currently logged into the master server's database:
+sessions
+
+# Echo an empty line:
+echo
+
+# echo done!
