@@ -1096,6 +1096,7 @@ fnFindFiles ()
   szSuppressDirectories="\
     ${szSuppressBootstrap} \
     -name 'auto' -prune -o \
+    -name 'CVS' -prune -o \
     -name 'tex' -prune -o \
     -name 'html' -prune -o \
     -name 'new' -prune -o \
@@ -1147,7 +1148,8 @@ fnFindFiles ()
 	  ${szSuppressFiles} "')'" -print
   find ./${szPlob} -name makefile -print
   if ${bBootstrap}; then :; else
-    eval find ./${szPlob}/ps \
+    eval find ./${szPlob}/doc \
+      ${szSuppressDirectories} -o \
       "'('" -type f -o -type l "')'" -a \
       "'('" "'!'" -name '*.ps' -a \
 	    -name '*.html' -o -name '*.pdf' -o \
