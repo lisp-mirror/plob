@@ -1,0 +1,41 @@
+% HK 14-Sep-93:
+% Neues "Feature" fuer Versionspflege:
+
+\def\fileversion{1}
+\def\filedate{93/09/14}
+\def\docdate {93/09/14}
+\ProvidesPackage{versionno}[\filedate\space\fileversion\space
+ LaTeX2e `versionno' package for version numbers]
+
+\def\@incvers{%
+\ifx\ifdothink\undefined%
+% Ohne Versions-Angabe:
+\advance\headheight 6pt%
+\else\ifdothink%
+% Mit Versions-Angabe:
+\advance\headheight 8pt%
+\else%
+% Ohne Versions-Angabe:
+\advance\headheight 6pt%
+\fi\fi%
+%
+\ifx\@hvers\undefined\gdef\@hvers{1}\fi%
+\ifx\@lvers\undefined\gdef\@lvers{0}\fi%
+\ifnum\@lvers>98%
+\@tempcnta\@hvers\advance\@tempcnta1\global\edef\@hvers{\the\@tempcnta}%
+\@tempcnta0%
+\else%
+\@tempcnta\@lvers\advance\@tempcnta1%
+\fi%
+\ifnum\@tempcnta<10%
+\global\edef\@lvers{0\the\@tempcnta}%
+\else%
+\global\edef\@lvers{\the\@tempcnta}%
+\fi%
+\if@filesw%
+\immediate\write\@mainaux{\string\gdef\string\@hvers{\@hvers}}%
+\immediate\write\@mainaux{\string\gdef\string\@lvers{\@lvers}}%
+\fi%
+\global\let\@incvers\relax}%
+\AtBeginDocument{\@incvers}%
+\def\version{\@hvers.\@lvers}%
