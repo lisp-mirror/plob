@@ -1,0 +1,29 @@
+
+Hallo Sabine,
+
+hier die Ank"undigung f"ur meinen Vortrag "uber
+
+	Persistenz in objekt-orientierten Programmiersprachen
+
+In vielen Programmsystemen  m"ussen Daten persistent, d.h. "uber einen
+beliebig  langen Zeitraum,   abgelegt   werden;  dies    betrifft z.B.
+geografische  Informationssysteme (GIS), in  denen reale  geografische
+Gegebenheiten durch entsprechende  Objekte modelliert werden.   Die in
+transienten  Objektsystemen (wie    CLOS) angebotenen  M"oglichkeiten,
+Objekte persistent abzulegen, beschr"anken  sich darauf, die Zust"ande
+der   Objekte in einem  externen   persistenten  Speicher (Datei  oder
+Datenbank)  zu    halten; bei dieser   Vorgehensweise  bleibt   es der
+Benutzerin oder dem Benutzer "uberlassen, die Konzepte des transienten
+Objektsystems   (wie Typ-   bzw.  Klasseninformation  "uber   Objekte,
+Instanzrepr"asentation, Datenidentit"at, Referenzen zwischen Objekten)
+auf  den persistenten  Speicher   abzubilden.  Bei   Erweiterung eines
+vorhandenen transienten Objektsystems um Persistenz bietet es sich an,
+diese Abbildungen innerhalb  eines Subsystems zu realisieren, das eine
+Klasse zur  Verf"ugung  stellt, die  "uber Vererbung  Persistenz  f"ur
+Instanzen ihrer Subklasssen erm"oglicht.
+
+In   meiner Diplomarbeit    werden   verschiedene  realisierte    CLOS
+Subsysteme,    die   persistente  Objekte    bieten,  untersucht;  der
+Schwerpunkt liegt auf   der Realisierung eines derartigen  Subsystems.
+Der Vortrag erl"autert  die Konzepte, die  im Hinblick auf eine solche
+Realisierung ber"ucksichtigt werden m"ussen.
