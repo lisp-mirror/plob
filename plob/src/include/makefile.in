@@ -1,0 +1,135 @@
+/* ----------------------------------------------------------------------
+|
+|		PLOB - Persistent Lisp OBjects
+|		       =	  =    ==
+|
+| Script	Makefile
+| Description	Makefile for this directory
+|
+| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+|		All rights reserved.
+|
+| Unlimited use, reproduction, modification and distribution of this
+| software is permitted.  Any copy or modified version of this
+| software must include both the above copyright notice of
+| Heiko Kirschke and this paragraph; for each modified version, an
+| additional statement must be added telling the year of modification
+| and quoting the author of the modification.  Any distribution of
+| this software must comply with all applicable German export control
+| laws.  This software is made available AS IS, and HEIKO KIRSCHKE
+| DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT
+| LIMITATION THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+| A PARTICULAR PURPOSE, AND NOTWITHSTANDING ANY OTHER PROVISION
+| CONTAINED HEREIN, ANY LIABILITY FOR DAMAGES RESULTING FROM THE
+| SOFTWARE OR ITS USE IS EXPRESSLY DISCLAIMED, WHETHER ARISING IN
+| CONTRACT, TORT (INCLUDING NEGLIGENCE) OR STRICT LIABILITY, EVEN IF
+| HEIKO KIRSCHKE IS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+|
+| Please note that these license terms adhere only to the code of
+| PLOB!  itself. PLOB! uses POSTORE (Persistent Object Store) as a
+| low-level persistent memory; it is provided in binary form within
+| PLOB! with the permission of the University of St. Andrews
+| (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
+| University of St. Andrews for getting their license terms on
+| POSTORE.
+|
+ ---------------------------------------------------------------------- */
+
+#define	relPlobDir	ddot slash ddot
+#include		"../../conf/make.rules.in"
+
+/* ----------------------------------------------------------------------
+| Settings for this makefile
+ ---------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------
+| Main targets
+ ---------------------------------------------------------------------- */
+#if HasOpSys == hasWin32
+
+#define	LispTarget
+
+#else
+
+#define	LispTarget	lisp
+
+#endif
+
+drule ( all, \
+	LispTarget, \
+	noActions )
+
+drule ( doc, \
+	ddot slash ddot slash tex slash inputs slash plobversion dot tex, \
+	noActions )
+
+rule ( ddot slash ddot slash tex slash inputs slash plobversion dot tex,\
+       fileH(plobversion) fileH(c2tex), \
+       $(CPP) option2(o,ruleTarget) paste5(-,D,C2TEX,=,1) fileH(plobversion) )
+
+/* ----------------------------------------------------------------------
+| LISP foreign language interface files: Allegro
+ ---------------------------------------------------------------------- */
+/* #if HasFranzCL */
+#define	AllegroCodeTarget allegro dash code
+/* #else */
+/* #define	AllegroCodeTarget */
+/* #endif */
+
+/* ----------------------------------------------------------------------
+| LISP foreign language interface files: LispWorks
+ ---------------------------------------------------------------------- */
+/* #if HasHarlequinCL */
+#define	HarlequinCodeTarget lispworks dash code
+/* #else */
+/* #define	HarlequinCodeTarget */
+/* #endif */
+
+plobrootDeps=$(SRCIDIR) slash fileH(plobversion)
+
+rule ( lisp, \
+       HarlequinCodeTarget AllegroCodeTarget, \
+       noActions )
+
+MkAllegro4aFiles
+MkAllegro4bFiles
+
+MkAllegro5aFiles
+MkAllegro5bFiles
+
+ALLEGRO4FILES=\
+PlobFiles(allegro4 slash,dot lisp)
+ALLEGRO5FILES=\
+PlobFiles(allegro5 slash,dot lisp)
+ALLEGROFILES=$(ALLEGRO4FILES) $(ALLEGRO5FILES)
+rule ( allegro dash code, \
+       $(ALLEGROFILES), \
+       noActions )
+
+MkLispWorks3aFiles
+MkLispWorks3bFiles
+
+MkLispWorks4aFiles
+MkLispWorks4bFiles
+
+LISPWORKS3FILES=\
+PlobFiles(lispworks3 slash,dot lisp)
+LISPWORKS4FILES=\
+PlobFiles(lispworks4 slash,dot lisp)
+LISPWORKSFILES=$(LISPWORKS3FILES) $(LISPWORKS4FILES)
+rule ( lispworks dash code, \
+       $(LISPWORKSFILES), \
+       noActions )
+
+/* ----------------------------------------------------------------------
+| Standard targets
+ ---------------------------------------------------------------------- */
+drule ( $(STDTARGETS), \
+	noDependencies, \
+	silent $(MAKE) default dash ruleTarget )
+
+/*
+  Local variables:
+  coding-system-for-write: iso-latin-1-unix
+  End:
+*/
