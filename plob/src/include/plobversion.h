@@ -5,7 +5,7 @@
 | Date		1998/03/04
 | Description	PLOB version number
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -46,9 +46,9 @@
 #define	PLOBVERSIONMAJOR	2
 #define	PLOBVERSIONMINOR	10
 
-#define	PLOBVERSIONDAY		9
-#define	PLOBVERSIONMONTH	February
-#define	PLOBVERSIONYEAR		2001
+#define	PLOBVERSIONDAY		1
+#define	PLOBVERSIONMONTH	May
+#define	PLOBVERSIONYEAR		2002
 
 /* Older version of PLOB: */
 /*
@@ -86,8 +86,12 @@
 #define	PLOBEMAIL Heiko.Kirschke@poet.de
 #define	PLOBEMAIL kirschke@informatik.uni-hamburg.de
 */
+/*
 #define	PLOBEMAIL Heiko.Kirschke@acm.org
 #define	PLOBURL www.lisp.de/software/plob/
+*/
+#define	PLOBEMAIL Heiko.Kirschke@acm.org
+#define	PLOBURL plob.sourceforge.net
 
 #if ! defined(PASTE2)
 #define	PASTE23( token1, token2 ) token1##token2

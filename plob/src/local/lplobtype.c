@@ -4,7 +4,7 @@
 |		mailto:Heiko.Kirschke@acm.org
 | Description	PLOB local client source code.
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this

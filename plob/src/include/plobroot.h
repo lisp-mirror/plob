@@ -5,7 +5,7 @@
 | Date		11.1.94
 | Description	Foreign language interface to PLOB root object.
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this

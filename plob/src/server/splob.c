@@ -7,7 +7,7 @@
 |		23.09.96 Divided into server/client code
 | Description	
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -1596,7 +1596,6 @@ BeginFunction ( SHORTOBJID,
   enum {
     nSleep	 = 5 /* Seconds */
   };
-
 
   struct stableheap_configuration	Config;
   BOOL			bServer, bFirstOpen, bDone;

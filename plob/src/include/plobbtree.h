@@ -5,7 +5,7 @@
 | Date		17.12.93
 | Description	Foreign language interface to PLOB BTrees.
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this

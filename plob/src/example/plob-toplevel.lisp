@@ -8,7 +8,7 @@
 ;;;;	Allegro top level aliases for PLOB. Adapt following code and put
 ;;;;	it into your clinit.cl LISP startup file.
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of

@@ -5,7 +5,7 @@
 | Date		1998/03/04
 | Description	PLOB resource file for client DLL
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -36,7 +36,9 @@
 |
  ------------------------------------------------------------------------- */
 
-#include "afxres.h"
+/* #include "afxres.h" */
+#include "winresrc.h"
+
 #ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)

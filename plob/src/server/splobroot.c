@@ -6,7 +6,7 @@
 | Description	
 | Compile	gcc -g -c c-plob-root.c
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -68,6 +68,10 @@
 
 /* ----------------------------------------------------------------------- */
 MODULE ( __FILE__ );
+
+/* ----------------------------------------------------------------------- */
+/* #define LOGGING to show on stderr some messages what's happening: */
+#define	LOGGING	0x00	/* 0 (no), 1 (read/write root) */
 
 /* -------------------------------------------------------------------------
 | Extern variables
@@ -1102,8 +1106,22 @@ OBJID DLLEXPORT	fnReadLispRoot		( void )
   ASSERT ( StableHeap_is_open );
 
   lpPlobRoot	= fnGetPlobRoot ( FALSE );
+
+#if (LOGGING+0) & 0x01
+  fprintf ( stderr, "%s(%d): lpPlobRoot 0x%lX,"
+	    " lpPlobRoot->oRootUser %u, lpPlobRoot->oSelf %u\n",
+	    __szProc__, __LINE__, lpPlobRoot,
+	    lpPlobRoot->oRootUser, lpPlobRoot->oSelf );
+#endif /* #if (LOGGING+0) & 0x01 */
+
   oLispRoot	= ( lpPlobRoot->oRootUser == lpPlobRoot->oSelf ) ?
     NULLOBJID : lpPlobRoot->oRootUser;
+
+#if (LOGGING+0) & 0x01
+  fprintf ( stderr, "%s(%d): returns oLispRoot %u\n",
+	    __szProc__, __LINE__, oLispRoot );
+#endif /* #if (LOGGING+0) & 0x01 */
+
   RETURN ( oLispRoot );
 } /* fnReadLispRoot */
 
@@ -1221,6 +1239,11 @@ BeginFunction ( SHORTOBJID,
   nDatabaseVersion	=
     fnServerGetVersion ( oShortObjIdHeap, esvDatabase );
 
+#if (LOGGING+0) & 0x01
+  fprintf ( stderr, "%s(%d): nServerVersion %u, nDatabaseVersion %u.\n",
+	    __szProc__, __LINE__, nServerVersion, nDatabaseVersion );
+#endif /* #if (LOGGING+0) & 0x01 */
+
   sprintf ( szVersion, "PLOB! daemon version %s"
 	    " database version %s - %s",
 	    GetVersionString ( nServerVersion, szServerVersion ),
@@ -1244,6 +1267,11 @@ BeginFunction ( SHORTOBJID,
 	  fnGetCopyrightString () ));
 
   oShortRoot	= LONG2SHORTOBJID ( fnReadLispRoot () );
+
+#if (LOGGING+0) & 0x01
+  fprintf ( stderr, "%s(%d): oShortRoot %u\n",
+	    __szProc__, __LINE__, oShortRoot );
+#endif /* #if (LOGGING+0) & 0x01 */
 
   UnstoreSession ();
   RETURN ( oShortRoot );
@@ -1302,6 +1330,12 @@ BeginFunction ( SHORTOBJID,
     oSHroot			= Short2LongObjId ( oShortObjId );
     lpPlobRoot->oRootUser	= oSHroot;
     AtomicUnlock ( lpPlobRoot->oSelf, lpPlobRoot->oSelf );
+#if (LOGGING+0) & 0x01
+  fprintf ( stderr, "%s(%d): lpPlobRoot 0x%lX,"
+	    " lpPlobRoot->oRootUser %u, lpPlobRoot->oSelf %u\n",
+	    __szProc__, __LINE__, lpPlobRoot,
+	    lpPlobRoot->oRootUser, lpPlobRoot->oSelf );
+#endif /* #if (LOGGING+0) & 0x01 */
     LOG (( "Set root object to %s.",
 	   fnPrintObject ( oSHroot, (LPSTR) NULL, 0 ) ));
   } else {

@@ -5,7 +5,7 @@
 | Date		4.3.94
 | Description	Some constant #define's used in C and LISP
 |
-| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
