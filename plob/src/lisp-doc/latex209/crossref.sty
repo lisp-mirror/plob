@@ -1,0 +1,508 @@
+% HK 2.6.94
+% A style for cross-referencing function, macro, variable, ... names
+% especially for cross-referencing LISP idenfiers
+
+% (C) 1994 Heiko Kirschke
+% kirschke@informatik.uni-hamburg.de
+
+\typeout{Document Style `crossref' <2 Jun 94>}
+
+\@namedef{crf@objid}{objid}
+\@namedef{crf@objidattr}{\em}
+
+\def\crossrefgerman{%
+%
+\@namedef{crf@direct}{di\-rek\-te}%
+\@namedef{crf@effective}{ef\-fek\-ti\-ve}%
+\@namedef{crf@generic}{ge\-ne\-ri\-sche}%
+\@namedef{crf@specialized}{spe\-zi\-ali\-sier\-te}%
+%
+\@namedef{crf@dash}{-}%
+%
+\@namedef{crf@class}{Klas\-se}%
+\@namedef{crf@classs}{Klas\-sen}%
+\@namedef{crf@constant}{Kon\-stan\-te}%
+\@namedef{crf@form}{Form}\@namedef{crf@formattr}{\em}%
+\@namedef{crf@function}{Funk\-tion}%
+\def\glossaryname{Glossar}%
+\@namedef{crf@metaobject}{Me\-ta\-ob\-jekt}%
+\@namedef{crf@macro}{Ma\-kro}%
+\@namedef{crf@method}{Me\-tho\-de}%
+\@namedef{crf@methods}{Me\-tho\-den}%
+\@namedef{crf@object}{Ob\-jekt}%
+\@namedef{crf@onpage}{auf Seite}% auf Seite
+\@namedef{crf@page}{S.}% Seite
+\@namedef{crf@slot}{Slot}\@namedef{crf@slotattr}{\em}%
+\@namedef{crf@special}{Special}\@namedef{crf@specialattr}{\em}%
+\@namedef{crf@structure}{Struk\-tur}%
+\@namedef{crf@standard}{Stan\-dard}%
+\@namedef{crf@typetag}{type tag}\@namedef{crf@typetagattr}{\em}%
+\@namedef{crf@Typetag}{Type tag}\@namedef{crf@Typetagattr}{\em}%
+\@namedef{crf@TypeTag}{Type Tag}\@namedef{crf@TypeTagattr}{\em}%
+\@namedef{crf@variable}{Va\-ri\-ab\-le}%
+%
+}
+
+\def\crossrefenglish{%
+%
+\@namedef{crf@direct}{direct}%
+\@namedef{crf@effective}{ef\-fec\-tive}%
+\@namedef{crf@generic}{ge\-ne\-ric}%
+\@namedef{crf@specialized}{spe\-ciali\-zed}%
+%
+\@namedef{crf@dash}{\ }%
+%
+\@namedef{crf@class}{class}%
+\@namedef{crf@classs}{class}%
+\@namedef{crf@constant}{constant}%
+\@namedef{crf@form}{form}%
+\@namedef{crf@function}{function}%
+\def\glossaryname{Glossary}%
+\@namedef{crf@metaobject}{me\-ta\-ob\-ject}%
+\@namedef{crf@macro}{ma\-cro}%
+\@namedef{crf@method}{me\-thod}%
+\@namedef{crf@methods}{me\-thod}%
+\@namedef{crf@object}{ob\-ject}%
+\@namedef{crf@onpage}{on page}% on page
+\@namedef{crf@page}{p.}% page
+\@namedef{crf@slot}{slot}%
+\@namedef{crf@special}{special}%
+\@namedef{crf@structure}{struc\-ture}%
+\@namedef{crf@standard}{stan\-dard}%
+\@namedef{crf@typetag}{type tag}%
+\@namedef{crf@Typetag}{Type tag}%
+\@namedef{crf@TypeTag}{Type Tag}%
+\@namedef{crf@variable}{va\-ri\-ab\-le}%
+%
+}
+
+\ifnum\language=\l@german
+\crossrefgerman
+\else\ifnum\language=\l@english
+\crossrefenglish
+\else
+\typeout{crossref.sty: Unknown language, using english.}
+\crossrefenglish
+\fi\fi
+
+\def\defattr#1#2{%
+\@namedef{crf@#1attr}{#2}%
+}
+
+\def\@@selectcase#1#2[#3]{%
+ %\def\@tempa{#1}%
+ \edef\@tempb{\@nameuse{#2}}%
+ \@ifundefined{#2attr}
+  {#1\@tempb#3}
+  {{\@nameuse{#2attr}#1\@tempb#3}}}
+\def\@selectcasei#1#2{%
+ \@ifnextchar [%
+  {\@tempswatrue\@@selectcase{#1}{#2}}%
+  {\@tempswafalse\@@selectcase{#1}{#2}[]}}%
+
+\def\@locasei#1{\@selectcasei{\wrdlwr}{#1}}
+\def\@nocasei#1{\@selectcasei{\@tempw}{#1}}
+\def\@upcasei#1{\@selectcasei{\wrdupr}{#1}}
+
+\def\@@selectcaseii#1#2#3#4#5[#6]{%
+  \@@selectcase{#1}{#2}[#6]#3\@@selectcase{#4}{#5}[]}
+
+\def\@selectcaseii#1#2#3#4#5{%
+ \@ifnextchar [%
+  {\@tempswatrue\@@selectcaseii{#1}{#2}{#3}{#4}{#5}}
+  {\@tempswafalse\@@selectcaseii{#1}{#2}{#3}{#4}{#5}[]}}
+
+\def\@nocaseii#1#2#3{%
+ \@selectcaseii{\@tempw}{#1}{#2}{\relax}{#3}}
+\def\@upcaseii#1#2#3{%
+ \@selectcaseii{\wrdupr}{#1}{#2}{\relax}{#3}}
+\def\@Upcaseii#1#2#3{%
+ \@selectcaseii{\wrdupr}{#1}{#2}{\wrdupr}{#3}}
+
+% `International' shorthands
+
+\def\const{\@nocasei{crf@constant}}%		constant[]
+\def\Const{\@upcasei{crf@constant}}%		Constant[]
+%
+% Shorthands on classes and metaobject classes
+%
+\def\cls{\@nocasei{crf@class}}%			class[]
+\def\Cls{\@upcasei{crf@class}}%			Class[]
+\def\clss{\@nocasei{crf@classs}}%		class's[]
+\def\Clss{\@upcasei{crf@classs}}%		Class's[]
+\def\clsmc%					class metaobject class[]
+{\clss[]\@nameuse{crf@dash}\mc}
+\def\Clsmc%					Class metaobject class[]
+{\Clss[]\@nameuse{crf@dash}\mc}
+\def\ClsMc%					Class Metaobject Class[]
+{\Clss[]\@nameuse{crf@dash}\MC}
+\def\clsmo%					class metaobject[]
+{\clss[]\@nameuse{crf@dash}\mo}
+\def\Clsmo%					Class metaobject[]
+{\Clss[]\@nameuse{crf@dash}\mo}
+\def\ClsMo%					Class Metaobject[]
+{\Clss[]\@nameuse{crf@dash}\MO}
+%
+\def\dir{\@nocasei{crf@direct}}%		direct[]
+\def\Dir{\@upcasei{crf@direct}}%		Direct[]
+\def\eff{\@nocasei{crf@effective}}%		effective[]
+\def\Eff{\@upcasei{crf@effective}}%		Effective[]
+%
+% Shorthands on functions and generic functions
+%
+\def\fn{\@nocasei{crf@function}}%		function[]
+\def\Fn{\@upcasei{crf@function}}%		Function[]
+\def\gfn%					generic[] function
+{\@nocaseii{crf@generic}{\ }{crf@function}}
+\def\Gfn%					Generic[] function
+{\@upcaseii{crf@generic}{\ }{crf@function}}
+\def\GFn%					Generic[] Function
+{\@Upcaseii{crf@generic}{\ }{crf@function}}
+%
+\def\mac{\@nocasei{crf@macro}}%			macro[]
+\def\Mac{\@upcasei{crf@macro}}%			Macro[]
+%
+% Shorthands on meta objects
+%
+\def\mc%					metaobject class[]
+{\mo[]\@nameuse{crf@dash}\cls}
+\def\Mc%					Metaobject class[]
+{\Mo[]\@nameuse{crf@dash}\cls}
+\def\MC%					Metaobject Class[]
+{\Mo[]\@nameuse{crf@dash}\Cls}
+\def\mo{\@nocasei{crf@metaobject}}%		metaobject[]
+\def\Mo{\@upcasei{crf@metaobject}}%		Metabject[]
+%
+\def\obj{\@nocasei{crf@object}}%		object[]
+\def\Obj{\@upcasei{crf@object}}%		Object[]
+\def\objid{\@nocasei{crf@objid}}%		objid[]
+\def\Objid{\@upcasei{crf@objid}}%		Objid[]
+%
+% Shorthands on methods
+%
+\def\mtd{\@nocasei{crf@method}}%		method[]
+\def\Mtd{\@upcasei{crf@method}}%		Method[]
+\def\mtds{\@nocasei{crf@methods}}%		method's[]
+\def\Mtds{\@upcasei{crf@methods}}%		Method's[]
+%
+\def\mtdmc%					method metaobject class[]
+{\mtds[]\@nameuse{crf@dash}\mc}
+\def\Mtdmc%					Method metaobject class[]
+{\Mtds[]\@nameuse{crf@dash}\mc}
+\def\MtdMc%					Method Metaobject Class[]
+{\Mtds[]\@nameuse{crf@dash}\MC}
+%
+\def\mtdmo%					method metaobject[]
+{\mtds[]\@nameuse{crf@dash}\mo}
+\def\Mtdmo%					Method metaobject[]
+{\Mtds[]\@nameuse{crf@dash}\mo}
+\def\MtdMo%					Method Metaobject[]
+{\Mtds[]\@nameuse{crf@dash}\MO}
+%
+% Shorthands on slots
+%
+\def\slt{\@nocasei{crf@slot}}%			slot[]
+\def\Slt{\@upcasei{crf@slot}}%			Slot[]
+%
+\def\sltmc%					slot metaobject class[]
+{\slt[]\@nameuse{crf@dash}\mc}
+\def\Sltmc%					Slot metaobject class[]
+{\Slt[]\@nameuse{crf@dash}\mc}
+\def\SltMc%					Slot Metaobject Class[]
+{\Slt[]\@nameuse{crf@dash}\MC}
+%
+\def\sltmo%					slot metaobject[]
+{\slt[]\@nameuse{crf@dash}\mo}
+\def\Sltmo%					Slot metaobject[]
+{\Slt[]\@nameuse{crf@dash}\mo}
+\def\SltMo%					Slot Metaobject[]
+{\Slt[]\@nameuse{crf@dash}\MO}
+%
+\def\spc{\@nocasei{crf@specialized}}%		specialized[]
+\def\Spc{\@upcasei{crf@specialized}}%		Specialized[]
+\def\std{\@nocasei{crf@standard}}%		standard[]
+\def\Std{\@upcasei{crf@standard}}%		Standard[]
+%
+\def\spfrm%					special[] form
+{\@nocaseii{crf@special}{\ }{crf@form}}
+\def\Spfrm%					Special[] form
+{\@upcaseii{crf@special}{\ }{crf@form}}
+\def\SpFrm%					Special[] Form
+{\@Upcaseii{crf@special}{\ }{crf@form}}
+%
+\def\typetag{\@nocasei{crf@typetag}}%		type tag[]
+\def\Typetag{\@nocasei{crf@Typetag}}%		Type tag[]
+\def\TypeTag{\@nocasei{crf@TypeTag}}%		Type tag[]
+%
+\def\var{\@nocasei{crf@variable}}%		variable[]
+\def\Var{\@upcasei{crf@variable}}%		Variable[]
+
+% HK 8.6.94
+\def\rest  {\reset@font\tt\&rest}
+\def\body  {\reset@font\tt\&body}
+\def\opt   {\reset@font\tt\&optional}
+\def\key #1{\reset@font\tt\&key #1}
+
+%
+% HK 14.6.94
+\def\ps{{\sc PostScript}}		% PostScript
+\def\lispnil{\lisp{nil}}		% Lisp NIL
+\def\lispt{\lisp{t}}			% Lisp T
+% HK 29.6.94
+\def\lisp#1{{\tt #1}}			% Non-math mode only
+
+% HK 6.7.94
+\def\class#1{{\bf #1}}
+
+\def\funarg{\begingroup\@@sanitize\@funarg}%	% Function argument
+\def\@funarg#1{\reset@font\it #1\endgroup}%
+
+\def\keyarg{\begingroup\@@sanitize\@keyarg}%	% Function &key argument
+\def\@keyarg#1{\reset@font\tt :#1\endgroup}%	% Function &key argument
+
+\def\cl{Common \mbox{LISP}}%	% Common LISP Logo
+\def\clos{\mbox{CLOS}}		% CLOS Logo
+
+
+%\def\label*{%
+%%
+%% \label*[<optional \ref text>]{<label>}
+%% makes a \label whose \ref expands to <optional \ref text>;
+%% if <optional \ref text> is missing, \label* is like \label
+%%
+% \@ifnextchar [%
+% {\@tempswatrue\@label*{\thepage}}
+% {\@tempswafalse\@label*{\thepage}[\@currentlabel]}}
+
+\def\@label*#1[#2]#3{{\@@label*{#1}{#2}{#3}}}
+\def\@@label*#1#2#3{%
+\@bsphack\def\@tempa{}%
+ \if@filesw {%
+  \let\thepage\relax%
+  \def\protect{%
+   \noexpand\noexpand\noexpand\noexpand\noexpand\noexpand\noexpand}%
+  \edef\@tempa{\write\@auxout{\string\newflabel{#3}{{#2}{#1}}}}%
+  \expandafter}%
+ \@tempa
+ \if@nobreak \ifvmode\nobreak\fi\fi\fi\@esphack}%
+
+\def\@@sanitize{\@makeother\$\@makeother\&%
+\@makeother\#\@makeother\^\@makeother\_\@makeother\%\@makeother\~}
+
+\def\@@unsanitize{%
+\catcode`\$=3 % dollar sign is math shift
+\catcode`\&=4 % ampersand is alignment tab
+\catcode`\#=6 % hash mark is macro parameter character
+\catcode`\^=7 % circumflex and uparrow are for superscripts
+\catcode`\_=8 % underline and downarrow are for subscripts
+\catcode`\%=14% percent sign is comment character
+}%
+
+% Patch to \@writefile: This allows #, ^, % etc. in the argument of
+% \@writefile:
+\long\def\@writefile{\begingroup\@@sanitize\@@writefile}
+\long\def\@@writefile#1#2{\@ifundefined{tf@#1}{}{%
+   \immediate\write\csname tf@#1\endcsname{#2}}\endgroup}
+
+\def\contentsline{%
+\begingroup\@@sanitize\let\@sectionkind\@empty\@contentsline}
+\def\@contentsline#1#2#3{\endgroup\csname l@#1\endcsname{#2}{#3}}
+
+\def\@setsectionkind#1{%
+\def\@sectionkind{#1}%
+}
+
+\def\@dottedtocline#1#2#3#4#5{\ifnum #1>\c@tocdepth \else
+  \vskip \z@ plus.2\p@
+  {\leftskip #2\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+    \parindent #2\relax\@afterindenttrue
+   \interlinepenalty\@M
+   \leavevmode
+   \@tempdima #3\relax \advance\leftskip \@tempdima \hbox{}\hskip -\leftskip
+    #4\nobreak\leaders\hbox{$\m@th \mkern \@dotsep mu.\mkern \@dotsep
+       mu$}\hfill \nobreak
+           \ifx\@sectionkind\undefined\else%
+           \ifx\@sectionkind\@empty\else%
+           \hbox{\reset@font\rm\small[{\em\@sectionkind}\/]} \nobreak%
+           \fi\fi%
+           \hbox to\@pnumwidth{\hfil\reset@font\rm #5}\par}%
+  \let\@sectionkind\@empty\fi}
+ 
+\def\newflabel{\begingroup\@@sanitize\@newflabel}
+
+\def\@newflabel#1#2{%
+ \def\@tempa{\@testdef r}%
+ \ifx\newlabel\@tempa%
+  % Called from \enddocument:
+  \@ifundefined{r@#1}%
+   {\newlabel{#1}{#2}}%
+   {}%
+ \else%
+  \@ifundefined{r@#1}%
+   {\global\@namedef{r@#1}{#2}}%
+   {\@warning {Using first definition of already^^J%
+    \@spaces defined flabel `#1'}}%
+ \fi\endgroup}%
+
+\def\flabel{\begingroup\@@sanitize\@flabel}
+
+\def\@flabel#1#2#3{%
+\endgroup%
+{\def\protect{\noexpand\protect\noexpand}%
+\def\@tempa{#3}%
+\ifx\@tempa\@empty%
+\@@label*{\protect\fcitepage{\thepage}}{#1}{#2}%
+\else%
+\@@label*{#3}{#1}{#2}%
+\fi}}
+
+\let\@tempw\relax%
+
+\def\@fcite#1{%
+ \@ifundefined{r@#1}
+  {\@tempw{item} {\bf#1} \fcitepage{??}%
+   \@warning {Reference `#1' on page \thepage \space undefined}}%
+  {%\def\protect{\noexpand\protect\noexpand}%
+   \edef\@tempa{\@nameuse{r@#1}}%
+   \expandafter\@car\@tempa\@nil\null%
+   \ {\bf#1}\ %
+   \edef\@tempa{\@nameuse{r@#1}}%
+   \expandafter\@cdr\@tempa\@nil\null}}
+
+\def\fcitepage#1{[{\sl#1}\/]}%
+\def\fcite#1{{\let\@tempw\relax\@fcite{#1}}}%
+\def\Fcite#1{{\let\@tempw\wrdupr\@fcite{#1}}}%
+
+\def\citepage#1{\@nameuse{crf@page}\ #1}	% Page ref. in \cite{}
+
+\def\chrlwr#1{%
+% Change #1 (a letter) to lower case
+\lowercase{#1}}
+
+\def\wrdlwr#1{%
+% Change first letter of #1 (a word) to lower case
+\expandafter\chrlwr#1}%
+
+\def\chrupr#1{%
+% Change #1 (a letter) to upper case
+\uppercase{#1}}%
+
+\def\wrdupr#1{%
+% Change first letter of #1 (a word) to upper case
+\expandafter\chrupr#1}%
+
+\def\addglossary#1{%
+% #1	Home-language (german) term
+% [#2]	Foreign-language (english) term; glossary key
+% [#3]	Glossary entry
+\@tempswafalse%
+\@ifnextchar [%
+{\@tempswatrue\@addglossary{#1}}{\@addglossary{#1}[\relax]}}
+\def\@addglossary#1[#2]{%
+\@ifnextchar [%
+{\@tempswatrue\@@addglossary{#1}{#2}[#1]}%
+{\@@addglossary{#1}{#1}[\relax][#2]}}
+
+\def\see#1{$\protect\rightarrow$#1}
+
+\def\gande#1#2{%		german and english
+% #1	Home-language (german) term
+% #2	Foreign-language (english) term; glossary key
+% [#3]	See entry
+% [#4]	Glossary entry
+#1\ ({\em #2\/})%
+\@tempswafalse%
+\@ifnextchar [%
+{\@tempswatrue\@gande{#1}{#2}}{\@gande{#1}{#2}[\relax]}}
+\def\@gande#1#2[#3]{%
+\@ifnextchar [%
+{\@tempswatrue\@@addglossary{#1}{#2}[#3]}%
+{\@@addglossary{#1}{#2}[#3][\relax]}}
+%
+\def\@@addglossary#1#2[#3][#4]{{%
+\if@filesw\if@tempswa%
+ \def\@tempz{#4}%
+ \def\@tempa{\relax}%
+ \ifx\@tempz\@tempa%
+  \def\@tempy{\relax}\def\@tempz{#3}%
+ \else%
+  \def\@tempy{#3}%
+ \fi%
+ \def\@tempx{}%
+ \def\@tempa{\relax}%
+ \ifx\@tempy\@tempa%
+  \def\@tempy{#2}%
+ \else%
+  \ifx\@tempy\@empty%
+   \def\@tempy{#1}%
+  \fi%
+  \@addglossaryline{#2}{\see{\@tempy}}%
+  \def\@tempx{\protect\ ({\protect\em#2\protect\/})}%
+ \fi%
+ \ifx\@tempz\@empty%
+  \@addglossaryline{\@tempy\@tempx}{#1.}%
+ \else%
+  \@addglossaryline{\@tempy\@tempx}{\@tempz}%
+\fi\fi\fi}}
+
+\newif\if@glossarypageno \@glossarypagenotrue
+\def\nopageno{\protect\global\protect\@glossarypagenofalse}
+\def\pageno{\protect\global\protect\@glossarypagenotrue}
+
+\def\@addglossaryline#1#2{{%
+% #1 Key
+% #2 Description
+ \def\protect{\noexpand\protect\noexpand\noexpand\noexpand}%
+ \glossary{{#1}{#2}}}}
+
+\def\@crfcons#1#2{%
+\begingroup\let\@gloentry\relax\xdef#1{#1\@gloentry #2}\endgroup}
+
+\def\@glolist{}
+\def\glossaryentry#1#2{%
+{\def\protect{\noexpand\protect\noexpand}%
+ \@crfcons{\@glolist}{{#1}{#2}}}}
+
+\def\@gloentry#1#2{%
+\@gloinit%
+\@glossarypagenotrue%
+\def\@tempy{\@car#1\@nil}%
+\def\@tempz{\@cdr#1\@nil}%
+\@item[\@tempy]%
+\if@glossarypageno(\citepage{#2})\hspace{\labelsep}\fi%
+\@tempz}
+
+\def\setglossary{%
+\@restonecolfalse%
+\if@twocolumn\@restonecoltrue\onecolumn\fi%
+\chapter*{\glossaryname}%
+\@mkboth{\glossaryname}{\glossaryname}%
+\def\@gloinit{%
+ \begin{description}%
+ \let\@gloinit\relax%
+ \def\@gloexit{\end{description}}}%
+\let\@gloexit\relax%
+\@glolist\@gloexit%
+\if@restonecol\twocolumn\fi}
+
+{\def\protect{\noexpand\noexpand\noexpand\noexpand\protect}%
+ \@input{\jobname.glo}}
+
+\newdimen\iconparindent
+\iconparindent10pt
+
+\def\iconpar#1{%
+\par\setbox\@tempboxa\vbox{\hbox{#1}}%
+\@tempdimb\ht\@tempboxa\advance\@tempdimb\dp\@tempboxa%
+\ht\@tempboxa0pt\dp\@tempboxa0pt%
+\@tempdima\@tempdimb%
+\advance\@tempdima\baselineskip\advance\@tempdima-1sp%
+\@tempcnta\@tempdima\divide\@tempcnta\baselineskip%
+\@tempdima\wd\@tempboxa%
+\advance\@tempdima\iconparindent%
+\noindent\hangindent=\@tempdima\hangafter=-\@tempcnta%
+\@tempdimb0.5\baselineskip%
+\setbox\@tempboxa\hbox{\raise\@tempdimb\hbox{\copy\@tempboxa}}%
+\ht\@tempboxa0pt\dp\@tempboxa0pt%
+\hspace{-\@tempdima}\hspace{0.5\iconparindent}\copy\@tempboxa%
+\hspace{0.5\iconparindent}}

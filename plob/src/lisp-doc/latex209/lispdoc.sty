@@ -1,0 +1,752 @@
+% HK 27.4.94
+% spec.sty originally used for The Art of the Metaobject Protocol
+% ftp'ed from parcftp.xerox.com:/pub/plcl/mop/spec.tar.Z
+% Adapted to NFSS and modificated heavily by me (HK) for my needs
+% HK is kirschke@informatik.uni-hamburg.de
+
+\typeout{Document Style `lispdoc' <1 Jun 94>, derived from AMOP spec.sty}
+
+\def\@sect#1#2#3#4#5#6[#7]#8{\ifnum #2>\c@secnumdepth
+     \def\@svsec{}\else%
+     \refstepcounter{#1}%
+     \edef\@svsec{\csname the#1\endcsname\hskip 1em}\fi%
+     \@tempskipa #5\relax%
+      \ifdim \@tempskipa>\z@%
+        \begingroup#6\relax%
+\noindent\@svsec{\interlinepenalty \@M #8\par}%
+         \endgroup%
+       \csname #1mark\endcsname{#7}%
+       \ifx\@sectionkind\undefined\def\@sectionkind{}\fi%
+       \addcontentsline%
+        {\ifx\c@chapter\undefined%
+	   matter%
+	  \else\ifnum\c@chapter=0%
+	   matter%
+	  \else%
+	   toc%
+	  \fi\fi}%
+	  {#1}%
+	  {\ifnum #2>\c@secnumdepth\else%
+           \protect\numberline{\csname the#1\endcsname}\fi%
+           #7\ifx\@sectionkind\@empty\else%
+\protect\@setsectionkind{\@sectionkind}\fi}%
+	  \else
+          \def\@svsechd{#6\hskip #3\@svsec%
+	                #8\csname%
+			#1mark\endcsname%
+                        {#7}%
+             \addcontentsline%
+              {\ifx\c@chapter\undefined%
+	        matter%
+	       \else\ifnum\c@chapter=0%
+	        matter%
+               \else%
+	        toc%
+	       \fi\fi}%
+	      {#1}%
+	      {\ifnum #2>\c@secnumdepth%
+	      \else%
+              \protect\numberline{\csname the#1\endcsname}\fi%
+              #7}}\fi%
+          \@xsect{#5}}
+
+%%
+%% Stuff to use Arthur's index tools
+%% 
+% useful hacks (tools)
+\newtoks\@temptokenb
+\def\appdef#1#2{%
+ \ifx#1\undefined\let#1\@empty\fi
+ \@temptokena\expandafter{#1}%
+ \@temptokenb{#2}\edef#1{\the\@temptokena\the\@temptokenb}%
+ }%
+%\input{:macros:index.chn}
+
+% from spec/macros.tex
+% fonts
+
+%\font\tenbit=cmbxsl10
+%\let\bit\tenbit
+
+\newif \iftt
+\newif \ifbf
+\newif \ifsphy \sphyfalse
+
+% page layout
+\newskip  \normalparskip	\normalparskip = 1pc plus2pt
+\newdimen\normalparindent
+\normalparindent\parindent
+\advance\textwidth1in
+\advance\evensidemargin-1in
+
+% It is intended that this page style be invoked after \ps@headings, ie, as a variation
+\def\ps@dictionaryheadings{%
+ \def\@evenhead{%
+  \thepage\hskip20\p@{\leftmark}%
+  \hfil\ifnum\c@secnumdepth>\m@ne\@chapapp\ \thechapter\fi
+  }%
+ \def\@oddhead{%
+  {Generic Functions and Methods}\hfill{\rightmark}\hskip20\p@\thepage
+  }%
+ \def\sectionmark##1{\markboth{##1}{##1}}%
+ \def\subsectionmark##1{}%
+ }%
+
+\def\comlabel#1{%
+% \def\@tempa{#1}\@tempswafalse
+% \ifx\@tempa\lit@arg\@tempswatrue\fi
+% \ifx\@tempa\lit@val\@tempswatrue\fi
+% \ifx\@tempa\lit@see\@tempswatrue\fi
+% \parindent\if@tempswa\z@\else\normalparindent\fi
+ \stopindent
+% HK 26.5.94: Added * to shorten the contens a little bit:
+% \@startsection{subsection}{2}{\z@}{-7ptplus-4pt}{.01pt}{\noindent\leftskip\z@skip}{#1}%
+ \@pgbk[1]%
+ \@startsection{subsection}{2}{\z@}{-7ptplus-4pt}{.01pt}{\noindent\leftskip\z@skip}*{#1}%
+ }%
+%
+% HK 27.4.94
+%\font\SmallCaps=cmr7 at 7.5pt
+%\let\SC\SmallCaps
+\let\SC\footnotesize
+%
+\def\Resultslabel{\comlabel{R{\SC ESULTS}}}%
+\def\Purposelabel{\comlabel{P{\SC URPOSE}}}%
+\def\Syntaxlabel{\comlabel{S{\SC YNTAX}}}%
+\def\Argumentslabel{\comlabel{A{\SC RGUMENTS}}}%
+\def\Valueslabel{\comlabel{V{\SC ALUES}}}%
+\def\Methodslabel{\comlabel{M{\SC ETHODS}}}%
+\def\Remarkslabel{\comlabel{R{\SC EMARKS}}}%
+\def\Exampleslabel{\comlabel{E{\SC XAMPLES}}}%
+\def\GenericFunctionslabel{\comlabel{G{\SC ENERIC} F{\SC UNCTIONS}}}%
+\def\Directlabel{\comlabel{D{\SC IRECT} S{\SC LOT} D{\SC EFINITION} M{\SC ETAOBJECTS}}}%
+\def\Effectivelabel{\comlabel{E{\SC FFECTIVE} S{\SC LOT} D{\SC EFINITION} M{\SC ETAOBJECTS}}}%
+% HK 25.5.94
+\def\Seealsolabel{\comlabel{S{\SC EE} A{\SC LSO}}}%
+% HK 1.6.94
+\def\Directsuperclasseslabel{\comlabel{D{\SC IRECT} S{\SC UPERCLASSES}}}%
+\def\Metaclasslabel{\comlabel{C{\SC LASS} M{\SC ETAOBJECT} C{\SC LASS}}}%
+\def\Directslotslabel{\comlabel{D{\SC IRECT} S{\SC LOTS}}}%
+\def\Classoptionslabel{\comlabel{C{\SC LASS} O{\SC PTIONS}}}%
+%
+%
+%\def\lit@arg{Arguments}%
+%\def\lit@val{Values}%
+%\def\lit@see{See Also}%
+%\def\lit@mth{Methods}%
+%Note: a line like \label Argurments: or \label Values: must eventually
+% be followed by another \label statement or the system doesn't work--AO
+
+% HK 24.5.94
+%\def\begincom{\begingroup\catcode`\,=\active\catcode`\-=\active\dobegincom}
+\def\begincom#1#2#3{\begingroup%
+\catcode`\,=\active\catcode`\-=\active%
+\dobegincom{#1}{#2}{#3}}%
+
+% this command must set the \parindent and \leftskipt to the normal values
+\def\endcom{\endgraf\parindent\normalparindent\stopindent\comfalse}%
+
+\newif\ifcom
+
+\newdimen \dotw
+\setbox0=\hbox{\Large, $\ldots$}
+\global\dotw=\wd0
+
+\def\hyphen{-}
+\def\comma{,}
+\def\specialcomma{\discretionary{\kern\dotw\vrule width0pt}{}{,\kern\fontdimen2\frtnbf}\ignorespaces}
+
+{\catcode`\,\active\catcode`\-=\active
+ \gdef\dospecialcomma{\let,\specialcomma\sphytrue}%
+ \gdef\donormalcomma{\let,\comma}%
+ \gdef\begincomindex#1{\global\let\NEXT\bcindex\bcindex #1, \endit, \relax}%
+ \gdef\bcindex#1, {%
+  \ifx\endit#1\global\let\NEXT\empty
+   \else\silenttrue\boldtrue\xref{#1}%
+   \fi\NEXT
+  }%
+ }%
+
+\donormalcomma
+
+% HK 26.5.94
+%\def\dobegincom#1\ftype #2{\endgroup
+\def\dobegincom#1#2#3#4{%
+ \endgroup%
+ \def\@ftype{#4}%
+ \@pgbk[1]%
+ \ifx\@ftype\@empty%
+ \long\def\@sectionkind{#2}%
+ \else%
+ \long\def\@sectionkind{#2 #4}%
+ \fi%
+ \@startsection{section}{1}{\z@}{-16ptplus-6pt}{13pt}%
+ {\@begincomcmds{#2}}{#1}%
+ \let\@sectionkind\@empty%
+ \parindent\normalparindent\stopindent\comtrue%
+% HK 30.5.94
+\ifx\@hkmkboth\undefined\markboth{#1}{#1}\else\@hkmkboth{#1}{#1}\fi%
+\def\@tempa{#3}%
+\ifx\@tempa\@empty%
+\flabel{}{#1}{}%
+\else%
+\flabel{#3}{#1}{}%
+\fi}%
+\def\@begincomcmds#1{%
+%\large\bf%
+\let\par\@empty%
+%\let\@svsec\@comsvsec%
+\def\@svsec{\@comsvsec{#1}}%
+}%
+\long\def\@comsvsec#1#2{%
+ \endgraf
+ \hrule
+ \nobreak
+ \vskip3\p@\parskip\z@\parfillskip\z@\parindent\z@\leftskip\@flushglue\rightskip\@flushglue
+ \leavevmode\null\hskip-\leftskip{\large\bf#2}\hfil\hbox{%
+% HK 27.4.94
+%\tenit%
+%\rm\it\normalsize%
+{\it #1 \@ftype}}\hskip-\rightskip\hskip\z@skip\endgraf
+ }%
+\let\@vtop=\vtop
+\def\Vtop #1{%
+ \setbox\z@\vbox{#1}\setbox\tw@\null
+ \dimen@\ht\z@
+ \dp\tw@\dp\z@
+ \setbox\z@\@vtop{\unvbox\z@}%
+ \advance\dimen@i by -\ht\z@
+ \ht\tw@\dimen@
+ \vadjust{\penalty\@M\box\tw@}%
+ \dp\z@\z@\box\z@
+ }%
+
+% \def\shortmethod#1#2{%
+%  \vskip\parskip
+%  \hbox to\hsize{%
+%   % \brac removed here, too
+%   \hskip\leftskip{\bf #1 {\tt (#2)}}\hfill{\it Primary Method\/}%
+%   }%
+%  }% this macro should be equivalent to \Defmeth{xxx}{}%
+\appdef\@letoutput{\let\lisp0}%
+
+\def\Defun{\begingroup\@@sanitize\@Defun}%
+\def\@Defun#1 #2{%
+ \endgroup\Defmethod{#1}{\it}{#2}{\protect\Fn}%
+ \ifx\@dtype\@ftype\else\startindent\fi%
+ }% follows a \beginfncom command
+
+% HK 30.5.94
+\def\Defdoc{\begingroup\@@sanitize\@Defdoc}%
+\def\@Defdoc#1 #2{%
+ \endgroup\Defmethod{#1}{}{}{#2}%
+ \ifx\@dtype\@ftype\else\startindent\fi}% follows a \beginfncom command
+
+% HK 26.5.94
+\def\Defmac{\begingroup\@@sanitize\@Defmac}%
+\def\@Defmac#1 #2{%
+ \endgroup\Defmethod{#1}{\it}{#2}{\protect\Mac}%
+ \ifx\@dtype\@ftype\else\startindent\fi}% follows a \beginfncom command
+
+% HK 1.6.94
+\def\Defdslot{\begingroup\@@sanitize\@Defdslot}
+\def\@Defdslot#1 #2{%
+ \endgroup\Defmethod{#1}{\tt}{#2}{Direct Slot}%
+ \startindent}%
+
+%
+\def\Defgen{\begingroup\@@sanitize\@Defgen}%
+\def\@Defgen#1 #2{%
+ \endgroup\Defmethod{#1}{\it}{#2}{\protect\GFn}%
+ \ifx\@dtype\@ftype\else\startindent\fi}% follows a \begingfcom command
+
+\def\Defgeni{\begingroup\@@sanitize\@Defgeni}%
+\def\@Defgeni#1 #2{%
+ \endgroup\Defmethod{#1}{\it}{#2}{\protect\GFn}%\index{\lisp{#1}@full-specification}
+ \ifx\@dtype\@ftype\else\startindent\fi}% follows a \begingfcom command
+
+% HK 27.4.94
+%\def\Defmeth#1 #2{\Defmethod{#1}{\tt#2}{Primary Method}\startindent}%
+\def\Defmeth{\begingroup\@@sanitize\@Defmeth}%
+\def\@Defmeth#1 #2{%
+\endgroup\Defmethod{#1}{\tt}{#2}{Primary Method}\startindent}%
+
+% HK 24.5.94
+%\def\Defmethb#1 #2{\Defmethod{#1}{\tt#2}{Before-Method}\startindent}%
+\def\Defmethb{\begingroup\@@sanitize\@Defmethb}%
+\def\@Defmethb#1 #2{%
+\endgroup\Defmethod{#1}{\tt}{#2}{Before-Method}\startindent}%
+
+% HK 24.5.94
+%\def\Defmetha#1 #2{\Defmethod{#1}{\tt#2}{After-Method}\startindent}%
+\def\Defmetha{\begingroup\@@sanitize\@Defmetha}%
+\def\@Defmetha#1 #2{%
+\endgroup\Defmethod{#1}{\tt}{#2}{After-Method}\startindent}%
+
+% HK 27.4.94
+%\def\Defmetharound#1 #2{\Defmethod{#1}{\tt#2}{Around-Method}\startindent}%
+\def\Defmetharound{\begingroup\@@sanitize\@Defmetharound}%
+\def\@Defmetharound#1 #2{%
+\endgroup\Defmethod{#1}{\tt}{#2}{Around-Method}\startindent}%
+
+\def\Defmethod#1#2#3#4{%
+ \par%
+ \@pgbk[1]%
+ \if@nobreak\else%
+  \addvspace{\normalparskip}%
+  \fi%
+ \begingroup\parindent\z@\leftskip\tw@\normalparindent\interlinepenalty\@M\parskip\z@%
+  %\noindent{\bf#1}\hfil\def\@tempa{#4}\ifx\@tempa\@empty\else[{\it#4\/}]\fi\break%
+%Note: I have removed the [] as an experiment--AO
+  \def\@tempa{#1}%
+  \ifx\@tempa\@empty\else%
+   \noindent\hskip-\leftskip{\bf#1}\hfil%
+  \fi%
+  \def\@dtype{#4}%
+  \ifx\@dtype\@ftype%
+   \ifcom\else\@latexerr{\string\Defun\space or \Defgen\space used out of proper context.}\@ehc\fi%
+   \else\ifx\@dtype\@empty\else\hfill{\it#4\/}\fi%
+  \fi%
+  \def\@tempa{#3}%
+  \ifx\@tempa\@empty\else%
+   \ifx\@dtype\@empty\else\newline\fi%
+   {\rightskip0ptplus1fil\let\\\break\let\vtop\Vtop#2\raggedright#3}%
+  \fi%
+  \endgraf%
+  \endgroup%
+ \addpenalty{\@M}\addvspace{.5\normalparskip}%
+ \@afterindentfalse\@afterheading%
+ \@@unsanitize}%
+\def\startindent{%
+ \leftskip\normalparindent%
+ }%
+\def\stopindent{%
+ \leftskip\z@skip%
+ }%
+
+% Figures
+%
+%Syntax:
+%       \boxfig (or \cboxfig) (or \rulefig)   (or \fig)
+%       { }
+%       \caption{ }
+%       \endfig
+%
+%\def\boxfig{%
+% \begingroup
+% \advance\hsize by -\leftskip\advance\hsize by -\rightskip\advance\hsize -2pt
+% \leftskip 1pc
+% \rightskip 1pc plus 2pc
+% \global\setbox\@ne\vbox\bgroup
+% }
+%\def\endfig{%
+% \egroup
+% \global\wd\@ne\hsize
+% \endgroup
+% \par
+% \addvspace{1pc}%
+% \moveright\leftskip\vbox{%
+%  \hrule height1pt
+%  \hbox{\vrule width 1pt
+%   \vbox{\hrule height0pt width \wd\@ne\vskip1pc\unvbox\@ne\vskip1pc}%
+%   \vrule width1pt
+%   }%
+%  \hrule height1pt
+%  }%
+% \vskip1pc
+% }
+%\def\caption#1{}%
+
+% screen text examples
+
+{\obeylines\gdef\eatcr#1
+{}}
+
+\chardef\bslash=`\\
+\def\prompt{>}
+
+\chardef\other=12
+{\obeyspaces\global\def {\space}}%
+\newskip\ttskip
+
+%\def\catothers{%
+% \catcode`\&=\other	\catcode`\#=\other
+% \catcode`\^=\other	\catcode`\^^A=\other
+% \catcode`\^^X=\other
+% \catcode`\%=\other
+% }%
+
+%\def\ttpar{\leavevmode\endgraf}%
+%\def\ttspace{\leavevmode\nobreak\hskip\ttskip}%
+%Note: 59 characters of cmtt10 in 26pc
+
+% character hacks
+
+\mathchardef \spBS "086E % \
+\def\BSlash{\ifmmode\spBS\else\iftt\bslash\else$\spBS$\fi\fi}
+%\let\\=\BSlash
+
+\def\MI{\ifbf\ifmmode\spMI\else\ifsphy\hbox{-}\else-\fi\fi\else-\fi}
+{\catcode `\-=\active	\global\let-=\MI}%
+\def\curly  #1{$\{${\it #1\/}$\}$}
+
+% HK 27.4.94: Moved to crossref.sty
+%\def\rest {\tt\&rest}
+%\def\body {\tt\&body}
+%\def\opt  {\tt\&optional}
+%\def\key #1{\tt\&key #1}
+
+\long\def\isa#1#2%			% The ... argument is ...
+{\par{}The #1\ argument is #2.}
+\def\isabool#1%			% The ... argument is a boolean object.
+{\isa{#1}{a boolean-interpreted \cl\ \obj}}
+\def\isaclosobject#1%		% The ... argument is a CLOS object.
+{\isa{#1}{a \clos\ \obj}}
+\def\isacls#1%			% The ... argument is a class metaobject.
+{\isa{#1}{a \clsmo}}
+\def\isanobject#1%		% The ... argument is a LISP object.
+{\isa{#1}{a \cl\ \obj}}
+\def\isanobjid#1%		% The ... argument is an objid.
+{\isa{#1}{an \objid}}
+\def\isastrcls#1%		% The ... argument is a structure class object.
+{\isa{#1}{a structure class object}}
+\def\isatypetag#1%		% The ... argument is a type tag.
+{\isa{#1}{a \typetag}}
+\def\retarg#1%			% The value of the ... argument is returned
+{The value of the #1\ argument is returned.}
+\def\sysdep#1%			% This ... is system-dependent
+{This #1\ is \cl\ system-dependent.}
+
+%from beginning of spec/mop.tex
+%I changed the \advance\leftskip20pt to \advance\leftskip\parindent
+%\def\method#1#2{{\bit method} {\bf #1 (#2)}}
+%\def\bmethod#1#2{{\bit :before method} {\bf #1 (#2)}}
+\def\method#1#2{{\bf #1 (#2)}}
+\def\bmethod#1#2{{\bf #1 :before (#2)}}
+\def\aroundmethod#1#2{{\bf #1 :around (#2)}}
+
+% HK 25.5.94
+%\def\beginfncom#1{\begincom{#1}\ftype{Function}}%\index{\lisp{#1}@full-specification}
+\def\beginfncom{%	defun
+\begingroup\@@sanitize%
+\@ifnextchar [{\@tempswatrue\@beginfncom}{\@tempswafalse\@beginfncom[]}}%
+\def\@beginfncom[#1]#2{%
+\endgroup\begincom{#2}{#1}{\protect\fn}{\protect\Fn}}%
+%\index{\lisp{#2}@full-specification}
+
+% HK 30.5.94
+\def\begindccom{%	defdoc
+\begingroup\@@sanitize%
+\@ifnextchar [{\@tempswatrue\@begindccom}{\@tempswafalse\@begindccom[]}}%
+\def\@begindccom[#1]#2{\endgroup\begincom{#2}{#1}{}{}}%
+
+% HK 25.5.94
+%\def\begingfcom#1{\begincom{#1}\ftype{Generic Function}}%\index{\lisp{#1}@full-specification}
+\def\begingfcom{%	defgeneric
+\begingroup\@@sanitize%
+\@ifnextchar [{\@tempswatrue\@begingfcom}{\@tempswafalse\@begingfcom[]}}%
+\def\@begingfcom[#1]#2{\endgroup\begincom{#2}{#1}{\protect\gfn}{\protect\GFn}}%
+%\index{\lisp{#2}@full-specification}
+
+% HK 26.5.94
+\def\begincncom{%	defconstant
+\begingroup\@@sanitize%
+\@ifnextchar [{\@tempswatrue\@begincncom}{\@tempswafalse\@begincncom[]}}%
+\def\@begincncom[#1]#2{\endgroup\begincom{#2}{#1}{\protect\const}{\protect\Const}}%
+
+\def\beginvrcom{%	defvar
+\begingroup\@@sanitize%
+\@ifnextchar [{\@tempswatrue\@beginvrcom}{\@tempswafalse\@beginvrcom[]}}%
+\def\@beginvrcom[#1]#2{\endgroup\begincom{#2}{#1}{\protect\var}{\protect\Var}}%
+
+\def\beginmccom{%	defmacro
+\begingroup\@@sanitize%
+\@ifnextchar [{\@tempswatrue\@beginmccom}{\@tempswafalse\@beginmccom[]}}%
+\def\@beginmccom[#1]#2{\endgroup\begincom{#2}{#1}{\protect\mac}{\protect\Mac}}%
+
+\def\beginclcom{%	defclass
+\begingroup\@@sanitize%
+\@ifnextchar [{\@tempswatrue\@beginclcom}{\@tempswafalse\@beginclcom[]}}%
+\def\@beginclcom[#1]#2{\endgroup\begincom{#2}{#1}{\protect\cls}{\protect\Cls}}%
+
+% Wrap this around a collection of \shortxxx to keep them closer together.
+%\newenvironment{Shorts}{\addvspace{\normalparskip}\parskip=0pt}{}%
+
+\let\sub_
+
+% new command taking the place of procedural markup
+\newenvironment{methods}{%
+ \advance\leftskip\tw@\normalparindent\parindent\z@
+ \def\\{\hfil\break}%
+ }{%
+ \par
+ }%
+% commands specifically for mop1
+\newenvironment{ImplNote}{%
+ %\advance\rightskip 3pc
+ \advance\leftskip 1pc
+ {\noindent\bf Implementation Note: }\vrule width0pt depth 5pt\hfil\break
+ }{\par}%
+
+\newenvironment{TermNote}{%
+ %\advance\rightskip 3pc
+ \advance\leftskip 1pc
+ {\noindent\bf  Terminology Note: }\vrule width0pt depth 5pt\hfil\break
+ }{\par}%
+
+\newenvironment{Note}{%
+ %\advance\rightskip 3pc
+ \advance\leftskip 1pc
+ {\noindent\bf Note: }\vrule width0pt depth 5pt\hfil\break
+ }{\par}%
+
+\newenvironment{Example}{%
+ %\advance\rightskip 2pc
+ \advance\leftskip 1pc
+ {\noindent\bf Example: }\hfil\break
+ }{\par}
+
+
+%\def\bulletlist{\begingroup\vskip7pt \advance\leftskip by 1pc \parindent=1pc
+%  \def\item{\par\noindent\hskip-1pc \hbox to 1pc{$\bullet$\hfil}}}
+%\def\endbulletlist{\vskip7pt\endgroup\noindent}
+
+% changes to mitpr6x9.sty
+%\newdimen\listindent
+\newenvironment{unlabeled}{%
+ \par
+ \addpenalty{\@beginparpenalty}%
+ \addvspace{7pt}%
+ \parindent\z@
+ \def\item{\par\noindent\hbox to\normalparindent{\hfil}}%
+ \advance\leftskip2\normalparindent
+% \advance\leftskip\listindent
+% \listindent\normalparindent
+ }{%
+ \par
+ \addpenalty{\@endparpenalty}%
+ \addvspace{7pt}%
+ }%
+%
+%
+
+%\tracingpages\@ne
+\def\tolerant{\advance\tolerance\@m\advance\pretolerance\@m}%
+
+% I had to change mit6x9 by initializing \@colroom before the \onecolumn command was executed
+%\@colht\textheight\@colroom\@colht\vsize\@colroom\pagegoal\vsize
+
+% HK 14.6.94
+%\c@secnumdepth\z@
+\edef\@oldsecnumdepth{\the\c@secnumdepth}%
+\def\numberingoff{%
+\edef\@oldsecnumdepth{\the\c@secnumdepth}%
+\c@secnumdepth\z@}
+\def\numberingon{%
+\c@secnumdepth\@oldsecnumdepth}
+
+
+\widowpenalty\@M
+\clubpenalty\@M
+\brokenpenalty\@M
+
+%
+% macros for going in and out of appendix
+%
+\newcounter{chaptersaved}
+%
+%
+% level 1 item list
+%
+\leftmargini\normalparindent
+\def\@listi{%
+ \leftmargin\leftmargini\labelwidth\leftmargini
+ \partopsep\z@\parsep\z@
+ \itemsep\z@
+ \listparindent\normalparindent
+ }%
+%\@listi
+\def\labelitemi{$\bullet$\hfill }
+\def\@itemlabeli#1{#1\hss}%
+%
+% level 2 item list
+%
+\def\@listii{%
+ \leftmargin\leftmarginii\labelwidth\leftmarginii
+ \partopsep\z@\parsep\z@
+ \itemsep\z@
+ \listparindent\normalparindent
+ }%
+\def\labelitemii{$\bullet$\hfill }
+\def\@itemlabelii#1{#1\hss}%
+\leftmarginii\normalparindent
+%
+%
+%
+% HK 29.6.94: Moved to crossref.sty
+%\def\lisp#1{{\tt #1}}				% Non-math mode only
+
+\def\ev{$\Longrightarrow$}
+
+\newcommand{\closette}{Closette}
+
+\newcommand{\C}{C}
+\newcommand{\Cpp}{C++}
+\newcommand{\ST}{Smalltalk}
+\newcommand{\CommonObjects}{Common Objects}
+
+\newcommand{\OO}{object-oriented}
+\newcommand{\PL}{programming language}
+\newcommand{\OOPL}{\OO{} \PL{}}
+
+\newcommand{\PartI}{Part~I}			% I can't call these what I want.
+\newcommand{\PartII}{Part~II}			% TeX sure is a piece of %^*(
+%
+\def\lispform#1{\mbox{\tt #1}}
+%
+\def\skel#1{\mbox{$\langle\mbox{\it #1\/}\rangle$}}
+%
+%\newenvironment{bigaside}{\sl [Aside:\ }{\ End of aside.]}
+%
+%
+\def\lispqv#1{\lisp{#1}~{\it (\protect\pageref{#1})\/}}
+
+%
+%
+%
+\newtheorem{exer}{Exercise}[chapter]
+
+\newenvironment{exercises}{%
+ \samepage\small\addvspace{3ex}\hrule\penalty\@M\addvspace{-4pt}\nopagebreak%
+ }{%
+ \nopagebreak\addvspace{-4pt}%
+ \hrule\addvspace{3ex}
+ }%
+\newenvironment{exercise}[1]{\begin{exer}\label{#1}\nopagebreak}{\end{exer}}
+
+\newenvironment{solution}[1]{\vskip\parskip{\noindent\bf{}Exercise~\ref{#1} (p.~\pageref{#1})\quad}}{}
+
+\newcommand{\they}{they}
+
+\newcommand{\heshefootnote}{\footnote{One note on style.  We have
+followed here the convention of using the pronominal forms {\em they},
+{\em them}, and {\em their} as anaphors for antecedents that denote
+persons whose sex is not specified:  {\em Every programmer has their own
+style}; {\em A user can modify the command set whenever they want to}.
+This practice has the virtue of avoiding sexism on the one hand and
+circumlocution on the other. In recent years, it has been adopted as
+house style by several British publishers; Collins now uses it in many
+of its dictionaries and reference books. It is our hope---since we do
+not confine our interest in language improvement to computational
+varieties---that American publishers will soon follow suit.}}
+%
+%
+%
+\def\tablerule{%
+\noalign{\vskip6pt}\noalign{\hrule}
+\noalign{\vskip6pt}}
+\def\toprule{%
+\noalign{\vskip6pt}\noalign{\hrule}
+\noalign{\vskip6pt}}
+\def\bottomrule{%
+\noalign{\vskip6pt}\noalign{\hrule}}
+%
+% lispcode
+%
+{\catcode`\'=\active\gdef'{\char13{}}}% define ' as quote char
+{\catcode`\`=\active\gdef`{\char18{}}}% define ` as backquote char
+
+\def\docspecials{\do\ \do\$\do\&%
+  \do\#\do\^\do\^^K\do\_\do\^^A\do\%\do\~}
+
+\def\lispcode{\trivlist \item[]\if@minipage\else\vskip\parskip\fi
+\leftskip\@totalleftmargin\rightskip\z@
+\parindent\z@\parfillskip\@flushglue\parskip\z@
+\@tempswafalse \def\par{\if@tempswa\hbox{}\fi\@tempswatrue\@@par}
+\obeylines%
+% HK 27.4.94
+\tt%
+%\hyphenchar\tentt=-1%
+%\hyphenchar\elvtt=-1%
+%\hyphenchar\twltt=-1%
+% HK 27.5.94: \extra@def found in fontdef.tex:
+%\extra@def{\ttfont}{\hyphenchar#1 \m@ne}{}%
+\catcode``=13 \@noligs \let\do\@makeother \docspecials%
+\catcode`\'=\active\catcode`\`=\active%
+ \frenchspacing\@vobeyspaces}
+\def\lispcodebat{}%
+
+\def\endlispcode{\endtrivlist%
+% HK 27.4.94
+%\hyphenchar\tentt=45%
+%\hyphenchar\elvtt=45%
+%\hyphenchar\twltt=45%
+% HK 27.5.94: \extra@def found in fontdef.tex:
+%\extra@def{\ttfont}{\hyphenchar#1 45}{}%
+}
+%
+% dualcaption
+%
+% Dualcaption.sty---provide for independent formatting for float captions.
+% The following is a re-definition of the \@caption macro which lets
+% you format your figure captions differently from your table captions, etc.
+% Your .sty file must provide for a meaning for, e.g., \@makefigurecaption, etc.
+% If you do not, the default \@makecaption will be used.
+\long\def\@caption#1[#2]#3{\par\addcontentsline{\csname
+  ext@#1\endcsname}{#1}{\protect\numberline{\csname 
+  the#1\endcsname}{\ignorespaces #2}}\begingroup
+    \@parboxrestore
+    \normalsize
+    \expandafter\let\expandafter\@tempcaption\csname @make#1caption\endcsname
+    \ifx\@tempcaption\relax\let\@tempcaption\@makecaption\fi
+    \@tempcaption{\csname fnum@#1\endcsname}{\ignorespaces #3}\par
+  \endgroup}
+%
+% Here is the content of a .sty file containing definitions using the above hook.
+%
+% The following is the same as the \@makecaption in book.sty:
+\long\def\@makefigurecaption#1#2{%
+ \vskip2pt
+ \vtop{%\raggedright%
+  \parindent\z@
+  \parskip=6pt\relax
+  \hsize\textwidth
+  \small
+  {\small\bf#1} #2}%
+ }%
+%
+% The following is slightly different from the \@makecaption in book.sty:
+\long\def\@maketablecaption#1#2{%
+ \gdef\thecaptiontitle{#1}%
+ \long\gdef\thecaptionbody{#2}%
+ }%
+\newbox\captionbox
+%
+\def\table{\let\leavevmode\@empty\@float{table}}%
+\def\endtable{%
+  \par\vskip\z@\global\let\saved@currentlabel\@currentlabel\egroup
+ \hsize\wd\@currbox
+ \global\setbox\@currbox\vbox\bgroup\let\@currentlabel\saved@currentlabel
+  \unvbox\@currbox
+  \vskip2pt
+  \vtop{%
+   \parindent\z@
+   \parskip=6pt\relax
+   \small
+   {\small\bf\thecaptiontitle} \thecaptionbody
+   }%
+  \end@float
+ }%
+%
+% HK 27.4.94
+\ifx\extra@def\undefined%	Assume that no NFSS is used
+\hyphenchar\tentt=45   % allow linebreaks at hyphens in 10pt \tt mode
+\hyphenchar\elvtt=45   % allow linebreaks at hyphens in 11pt \tt mode
+\hyphenchar\twltt=45   % allow linebreaks at hyphens in 12pt \tt mode
+\else%
+% HK 27.5.94: \extra@def found in fontdef.tex:
+\extra@def{courier}{\hyphenchar#1 45}{}	% allow linebreaks at - in courier
+\extra@def{cmtt}{\hyphenchar#1 45}{}	% allow linebreaks at - in cmtt
+\fi
+
+\hyphenation{meta-ob-ject meta-ob-jects}
