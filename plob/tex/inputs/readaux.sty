@@ -1,0 +1,72 @@
+% Copyright (C) 1997/08/03 by Heiko Kirschke
+\def\fileversion{1}
+\def\filedate{97/08/04}
+\def\docdate {97/08/04}
+\ProvidesPackage{readaux}[\filedate\space\fileversion\space
+ LaTeX2e `readaux' package]
+
+\ProcessOptions
+
+\def\@readauxcite#1#2#3{%
+\cite[\citepage{#1}]{#2}%
+{Here is readauxcite {#1} {#2} {#3}.}%
+}
+
+\def\@readauxfcitepagebegin#1#2{%
+\begingroup%
+\def\@tempauxbib{#1}%
+\def\@tempauxpdf{#2}%
+\let\fcitepage\@readauxfcitepage}%
+\def\@readauxfcitepageend{%
+\endgroup}
+
+\def\@readauxfcitepage#1{%
+\cite[\citepage{#1}]{\@tempauxbib}%
+%%{Hier ist readauxfcitepage {#1} {\@tempaux}.}
+}%
+
+\def\@readauxsplitflabel#1#2#3#4#5{%
+\@readauxnewflabel{#3}{{#4}{%
+\noexpand\@readauxfcitepagebegin{#1}{#2}{#5}%
+\noexpand\@readauxfcitepageend}}}%@readauxsplitflabel
+
+\def\readaux#1#2#3{%
+% #1 Name of .aux file to read, without .aux extension
+% #2 Biblabel for \cite'ing the labels defined in the .aux file
+% #3 Name of pdf file containing the label, with .pdf extension
+\begingroup%
+\@@sanitize\makeatletter%
+\let\@readauxnewlabel\newlabel%
+\ifx\hyper@anchor\@undefined%
+%
+\let\contensline\@gobblethree
+\def\@readauxsplitlabel##1##2##3##4##5{%
+%% 1997/09 HK: Debugging:
+%% \message{readauxsplitlabel 1:##1: 2:##2: 3:##3: 4:##4: 5:##5:}
+\@readauxnewlabel{##3}{{##4}{\protect\@readauxcite{##5}{##2}{##1}}}%
+}%@readauxsplitlabel
+%
+\else%
+%
+\let\contensline\@gobblefour
+\def\@readauxsplitlabel##1##2##3##4##5##6##7##8{%
+%% 1997/09 HK: Debugging:
+%% \message{readauxsplitlabel 1:##1: 2:##2: 3:##3: 4:##4: 5:##5: 6:##6: 7:##7: 8:##8:}
+\@readauxnewlabel{##3}{{##4}{\protect\@readauxcite{##5}{##2}{##1}}{##6}{##7}{##8}}%
+}%@readauxsplitlabel
+%
+\fi%
+%
+\def\newlabel##1##2{\@readauxsplitlabel{#2}{#3}{##1}##2}%
+\let\@readauxnewflabel\newflabel%
+\def\newflabel##1##2{\@readauxsplitflabel{#2}{#3}{##1}##2}%
+\let\citation\@gobble%
+\let\@setsectionkind\@gobble%
+\let\@writefile\@gobbletwo%
+\let\@setckpt\@gobbletwo%
+\let\bibstyle\@gobble%
+\let\bibdata\@gobble%
+\let\bibcite\@gobbletwo%
+\@input{#1.aux}%
+\endgroup%
+}%\readaux
