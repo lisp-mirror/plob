@@ -164,7 +164,7 @@ while [ $# -gt 0 ]; do
   '-D')		szDefines="${szDefines} $1$2"; shift;;
   '-D'*)	szDefines="${szDefines} $1";;
   '-I')		szIncludes="$2:${szIncludes}"; shift;;
-  '-I'*)	szIncludes="`echo "$1"|sed 's/^-I *//'`:${szIncludes}";;
+  '-I'*)	szIncludes="`echo \"$1\"|sed 's/^-I *//'`:${szIncludes}";;
   '-h')		fnUsage; exit 1;;
   '-o')		szMakeFile="$2"; shift;;
   '+o')		unset szMakeFile;;
@@ -208,12 +208,12 @@ szCmdLine="${CPP}"
 if ${bVerbous}; then
   szCmdLine="${szCmdLine} -v"
 fi
-szIncludes="`echo "-I'${szIncludes}'"|sed -e "s/:/' -I'/g"`"
+szIncludes="`echo \"-I${szIncludes}\"|sed -e "s/[:]/' -I'/g"`"
 szCmdLine="${szCmdLine} ${szDefines} ${szIncludes} '${szTmpCfile}'"
 
 if [ -z "${szMakeFile}" ]; then
   if ${bVerbous}; then
-    echo "1. ${szCmdLine}" 1>&2
+    echo "${szCmdLine}" 1>&2
   fi
   eval ${szCmdLine}|fnTrimMakeFile 'stdout'
   nExitCode="$?"
@@ -224,7 +224,7 @@ else
     mkdir ${szDirectory}
   fi
   if ${bVerbous}; then
-    echo "2. ${szCmdLine} > ${szMakeFile}" 1>&2
+    echo "${szCmdLine} > ${szMakeFile}" 1>&2
   fi
   eval ${szCmdLine} > ${szTmpOutfile}
   nExitCode="$?"
