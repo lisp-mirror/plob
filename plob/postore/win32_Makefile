@@ -11,6 +11,7 @@ CP=copy
 ECHO=echo
 ENDECHO=
 MAKE=nmake
+# MAKE=make
 MKDIR=mkdir
 RANLIB=: rem ranlib
 RM=del

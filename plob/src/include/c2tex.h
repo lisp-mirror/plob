@@ -47,6 +47,9 @@ PASTE3(\def,\thisyear,PASTE3({,PLOBVERSIONYEAR,}))
 PASTE3(\def,\thisauthor,PASTE3({,PLOBAUTHOR,}))
 PASTE3(\def,\thisemail,PASTE3({,PLOBEMAIL,}))
 PASTE3(\def,\thisurl,PASTE3({,PLOBURL,}))
+PASTE3(\def,\thisproject,PASTE3({,PLOBPROJECT,}))
+PASTE3(\def,\thislist,PASTE3({,PLOBLIST,}))
+PASTE3(\def,\thislistreq,PASTE3({,PLOBLISTREQ,}))
 
 /*
   Local variables:

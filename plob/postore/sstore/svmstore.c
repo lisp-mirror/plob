@@ -178,6 +178,9 @@ static void reorderPage( char * buffer )
 
 static reorderStore( const char *dirname )
 {
+  static const char szError [] =
+    "could not change the object store's byte ordering";
+
   int tempfd ;
   psint len = store_length ;
   char buffer[ BPAGESIZE ] ;
@@ -189,32 +192,29 @@ static reorderStore( const char *dirname )
   ( void ) chmod( tempfname,0666 );
 
   if ( tempfd < 0 )
-    error( "could not change the object store's byte ordering" ) ;
+    error( szError ) ;
 		
   while( len > 0 )
     {
       if ( read( pstorefd,buffer,BPAGESIZE ) != BPAGESIZE )
-	error( "could not change the object store's byte ordering" ) ;
+	error( szError ) ;
       reorderPage( buffer ) ;
       if ( write( tempfd,buffer,BPAGESIZE ) != BPAGESIZE )
-	error( "could not change the object store's byte ordering" ) ;
+	error( szError ) ;
       len -= BPAGESIZE ;
     }
 	
-  ( void ) fsync( tempfd ) ;
-  ( void ) close( tempfd ) ;
-  ( void ) close( pstorefd ) ;
-  ( void ) rename( tempfname,storefname ) ;
+  (void) fsync( tempfd ) ;
+  (void) close( tempfd ) ;
+  (void) close( pstorefd ) ;
+  (void) rename( tempfname,storefname ) ;
 	
   pstorefd = open( storefname,O_RDWR ) ;
   if ( pstorefd < 0 ) {
     /* 1996/10/23 HK: extended the error message: */
     char	szMsg [ 256 ];
     sprintf ( szMsg, "cannot open the store `%s'", storefname );
-    error(  szMsg ) ;
-    /*
-      error( "cannot open the store" ) ;
-      */
+    error(  szMsg );
   }
 
   file_flags = fcntl( pstorefd,F_GETFL,0 ) ;	/* remember the status flags */
@@ -1193,7 +1193,11 @@ static void restore_pages()
 		int mp_res = mprotect( start, BPAGESIZE,
 				       PROT_READ | PROT_EXEC | PROT_WRITE ) ;
 		if ( mp_res != 0 ) {
-		    error( "failed to change permissions on a page" ) ;
+		  char szError [ 256 ];
+		  sprintf( szError,
+			   "failed to change permissions on page %d",
+			   j );
+		  error( szError );
 		}
 	      }
 	}

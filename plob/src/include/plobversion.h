@@ -92,6 +92,10 @@
 */
 #define	PLOBEMAIL Heiko.Kirschke@acm.org
 #define	PLOBURL plob.sourceforge.net
+#define	PLOBPROJECT www.sourceforge.net/projects/plob
+
+#define PLOBLIST plob-discussion@lists.sourceforge.net
+#define PLOBLISTREQ plob-discussion-request@lists.sourceforge.net
 
 #if ! defined(PASTE2)
 #define	PASTE23( token1, token2 ) token1##token2
@@ -124,6 +128,9 @@
 #define	STRINGAUTHOR STRINGINIZE(PLOBAUTHOR)
 #define	STRINGEMAIL STRINGINIZE(PLOBEMAIL)
 #define	STRINGURL STRINGINIZE(PLOBURL)
+#define	STRINGPROJECT STRINGINIZE(PLOBPROJECT)
+#define	STRINGLIST STRINGINIZE(PLOBLIST)
+#define	STRINGLISTREQ STRINGINIZE(PLOBLISTREQ)
 
 #ifdef C2TEX
 #include	"c2tex.h"

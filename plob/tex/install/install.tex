@@ -26,9 +26,7 @@
 \title{\ifx\avb\undefined\relax\else\avb\fi%
 Persistent LISP Objects\\
 \plob\ \thistitle}
-\author{\thisauthor\\%
-\normalsize Beim Alten Sch\"{u}tzenhof 4 $\bullet$ %
-D 22083 Hamburg}%
+\author{\thisauthor}%
 \maketitle
 
 This document describes how to get \plob\ version \thisversion\ as of
@@ -61,57 +59,21 @@ right at the factory before we ship them out, you know that?}
 \end{fortune}%
 
 Since the archive may contain not yet fixed bugs, please consult the
-`Bugfixes' section referenced by
-\url{http://www.lisp.de/software/plob/}\ before starting an
+bug tracking utility at \url{http://\thisproject}\ before starting an
 installation.  This document describes the requirements and all steps
 in detail which are necessary to install \plob. Also, when there are
 errors with getting \plob\ running, look into the user's guide into
 \fcite{Common error messages}.
 
-\subsection{Release notes}
-
-\subsubsection{Version 2.08a}
-
-1998/12/10: 2.08a is a minor release with some bug fixes and performance
-improvements for inserting bulk data into a database.
-
-\subsubsection{Version 2.08}
-
-1998/12/03: Due to changing my job end of 1998, my email address will
-change too.  I can be contacted under
-\url{mailto:kirschke@informatik.uni-hamburg.de}.  From December 21,
-1998 up to begin of January, 1999, I will be at home and therefore not
-be reachable by email.
-
-Between 2.07 and 2.08, \plobwoexcl's internal API between the client
-and server code has changed; for the implications of this changed
-internal API, see the release notes of version 2.06.
-
-\subsubsection{Version 2.07}
-
-Between 2.06 and 2.07, \plobwoexcl's internal API between the client
-and server code has changed; for the implications of this changed
-internal API, see the release notes of version 2.06.
-
-\subsubsection{Version 2.06}
-
-Between 2.05 and 2.06, \plobwoexcl's internal API between the client
-and server code has changed. This means for switching from 2.05 to
-2.06, all layers except the database layer must use the new 2.06 code;
-\plobwoexcl\ might crash when the 2.06 client code is used with a 2.05
-server. So, take care for using the 2.06 LISP code, the 2.06 client
-DLL and the 2.06 server. Doing a 2.06 standard installation will
-overwrite the old 2.05 server binary. The 2.06 components are able
-to work on pre-2.06 databases.
-
 \subsection{Hardware requirements}
 
 This is the hardware which was used for implementing \plob:
 \begin{itemize}
-
+  
 \item SPARCstation~4, 5, 10, 20 or UltraSPARC with at least 32~MB RAM
-  or an equivalent Silicon Graphics workstation running IRIX 6.2 or
-  a Linux workstation or a Windows/NT 4.0 PC.
+  and Solaris 2.x or a Linux workstation running at least kernel 2.x
+  or a Windows/NT 4.0/2000/XP PC or an equivalent Silicon Graphics
+  workstation running at least IRIX 6.2 (IRIX support on request).
 
 \item Approximately 80~MB disk space for the \plob\ source files and
   object codes.  Additional disk space is used for the \postore\ file
@@ -130,22 +92,20 @@ is at least necessary to install it:
 
 \begin{itemize}
 
-\item Solaris~2.5, Solaris~2.5.1, Solaris~2.6
+\item Solaris~2.5 or above
 
 \item or Silicon Graphics running IRIX 6.2 or above
 
 \item or Linux kernel version 2.0.0 or above
 
-\item or Windows/NT 4.0. This installation supports a \plob\ server on
-  Windows/NT 4.0 and a client under \lwcl\ 4.0.1.\ for
-  Windows/NT and a \allegrocl\ 5.0 beta client for Windows/NT.
+\item or Windows/NT 4.0/2000/XP.
 
 \item Standard \unix\ software development tools, like \lisp{make},
   \lisp{sed}\ (not needed for the NT installation).
 
-\item \lwcl\ 3.2.2 (Unix) or \lwcl\ 4.0.1\ (Windows/NT)
+\item \lwcl\ up to and including version 4.2
 
-\item or \allegrocl\ 4.3, 4.3.1, 4.3.2, 5.0
+\item or \allegrocl\ up to and including version 6.2
 
 \item \emph{If the sources should be recompiled:}
   GNU C version 2.7.2, GNU C version 2.8 for Solaris 2.6. \plob\ 
@@ -160,8 +120,8 @@ is at least necessary to install it:
 {Software needed for generating the documentation}
 
 This additional software was used for generating the documentation; it
-is only necessary if the documentation should be changed and the
-\ps\ files should be recreated from the changed documentation:
+is only necessary if the documentation should be changed and the \ps\ 
+files should be recreated from the changed documentation:
 
 \begin{itemize}
 
@@ -186,7 +146,7 @@ command \lisp{gs})
 binary form in this distribution with the permission of the University
 of St.\ Andrews.  \postore\ is the low-level persistent memory used by
 the persistent programming language
-\href{http://www-ppg.dcs.st-andrews.ac.uk/Default.html}{Napier88}.
+\href{http://www-ppg.dcs.st-andrews.ac.uk}{Napier88}.
 
 The \postore\ library found with \plob\ has been slightly adapted to
 Solaris, IRIX, Linux and Windows/NT for \plob's needs. The Stable Heap
@@ -314,14 +274,14 @@ This section describes how to install \plob\ on a \unix\ system.
 
 \end{enumerate}
 
-\subsection[Installing PLOB on NT]%
-{Installing \protect\plob\ on Windows/NT}%
+\subsection[Installing PLOB on NT/2000/XP]%
+{Installing \protect\plob\ on Windows/NT/2000/XP}%
 \label{sec:installnt}
 
-The binaries for a Windows/NT server and the sources for a \lwcl\ 
-4.0.1 and a \allegrocl\ 5.0 beta client installation are contained in
-this distribution.  For using \plobwoexcl's Windows/NT server with a
-\lwcl\ 4.0.1 or \allegrocl\ 5.0 beta client, do the following.
+The binaries for a Windows/NT/2000/XP server and the sources for a
+\lwcl\ and a \allegrocl\ client installation are contained in this
+distribution.  For using \plobwoexcl's Windows/NT/2000/XP server with
+a \lwcl\ or \allegrocl\ client, do the following.
 %% \sloppy
 \begin{enumerate}
 
@@ -347,12 +307,11 @@ download will do the job], an ftp'able version is available at
  fails to execute properly, see
  section~\Nameref{sec:ManualInstallation} on what you can do to
  proceed.
-
-\item\label{itm:ntcompile} For both \lwcl\ 4.0.1\ and \allegrocl\
-5.0 beta, change into the
-\lisp{\td/plob-\thisversion/\lb{}src/\lb{}allegro}\ subdirectory
-containing the LISP source code and start the LISP
-system.\\[\smallskipamount]
+ 
+\item\label{itm:ntcompile} For both \lwcl\ and \allegrocl, change into
+  the \lisp{\td/plob-\thisversion/\lb{}src/\lb{}allegro}\ subdirectory
+  containing the LISP source code and start the LISP
+  system.\\[\smallskipamount]
 \begin{tt}\CodeSize
 \td/plob-\thisversion>cd src/allegro\\
 \td/plob-\thisversion/src/allegro>c:/opt/Harlequin/LispWorks/lispworks
@@ -576,3 +535,9 @@ USER(3): (open-my-session)\\
 \bibliography{bibdefs,bibstrings,plob}
 
 \end{document}
+
+%%% Local Variables: 
+%%% buffer-file-coding-system: iso-latin-1-unix
+%%% mode: latex
+%%% TeX-master: "install"
+%%% End: 

@@ -1146,9 +1146,8 @@ fnFindFiles ()
   if ${bBootstrap}; then :; else
     eval find ./${szPlob}/ps \
       "'('" -type f -o -type l "')'" -a \
-      "'('" "'!'" -name 'bericht.ps' -a \
-	    "'!'" -name 'buch.ps' -a \
-	    -name '*.html' -o -name '*.ps' -o -name '*.pdf' -o \
+      "'('" "'!'" -name '*.ps' -a \
+	    -name '*.html' -o -name '*.pdf' -o \
 	    ${szSuppressFiles} "')'" -print
   fi
   echo ${szPlob}/make.bat

@@ -9,45 +9,30 @@
 <h1><b>PLOB!</b> - <b>P</b>ersistent <b>L</b>isp
 <b>OB</b>jects<b></b></h1>
 
-&copy; 1994--2001 <a href="mailto:Heiko.Kirschke@acm.org">Heiko Kirschke</a><br>
+&copy; 1994--2002 <a href="mailto:Heiko.Kirschke@acm.org">Heiko
+Kirschke</a><br>
 
+This version: 2.10 as of May 1, 2002
 
-This version: 2.10 as of February 9, 2001
 $Header$
-
-<h2>ftp Download</h2>
-
-2.10: ftp download is currently not possible from 
-<a href="ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/">
-ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/</a>.
-
-<p>The files on <a href="http://www.lisp.de/software/plob">http://www.lisp.de/software/plob</a> are mirrored to
-<a href="ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob">ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/</a>. Don't forget
-to switch to binary mode (ftp command `bin'). If you encounter
-problems with timeouts, try to download the divided archive in files
-plob-2.10.tar.gz.aa to plob-2.10.tar.gz.ah. On Unix, the original
-archive can be restored after having downloaded all files by:
-
-<blockquote><code>
-    cat plob-2.10.tar.gz.* &gt; plob-2.10.tar.gz
-</code></blockquote>
-
-For Windows/NT, download script restore-plob.bat into the same
-directory as the archive components and call
-
-<blockquote><code>
-    restore-plob
-</code></blockquote>
-
-to restore the complete archive from its components.
 
 <h2>Release notes</h2>
 
-Release 2.10 supports ACL 6.0. The current distribution does not
-contain the Irix version. Contact <a
-href="mailto:Heiko.Kirschke@acm.org">me</a> for obtaining the Irix
-release; for doing this, I must be provided with an account on an Irix
-machine with approx. 100 MB disk space.
+<ul type="disc">
+
+<li> Support for Windows XP, LispWorks Common Lisp 4.2 and Allegro
+Common LISP 6.2 has been added.
+
+<li> Further support for IRIX will be on request. Contact <a
+href="mailto:Heiko.Kirschke@acm.org">me</a> if you are interested in
+an IRIX port.
+
+<li> The sources are now maintained within CVS. Currently, I try to
+set up a CVS archive at <a
+href="http://www.sourceforge.net/projects/plob">SourceForge</a> and a
+possibility for anonymous ftp.
+
+</ul>
 
 <p>Between 2.09 and 2.10, <b>PLOB</b>'s internal API between the
 client and server code has changed. This means for switching from 2.09
@@ -60,16 +45,15 @@ work on pre-2.10 databases.
 
 <h2>Latest bug fixes</h2>
 
-Before starting an installation, please consult the <a
-href="http://www.lisp.de/software/plob/plob.html#bugfixes"
-target="contents">Bugfixes</a> section, since the archive may contain
-not yet fixed bugs.
+Please consult the bug tracking feature referenced by <b>PLOB</b>'s <a
+href="http://sourceforge.net/projects/plob/"
+target="_popup">SourceForge project page</a>.
 
 <h2>Documentation</h2>
 
-Please read the documentation found in subdirectory <a
-href="ps/" target="contents">plob-2.10/ps</a>; most files are provided in
-PostScript and in pdf format.
+Please read the documentation found in the distribution in
+subdirectory <a href="ps/" target="_popup">plob-2.10/ps</a>; most
+files are provided in PostScript and in pdf format.
 
 <blockquote>
 <table border="4" width="80%">
@@ -82,15 +66,15 @@ PostScript and in pdf format.
 </tr>
 
 <tr>
-<td><a href="ps/install.pdf" target="contents">install.pdf</a></td>
+<td><a href="ps/install.pdf" target="_popup">install.pdf</a></td>
 <td align="right">8</td>
 <td align="left">english</td>
 <td align="left">How to install <b>PLOB!</b></td>
 </tr>
 
 <tr>
-<td><a href="ps/userg.pdf" target="contents">userg.pdf</a><br>
-<a href="ps/userg.ps" target="contents">userg.ps</a></td>
+<td><a href="ps/userg.pdf" target="_popup">userg.pdf</a><br>
+<a href="ps/userg2.pdf" target="_popup">userg2.pdf</a></td>
 <td align="right">88<br>94</td>
 <td>english</td>
 <td>User's guide compiled for 1 side printing<br>
@@ -98,15 +82,15 @@ User's guide compiled for 2 side printing</td>
 </tr>
 
 <tr>
-<td><a href="ps/plobelugm.pdf" target="contents">plobelugm.pdf</a></td>
+<td><a href="ps/plobelugm99.pdf" target="_popup">plobelugm99.pdf</a></td>
 <td align="right">8</td>
 <td>english</td>
 <td>Paper presented at ELUGM 99 in Amsterdam</td>
 </tr>
 
 <tr>
-<td><a href="ps/eref.pdf" target="contents">eref.pdf</a><br>
-<a href="ps/eref.ps" target="contents">eref.ps</a></td>
+<td><a href="ps/eref.pdf" target="_popup">eref.pdf</a><br>
+<a href="ps/eref2.pdf" target="_popup">eref2.pdf</a></td>
 <td align="right">159<br>157</td>
 <td>english</td>
 <td>API Reference Manual compiled for 1 side printing<br>
@@ -114,8 +98,8 @@ API Reference Manual compiled for 2 side printing</td>
 </tr>
 
 <tr>
-<td><a href="ps/iref.pdf" target="contents">iref.pdf</a><br>
-<a href="ps/iref.ps" target="contents">iref.ps</a></td>
+<td><a href="ps/iref.pdf" target="_popup">iref.pdf</a><br>
+<a href="ps/iref2.pdf" target="_popup">iref2.pdf</a></td>
 <td align="right">283<br>281</td>
 <td>english</td>
 <td>Internal Interface Reference Manual compiled for 1 side printing<br>
@@ -123,15 +107,14 @@ Internal Interface Reference Manual compiled for 2 side printing</td>
 </tr>
 
 <tr>
-<td><a href="ps/ldocman.ps" target="contents">ldocman.ps</a></td>
+<td><a href="ps/ldocman.pdf" target="_popup">ldocman.pdf</a></td>
 <td align="right">29</td>
 <td>english</td>
 <td>Documents the documentation facility lisp-doc</td>
 </tr>
 
 <tr>
-<td><a href="ps/diplom.pdf" target="contents">diplom.pdf</a><br>
-<a href="ps/diplom.ps" target="contents">diplom.ps</a></td>
+<td><a href="ps/diplom.pdf" target="_popup">diplom.pdf</a></td>
 <td align="right">188</td>
 <td>german</td>
 <td>My master thesis in computer sciences about persistent objects</td>
@@ -144,7 +127,7 @@ See <a
 href="http://www.adobe.com/prodindex/acrobat/readstep.html" target="getreader">here</a>
 for a reader of PDF files.
 
-<p>The file ldocman.ps describes a general-purpose LISP documentation
+<p>The file ldocman.pdf describes a general-purpose LISP documentation
 extraction module used for building the reference manual; this can be
 used indepently from <b>PLOB!</b> to extract a reference manual from LISP
 sources looking similar to the standard set by [CLtLII].
@@ -214,10 +197,14 @@ Have fun,<br>
 Heiko
 
 <hr>
-Created May 13, 1997; last change February 16, 2000.
 
 <address>
 <a href="mailto:Heiko.Kirschke@acm.org">
 Heiko.Kirschke@acm.org</a></address>
+
+<!-- Created 2001 -->
+<!-- hhmts start -->
+Last modified: Wed Apr 17 16:15:59 Westeuropäische Sommerzeit 2002
+<!-- hhmts end -->
 
 </body></html>

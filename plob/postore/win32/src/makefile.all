@@ -1,4 +1,10 @@
 
+
+# Without debug code support:
+CFLAGS=$(CFLAGS) -DDEBUG=0
+# With debug code support:
+# CFLAGS=$(CFLAGS) -DDEBUG=1
+
 STDINCLUDE=u2win32.h
 LIBDIR=$(POSTOREDIR)$(SL)release$(SL)$(ARCH)lib
 INCDIR=$(POSTOREDIR)$(SL)$(ARCH)$(SL)include
@@ -10,7 +16,7 @@ $(ARCH)_win32sig.$(OBJ) \
 $(ARCH)_unistd.$(OBJ) \
 $(ARCH)_u2win32.$(OBJ)
 
-all:$(DIRECTORIES) optimised
+all:$(DIRECTORIES) optimised getpagesize$(EXE)
 
 optimised: $(LIBDIR)$(SL)u2win32.$(LIB)
 
@@ -29,6 +35,12 @@ $(ARCH)_unistd.$(OBJ): $(INCDIR)$(SL)unistd.h unistd.c $(STDINCLUDE)
 	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) unistd.c
 $(ARCH)_u2win32.$(OBJ): u2win32.h u2win32.c
 	$(CC) $(CFLAGS) $(CFLAGSOPT) $(OUTPUT_OPTION_OBJ) u2win32.c
+
+getpagesize$(EXE): getpagesize.c
+	$(CC) $(CFLAGS) $(CFLAGSOPT) getpagesize.c \
+	-link -nodefaultlib -libpath:$(MSVCPATH)/lib \
+	msvcrt.lib wsock32.lib kernel32.lib \
+	$(OUTPUT_OPTION_EXE)
 
 clean:
 	$(RM) *.$(OBJ)
