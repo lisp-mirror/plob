@@ -1,0 +1,108 @@
+Return-Path: <schroed>
+Date: Tue, 2 Nov 93 13:33:11 +0100
+From: schroed (Carsten Schroeder)
+To: lispworks-support@harlqn.co.uk
+Cc: kirschke@kogs26.informatik.uni-hamburg.de
+Subject: [kirschke: memory representation in LispWorks]
+
+Dear LispWorkers,
+
+one of our LispWorks users needs information about the memory
+representation of LISP objects used in LispWorks.  May I ask you to
+provide some help?  Please find his message included at the end.
+
+Regards,
+
+Carsten Schroeder                            |   Universitaet Hamburg
+                                             |   Fachbereich Informatik
+Phone: +49 40 4123 6144                      |   Bodenstedtstrasse 16
+FAX:   +49 40 4123 6530                      |   D-22765 Hamburg
+schroed@informatik.uni-hamburg.de            |   Germany
+-------------------------------------------------------------------------------
+Date: Tue, 2 Nov 93 13:05:29 +0100
+From: kirschke (Heiko Kirschke)
+To: schroed
+Subject: memory representation in LispWorks
+
+
+Dear Sir or Madam,
+
+I'm currently working on my diploma thesis at the University of
+Hamburg, Dept. of Computer Science. My theme is persistence in CLOS,
+esp. implementing persistent objects in LispWorks CLOS. To get an
+acceptable performance for persistent objects, I plan to implement
+persistence on a fairly 'low level', i.e. working with C functions
+direct on the binary memory representation of LispWorks LISP data
+objects; these C functions will make up an interface between LISP and
+a persistent heap for LISP data objects.
+
+Up to now I have decoded most of the important memory representations
+used by LispWorks (thanks to the LispWorks inspector & class
+browser); reading a binary LISP data object poses no problem, but
+there are still some questions left on allocating and filling
+'real-life' LISP objects from within a C procedure.
+
+I'm using LispWorks version 3.1.1 on
+a SUN SPARC station 370 running under SUNOS 4.1.3.
+
+My questions are:
+
+1. I still have problems with understanding the meaning of the
+   various flag bits and non-LISP data structures used in the memory
+   representation of LISP data objects; would it be possible to send
+   me a specification of the used low-level memory data
+   representation, esp. a description of the flag bits I found up to
+   now:
+    - The first 2 memory words which preceede the car and cdr field of
+      a CONS cell
+    - The first 2 memory words used in a SYMBOL memory representation
+      (I guess that it contains at least a flag if it is 'funcallable'
+      and if it is an internal or external symbol)
+    - The first word pointed to by a LispWork data object which is not
+      an 'immediate' object, i.e. which is not of type FIXNUM, CONS,
+      SYMBOL, CHARACTER or SHORT-FLOAT (I guess it contains at least a
+      'generation counter' for promoting objects to older generations
+      at garbage collection?). The lowest byte of the second word
+      contains a type tag; are there also flag bits used in the
+      remaining 3 bytes of the second word?
+
+2. I guess that the performance of managing persistent objects could
+   be improved if there are some unused bits which I can use for
+   my purpose (this might reduce the use of hash tables etc). Are there
+   unused bits which I can use safely?
+
+3. I plan also to allocate and fill the LISP data objects from within
+   a C procedure (from this aim stems question 1). Is it possible to
+   allocate a non-static memory area for 'real' LISP objects from C?
+
+4. Compiled code is stored in LispWorks in BIT-VECTORs. Does this
+   code contain any absolute references which must be relocated
+   when the code vector is saved by a process and loaded by a later or
+   another process?
+
+Sincerely,
+
+Heiko Kirschke
+-------------------------------------------------------------------------------
+
+Return-Path: <guy@harlequin.co.uk>
+From: Guy Snape <guy@harlequin.co.uk>
+Date: Tue, 9 Nov 93 16:08:38 GMT
+To: schroed@kogs26.informatik.uni-hamburg.de
+In-Reply-To: Carsten Schroeder's message of Tue, 2 Nov 93 13:33:11 +0100 <9311021233.AA03099@kogs26.informatik.uni-hamburg.de.informatik.uni-hamburg.de>
+Subject: Re: [kirschke: memory representation in LispWorks]
+Cc: lispworks-support@harlequin.co.uk
+Reply-To: lispworks-support@harlequin.co.uk
+
+Karsten,
+
+Thanks for your query.  I am afraid that we do not normally give out
+the kind of information that your colleague requested, except in very
+extreme circumstances.  
+
+I hope this does not cause too much inconvenience.  Please do let us
+know if you have any further queries about LispWorks.
+
+Regards,
+
+- Guy
