@@ -1,0 +1,252 @@
+CL-USER 2 > (show-masks)
+                              mask-field
+ *%interrupts-mask-error-offset-in-bytes, value         2074 = #x     81a
+                 *%interrupts-mask-error
+                       set-bit-from-mask
+                  *%interrupts-mask-flag
+                       mask-out-tag-bits
+          *%interrupts-mask-error-offset, value          518 = #x     206
+                       mask-field$fixnum
+           *%interrupts-mask-flag-offset, value          517 = #x     205
+  *%interrupts-mask-flag-offset-in-bytes, value         2070 = #x     816
+                     unset-bit-from-mask
+                      set-interrupt-mask
+
+                    *raw-char-bits-mask*, value           15 = #x       f
+                    *raw-char-font-mask*, value           31 = #x      1f
+                 *fixnum-char-bits-mask*, value           60 = #x      3c
+                 *fixnum-char-font-mask*, value          124 = #x      7c
+
+                        *char-font-mask*, value      2031616 = #x  1f0000
+                 *char-control-bit-mask*, value      2097152 = #x  200000
+                    *char-meta-bit-mask*, value      4194304 = #x  400000
+                   *char-super-bit-mask*, value      8388608 = #x  800000
+                   *char-hyper-bit-mask*, value     16777216 = #x 1000000
+                        *char-bits-mask*, value     31457280 = #x 1e00000
+
+                    *b-full-mask-header*, value         2047 = #x     7ff
+                               *et-mask*, value           16 = #x      10
+                     *basic-mask-header*, value          248 = #x      f8
+                                *i-mask*, value         1896 = #x     768
+                    *not-mark-flag-mask*, value   4026531839 = #xefffffff
+                       set-bit-from-mask
+                     *mask-out-tag-bits*, value   4294967292 = #xfffffffc
+            *mark-with-size-mask-header*, value   2415919302 = #x900000c6
+               *b-with-size-mask-header*, value           24 = #x      18
+                      *full-mask-header*, value        16376 = #x    3ff8
+             *use-with-size-mask-header*, value   2147483846 = #x800000c6
+                   *b-basic-mask-header*, value           31 = #x      1f
+             *small-object-failure-mask*, value          240 = #x      f0
+                   *special-action-mask*, value        16384 = #x    4000
+                 *with-size-mask-header*, value          192 = #x      c0
+                 *mark-and-gen-num-mask*, value    503316480 = #x1e000000
+                     *segment-size-mask*, value   4294901760 = #xffff0000
+                        *free-flag-mask*, value   1073741824 = #x40000000
+                 *b-special-action-mask*, value         2048 = #x     800
+                     unset-bit-from-mask
+                        *mark-flag-mask*, value    268435456 = #x10000000
+                      *collectable-mask*, value        32768 = #x    8000
+                       mask-out-tag-bits
+                       *gen-number-mask*, value    234881024 = #x e000000
+                    *promote-flags-mask*, value           15 = #x       f
+                         *promoted-mask*, value    536870912 = #x20000000
+                    *b-collectable-mask*, value         4096 = #x    1000
+                         *gc-count-mask*, value     31457280 = #x 1e00000
+
+CL-USER 43 > (show-full)
+                    *b-full-mask-header*, value         2047 = #x     7ff
+                      *full-mask-header*, value        16376 = #x    3ff8
+
+                  *b-full-symbol-header*, value         4096 = #x    1000
+                    *full-symbol-header*, value        32768 = #x    8000
+
+             *b-full-funcallable-header*, value         4097 = #x    1001
+               *full-funcallable-header*, value        32776 = #x    8008
+
+                 *b-full-tlatter-header*, value         4102 = #x    1006
+                   *full-tlatter-header*, value        32816 = #x    8030
+
+                   *b-full-array-header*, value         4106 = #x    100a
+                     *full-array-header*, value        32848 = #x    8050
+
+       *b-full-variable-instance-header*, value         4107 = #x    100b
+         *full-variable-instance-header*, value        32856 = #x    8058
+
+               *b-full-structure-header*, value         4110 = #x    100e
+                 *full-structure-header*, value        32880 = #x    8070
+
+                *b-full-k-vector-header*, value         4110 = #x    100e
+                  *full-k-vector-header*, value        32880 = #x    8070
+
+                *b-full-g-vector-header*, value         4111 = #x    100f
+                  *full-g-vector-header*, value        32888 = #x    8078
+
+                    *b-full-cons-header*, value         4114 = #x    1012
+                      *full-cons-header*, value        32912 = #x    8090
+
+            *b-full-fix-instance-header*, value         4115 = #x    1013
+              *full-fix-instance-header*, value        32920 = #x    8098
+
+                   *b-full-ratio-header*, value         4126 = #x    101e
+                     *full-ratio-header*, value        33008 = #x    80f0
+
+                 *b-full-complex-header*, value         4127 = #x    101f
+                   *full-complex-header*, value        33016 = #x    80f8
+
+
+                    *gen-num-full-shift*, value           25 = #x      19
+
+CL-USER 104 > (show-markers)
+                          mark-and-sweep
+                 *%unbound-marker-offset, value          424 = #x     1a8
+                          mark-and-sweep
+       *%mark-and-sweeps-offset-in-bytes, value         1730 = #x     6c2
+                *%mark-and-sweeps-offset, value          432 = #x     1b0
+        *%unbound-marker-offset-in-bytes, value         1698 = #x     6a2
+
+                            *end-marker*, value    268435458 = #x10000002
+                          *frame-marker*, value   1073741826 = #x40000002
+
+                *use-full-symbol-header*, value   2147516422 = #x80008006
+                     *mark-other-header*, value   2415919110 = #x90000006
+                    *mark-symbol-header*, value   2415919110 = #x90000006
+               *mark-full-symbol-header*, value   2415951878 = #x90008006
+
+           *use-full-funcallable-header*, value   2147516430 = #x8000800e
+               *mark-funcallable-header*, value   2415919118 = #x9000000e
+              *mark-g-vector-bit-header*, value   2415919118 = #x9000000e
+          *mark-full-funcallable-header*, value   2415951886 = #x9000800e
+
+               *use-full-tlatter-header*, value   2147516470 = #x80008036
+                   *mark-tlatter-header*, value   2415919158 = #x90000036
+              *mark-full-tlatter-header*, value   2415951926 = #x90008036
+
+                     *mark-array-header*, value   2415919174 = #x90000046
+                 *mark-with-size-header*, value   2415919174 = #x90000046
+
+                 *use-full-array-header*, value   2147516502 = #x80008056
+           *mark-no-simple-array-header*, value   2415919190 = #x90000056
+                *mark-full-array-header*, value   2415951958 = #x90008056
+
+     *use-full-variable-instance-header*, value   2147516510 = #x8000805e
+         *mark-variable-instance-header*, value   2415919198 = #x9000005e
+    *mark-full-variable-instance-header*, value   2415951966 = #x9000805e
+
+             *mark-simple-vector-header*, value   2415919206 = #x90000066
+                    *mark-string-header*, value   2415919206 = #x90000066
+
+                  *mark-i-vector-header*, value   2415919214 = #x9000006e
+                       *mark-one-header*, value   2415919214 = #x9000006e
+                       *mark-two-header*, value   2415919470 = #x9000016e
+                      *mark-four-header*, value   2415919726 = #x9000026e
+                     *mark-eight-header*, value   2415919982 = #x9000036e
+                   *mark-sixteen-header*, value   2415920238 = #x9000046e
+                *mark-thirty-two-header*, value   2415920494 = #x9000056e
+                *mark-sixty-four-header*, value   2415920750 = #x9000066e
+                    *mark-i-size-header*, value   2415921006 = #x9000076e
+
+             *use-full-structure-header*, value   2147516534 = #x80008076
+              *use-full-k-vector-header*, value   2147516534 = #x80008076
+                 *mark-structure-header*, value   2415919222 = #x90000076
+            *mark-full-structure-header*, value   2415951990 = #x90008076
+                  *mark-k-vector-header*, value   2415919222 = #x90000076
+             *mark-full-k-vector-header*, value   2415951990 = #x90008076
+
+              *use-full-g-vector-header*, value   2147516542 = #x8000807e
+                  *mark-g-vector-header*, value   2415919230 = #x9000007e
+             *mark-full-g-vector-header*, value   2415951998 = #x9000807e
+
+                     *mark-stack-header*, value   2415919246 = #x9000008e
+
+                  *use-full-cons-header*, value   2147516566 = #x80008096
+                      *mark-cons-header*, value   2415919254 = #x90000096
+                 *mark-full-cons-header*, value   2415952022 = #x90008096
+
+          *use-full-fix-instance-header*, value   2147516574 = #x8000809e
+              *mark-fix-instance-header*, value   2415919262 = #x9000009e
+         *mark-full-fix-instance-header*, value   2415952030 = #x9000809e
+
+                     *mark-float-header*, value   2415919302 = #x900000c6
+                    *mark-number-header*, value   2415919302 = #x900000c6
+            *mark-with-size-mask-header*, value   2415919302 = #x900000c6
+
+                    *mark-double-header*, value   2415919310 = #x900000ce
+
+                    *mark-bignum-header*, value   2415919334 = #x900000e6
+
+                 *use-full-ratio-header*, value   2147516662 = #x800080f6
+                     *mark-ratio-header*, value   2415919350 = #x900000f6
+                *mark-full-ratio-header*, value   2415952118 = #x900080f6
+
+               *use-full-complex-header*, value   2147516670 = #x800080fe
+                   *mark-complex-header*, value   2415919358 = #x900000fe
+              *mark-full-complex-header*, value   2415952126 = #x900080fe
+
+                        *mark-flag-mask*, value    268435456 = #x10000000
+                    *not-mark-flag-mask*, value   4026531839 = #xefffffff
+                     *mark-flag-bit-num*, value           28 = #x      1c
+
+                 *mark-and-gen-num-mask*, value    503316480 = #x1e000000
+
+CL-USER 105 > (show-tags)
+                        *fixnum-poi-tag*, value            0 = #x       0
+                      *b-fixnum-poi-tag*, value            0 = #x       0
+                  *minus-fixnum-poi-tag*, value            0 = #x       0
+
+                          *cons-poi-tag*, value            1 = #x       1
+                        *b-cons-poi-tag*, value            1 = #x       1
+                    *minus-cons-poi-tag*, value           -1 = #x      -1
+
+                     *immediate-poi-tag*, value            2 = #x       2
+                   *b-immediate-poi-tag*, value            2 = #x       2
+               *minus-immediate-poi-tag*, value           -2 = #x      -2
+
+                      *callable-poi-tag*, value            2 = #x       2
+                    *b-callable-poi-tag*, value            2 = #x       2
+                *minus-callable-poi-tag*, value           -2 = #x      -2
+
+                        *symbol-poi-tag*, value            2 = #x       2
+                      *b-symbol-poi-tag*, value            2 = #x       2
+                  *minus-symbol-poi-tag*, value           -2 = #x      -2
+
+                               *poi-tag*, value            3 = #x       3
+
+                         *other-poi-tag*, value            3 = #x       3
+                       *b-other-poi-tag*, value            3 = #x       3
+                   *minus-other-poi-tag*, value           -3 = #x      -3
+
+                      *othernum-poi-tag*, value            3 = #x       3
+                    *b-othernum-poi-tag*, value            3 = #x       3
+                *minus-othernum-poi-tag*, value           -3 = #x      -3
+
+                     *character-poi-tag*, value            6 = #x       6
+                   *b-character-poi-tag*, value            6 = #x       6
+               *minus-character-poi-tag*, value           -6 = #x      -6
+
+                    *i-immdiate-poi-tag*, value            6 = #x       6
+                  *b-i-immdiate-poi-tag*, value            6 = #x       6
+              *minus-i-immdiate-poi-tag*, value           -6 = #x      -6
+
+                        *sfloat-poi-tag*, value           14 = #x       e
+                      *b-sfloat-poi-tag*, value           14 = #x       e
+                  *minus-sfloat-poi-tag*, value          -14 = #x      -e
+
+                          *catch-marker*, value           22 = #x      16
+                        *special-marker*, value           38 = #x      26
+                        *unbound-marker*, value           54 = #x      36
+                   *slot-unbound-marker*, value           70 = #x      46
+                    *bad-pointer-marker*, value          102 = #x      66
+                          *&rest-marker*, value          118 = #x      76
+
+                     *is-marked-already*, value           89 = #x      59
+
+CL-USER 152 > (show-bitnums)
+                *special-action-bit-num*, value           14 = #x       e
+                   *collectable-bit-num*, value           15 = #x       f
+                     *mark-flag-bit-num*, value           28 = #x      1c
+                      *promoted-bit-num*, value           29 = #x      1d
+                     *free-flag-bit-num*, value           30 = #x      1e
+
+CL-USER 155 > (show-free-flags)
+                     *free-flag-bit-num*, value           30 = #x      1e
+                        *free-flag-mask*, value   1073741824 = #x40000000
