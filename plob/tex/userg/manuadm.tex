@@ -1,0 +1,353 @@
+% This is -*-LaTeX-*-
+%
+% userg.tex
+% HK 26.5.94
+% Rewritten 1997/09
+
+\chapter{Administration}
+
+This chapter describes how to startup \plob\ and how the \plob\ server
+is administrated.
+
+\section{Administrating the client}
+
+\subsection{Starting on the client side}%
+\label{sec:StartClient}
+
+For an example of a startup file see
+\lisp{plob-\thisversion/}\lisp{src/}\lisp{example/}\lisp{plob-toplevel.lisp}.
+To load all \plob\ files at once after installation is complete, load
+the file \lisp{defsystem-plob}\ and evaluate \lisp{(load-plob)}.
+Unless a session to the server is explicitly opened by a call to
+\fcite{open-my-session}, a session will be opened when necessary.
+
+If \plob\ should write more or fewer messages about its proceeding to
+stream \textbf{t}, set \fcite{*verbose*}\ to an appropiate value.
+
+\subsection{Finishing on the client side}%
+\label{sec:FinishClient}
+
+All sessions opened to the server will be closed when the \lw\ or
+\allegro\ process will terminate. Calling \fcite{close-heap}\ will
+force a close of all sessions at runtime. If there are no other
+clients connected to the server, closing the last client will trigger
+the garbage collection.
+
+\subsection{Creating a new database}
+
+New databases on the server can be created from the client's side
+either by calling \fcite{p-create-database}, or by calling
+\fcite{open-my-session}\ and passing the URL of the new database as
+argument. If the second approach is used, the user is asked to confirm
+that a new database should be created. For example, this will create
+and open a database on host \lisp{ki8}\ named \lisp{my-base}:
+\begin{CompactCode}
+\listener{}(open-my-session "//ki8/my-base")
+;;;; Bootstrap   : Opening tcp://ki8/my-base
+Error: cplob.c(152): fnOpen:
+       Could not open database tcp://ki8/my-base
+  [condition type: POSTORE-CERROR]
+Restart actions (select using :continue):
+ 0: Try to create it.
+\OmitUnimportant
+\errlistener{}:cont
+\end{CompactCode}
+
+\section{Administrating the server}
+
+For administrating the server process, the \lisp{plobdadmin}\ program
+is provided within the distribution. The \plob\ administrator should
+either change her/his \lisp{PATH}\ environment variable to include the
+\lisp{plobdadmin}\ program found in the operating system specific
+configuration directory
+\lisp{plob-\thisversion/}\lisp{conf/}\lisp{\emph{\lt{}operating
+    system\gt}/}\lisp{plobdadmin[.exe]} or put a (symbolic) link to it
+into one of the directories found in the \lisp{PATH}\ variable. For
+doing the administration, the \plob\ administrator must execute the
+\lisp{plobdadmin}\ program on the machine which runs the server
+process. The server process is started with the effective user-ID of
+the \plob\ administrator. If at configuration the client
+authentication is set to \lisp{AUTH\us{}DES}, the server must be
+started with root rights.
+
+For usage of \lisp{plobdadmin}, see its help text obtained by calling
+\lisp{plobdadmin -h}. When \lisp{plobdadmin}\ is called without
+options, it starts up in interactive mode, that means it prints a
+prompt and awaits input from \lisp{stdin}. Since \lisp{plobdadmin}\ is
+linked against the RPC client shared library of \plobwoexcl,
+\lisp{librpclientplob.[so,dll]}\ must be found in the
+\lisp{LD\us{}LIBRARY\us{}PATH} (for UNIX) or \lisp{PATH} (for
+Windows/NT).
+
+\subsection{Starting and stopping the server}
+
+Normally, the server needs only be started when the machine running
+the server was rebooted, since the server does not terminate itself
+when the last client disconnects.  If a restart is necessary, login to
+the server host (if the server host is not \lisp{localhost}) and
+change to the database root directory. Call program \lisp{plobdadmin
+-start}, this will start the server process.
+
+Calling program \lisp{plobdadmin -stop}\ will stop the server
+process. To get rid of orphan sessions (that means, sessions whose
+client process has been lost for some reasons), do a \lisp{plobdadmin
+-restart}.
+
+\subsection[The administrator]{The \protect\plob\ administrator}
+
+The user which opens the stable heap the very first time is made the
+\plob\ system administrator. The administrator is allowed to reset
+(\fcite{p-reset}), restart (\fcite{p-restart}) or exit
+(\fcite{p-exit}) the daemon process from her or his LISP listener and
+-- a little bit more important -- may allow or deny logins from client
+machines (\fcite{(setf p-machine-loginp)}). The administrator is
+identified by her or his login name and the machine on which the
+client process runs; the administator which is accepted by the server
+can be resetted either by calling the \fcite{p-reset}\ by the
+(current) administrator or by using the \lisp{reset}\ subcommand of
+the \lisp{plobdadmin}\ script. If the adiministrator is resetted, the
+next user which opens the heap will become the new administrator.
+
+\subsection{Remote daemon control}%
+\label{sec:RemoteDaemonControl}
+
+As mentioned already, the administrator has remote access for
+administrating the daemon. \Fcite{p-reset}, \fcite{p-restart}\ and
+\fcite{p-exit}\ may be used by the administrator in a listener to
+administrate the daemon. The name and host of the administrator of a
+persistent heap is stored within the persistent heap itself; in
+consequence, for calling \fcite{p-reset}, the administrator's listener
+process must be connected to the persistent heap which should be
+resetted. After the daemon has been terminated by a call to
+\fcite{p-exit}, it can only be restarted from a shell by calling
+program \lisp{plobdadmin}\ with a \lisp{-start}\ argument.
+
+When configured correctly, \fcite{p-admin}\ can be used to call
+script \lisp{plobdadmin}\ from within a listener. Prerequisite is that
+\lisp{rsh}\ will work on the host running the LISP system.
+
+\refpar \Fcite{p-restart}, \fcite{p-exit}, \fcite{p-reset}.
+
+\subsection{Login administration}
+
+\refpar \Fcite{(setf p-machine-loginp)}, \fcite{show-machines}.
+
+\section[Serverless PLOB]{Running \protect\plob\ serverless}
+
+It is possible to run \plob\ with no server at all. In serverless
+mode, the server's code is directly loaded into the current LISP
+client image. The following sections describe how to start \plob\ in
+serverless mode. The sections after the next section describe the main
+differences between using \plob\ in server mode and in serverless
+mode.
+
+\subsection[Starting PLOB in serverless mode]
+{Starting \protect\plob\ in serverless mode}
+
+To start \plob\ in serverless mode, specify a protocol name of
+\lisp{local}\ followed by a database directory name within the database
+URL to open. For example:
+\begin{CompactCode}
+\listener{}(open-my-session "local:c:/home/kirschke/database")
+;;;; Bootstrap   : Opening local:c:/home/kirschke/database
+\OmitUnimportant
+\end{CompactCode}
+This will open the database located in directory
+\lisp{c:/home/kirschke/database}; if this database does not exist, you
+are asked if it should be created. Please note when using a Windows/NT
+filename, the protocol name \lisp{local}\ must be specified if
+the database to open contains a drive letter; otherwise, \plob\ will
+mistakenly interpret the drive letter as a protocol name.
+
+After the very first database has been opened in server mode or
+serverless mode, it is not possible to switch from one mode to the
+other. The LISP system must be restarted to switch between both
+modes.\footnote{This has the technical reason that a shared library
+  cannot be unloaded safely from a running LISP image.}
+
+\emph{Up to now (1998/09/17), the serverless version runs stable only
+  with \lwcl\ 4.0.1\ and \allegrocl\ 5.0 beta on Windows/NT and with
+  ACL 4.3 on Solaris; I was not able to get a stable version running
+  on Linux. It does not work with \lwcl\ 3.2.2 on Solaris and
+  \allegrocl\ 4.3.1 on Irix. All other configurations have not yet
+  been tested.}
+
+\subsection[Server and serverless mode]
+{Differences between server mode and serverless mode}
+
+To understand the differences, some technical background is given. In
+server mode, the LISP client process communicates with the server
+process by RPCs; this is a request-reply serial communication channel
+resulting in a rather weak coupling. This means for example, if one of
+these processes abends, the other process will live on; so, the other
+process still has a chance to save its data.
+
+In serverless mode, \plobwoexcl's server functionality is directly
+linked into the current LISP image and running within the same
+process, resulting in a rather tight binding. All resources are shared
+between LISP and \plobwoexcl; this poses a problem e.g.\ on Linux,
+since LISP and \plob\ can not agree on how to share the address space
+between them. Also, failures of one of both subsystems leading to a
+process abend will abend the other subsystem, too.
+
+One reason for using the serverless mode is performance, since
+serverless mode incures much fewer communication overhead than server
+mode.  In serverless mode, \plobwoexcl's functions are running about
+twice as fast as in server mode, some functions are even more
+faster. Another advantage is that the locking algorithm of \plob\ now
+will truly suspend LISP threads waiting for a lock to be granted. In
+server mode, this is done by polling since all RPC communication can
+only be initiated by the client.
+
+Of course, the serverless mode needs no server administration at all,
+especially no active \plob\ server is needed.  For \plobwoexcl's API,
+there are almost no differences between both modes; only some
+administration functions (like \fcite{p-exit}) have been changed,
+since they make no sense in serverless mode.
+
+\flabel{\crfsection}{Common error messages}{}
+{\section{Common error messages}}%
+\label{sec:CommonErrorMessages}
+
+This section explains the most common error messages and what to do
+when receiving such a message.
+
+\begin{description}
+\item[Error message]
+In the LISP listener, following message is raised:
+\begin{CompactCode}
+Error: cplob.c(383): fnClientCreate:
+       Connect to host ki8.kogs.hh failed:
+       localhost: RPC: Remote system error - Connection refused
+       (Check if the PLOB! daemon is running on the host)
+\end{CompactCode}
+
+\item[What happened?] The daemon has not yet been started.
+\item[To Do] Ask the \plob\ administrator to start the daemon on the
+  server machine by using program \lisp{plobdadmin}, subcommand
+  \lisp{open}; meanwhile (1998/05/07), it is also possible to start
+  the daemon directly without program \lisp{plobdadmin}. A start can
+  also be done by using \fcite{p-admin}\ (section
+  \Nameref{sec:RemoteDaemonControl}) at the debugger's prompt, for
+  example:
+\begin{IndentedCompactCode}
+;;;; Bootstrap   : Opening tcp://localhost/plob
+Error: cplob.c(383): fnClientCreate:
+       Connect to host ki8.kogs.hh failed:
+       localhost: RPC: Remote system error - Connection refused
+       (Check if the PLOB! daemon is running on the host)
+Restart actions (select using :continue):
+\OmitUnimportant
+\errlistener{}(p-admin :open)
+0       \comment{;; Error code returned from remote called shell script \lisp{\CompactCodeSize{}plobdadmin}}
+\errlistener{}:cont
+\end{IndentedCompactCode}
+\end{description}
+
+\begin{description}
+\item[Error message]
+In the LISP listener, following message is raised:
+\begin{CompactCode}
+Error: cplob.c(371): fnClientCreate:
+       Connect to host ki8.kogs.hh failed:
+       ki8.kogs.hh: RPC: Miscellaneous tli error -
+       An event requires attention
+\end{CompactCode}
+
+\item[What happened?] The daemon is not running, although the client
+  expected a running daemon. Probably, there is a communication
+  problem, or the daemon terminated due to an internal failure.
+\item[To Do] Ask the \plob\ administrator to look for the failure
+  condition. The daemon can be started again on the
+  server machine by using the script \lisp{plobdadmin}, subcommand
+  \lisp{open}. A start can also be done by using \fcite{p-admin}\
+  (section \Nameref{sec:RemoteDaemonControl}).
+\end{description}
+
+\begin{description}
+\item[Error message]
+In the LISP listener, following message is raised:
+\begin{CompactCode}
+Error: It looks as if the LISP PLOB root object should be formatted.
+\end{CompactCode}
+
+\item[What happened?] You opened the stable heap the very first time;
+  the LISP root object was not found in the stable heap.
+\item[To Do] Acutally, this is no error but an emergency break to
+  escape from a maybe unwanted formatting of the stable heap.
+  Normally, do a \lisp{:continue}\ and everything should work fine.
+\end{description}
+
+\begin{description}
+\item[Error message] When starting the \lisp{plobd}\ server process
+using \lisp{plobdadmin -start}\ from the shell, the following error
+message is shown:
+\begin{CompactCode}
+Cannot register service: RPC: Unable to receive; errno = Connection refused
+unable to register (PLOBD, PLOBDVERS, udp).
+\end{CompactCode}
+
+\item[What happened?] The \lisp{portmap}\ (for Solaris: \lisp{rpcbind})
+daemon is not running;
+this daemon is part of the operating system and no part of \plob
+\item[To Do] Start the \lisp{portmap}\ (for Solaris: \lisp{rpcbind})
+daemon on your machine as root user. The
+\lisp{portmap}\ (for Solaris: \lisp{rpcbind}) daemon should be
+located in \lisp{/usr/sbin}.
+\end{description}
+
+\begin{description}
+\item[Error message]
+In the LISP listener, following message is raised:
+\begin{CompactCode}
+Error: cplob.c(147): fnCreateAuth:
+       Creating the AUTH_DES authentication failed. Check if
+       `ki8.informatik.uni-hamburg.de' names a host in your
+       net domain and that keyserv is running on your local
+       client machine. Check if calling the shell command
+       `keylogin' might help.
+\end{CompactCode}
+
+\item[What happened?] The client could not create its authentication
+  data.
+\item[To Do] If issuing a `keylogin' on the shell prompt does not
+  help, the server name in \fcite{*database-url*}\ is perhaps not what
+  you mean: If \plob\ was compiled with \lisp{AUTH\us{}DES}
+  authentication, the \fcite{*database-url*}\ must contain a host name
+  and a domain name (for example \lisp{"ki8.kogs.hh"}) of your local
+  net domain and \emph{not} a fully qualified Internet address.
+\end{description}
+
+\begin{description}
+\item[Error message]
+In the LISP listener, following message is raised:
+\begin{CompactCode}
+Error: From server at executing client:fnSHopen:
+       Login to stable heap failed.
+\end{CompactCode}
+
+\item[What happened?] The daemon process is running, but denied to log
+  you into the stable heap.
+\item[To Do] Ask the \plob\ administrator to view into the
+  \lisp{messages.log}\ file associated with the daemon to see the
+  reason why the login was denied. This file is located on the server
+  in the database directory. Perhaps the \plob\ administrator
+  has denied the login for your machine.
+\end{description}
+%%
+%\begin{description}
+%\item[Error message]
+%\begin{CompactCode}
+%\end{CompactCode}
+%\item[What happened?] 
+%\item[To Do] 
+%\end{description}
+%%
+
+
+%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "userg"
+%%% End: 
+
