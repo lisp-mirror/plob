@@ -1,0 +1,93 @@
+/* ----------------------------------------------------------------------
+| PLOB! global make constants
+| Heiko Kirschke 1997/04/20
+| kirschke@informatik.uni-hamburg.de
+ ---------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------
+| Imake constants
+ ---------------------------------------------------------------------- */
+
+/* Following macros will expand into their corresponding meaning in
+   the generated makefile. All will expand into a single character,
+   with surrounding blank space removed: */
+
+#define	bsl	@b@	/* Expand to a backspace character */
+#define	glu	@g@	/* Paste left and right token */
+#define	spc	@s@	/* Expand to a space (blank) character */
+#define	squ	@q@	/* Expand to a single quote character */
+#define	tab	@t@	/* Expand to a tab character */
+#define	nln	@n@	/* Expand to a new line character */
+
+#define	bsnl	spc bsl nln	/* Expand to space backslash new line */
+
+/* Paste 2 .. 5 token into a single token: */
+#define	paste2(t1,t2)		t1 glu t2
+#define	paste3(t1,t2,t3)	t1 glu t2 glu t3
+#define	paste4(t1,t2,t3,t4)	t1 glu t2 glu t3 glu t4
+#define	paste5(t1,t2,t3,t4,t5)	t1 glu t2 glu t3 glu t4 glu t5
+#define	paste6(t1,t2,t3,t4,t5,t6)	t1 glu t2 glu t3 glu t4 glu t5 glu t6
+#define	paste7(t1,t2,t3,t4,t5,t6,t7)	t1 glu t2 glu t3 glu t4 glu t5 glu t6 glu t7
+#define	paste8(t1,t2,t3,t4,t5,t6,t7,t8)	t1 glu t2 glu t3 glu t4 glu t5 glu t6 glu t7 glu t8
+#define	paste9(t1,t2,t3,t4,t5,t6,t7,t8,t9)	t1 glu t2 glu t3 glu t4 glu t5 glu t6 glu t7 glu t8 glu t9
+
+/* trim removes any white space around its argument: */
+#define	trim( token )		glu token glu
+
+#define	ruleTarget		paste2($,@)
+
+#define	dash glu - glu
+#define dot glu . glu
+#define ddot dot dot
+#define option1(name) - glu name
+#define option2(name,value) - glu name spc value
+#define slash glu / glu
+
+#define MkMakeRule( target, colon, dependencies, actions )\
+nln \
+target spc colon spc dependencies nln \
+tab actions nln
+
+/* Establish a make rule: */
+#define noDependencies glu
+#define noActions glu
+#define rule( target, dependencies, actions )\
+MkMakeRule ( target, :, dependencies, actions )
+#define drule( target, dependencies, actions )\
+MkMakeRule ( target, paste2(:,:), dependencies, actions )
+
+#define silent @ glu
+
+#define evalVar(name) $ glu $ glu { glu name glu }
+
+#define stringinize(token) #token
+
+#if HasOpSys == hasWin32
+
+#define evalShell(cmd)	sh -c stringinize(cmd)
+
+#else
+
+#define evalShell(cmd)	eval cmd
+
+#endif
+
+/* ----------------------------------------------------------------------
+| Constants
+ ---------------------------------------------------------------------- */
+
+#define	no	0
+#define	yes	1
+
+#define hasSolaris 1
+#define hasIrix 2
+#define hasLinux 3
+#define	hasAlphapc 4
+#define	hasWin32 5
+#define	hasHpux 6
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/
