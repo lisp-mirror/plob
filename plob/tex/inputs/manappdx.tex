@@ -1,0 +1,33 @@
+% This is -*-LaTeX-*-
+%
+% appendix.tex
+% HK 13.6.94
+%
+\chapter{About this document}
+
+This document was typeset using Donald Knuth's \TeX\ program with
+Leslie Lamport's \LaTeX. The document style \lisp{pretty}\ was derived
+by myself from the standard \LaTeX\ style \lisp{report}. The \plob\ 
+logo was of course inspired by the \TeX\ logo.
+
+The text of the reference manual was extracted from the original LISP
+sources by scanning through all \plob\ source files, gathering the
+documentation strings, ordering them alphabetically and writing them
+to a \TeX\ source file.  This was done by the LISP module
+\lisp{lisp-doc}\ \cite{bib:LispDoc-Manual} written by myself; see the
+documentation in the \ps\ file \lisp{plob/\lb{}ps/\lb{}ldocman.ps}\ 
+for details.
+
+Two additional supporting substyles have been used: Substyle
+\lisp{crossref}\ for cross referencing and substyle
+\lisp{lispdoc}\ for generating the 
+captions of the items. The former \lisp{crossref}\ substyle was
+inspired from the \verb|\label| and \verb|\ref| macros found in
+\LaTeX; the latter \lisp{lispdoc}\ substyle was initially derived by
+me from the style file \lisp{spec}\ used in writing chapter~6 of
+\cite{bib:AMOP} and has been heavily extended.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 
