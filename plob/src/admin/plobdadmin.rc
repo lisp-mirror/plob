@@ -1,0 +1,61 @@
+/* -------------------------------------------------------------------------
+| Module	plobdadmin.rc
+| Author	Heiko Kirschke
+|		Heiko.Kirschke@poet.de
+| Copyright	(C) 1998 Heiko Kirschke
+| Date		1998/03/04
+| Description	PLOB resource file
+ ------------------------------------------------------------------------- */
+
+#include "afxres.h"
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#include	"plobversion.h"
+
+AFX_IDI_STD_FRAME       ICON    DISCARDABLE     "../server/mop-inside.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION PLOBVERSIONMAJOR.PLOBVERSIONMINOR
+ PRODUCTVERSION PLOBVERSIONMAJOR.PLOBVERSIONMINOR
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        /* BLOCK "040904b0" */
+	BLOCK "040904E4"
+        BEGIN
+	    VALUE "CompanyName", "C-M-x Software\0"
+            VALUE "FileDescription", "Persistent LISP Objects admin utility\0"
+            VALUE "FileVersion", STRINGVERSION "\0"
+	    VALUE "InternalName", "plobdadmin\0"
+            VALUE "LegalCopyright", "Copyright © " STRINGAUTHOR " 1994-" STRINGVERSIONYEAR "\0"
+	    VALUE "OriginalFilename", "plobdadmin.exe\0"
+            VALUE "ProductName", "PLOB! admin utility\0"
+            VALUE "ProductVersion", STRINGVERSION "\0"
+            VALUE "Email", STRINGEMAIL "\0"
+            VALUE "URL", "http://" STRINGURL "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        /* VALUE "Translation", 0x409, 1200 */
+        VALUE "Translation", 0x409, 0x4e4
+    END
+END
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/
