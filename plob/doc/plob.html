@@ -1,0 +1,864 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+
+<head><title>Persistent Lisp OBjects</title>
+<!-- Changed by: Heiko Kirschke, 13-Mar-1998 -->
+
+<meta content="Persistent LISP Objects" name="description">
+<meta content="persistency,persistent
+      object,persistent objects,LISP,persistent LISP,CLOS,persistent
+      CLOS,MOP,Metaobject Protocol,Metaobject
+      Protocols,object-oriented database,object-oriented
+      databases,client-server,self-reflective" name="keywords">
+
+</head><body><a name="head"></a>
+
+<h1>
+<img alt="MOP Inside!" src="mop-inside.gif">
+<font size="6">P</FONT><font size="5">ERSISTENT</font> <font size="6">L</font><font size="5">ISP</font> <font size="6">OB</font><font size="5">JECTS</FONT><font size="6">!</font></h1>
+
+Version 2.09 of May 22, 2000
+
+<p>by <a href="#contact">Heiko Kirschke</a></p>
+
+<p></p>
+
+<hr>
+
+<table width="100%">
+<tr>
+<td width="50%"></td>
+<td><em>It's funny I thought I should do things differently for a database,
+but Plob lets you do things in a Lisp way.</em></td>
+</tr>
+<tr>
+<td></td><td align="right">-- M. A.</td>
+</tr>
+</table>
+
+<h2><a name="about">What is it about?</a></h2>
+
+The system <b>PLOB!</b> (<b>P</b>ersistent <b>L</b>isp
+<b>OB</b>jects<b>!</b>) implements orthogonal persistency for LISP and
+CLOS objects. Besides offering pure persistency, on the one side it
+contains important database features like transactions, locking and
+associative search over persistent objects.  On the other side,
+<b>PLOB!</b> mimics the features of CLOS' Metaobject Protocol (MOP) as
+far as possible, e.g. by its implemented self-describing persistent
+objects and support for class changes promoted dynamically to
+persistent objects (schema evolution).
+
+<h3>Transparent Persistency</h3>
+
+An important topic was to make the interface between LISP and
+persistency as transparent to the user as possible, without
+sacrificing efficiency.  <b>PLOB!</b> solves both problems: By
+employing the possibilites of CLOS' MOP, the user interface to
+persistency is as simple as it can be. In fact, using only a few
+statements of LISP code will make instances of CLOS classes
+persistent, e.g.
+
+<blockquote><pre>
+CL-USER 3 > (defclass person ()
+              ((name :initarg :name <i>:index (btree :test equal)</i>))
+              <i>(:metaclass persistent-metaclass)</i>)
+</pre></blockquote>
+
+declares a class <code>person</code> with its instances being
+persistent and an index for associative search on its slot
+<code>name</code> (actually, the class metaobject which represents the
+class <code>person</code> itself will become persistent, too).  Using
+some other statements will make ordinary LISP and structure objects
+persistent. It is also possible to make CLOS objects persistent which
+are out of the user's control, for example, instances where the
+<code>defclass</code> defining the class is not available and cannot
+be modified as indicated in the example above.  Besides that,
+<b>PLOB!</b> has the notion of persistent packages and persistent
+symbols for binding persistent objects:
+
+<blockquote><pre>
+CL-USER 4 > (setf #!*a-person*
+                  (make-instance 'person :name "Kirschke"))
+</pre></blockquote>
+
+will bind the persistent instance generated from the
+<code>make-instance</code> call to the persistent symbol
+<code>*a-person*</code>. Similar to transient packages and symbols, an
+object can be bound to a persistent symbol and thereby gets persistent
+and identifyable:
+
+<blockquote><code>
+CL-USER 5 > (setf #!*a-string* "A persistent string.")
+</CODE><br><em>... some years and LISP processes later ...</em>
+<br><code>
+CL-USER 99 > #!*a-string*
+<br>"A persistent string."
+</code></blockquote>
+
+<h3>Client/server architecture</h3>
+
+<p><b>PLOB!</b>'s architecture is a true client/server-approach,
+communicating by UNIX' standard RPCs. The server administers a
+persistent object space; one or more clients can access the persistent
+objects contained in the persistent object space.  The multi-user
+access is completely serialized, since the implemented transactions
+and locking algorithm results in an isolation level of 3 according to
+the SQL-92 definition.  The server is a UNIX process running on one of
+the machines mentioned below; the clients are processes running one of
+the LISP systems mentioned below (especially, clients with different
+LISP systems can connect concurrently to one server). By using UNIX'
+standard RPCs, heterogenous operation is supported too, i.e. the
+server and client can run on different operating or LISP systems.
+Access to the persistent object space can be allowed or denied on a
+per-host level.
+
+<h3>Efficiency</h3>
+
+Efficiency is gained by the low-level layers implemented in C, coupled
+with sophisticated data modelling and object handling. By implementing
+most of LISP's base types directly as base types into <b>PLOB!</b>,
+the requirement for time-consuming conversions between transient LISP
+objects and the persistent objects stored within the persistent object
+space is kept to a minimum. To reduce the data exchange between client
+and server, the client code provides for object preallocation and
+object caching. A reference from a referencing persistent object to a
+referenced persistent object can be marked as being
+<em>dependent</em>; when a client loads the referee, the referenced
+object will be transmitted within the same data block to the client,
+too.
+
+<h3>Database features</h3>
+
+Persistency itself is only half of the business; besides that,
+<b>PLOB!</b> has implemented many database features, namely
+transactions, locks and indices.  Each access to persistent objects is
+embedded into well-formed transactions, either by an explicit
+transaction block opened by the user's code:
+
+<blockquote><code> CL-USER 6 > (with-transaction ()
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(setf #!*a-string* "Next persistent string.")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</CODE><em> ... lots of more code ...</em>
+<code>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(setf #!*b-string* "Second string."))
+</code></blockquote>
+
+or, if the user didn't specify a transaction block, <b>PLOB!</b> will
+surround each access by a transaction internally. In the above
+example, embedding the code into a transaction assures that either all
+changes done to persistent objects in the block will be committed to
+the persistent object space or, e.g. in the case of an error at
+proceeding the statements in the block, none of the changes will be
+promoted to the database. Serialization between concurrent
+transactions is provided by the two-phase transaction model adopted
+within <b>PLOB!</b>
+
+<p>The precondition for a transaction to be well-formed is that each
+object accessed within a transaction is reserved for the accessor;
+this is accomplished by <b>PLOB</b>'s hierarchical lock
+protocol. Locks can be requested on one of the levels slot, object or
+whole database with the modes read, write or read-only. Page locking
+is not supported, since this makes no sense for the heterogenous
+population found in an object-oriented database.
+
+<p>For indices, <b>PLOB!</b> has persistent btrees, which are used
+internally for various tables and are made available for the user's
+purpose too as shown already above in the <kbd>person</kbd> class
+example. It is also possible to use btrees directly:
+
+<blockquote><pre>
+CL-USER 7 > (setf *my-btree* (make-btree :test 'equal))
+</pre></blockquote>
+
+will set <kbd>*my-btree*</kbd> to a persistent btree. The operations
+on persistent btrees are very similar to those of hash tables, with
+the difference of the keys being sorted. (Of course, LISP's hash
+tables are supported too; <b>PLOB!</b> infringes no mapping from hash
+tables to btrees.)
+
+<p></p><hr>
+
+<h2><a name="requirements">System requirements for a successfull
+installation</a></h2>
+
+<b>PLOB!</b> is distributed as free software, see the <a
+href="#UsersGuide">User's Guide</a> for details.  <b>PLOB!</b> will
+run on the following LISP and operating systems:
+
+<dl>
+<dt><b>LISP systems</b>
+
+<dd>On Unix, <a
+href="http://www.xanalys.com/software_tools/products/lwu.html"
+target="_parent">Harlequin LispWorks Common LISP</a> version 3.2.2 and
+4.1 and <a href="http://www.franz.com/products/unix.html"
+target="_parent">Franz Allegro Common LISP</a> version 4.3 and 5.0
+beta are supported.  On Windows/NT, <a
+href="http://www.xanalys.com/software_tools/products/lww.html"
+target="_parent">Harlequin LispWorks Common LISP</a> version 4.0.1 and
+4.1 and <a href="http://www.franz.com/products/acl-win5.0.html">Franz
+Allegro Common LISP</a> version 5.0 beta are supported.  <a
+href="http://www.franz.com/products/acl-nt.html"
+target="_parent">Franz Allegro Common LISP</a> version 4.3.2 for
+Windows/NT has not been checked.
+
+<dt><b>Operating systems</b>
+
+<dd> Full supported are Solaris 2.x, IRIX 6.x, Linux kernel version
+2.x, Windows/NT 4.0 and Windows 2000. For client-only installations on
+other operating systems, see the explanations given below.
+
+<dt><b>System Resources needed</b>
+
+<dd>The complete installation will take around 50 MB disk space, plus
+the space allocated by the persistent objects administered by
+<b>PLOB</b>. The memory requirements for the client are around 32 MB,
+the server should be able to run with less memory.</dd>
+
+</dl>
+
+The server of <b>PLOB!</b> uses the POSTORE subsystem, created within
+the scope of the persistent programming language
+<a href="http://www-ppg.dcs.st-and.ac.uk/Info/Napier88.html" target="_parent">
+Napier88</a> at the University of St. Andrews.  Since the copyright on
+POSTORE is owned by the University of St. Andrews, a server
+installation is possible on request to <a
+href="mailto:Heiko.Kirschke@acm.org">me</a> for other operating
+systems.  A client-only installation should be possible for other
+operating systems with the distribution provided here, but requires a
+Solaris, IRIX, Linux or Windows/NT machine running the <b>PLOB</b>
+server near the client.
+
+<p></p><hr>
+
+<h2><a name="software">Downloadable Software</a></h2>
+
+<!--
+<p>All files are mirrored to an <a
+href="ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/">ftp
+Server</a>; see <b>PLOB</b>'s <a href="README">README</a> for details.
+-->
+
+<dl>
+
+<dt></dt><table> <tr><td><table
+border="4"><tr><td><kbd>ftp</kbd></td></tr></table> <td><a
+href="http://www.lisp.de/software/plob/plob-2.09.tar.gz">plob-2.09.tar.gz</a>,
+gzipped around 10 MB; <br>(plob-2.09.tar uncompressed takes around 36
+MB, so it is not available here).
+
+</td></tr>
+</table>
+
+<dd>The complete <b>PLOB!</b> version 2.09 distribution, including
+sources, all documentation (more than being showed below) and
+precompiled binaries.
+</dd>
+
+</dl>
+
+<hr>
+
+<h2><a name="documentation">Downloadable Documentation</a></h2>
+
+All documentations are in english unless otherwise noted. The
+PostScript files are compiled for two-sided printing, whereas the PDF
+(Portable Document Format, see <a
+href="http://www.adobe.com/prodindex/acrobat/readstep.html"
+target="_parent">Acrobat reader</a> for obtaining a reader program)
+files are compiled for one-sided printing. The PDF files are
+hyperlinked with each other and can be read best by downloading the <a
+href="install.pdf" target="_parent">Installation Guide</a>, the <a
+href="userg.pdf" target="_parent">User's Guide</a>, the <a
+href="eref.pdf" target="_parent">Application Programming Interface
+Guide</a> and the <a href="iref.pdf" target="_parent">Internal
+Interface Guide</a> into a single local directory (documents are
+ordered from most to least importance).
+
+<dl>
+
+<dt><a name="architecture"><table><tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table>
+<td><a href="plobelugm99.pdf">plobelugm99.pdf</a>, around 270 KB;
+</td></tr></table></a>
+
+<dd>A presentation on the architecture of <b>PLOB!</b> presented at
+ELUGM '99 in Amsterdam. 9 pages.
+</dd>
+
+<dt><a name="README"></dt>
+
+<table> <tr><td>
+
+<table border="4"><tr><td><kbd>ftp</kbd></td></tr></table> <td>
+
+<!--
+<a
+href="ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/README">README</a>
+(transfer by <kbd>ftp</kbd>), uncompressed around 4 KB<br>
+-->
+
+<a href="README">README</a><!-- (transfer by <kbd>http</kbd>) -->,
+uncompressed around 4 KB
+
+</td></tr></table></dt>
+
+<dd>The actual README file of <b>PLOB</b>, with instructions on how to
+do an <kbd>ftp</kbd> download.
+</dd>
+
+<dt><a name="InstallationGuide"></dt><table> <tr><td><table
+border="4"><tr><td><kbd>ftp</kbd></td></tr></table> <td><a
+href="install.ps.gz">install.ps.gz</a>, gzipped around 26 KB; <br><a
+href="install.ps">install.ps</a>, uncompressed around 56 KB.<br><a
+href="install.pdf" target="_parent">install.pdf</a>, around 29 KB.</td></tr></table>
+
+<dd><b>PLOB!</b> Installation Guide with hints and requirements for
+doing the installation. 5 pages.
+</dd>
+
+<dt><a name="UsersGuide"><table> <tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table> <td><a
+href="userg.ps.gz">userg.ps.gz</a>, gzipped around 243 KB; <br><a
+href="userg.ps">userg.ps</a>, uncompressed around 651 KB.<br><a
+href="userg.pdf" target="_parent">userg.pdf</a>, around 614
+KB.</td></tr></table>
+
+<dd><b>PLOB!</b> User's Guide. 85 pages.
+</dd>
+
+<dt></dt><table> <tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table>
+<td><a href="labstract.ps.gz">labstract.ps.gz</a>, gzipped around
+25 KB; <br><a href="labstract.ps">labstract.ps</a>, uncompressed
+around 80 KB.</td></tr></table>
+
+<dd>An extended abstract on <b>PLOB!</b>, explaining some of its
+design rationales. 4 pages.
+</dd>
+
+</dl>
+
+<hr>
+
+<table border=0 cellspacing=0 cellpadding=0 width="100%">
+<tr>
+<td valign="bottom">
+<h2><a name="bugfixes">Bugfixes for version 2.09</a></h2>
+</td>
+<td>
+<table border=0 cellspacing=0 cellpadding=0 bgcolor="#000000">
+<tr>
+<td>
+<font face="Helvetica, Arial" size=2>
+&nbsp<br>
+&nbsp<br>
+&nbsp<br>
+&nbsp<br>
+&nbsp<br>
+&nbsp<br>
+&nbsp<br>
+&nbsp<br></font>
+</td>
+</tr>
+</table>
+</td>
+<td>
+</td>
+<td>
+<font face="Helvetica, Arial" size=2>
+<b>What</b><br>
+<b>do</b><br>
+<b>you</b><br>
+<b>want</b><br>
+<b>to</b><br>
+<b>debug</b><br>
+<b>today?</b><sup><font size=1>TM</font></sup>
+</font>
+</td>
+</tr>
+</table>
+
+Between 2.08 and 2.09, <b>PLOB</b>'s internal API between the
+client and server code has changed. This means for switching from 2.08
+to 2.09, all layers except the database layer must use the new 2.09
+code; PLOB might crash when the 2.09 client code is used with a 2.08
+server. So, take care for using the 2.09 LISP code, the 2.09 client
+DLL and the 2.09 server. Doing a 2.09 standard installation will
+overwrite the old 2.08 server binary. The 2.09 components are able to
+work on pre-2.09 databases.
+
+<h2>Bugfixes for version 2.08</h2>
+
+<h3>Serverless mode for LispWorks 3.2 on Solaris</h3>
+
+The serverless mode in LispWorks Common LISP 3.2/Solaris crashes with
+a segmentation violation when the last database is closed. To fix
+this, change file <kbd>plob-2.08/src/lispworks/plob-low.lisp</kbd>
+around line 310 to:
+
+<blockquote><pre>
+(defparameter *max-lisp-addr*
+    (or
+     #+(and :allegro :alpha)
+     (+ (max #x30000000 #x54000000) *heap-spare-size*)
+     #+(and :allegro :hpux)
+     (+ (max #x20000000 #x64000000) *heap-spare-size*)
+     #+(and :allegro :mips)
+     (+ (max #x30000000 #x64000000) *heap-spare-size*)
+     #+(and :allegro :aix)
+     (+ (max #x30000000 #x64000000) *heap-spare-size*)
+     #+(and :allegro :solaris2)
+     (+ (max #x8000000 #x5000000) *heap-spare-size*)
+     #+(and :allegro :linux86)
+     (+ (max #x20000000 #x64000000) *heap-spare-size*)
+     #+(and :lispworks :solaris2)
+     (logand #xff000000 (+ (sys::object-address nil) #x20000000)))
+  #+:lisp-doc "... documentation omitted here ...")
+</pre></blockquote>
+
+Thanks again to Harlequin's excellent support on LispWorks for
+supplying the information necessary to fix this bug.
+
+<h3>Bug in installation script</h3>
+
+After unpacking <kbd>plob-2.08.tar</kbd> and before starting an
+installation, change file <kbd>plob-2.08/conf/make.server.in</kbd>
+around line 63 from:
+
+<blockquote><pre>
+MkCopyRule($(DEFAULTROOT) slash, \
+           $(LIBDIR) slash, \
+           fileExe(plobdadmin))
+</pre></blockquote>
+
+to:
+
+<blockquote><pre>
+MkCopyRule($(DEFAULTROOT) slash, \
+           $(BINDIR) slash, \
+           fileExe(plobdadmin))
+</pre></blockquote>
+
+<h3>Upgrading from Plob 2.08 to Plob 2.08a</h3>
+
+Plob 2.08a contains some minor bug fixes in some of the install
+scripts and the documentation, and some performance improvements for
+inserting bulk data into a database.
+
+<p>For already done downloads of 2.08, the archive <a
+href="upgrade-2.08a.tar.gz">upgrade-2.08a.tar.gz</a> contains all
+changed files. For installing the archive, unpack it onto the current
+2.08 installation, and in directory <kbd>plob-2.08</kbd>, call
+<kbd>make config</kbd> anew.
+
+<h3>ACL 5.0 for NT's debugger has problems getting back to toplevel
+listener</h3>
+
+With ACL 5.0 for NT, there is a problem with CERRORs raised from the
+lower C layer of <b>PLOB</b>: A <kbd>:pop</kbd> does not return to the
+toplevel listener, but raises the CERROR anew. This seems to be a bug
+in ACL 5.0 for NT's debugger. The workaround for the moment is for a
+CERROR raised because of a not running <b>PLOB</b> server to start the
+server manually; this will return ACL 5.0 for NT to the toplevel
+listener.
+
+<p>For this reason, <kbd>plob::*verbose*</kbd> should not be set to
+<kbd>nil</kbd> when running under ACL 5.0 for NT, since this might put
+<b>PLOB</b> into an infinite loop.
+
+<h3><kbd>+plob-{min,max}-marker+</kbd> as {lower,upper} interval
+bounds</h3>
+
+When using the <kbd>+plob-{min,max}-marker+</kbd> as {lower,upper}
+interval bounds for a search in a btree, the search will start always
+on the {first,last} element in the btree, that means, the compare
+criterion used is always {<kbd>&gt;=</kbd>,<kbd>&lt;=</kbd>}, even
+if {<kbd>&gt;</kbd>,<kbd>&lt;</kbd>} has been specified to get the
+{second,last before the last} element as first element of the
+interval.
+
+<h3>Bitvectors in LispWorks Common LISP 4.0.1</h3>
+
+Please note that with the LispWorks 4.0.1 for Windows/NT client,
+bitvectors cannot be stored and loaded at the moment. This is due to
+the new foreign language interface introduced with 4.0.1; Harlequin is
+aware of this problem and will extend the interface.
+
+<p></p><hr>
+
+<h2><a name="changes">Changes from version 2.08 to 2.09</a></h2>
+
+<ul type="disc">
+
+<li> Multiple databases on a single system are now better supported;
+for disciminating different databases, the port number is now used
+instead of the RPC version number. Thanks to Jon Dyte for providing
+the hint to this improvement.
+
+<li> Structure classes are now stored correctly in LispWorks 4, too.
+
+<li> Build is now completely supported for CYGWIN on Windows/NT.
+
+<li> In <kbd>ps/<a href="plobelugm99.pdf">plobelugm99.pdf</a></kbd>,
+find my paper on the architecture of <b>PLOB!</b> presented at ELUGM
+'99 in Amsterdam.
+
+</ul>
+
+<h2>Changes from version 2.07 to 2.08</h2>
+
+<ul type="disc">
+
+<li> Various bugfixes
+
+<ul type="circle">
+
+<li> Short-floats now work again for LispWorks 3.2
+
+<li> Bignums should now work for ACL 5.0.
+
+<li> The client handling for <kbd>write-lock-store</kbd> did not work
+properly under certain circumstances; this has been fixed. At end of
+transaction of a write-locked database, the server spent much time
+unlocking not locked objects; this has been fixed.
+
+<li> Object preallocation had a bug which made the preallocation not
+work at all under certain circumstances; this has been fixed.
+
+<li> The client/server marshalling code has been fixed to pass objects
+correctly between heterogenous, arbitrary architectures. Earlier
+versions had problems with such configurations for example when
+handling floats or bignums.
+
+</ul>
+
+<li> The server code has been made 64 bit proof (the client code is
+already 64 bit proof).
+
+<li> The <kbd>plobdadmin</kbd> utility has been rewritten in C; its
+functionality has been extended. See file
+<kbd>plob-2.08/src/admin/README</kbd> for details; directory
+<kbd>plob-2.08/src/admin/scripts/</kbd> contains example scripts for
+using <kbd>plobdadmin</kbd> automatically.
+
+</ul>
+
+<h2>Changes from version 2.06 to 2.07</h2>
+
+<ul type="disc">
+
+<li> Support for ACL 5.0 beta on Windows/NT has been added.
+
+<li> A serverless mode has been added. This has the following
+advantages:
+<ul type="circle">
+
+<li> Performance is improved by a factor of at least 2 compared to a
+client connected to a server running on <kbd>localhost</kbd>.  Please
+consult the user's guide, chapter `Administration', section `Running
+<b>PLOB!</b> serverless', and chapter `Database functionality',
+section `Performance' for details.
+
+<li> No server process or server administration is needed at all.
+
+</ul>
+
+For technical reasons, the serverless mode works only for LispWorks
+Common LISP 4.0.1 on Windows/NT, for Allegro Common LISP 5.0 on
+Windows/NT and Allegro Common LISP 4.3 on Solaris. It definitely does
+not work for LispWorks 3.2.2 on Solaris, Allegro Common LISP 5.0
+beta on Linux and Allegro Common LISP 4.3.1 on Irix.
+
+<li> The documentation in the user's guide has been improved:
+<ul type="circle">
+ 
+<li> Section 4.1 has been added explaining some database terms as used
+in <b>PLOB</b>.
+
+<li> The performance numbers have been moved from the Web page into
+section 4.10. The numbers have been corrected, and numbers for
+<b>PLOB!</b> running in serverless mode have been added.
+
+<li> Section 5.3 has been added explaining the serverless mode of
+<b>PLOB</b>.
+
+<li> Section D.2 has been added clarifying how to submit a bug
+report.
+
+</ul>
+
+<li> The license terms have changed. <b>PLOB</b> is no longer
+published under the GNU General Public License, but as free
+software. See section D.6 in the user's guide for details.
+
+<li> Bugfix: For LispWorks 3.2.2, the library containing the foreign
+function code is now properly loaded.
+
+<li> Bugfix: <b>PLOB</b>'s internal `metaheap' conflicted with the
+local LISP thread's persistent heap when doing locking [on `store'
+level].
+
+<li> Bugfix: The <kbd>:type</kbd> slot option was not passed to a
+class definition for classes which had been compiled from a class
+description into the current LISP image.
+
+<li> Bugfix: Although <kbd>plob::*verbose*</kbd> was set to
+<kbd>nil</kbd>, some <kbd>cerror</kbd>s had not been continued
+automatically.
+
+</ul>
+
+<h2>Changes from version 2.05 to 2.06</h2>
+
+<ul type="disc">
+
+<li> The btree interface has been completed and improved:
+
+<ul type="circle">
+
+<li> Mapping is now possible for btree keys in left-sided or
+right-sided opened or closed intervals.
+
+<li> The mapping through a btree's keys can now be done ascending or
+descending.
+
+<li> A new access method has been added for btrees. It is silimar to a
+file interface or to the <em>cursor</em> interface known from SQL.
+Please consult the user's guide, chapter `Database functionality',
+section `Persistent btrees', subsection `Cursors on btrees' for
+details.
+
+</ul>
+
+<li> Support for ACL 5.0 beta on Linux has been added.
+
+<li> Faster allocation of dynamic sized objects (strings and vectors).
+
+<li> More simple and (hopefully :-) more robust installation
+procedure.
+
+</ul>
+
+<h2>Changes from version 2.04 to 2.05</h2>
+
+In 2.04, the installation script had a bug, this has been fixed.
+Following new features have been introduced:
+
+<ul type="disc">
+
+<li> Full support for LispWorks Common LISP 4.0.1 for Windows/NT
+clients. In conjunction with <b>PLOB</b>'s Windows/NT server, the
+whole system can run on a single Windows/NT machine.
+
+<li> Improved inspector methods for LispWorks Common LISP.
+
+<li> The client C code is now multithread safe.
+
+<li>Simplified installation on Windows/NT, see the <a
+href="#InstallationGuide">Installation Guide</a> for details.</li>
+
+</ul>
+
+<h2>Changes from version 2.02 to 2.04</h2>
+
+The 2.02 distribution had some minor flaws, namely storing and loading
+of defstruct instances and hash tables did not work properly; this has
+been fixed. Besides that, these new features have been introduced:
+
+<ul type="disc">
+
+<li> The restriction of only one open database per server machine does
+not longer exist. Now, a server can open any (reasonable) number of
+databases. Clients are still restricted to one open database at a
+time.
+
+<li> New databases can now be created from the client's side.
+
+<li> Url-like database names have been introduced.
+
+<li> The distribution now contains a <b>PLOB!</b> server running under
+Windows/NT 4.0
+
+<li> Improvements on btrees: Page size can now be requested and set,
+the minimum and maximum key of a btree can now be requested.
+
+<li> Built-in classes are now represented as first class objects.</li>
+
+</ul>
+
+NB: Version 2.03 has never been a public version but a private one for
+my main customer, so it is omitted here.
+
+<p></p><hr>
+
+<h2><a name="coming">Coming soon ...</a></h2>
+
+In the next time, I will work on multi-dimensional indexes in 
+<b>PLOB!</b>, and an improved schema evolution.
+
+<p></p><hr>
+
+<h2><a name="references">References</a></h2>
+
+If you have any LISP software using <b>PLOB!</b>, please contact <a
+href="mailto:Heiko.Kirschke@acm.org">me</a> if you would like a link
+to be added here.
+
+<ul type="disc">
+
+<li>Many people use <b>PLOB!</b> as a subsystem for <a
+href="http://www.ai.mit.edu/cl-http/" target="_parent">CL-HTTP</a>
+
+<li>Here's a <a href="plob-koehorst.html">short report</a> about a
+project using <b>PLOB!</b> in combination with CL-HTTP at the
+University of Maastricht for organizing the writing assignments of
+students.
+
+</ul>
+
+<p></p><hr>
+
+<h2><a name="publications">Publications</a></h2>
+
+All publications are in german unless otherwise noted.
+
+<dl>
+
+<dt><a name="book"></a></dt>
+<table>
+<tbody><tr><td><table border=4></td><tbody><tr><td>&nbsp\<a
+href="http://www.lisp/de/sofware/plob/buyit.html">\/</a>/&nbsp</td>
+</tr></tbody></tbody></table> <td><a
+href="http://www.lisp.de/software/plob/buyit.html">Book</a></td></tr></tbody>
+</table>
+
+<dd>
+Heiko Kirschke:
+<a href="http://www.logos-verlag.de/cgi-local/buch?isbn=65">
+Persistenz
+in objekt-orientierten Programmiersprachen.</a>
+<a href="http://www.logos-verlag.de/">Logos Verlag</a>, Berlin. 1997.
+
+<dt></dt>
+<table>
+<tbody><tr><td><table><tr></tr></table></td></tr><tbody><tr><td></td></tr></tbody></tbody></table>
+<td>  <td><a href="http://www.lisp.de/software/plob/bericht.ps.gz">Report
+FBI-HH-B-179/95</a>, gzipped around 600 KB;
+<br><a href="http://www.lisp.de/software/plob/bericht.ps">Report
+FBI-HH-B-179/95</a>, uncompressed around 1.9 MB.</td></tr></tbody></table>
+
+<dd>Heiko Kirschke: Persistenz in der objekt-orientierten
+Programmiersprache CLOS am Beispiel des <b>PLOB!</b> Systems. Report
+FBI-HH-B-179/95, University of Hamburg, 1995. 142 pages.
+
+</dl>
+
+<hr></dd>
+
+<h2><a name="contact">Contact Address</a></h2>
+
+Feel free to contact me on any questions, remarks and hints:
+
+<dl>
+
+<dt><b>Mailing list</b></dt>
+
+<dd>There is a mailing list <a
+href="mailto:plob@lisp.de">plob@lisp.de</a> on <b>PLOB</b>; to
+subscribe, send an email with `subscribe' in the email's body to <a
+href="mailto:plob-request@lisp.de">plob-request@lisp.de</a>:
+<blockquote>
+<kbd>To: <a href="mailto:plob-request@lisp.de">plob-request@lisp.de</a></kbd><br>
+<kbd>--text follows this line--</kbd><br>
+<kbd>subscribe</kbd><br>
+<kbd>end</kbd>
+</blockquote>
+
+For unsubscribing, send an email with
+`unsubscribe' in the email's body to <a
+href="mailto:plob-request@lisp.de">plob-request@lisp.de</a>:
+<blockquote>
+<kbd>To: <a href="mailto:plob-request@lisp.de">plob-request@lisp.de</a></kbd><br>
+<kbd>--text follows this line--</kbd><br>
+<kbd>unsubscribe</kbd><br>
+<kbd>end</kbd>
+</blockquote>
+
+The <kbd>end</kbd> line is only necessary if there might be a
+following signature.</dd>
+
+<p>Post your messages to <a
+href="mailto:plob@lisp.de">plob@lisp.de</a>, <a
+href="mailto:plob-request@lisp.de">plob-request@lisp.de</a> is used
+only for subscribing and administration.  Purpose of this mailing list
+is to get support on installing and using <b>PLOB</b>, for reporting
+bugs, for getting announcements on new versions and for general topics
+on persistency, in this order. It is by intention a low-traffic
+mailing list.
+
+<dt><b>Email</b></dt>
+
+<dd>New email address: <a
+href="mailto:Heiko.Kirschke@acm.org">Heiko.Kirschke@acm.org</a></dd>
+
+<dt><b>Private</b></dt>
+
+<dd>Heiko Kirschke, Beim Alten Sch&uuml;tzenhof 4,
+D-22083 Hamburg</dd>
+
+<dt><b>Professional</b></dt>
+
+<dd>Heiko Kirschke, <a href="http://www.cscploenzke.de"
+target="_parent">CSC PLOENZKE AG</a>, Competence Center e-Business,
+Hans-Henny-Jahnn-Weg 49-51, D-22085 Hamburg
+
+<br>Tel: +49 (0)40 2288.5771, Fax: +49 (0)40 2288.5831, Mobile: +49
+(0)173 3072794
+
+</dd>
+
+<dt><b>Disclaimer</b></dt>
+
+<dd>
+CSC PLOENZKE is not affiliated with my work done on <b>PLOB!</b>; its
+address is given here for reaching me at normal office hours.  The
+opinions expressed on this page and in the written documentation are
+completely that of my own.
+</dd>
+
+<dt><b>Fun</b></dt>
+
+<dd>Here is a translation of an older version of this page into <a
+href="fun/Welcome-german.html" target="_parent">german</a> done by <a
+href="http://babelfish.altavista.digital.com/cgi-bin/software.html"
+target="_parent">AltaVista's babelfish</a>.</dd>
+
+</dl>
+
+<hr>
+
+Created May 13, 1997; last change May 22, 2000.
+
+<address>
+<!-- <a href="http://lki-www.informatik.uni-hamburg.de/~kirschke/"
+target="_parent"> Heiko Kirschke</a>, --><a
+href="mailto:Heiko.Kirschke@acm.org">
+Heiko.Kirschke@acm.org</a></address></td></dd>
+
+</body></html>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-default-dtd-file:"c:/opt/emacs-20.3.1/site-lisp/dtd/html32/html32.ced"
+sgml-omittag:nil
+sgml-shorttag:nil
+buffer-file-coding-system: iso-latin-1-unix
+End:
+-->
