@@ -1,0 +1,495 @@
+% ------------------------------------------------------------
+% plob.bib -- BibTeX file for PLOB!
+% PLOB - Persistent Lisp OBjects
+% http://www.lisp.de/software/plob/
+% (C) Heiko Kirschke mailto:Heiko.Kirschke(at)poet.de
+% ------------------------------------------------------------
+
+% ------------------------------------------------------------
+% Article
+% ------------------------------------------------------------
+@InProceedings{bib:Atkinson-et-al-92,
+  author	= "Malcolm Atkinson and Fran\c{c}oise Bancilhon and
+		   David DeWitt and Klaus Dittrich and
+		   David Maier and Stanley Zdonik",
+  title		= " The Object-Oriented Database System Manifesto",
+  pages		= "3--20",
+  crossref	= "bib:Bancilhon-et-al-92"
+}
+
+@InProceedings{bib:Beckmann-et-al-90,
+  author	= "Norbert Beckmann and Hans-Peter Kriegel and
+		   Ralf Schneider and Bernhard Seeger",
+  title		= "The R*-tree: An efficient and robust access method
+		   for points and rectangles.",
+  pages		= "322--331",
+  crossref	= "bib:ACM-SIGMOD-90"
+}
+
+@InProceedings{bib:Berchtold-et-al-96,
+  author	= "Stefan Berchtold and Daniel A. Keim and
+		   Hans-Peter Kriegel",
+  title		= "The X-tree: An Index Structure for
+		   High-Dimensional Data",
+  pages		= "28--39",
+  crossref	= "bib:VLDB-96",
+  note		= "\urlif{http://sunsite.ust.hk/dblp/db/conf/vldb/BerchtoldKK96.html} {\RemoteCopy}"
+}
+
+@Article{bib:Codd-79,
+  author	= "E. F. Codd",
+  title		= "Extending The Database Relational Model
+		   to Capture More Meaning",
+  journal	= acmtbs,
+  volume	= 4,
+  number	= 4,
+  pages		= "397--434",
+  month		= dec,
+  year		= 1979
+}
+
+@Article{Beckmann:1990:RTE,
+  author = {N. Beckmann and H. P. Kriegel and R. Schneider and B.
+                 Seeger},
+  title = {The {R}/sup *\slash -tree: an efficient robust access
+                 method for points and rectangles},
+  journal = {SIGMOD Record (ACM Special Interest Group
+                                  on Management of Data)},
+  volume = {19},
+  number = {2},
+  pages = {322--331},
+  month = {June},
+  year = {1990},
+  coden = {SRECD8},
+  issn = {0163-5808},
+  bibdate = {Mon Dec 9 15:51:41 MST 1996},
+  abstract = {The R-tree, one of the most popular access methods for
+                 rectangles, is based on the heuristic optimization of
+                 the area of the enclosing rectangle in each inner node.
+                 By running numerous experiments in a standardized
+                 testbed under highly varying data, queries and
+                 operations, we were able to design the R-tree which
+                 incorporates a combined optimization of area, margin
+                 and overlap of each enclosing rectangle in the
+                 directory. Using our standardized testbed in an
+                 exhaustive performance comparison, it turned out that
+                 the R-tree clearly outperforms the existing R-tree
+                 variants: Guttman's linear and quadratic R-tree and
+                 Greene's variant of the R-tree. This superiority of the
+                 R-tree holds for different types of queries and
+                 operations, such as map overlay, for both rectangles
+                 and multidimensional points in all experiments. From a
+                 practical point of view the R-tree is very attractive
+                 because of the following two reasons: 1. it efficiently
+                 supports point and spatial data at the same time and 2.
+                 its implementation cost is only slightly higher than
+                 that of other R-trees.},
+  acknowledgement = {Nelson H. F. Beebe,
+                    Center for Scientific Computing,
+                    Department of Mathematics,
+                    University of Utah,
+                    Salt Lake City, UT 84112, USA,
+                    Tel: +1 801 581 5254,
+                    FAX: +1 801 581 4148,
+                    e-mail: \path|beebe@math.utah.edu|,
+                    URL: \path|http://www.math.utah.edu/~beebe/|},
+  affiliation = {Praktische Inf., Bremen Univ., West Germany},
+  classification = {C6120 (File organisation); C6160 (Database
+                 management systems (DBMS))},
+  keywords = {R/sup */-tree; Points; R-tree; Spatial access methods;
+                 Heuristic optimization; Area; Inner node; Combined
+                 optimization; Area; Margin; Overlap; Enclosing
+                 rectangle},
+  thesaurus = {Data structures; Database management systems},
+  xxcrossref = {Anonymous:1990:ASI},
+}
+
+%%                 ncramer (at) bbn.com
+@InProceedings{bib:Cramer-98,
+  author	= "Nichael Cramer",
+  title		= "Distributed{-}OMAR:
+		   Reconfiguring a Lisp System as a
+		   Hybrid Lisp/(Java) Component",
+  pages		= "{\unknownItem}--{\unknownItem}",
+  crossref	= "bib:USLUGM-98",
+  note		= "\hrefif{http://www.franz.com/lugm98/proceedings/cramer.pdf}
+		          {\RemoteCopy}"
+}
+
+@InProceedings{bib:Ford-et-al-88,
+  author	= "Steve Ford and John Joseph and
+		   David E. Langworthy and David F. Lively and
+		   Girish Pathak and Edward R. Perez and
+		   Robert W. Peterson and Diana M. Sparacin and
+		   Satish M. Thatte and David L. Wells and
+		   Sanjive Agarwala",
+  title		= "ZEITGEIST: Database Support for
+		   Object{­}Oriented Programming",
+  pages		= "23--42",
+  crossref	= "bib:AOODS-88"
+}
+
+% ------------------------------------------------------------
+% Manual, tech reports
+% ------------------------------------------------------------
+
+% To do:
+% - Either make year and date a TeX macro,
+%   or add curent edition and date to edition = "..."
+% - \file{} macro which typesets in \texttt{} and does
+%   hyphenation at (at) character, slash and dot
+
+@Manual{bib:Brown-92,
+  author	= "A. L. Brown",
+  title		= "Stable Heap manual pages",
+  year		= 1992,
+  month		= may,
+  day		= 25,
+  note		= infile # "\texttt{file:postore/man/stable\us{}heap.3p}"
+}
+
+@Manual{bib:Harlequin-94,
+  key		= "Harlequin",
+  editor	= "{The Harlequin Group Ltd.}",
+  title		= "LispWorks Reference Manual",
+  edition	= "3.2, revision 7",
+  year		= 1994,
+  note		= "part number LW327RM"
+}
+
+@Manual{bib:Harlequin-97,
+  key		= "Harlequin",
+  editor	= "{The Harlequin Group Ltd.}",
+  title		= "LispWorks User Guide",
+  edition	= "4.0.1",
+  year		= 1997,
+  note		= "Part number LW-4.0.1-UG (HTML files)"
+}
+
+@TechReport{bib:Kirschke-95a,
+  author        = "Heiko Kirschke",
+  title         = "Persistenz in der objekt-orientierten
+		   Programmiersprache CLOS am Beispiel
+		   des PLOB Systems",
+  institution   = FBI,
+  address       = "Hamburg",
+  year          = 1995,
+  number	= "FBI-HH-B-179/95"
+}
+
+@TechReport{bib:Kirschke-95b,
+  author        = "Heiko Kirschke",
+  title         = "Persistency in a Dynamic
+		   Object{-}Oriented Programming Language",
+  institution   = FBI,
+  address       = "Hamburg",
+  year          = 1995,
+  month		= aug,
+  note		= "\hrefif{file:labstract.pdf} {\LocalCopy}" # 
+		  "\ifhref{,\ }{}" #
+		  "\urlif{http://www.lisp.de/software/plob/labstract.pdf} {\remoteCopy}"
+}
+
+@TechReport{bib:Kirschke-99,
+  author        = "Heiko Kirschke",
+  title         = "Implementing Persistency in Common LISP",
+  institution   = "European LISP User Conference",
+  address       = "Amsterdam",
+  year          = 1999,
+  month		= may,
+  note		= "\hrefif{file:plobelugm99.pdf} {\LocalCopy}" # 
+		  "\ifhref{,\ }{}" #
+		  "\urlif{http://www.lisp.de/software/plob/plobelugm99.pdf} {\remoteCopy}"
+}
+
+@Manual{bib:LispDoc-Manual,
+  key		= "LispDoc Manual",
+  author	= "Heiko Kirschke",
+  title		= "LispDoc Manual",
+  year		= 1994,
+  note		= "\hrefif{file:ldocman.pdf} {\LocalCopy}" #
+		  "\ifhref{,\ }{}" #
+		  "\urlif{http://www.lisp.de/software/plob/ldocman.pdf} {\remoteCopy}"
+}
+
+@TechReport{bib:Paepke-91,
+  author	= "Andreas Paepke",
+  title		= "PCLOS Reference Manual",
+  institution   = "HP Laboratories",
+  address       = "Palo Alto, CA.",
+  year		= 1991
+}
+
+@Manual{bib:PLOB-install,
+  key		= "Installation Guide",
+  author	= "Heiko Kirschke",
+  title		= "Persistent LISP Objects:
+		   Installation Guide",
+  year		= 1997,
+  month		= nov,
+  note		= "\hrefif{file:install.pdf} {\LocalCopy}" #
+		  "\ifhref{,\ }{}" #
+		  "\urlif{http://www.lisp.de/software/plob/install.pdf} {\remoteCopy}"
+}
+
+@Manual{bib:PLOB-internals,
+  key		= "Internal Manual",
+  author	= "Heiko Kirschke",
+  title		= "Persistent LISP Objects:
+		   Internal Interface Reference Manual",
+  year		= 1997,
+  month		= nov,
+  note		= "\hrefif{file:iref} {\LocalCopy}" #
+		  "\ifhref{,\ }{}" #
+		  "\urlif{http://www.lisp.de/software/plob/iref.pdf} {\remoteCopy}"
+}
+
+@Manual{bib:PLOB-manual,
+  key		= "API Manual",
+  author	= "Heiko Kirschke",
+  title		= "Persistent LISP Objects:
+		   Application Interface Reference Manual",
+  year		= 1997,
+  month		= nov,
+  note		= "\hrefif{file:eref} {\LocalCopy}" #
+		  "\ifhref{,\ }{}" #
+		  "\urlif{http://www.lisp.de/software/plob/eref.pdf} {\remoteCopy}"
+}
+
+@Manual{bib:PLOB-UsersGuide,
+  key		= "User's Guide",
+  author	= "Heiko Kirschke",
+  title		= "Persistent LISP Objects User's Guide",
+  year		= 1997,
+  month		= nov,
+  note		= "\hrefif{file:userg.pdf} {\LocalCopy}" #
+		  "\ifhref{,\ }{}" #
+		  "\urlif{http://www.lisp.de/software/plob/userg.pdf} {\remoteCopy}"
+}
+
+@Manual{bib:PLOB-UsersGuide-remote,
+  author	= "Heiko Kirschke",
+  title		= "Persistent LISP Objects User's Guide",
+  year		= 1997,
+  month		= nov,
+  note		= "\urlif{http://www.lisp.de/software/plob/userg.pdf} {\RemoteCopy}"
+}
+
+@Manual{bib:Wood-93,
+  key		= "Wood",
+  author	= "Bill St. Clair",
+  title		= "Wood (William's Object Oriented Database)",
+  year		= 1993,
+  note		= "\urlif{ftp://cambridge.apple.com/pub/MCL2/contrib/example.lisp} {\RemoteCopy}"
+}
+
+% ------------------------------------------------------------
+% Thesis
+% ------------------------------------------------------------
+@MastersThesis{bib:Mueller-91,
+  author	= "Rainer {M\"{u}ller}",
+  title		= "Sprachprozessoren und Objektspeicher:
+		   Schnittstellenentwurf und -implementierung",
+  school	= FBI,
+  year		= 1991
+}
+
+@MastersThesis{bib:Kirschke-94a,
+  author	= "Heiko Kirschke",
+  title		= "Persistenz in objekt-orientierten
+		   Programmiersprachen am Beispiel von CLOS",
+  school	= FBI,
+  year		= 1994,
+  month		= oct
+}
+
+% ------------------------------------------------------------
+% Proceedings
+% ------------------------------------------------------------
+@proceedings{Anonymous:1990:ASI,
+  editor = {Anonymous},
+  booktitle = {1990 ACM SIGMOD International Conference on Management
+                 of Data},
+  title = {1990 {ACM} {SIGMOD} International Conference on
+                 Management of Data},
+  volume = {19(2)},
+  pages = {387},
+  month = {June},
+  publisher = {ACM Press},
+  address = {New York, NY 10036, USA},
+  year = {1990},
+  coden = {SRECD8},
+  issn = {0163-5808},
+  bibdate = {Mon Dec 9 15:51:41 MST 1996},
+  series = {SIGMOD Record (ACM Special Interest Group
+                                  on Management of Data)},
+  acknowledgement = {Nelson H. F. Beebe,
+                    Center for Scientific Computing,
+                    Department of Mathematics,
+                    University of Utah,
+                    Salt Lake City, UT 84112, USA,
+                    Tel: +1 801 581 5254,
+                    FAX: +1 801 581 4148,
+                    e-mail: \path|beebe@math.utah.edu|,
+                    URL: \path|http://www.math.utah.edu/~beebe/|},
+  classification = {C6160 (Database management systems (DBMS)); C6180
+                 (User interfaces); C4250 (Database theory)},
+  confdate = {23--25 May 1990},
+  conflocation = {Atlantic City, NJ, USA},
+  confsponsor = {Hewlett-Packard; Microelectronic and Comput. Technol.
+                 Corp.; Mitsubishi},
+  keywords = {User interfaces; Recursive query processing; Theory;
+                 Database design theory; Logic parallelism; Concurrency
+                 control; Languages; Models; Transaction management;
+                 Rule processing systems; Joins; Spatial access methods;
+                 Access methods},
+  thesaurus = {Concurrency control; Database management systems;
+                 Database theory; Transaction processing; User
+                 interfaces},
+}
+
+@Proceedings{bib:AOODS-88,
+  editor	= "K. R. Dittrich",
+  title		= "Advances in Object{­}Oriented Database Systems",
+  booktitle	= "Advances in Object{­}Oriented Database Systems",
+  publisher	= "Springer-Verlag",
+  address	= "Berlin",
+  conflocation	= "Bad M{\"{u}}nster am Stein-Ebernburg",
+  year		= 1988
+}
+% ------------------------------------------------------------
+% Book
+% ------------------------------------------------------------
+@Book{ANSI:1996:ANSa,
+  author =       "{American National Standards Institute} and
+                  {Information Technology Industry Council}",
+  title =        "{American National Standard} for information
+                  technology: programming language --- {Common LISP}:
+                  {ANSI X3.226-1994}",
+  publisher =    pub-ANSI,
+  address =      pub-ANSI:adr,
+  pages =        "various",
+  year =         "1996",
+  bibdate =      "Mon Feb 24 15:49:20 MST 1997",
+  acknowledgement = ack-nhfb,
+  annote =       "Approved December 8, 1994.",
+  keywords =     "COMMON LISP (Computer program language) ---
+                  Standards"
+}
+
+@Book{bib:AMOP,
+  key           = "AMOP",
+  author        = "Gregor Kiczales and Jim des Rivi\`{e}res and
+                   Daniel G. Bobrow",
+  title         = "The Art of the Metaobject Protocol",
+  booktitle     = "The Art of the Metaobject Protocol",
+  publisher     = MITPRESS+,
+  year          = 1991
+}
+
+@Book{bib:Bancilhon-et-al-92,
+  editor	= "Fran\c{c}oise Bancilhon and Claude Delobel and
+		   Paris Kanellakis",
+  title		= "Building an Object{-}Oriented Database System",
+  booktitle	= "Building an Object{-}Oriented Database System",
+  publisher	= MORGANKAUFMANN-NEW+,
+  year		= 1992
+}
+
+@Book{bib:CLtLII,
+  key           = "CLtLII",
+  author        = "Guy L. {Steele Jr.}",
+  title         = "Common LISP the Language",
+  booktitle     = "Common LISP the Language",
+  edition       = 2,
+  publisher     = DIGITALPRESS+,
+  year          = 1990
+}
+
+@Book{bib:Gamma-et-al-94,
+  author	= "Erich Gamma and Richard Helm and
+                   Ralph Johnson and John Vlissides",
+  title		= "Design Patterns:
+                   Elements of Reusable Object{-}Oriented Software",
+  booktitle	= "Design Patterns:
+                   Elements of Reusable Object{-}Oriented Software",
+  publisher	= ADDISON+,
+  year		= 1994
+}
+
+@Book{bib:Gray-et-al-93,
+  author	= "Jim Gray and Andreas Reuter",
+  title		= "Transaction Processing:
+		   Concepts and Techniques",
+  booktitle	= "Transaction Processing:
+		   Concepts and Techniques",
+  publisher	= MORGANKAUFMANN-NEW2+,
+  year		= 1993
+}
+
+@Book{bib:Knuth-73c,
+  author        = "Donald E. Knuth",
+  title         = "The Art of Computer Programming",
+  booktitle     = "The Art of Computer Programming",
+  volume	= "3: Sorting and Searching",
+  publisher     = ADDISON+,
+  year          = 1973
+}
+
+@Book{bib:ODMG-2,
+  key           = "ODMG-2",
+  editor        = "R. G. G. Cattell and Douglas K. Barry",
+  title         = "The Object Database Standard: ODMG 2.0",
+  booktitle     = "The Object Database Standard: ODMG 2.0",
+  publisher	= MORGANKAUFMANN-NEW2+,
+  year		= 1997
+}
+
+@Book{bib:ONeil-94,
+  author        = "Patrick O'Neil",
+  title         = "Database Principles, Programming, Performance",
+  booktitle	= "Database Principles, Programming, Performance",
+  publisher	= MORGANKAUFMANN-NEW2+,
+  year		= 1994
+}
+% ------------------------------------------------------------
+% Proceedings
+% ------------------------------------------------------------
+
+@Proceedings{bib:ACM-SIGMOD-90,
+  key		= "ACM SIGMOD",
+  editor	= "Hector Garcia-Molina and H. V. Jagadish",
+  title		= "Proceedings of the 1990 ACM SIGMOD
+		   International Conference on Management of Data",
+  booktitle	= "Proceedings of the 1990 ACM SIGMOD
+		   International Conference on Management of Data",
+  address	= "Atlantic City, NJ",
+  year		= 1990,
+  month		= jun,
+  volume	= "\textbf{19} (2)"
+}
+
+@Proceedings{bib:USLUGM-98,
+  key		= "USLUGM 98",
+  editor	= "{\unknownItem}",
+  title		= "USLUGM 98",
+  booktitle	= "USLUGM 98",
+  year		= 1998,
+  month		= nov,
+  address	= "Berkely, CA",
+  publisher	= "{\unknownItem}"
+}
+@Proceedings{bib:VLDB-96,
+  key		= "VLDB",
+  editor	= "T. M. Vijayaraman and Alejandro P. Buchmann and
+		   C. Mohan and Nandlal L. Sarda",
+  title		= "VLDB'96, Proceedings of 22th International
+		   Conference on Very Large Data Bases",
+  booktitle	= "VLDB'96, Proceedings of 22th International
+		   Conference on Very Large Data Bases",
+  year		= 1996,
+  month		= sep,
+  address	= "Mumbai (Bombay), India",
+  publisher	= MORGANKAUFMANN-NEW2+,
+  isbn		= "ISBN 1-55860-382-4"
+}
