@@ -1,0 +1,248 @@
+#!/bin/sh
+# 28.09.1993 Heiko Kirschke, Fachbereich Informatik, Uni Hamburg
+# e-mail: kirschke@informatik.uni-hamburg.de
+
+# Wandelt eine (einseitige) .dvi- oder PostScript-Datei in eine
+# EPS-Datei um; eine .dvi-Datei darf PostScript-Fonts a la dvips
+# benutzen.
+
+# Konstanten:
+szScript='dviteps'
+szBlanks='       '
+nPID="$$"; export nPID
+
+set +e
+# set -vx
+
+case "`uname`" in
+*NT*)	TMP="`echo \"${TMP}\"|sed 's:\\\\:/:g'`";;
+esac
+
+# ----------------------------------------------------------------------
+# Funktion	fnRmPsHeader
+# Argumente	$*	PostScript-Datei(en), deren Header entfernt
+#			werden soll.
+# Beschreibung	Entfernt von einer PostScript-Datei den Header.
+# ----------------------------------------------------------------------
+fnRmPsHeader () {
+  sed -n '
+/^%[!%]/ b
+/^(TeXPS/ b
+/^$/ b
+:cp
+  p
+  n
+  b cp' $*
+} # fnRmPsHeader
+
+# ----------------------------------------------------------------------
+# Funktion	fnDviToEps
+# Argumente	$1	Datei, die in EPS umgewandelt wird
+#		$2	Flag, ob die von dvips includeten Dateien aus
+#			der PostScript-Datei entfernt werden sollen;
+#			Wert ist 'false' oder 'true'
+#		$3	Verbous-Flag, entweder 'false' oder 'true'
+#		$4	dvips-Flags
+# Beschreibung	Wandelt eine .dvi- oder PostScript-Datei in eine
+#		EPS-Datei um. Das Ergebnis wird nach stdout
+#		geschrieben.
+# ----------------------------------------------------------------------
+fnDviToEps () {(
+  # Argumente sichern:
+  szSourceFile="$1"
+  bRemoveIncludes="$2"
+  bVerbous="$3"
+  fFlags="$4"
+
+  nStatus=0
+
+  # Traps
+  trap "rm -f ${TMP:-/tmp}/${nPID}_dteps.*; exit 15" 1 2
+
+  if [ -z "`sed -n '1,2 s/^%!.*$/t/p
+		    3 q' <${szSourceFile}`" ]; then
+
+    # szSourceFile enthaelt in Zeile 1 bis 2 kein '%!' und ist demnach
+    # keine PostScript-Datei:
+    szPsFile="${TMP:-/tmp}/${nPID}_dteps.t1"
+    # .dvi -> .ps mit 'dvtps ...'. Diese Datei ist das
+    # 'eigentliche' EPSF und wird hinter den (korrigierten) Header
+    # gesetzt:
+    szCmdLine="dvips -o ${szPsFile} ${fFlags} ${szSourceFile}"
+    if ${bVerbous}; then
+      echo "${szCmdLine}" 1>&2
+    fi
+    ${szCmdLine}
+    nStatus="$?"
+
+  else
+
+    # szSourceFile beginnt mit '%!' und ist demnach eine
+    # PostScript-Datei:
+    szPsFile="${szSourceFile}"
+
+  fi
+
+  if [ ${nStatus} -eq 0 ]; then
+
+    fnRmPsHeader <${szPsFile} >${TMP:-/tmp}/${nPID}_dteps.t2
+    rm -f ${TMP:-/tmp}/${nPID}_dteps.t1
+
+    # Das Skript getbb ermittelt die BoundingBox
+    # der (mit dvips erzeugten) PostScript-Datei und schreibt die
+    # BoundingBox nach ${outfile}:
+    outfile="${TMP:-/tmp}/${nPID}_dteps.bb"
+    getbb -o "${outfile}" ${TMP:-/tmp}/${nPID}_dteps.t2
+    
+    if [ -s "${outfile}" ]; then :; else
+      # Es dauert ziemlich lange, bis gs bei einem Fehler
+      # zurueckkommt, da gs freundlicherweise bei einem Fehler noch
+      # einen Riesen-Dump rausschreibt (der mich aber gar nicht
+      # interessiert ...)
+      echo "${szScript}: E05: Error at computing BoundingBox" \
+"of `basename ${szSourceFile}`.
+${szScript}: E05: Please check if ${szSourceFile} is
+${szBlanks}       already an Encapsulated PostScript file." 1>&2
+      exit 5
+    fi
+
+    if ${bVerbous}; then
+      echo "${szScript}: I02: `basename ${szSourceFile}` has" \
+      "`cat ${outfile}`" 1>&2
+    fi
+
+    # PostScript-Header echoen:
+    echo "%!PS-Adobe-2.0 EPSF-2.0
+%%Creator: ${LOGNAME} at `hostname`
+%%Title: `basename ${szSourceFile}`
+%%CreationDate: `date +'%a %h %d %T 19%y'`
+`cat ${outfile}` 
+%%EndComments"
+
+    # PostScript-Datei anfuegen:
+    if ${bRemoveIncludes}; then
+      szStartIncludePattern='^%%BeginProcSet: *'
+      szStopIncludePattern='^%%EndProcSet'
+      sed -n "s/${szStartIncludePattern}\(.*\)/% ${szScript}: \1/p" \
+        <${TMP:-/tmp}/${nPID}_dteps.t2 >${TMP:-/tmp}/${nPID}_dteps.t3
+      if [ -s ${TMP:-/tmp}/${nPID}_dteps.t3 ]; then
+        echo "%
+% ${szScript}: WARNING: Files included by dvips have been removed by
+% ${szBlanks}  ${szScript} for efficency reasons.
+% ${szBlanks}  Please make sure that the enclosing PostScript file
+% ${szBlanks}  includes the files deleted here; it are:"
+	cat ${TMP:-/tmp}/${nPID}_dteps.t3
+	echo '%'
+      fi
+      sed -n "/${szStartIncludePattern}/"' {
+  p
+  i\
+'"% ${szScript}"': Deleted including file
+  b skip
+}
+p
+b
+:skip
+/'"${szStopIncludePattern}"'/ {
+  p
+  b
+}
+n
+b skip' <${TMP:-/tmp}/${nPID}_dteps.t2
+    else
+      cat ${TMP:-/tmp}/${nPID}_dteps.t2
+    fi
+  elif ${bVerbous}; then
+    echo "${szScript}: W02: dvips ended with error code ${nStatus}." 1>&2
+  fi
+
+  rm -f ${TMP:-/tmp}/${nPID}_dteps.*
+
+  return ${nStatus}
+)} # fnDviToEps
+
+# ----------------------------------------------------------------------
+# Mainline
+# ----------------------------------------------------------------------
+if [ $# -eq 0 ]; then
+  echo "\
+Usage: ${szScript} [-F <dvi to ps converter flags>] [-o <.eps file>|-|--]
+       ${szBlanks} [-s] [-v] <.dvi or PostScript file>
+Description:
+    Generates an Encapsulated PostScript File from passed .dvi or
+    PostScript file.
+Options:
+    -F  Pass argument options to dvi-to-PostScript converter
+        (this is dvips for now).
+    -o	Specifies the output file; '-' and '--' mean writing to
+	stdout. If no <.eps file> is given, the extension of
+	<.dvi or PostScript file> is replaced by .eps and used as
+	<.eps file>.
+    -s	Generate a 'short' EPS file; all files included by dvips will
+	be removed. THIS IMPLIES THAT THE ENCLOSING POSTSCRIPT FILE
+	HAS TO BE GENERATED BY DVIPS OR THAT THE DVIPS INCLUDE FILES
+	ARE SOMEHOW PREPENDED TO THE ENCLOSING POSTSCRIPT FILE.
+    -v	Verbous flag: show some information during processing." 1>&2
+  exit 1
+fi
+
+unset szSourceFile szEpsFile fFlags
+bVerbous='false'
+bRemoveIncludes='false'
+while [ $# -gt 0 ]; do
+  case "$1" in
+  '-F')		fFlags="$2"; shift;;
+  '+F')		unset fFlags;;
+  '-o')		szEpsFile="$2"; shift;;
+  '+o')		unset szEpsFile;;
+  '-s')		bRemoveIncludes='true';;
+  '+s')		bRemoveIncludes='false';;
+  '-v')		bVerbous='true';;
+  '+v')		bVerbous='false';;
+  '-'*|'+'*)	echo "${szScript}: W01: Ignoring unknown option '$1'" 1>&2;;
+  *)		szSourceFile="$1"; break;;
+  esac
+  shift
+done
+if [ -z "${szSourceFile}" ]; then
+  echo "${szScript}: E03: Missing name of .dvi or PostScript file" 1>&2
+  exit 3
+fi
+if [ ! -r "${szSourceFile}" ]; then
+  echo "${szScript}: E04: Can't read file ${szSourceFile}" 1>&2
+  exit 4
+fi
+if [ -z "${szEpsFile}" ]; then
+  # Ersetze letzte Extension von szSourceFile durch '' (leer) und fuege
+  # '.eps' an:
+  szEpsFile="`echo ${szSourceFile}|sed 's/\.[^./]*$//'`.eps"
+  if [ "${szSourceFile}" = "${szEpsFile}" ]; then
+    szEpsFile="${szEpsFile}i"
+  fi
+  if ${bVerbous}; then
+    echo "${szScript}: I01: Generated ${szEpsFile} as name of EPS file." 1>&2
+  fi
+fi
+
+case "${szEpsFile}" in
+''|'-'|'--')	if ${bVerbous}; then
+		  echo "${szScript}: I02: Writing EPS file to stdout." 1>&2
+		fi
+		fnDviToEps ${szSourceFile} ${bRemoveIncludes} \
+		${bVerbous} "${fFlags}";;
+*)		if [ ! -s "${szEpsFile}" ]; then
+		  ( :> ${szEpsFile}; ) > /dev/null 2>&1
+		fi
+		if [ ! -f "${szEpsFile}" -o ! -w "${szEpsFile}" ]; then
+		  echo "${szScript}: E04: Can't write to file" \
+		       "${szEpsFile}." 1>&2
+		  exit 4
+		fi
+		fnDviToEps ${szSourceFile} ${bRemoveIncludes} \
+			   ${bVerbous} "${fFlags}" >${szEpsFile};;
+esac
+exit 0
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

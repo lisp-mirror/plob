@@ -1,0 +1,124 @@
+#!/bin/sh
+# (C) 1996/02/13 Heiko Kirschke, University of Hamburg.
+#		 kirschke@informatik.uni-hamburg.de
+# Partly derived from /opt/gnu/bin/ps2epsi
+
+# --------------------------------------------------------------------
+# Global constants
+# --------------------------------------------------------------------
+
+szScript='getbb'
+szBlanks='     '
+
+unset outfile OUTFILE
+
+# --------------------------------------------------------------------
+# Global variables
+# --------------------------------------------------------------------
+
+case "`uname`" in
+*NT*)	gsroot='c:/opt/gstools/gs5.50'
+	dirlistsep=';'
+	if [ -z "${GS}" ]; then
+	  GS="${gsroot}/gswin32c"; export GS
+	fi
+	GS_FONTPATH="${gsroot}/fonts/"; export GS_FONTPATH
+	GS_LIB="${gsroot}${dirlistsep}${GS_FONTPATH}"; export GS_LIB
+        Bash2Dosname='fnBash2Dosname'
+	TMP="`echo \"${TMP}\"|sed 's:\\\\:/:g'`";;
+*)	dirlistsep=';'
+	if [ -z "${GS}" ]; then
+	  GS='gs'; export GS
+	fi
+        Bash2Dosname='cat';;
+esac
+
+# --------------------------------------------------------------------
+# Help text
+# --------------------------------------------------------------------
+fnHelp () {
+  echo "
+Usage:
+  ${szScript} [-h] [-o <output file>] [-pages] [-preview]
+  ${szBlanks} [-v] [--] [<PostScript file>]
+Options:
+  -h		Show this help text
+  -o		Write output to <output file>, otherwise stdout
+  -pages	Add number of pages to output
+  -preview	Add preview bitmap to output
+  -v		Verbose mode
+  If no <PostScript file> is given, stdin is read
+Purpose:
+  Find the BoundingBox of a PostScript file.
+" 1>&2
+}
+
+# --------------------------------------------------------------------
+# Functions
+# --------------------------------------------------------------------
+fnBash2Dosname ()
+{
+  if [ $# -gt 0 ]; then
+    echo "$1"|sed -e 's|//\([a-zA-Z]\)|\1:|'
+  else
+    sed 's|//\([a-zA-Z]\)|\1:|'
+  fi
+}
+
+fnGetBB ()
+{(
+  bVerbose="$1"
+  if [ -n "${GS_LIB}" ]; then
+    GS_LIB="${GS_LIB}${dirlistsep}${PATH}"
+  else
+    GS_LIB="${PATH}"; export GS_LIB
+  fi
+  unset szCmd
+  szGetBBps=`fsearch "${GS_LIB}" getbb.ps|${Bash2Dosname}`
+  if [ -z "${szGetBBps}" ]; then
+    echo "${szScript}: Can't locate getbb.ps" 1>&2
+  else
+    if [ -z "${outfile}" ]; then
+      OUTFILE="${TMP:-/tmp}/${szScript}$$.ps"; export OUTFILE
+      outfile="${OUTFILE}"; export outfile
+      szCmd="cat ${outfile}; rm -f ${outfile}"
+      trap "rm -f ${outfile}" 1 2 15
+    fi
+    ${GS} -dNOPAUSE -q -r72 -sDEVICE=bit -sOutputFile=/dev/null ${szGetBBps} 1>&2
+    eval ${szCmd}
+  fi
+)} # fnGetBB
+
+# --------------------------------------------------------------------
+# Option handling
+# --------------------------------------------------------------------
+bVerbose='false'
+
+unset outfile pages preview
+while [ "$#" -gt '0' ]; do
+  case "$1" in
+  '-h')		fnHelp; exit 1;;
+  '-o')		outfile="$2"; export outfile; shift;;
+  '+o')		unset outfile;;
+  '-pages')	pages='t'; export pages;;
+  '+pages')	unset pages;;
+  '-preview')	preview='t'; export preview;;
+  '+preview')	unset preview;;
+  '--')		shift; break;;
+  '-v')		bVerbose='true';;
+  '+v')		bVerbose='false';;
+  '-'*|'+'*)	echo "${szScript}: Ignoring unknown option '$1'" 1>&2;;
+  *)		break;;
+  esac
+  shift
+done
+
+if [ $# -eq 0 ]; then
+  fnGetBB "${bVerbose}"
+else
+  cat $* | fnGetBB "${bVerbose}"
+fi
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:

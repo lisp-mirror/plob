@@ -1,0 +1,95 @@
+#!/bin/sh
+# ---------------------------------------------------------------------
+# Script	mk
+# Date/author	1998/03/13 HK Heiko.Kirschke@poet.de
+# Purpose	Call make with appropriate arguments
+# ---------------------------------------------------------------------
+
+# set -vx
+
+# Constants:
+szScript='mk'
+
+# Guess operating system name from uname:
+
+szDefaultUname="`( uname ) 2>/dev/null|sed 's/[^a-zA-Z]//g'`"
+if [ -z "${szDefaultUname}" -a -n "${COMSPEC}" ]; then
+  szDefaultUname='win32'
+fi
+
+szUname="${szDefaultUname}"
+unset szMakeOpts
+
+case "${szUname}" in
+[iI][rR][iI][xX]*)
+	szopsys='irix';;
+*[lL][iI][nN]*)
+	szopsys='linux';;
+[sS][uU][nN][oO][sS]*)
+	case "`uname -r`" in
+	[01234].*)
+	  szopsys='sunos';;
+	*)
+	  szopsys='solaris';;
+	esac;;
+*[sS][oO][lL]*)
+	szopsys='solaris';;
+*[wW][iI][nN][nN][tT]*|*[wW][iI][nN]32*|*[cC][yY][gG][wW][iI][nN]*)
+	szopsys='win32'
+	szMakeOpts='--unix';;
+*)
+	szopsys=`echo "${szUname}"|sed '
+s/[0-9.].*$//
+y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/'`;;
+esac
+
+if [ -d conf ]; then
+  szRelPlobDir=.
+elif [ -d ../conf ]; then
+  szRelPlobDir=..
+elif [ -d ../../conf ]; then
+  szRelPlobDir=../..
+else
+  echo "${szScript}: Could not locate PLOB installation directory." 1>&2
+  exit 1
+fi
+
+PATH="${szRelPlobDir}/bin:${PATH}"; export PATH
+SHELL='/bin/sh'; export SHELL
+szConfDir="${szRelPlobDir}/conf"
+szConfFile="${szConfDir}/${szopsys}/make.vars.in"
+
+if [ ! -d "${szopsys}" ]; then
+  mkdir ${szopsys}
+fi
+
+if [ ! -r "${szopsys}/makefile" -a -r "makefile.in" ]; then
+  # Try to make the makefile
+  szCPP="`sed -n '/^[	 ]*[a-zA-Z_][a-zA-Z_0-9]*[	 ]*=/ p
+$ i\\
+echo-CPP:\\
+	@echo \"@@aa@@$(CPP)@@zz@@\"
+' ${szConfFile}|make ${szMakeOpts} -f - echo-CPP|sed -n '
+/@@aa@@/ {
+  s/^.*@@aa@@//
+  s/@@zz@@.*$//
+  p
+  q
+}'`"
+  szCmd="plobimake -CPP '${szCPP}' -I ${szConfDir}/${szopsys} -o ${szopsys}/makefile makefile.in"
+  echo "${szCmd}"
+  sh -c "${szCmd}"
+fi
+
+if [ ! -r "${szopsys}/makefile" ]; then
+  echo "${szScript}: Could not locate ${szopsys}/makefile." 1>&2
+  exit 2
+fi
+
+szCmd="make ${szMakeOpts} -f ${szopsys}/makefile $*"
+echo "${szCmd}"
+${szCmd}
+
+# Local variables:
+# buffer-file-coding-system: iso-latin-1-unix
+# End:
