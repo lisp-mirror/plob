@@ -1,0 +1,265 @@
+/* ----------------------------------------------------------------------
+|
+|		PLOB - Persistent Lisp OBjects
+|		       =	  =    ==
+|
+| Script	Makefile
+| Targets		all:
+|		Default target to build the splob.a library
+|			opt:
+|		Builds an optimized version of the splob.a library.
+|			gprof:
+|		Builds a profiled version of the splob.a library.
+|			test:
+|		Builds a stand-alone test program for testing the
+|		PLOB C routines.
+| Description	Makefile for PLOB splob.a C library and
+|		LISP foreign language interface files
+|		Consult the manual for more information.
+|
+| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+|		All rights reserved.
+|
+| Unlimited use, reproduction, modification and distribution of this
+| software is permitted.  Any copy or modified version of this
+| software must include both the above copyright notice of
+| Heiko Kirschke and this paragraph; for each modified version, an
+| additional statement must be added telling the year of modification
+| and quoting the author of the modification.  Any distribution of
+| this software must comply with all applicable German export control
+| laws.  This software is made available AS IS, and HEIKO KIRSCHKE
+| DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT
+| LIMITATION THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+| A PARTICULAR PURPOSE, AND NOTWITHSTANDING ANY OTHER PROVISION
+| CONTAINED HEREIN, ANY LIABILITY FOR DAMAGES RESULTING FROM THE
+| SOFTWARE OR ITS USE IS EXPRESSLY DISCLAIMED, WHETHER ARISING IN
+| CONTRACT, TORT (INCLUDING NEGLIGENCE) OR STRICT LIABILITY, EVEN IF
+| HEIKO KIRSCHKE IS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+|
+| Please note that these license terms adhere only to the code of
+| PLOB!  itself. PLOB! uses POSTORE (Persistent Object Store) as a
+| low-level persistent memory; it is provided in binary form within
+| PLOB! with the permission of the University of St. Andrews
+| (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
+| University of St. Andrews for getting their license terms on
+| POSTORE.
+|
+ ---------------------------------------------------------------------- */
+
+#define	ccLocalOptions	paste5(-,D,BUILDDLL,=,1)
+#define	relPlobDir	ddot slash ddot
+#include		"../../conf/make.rules.in"
+
+/* ----------------------------------------------------------------------
+| Settings for this makefile
+ ---------------------------------------------------------------------- */
+
+/* CFLAGS=$(COPTDEB) -DRPC_SVC_FG */
+/* CFLAGS=$(COPTDEB) $(COPTOPT) -DRPC_SVC_FG */
+/* CFLAGS=$(COPTDEB) */
+CFLAGS=$(COPTDEB) $(COPTOPT)
+
+STDINCLUDE=\
+ $(SRCIDIR) slash fileH(c2c) spc \
+ $(SRCIDIR) slash fileH(global) spc \
+ $(SRCIDIR) slash fileH(hash) spc \
+ $(SRCIDIR) slash fileH(generic) spc \
+ $(SRCIDIR) slash fileH(plobconst) spc \
+ $(SRCIDIR) slash fileH(plobintern) spc \
+ fileH(splob)
+
+HEADERS=trim(PlobFiles($(SRCIDIR) slash,suffixH))
+
+#if HasOpSys == hasWin32
+
+/* No position-independent code for Windows/NT: */
+PICDIR=$(opsys)
+/* No static library for Windows/NT: */
+#define LibraryTarget
+
+LIBLOCALPLOB=trim(fileLib(libloclientplobimp))
+
+#else
+
+PICDIR=$(opsys) slash pic
+#define LibraryTarget $(LIBRARY)
+
+LIBLOCALPLOB=trim(fileDll(libloclientplob))
+
+#endif
+
+OBJECTS=trim(PlobFiles($(opsys) slash s,suffixObj))
+SHAREDOBJECTS=trim(PlobFiles($(PICDIR) slash s,suffixObj))
+
+LIBSERVERPLOB=trim(fileLib(libserverplob))
+
+LIBRARY=$(LIBDIR)/$(LIBSERVERPLOB)
+
+LIBCOMMONPLOB=trim(fileLib(libcommonplob))
+
+LIBPOSTORE=trim(fileLib(libpostore))
+
+SERVEROBJECTS=\
+trim($(opsys) slash fileObj(splobcallb) spc \
+     $(opsys) slash fileObj(plobdsvc) )
+
+SERVERFILES=$(SERVEROBJECTS) spc \
+ ddot slash common slash $(opsys) slash fileObj(plobdxdr) spc \
+ ddot slash common slash $(opsys) slash fileObj(plobpxdr) spc \
+ $(LIBDIR) slash $(LIBCOMMONPLOB) spc \
+ $(LIBRARY) spc \
+ $(LIBDIR) slash $(LIBPOSTORE)
+
+/* ----------------------------------------------------------------------
+| Main targets
+ ---------------------------------------------------------------------- */
+#if HasServer
+drule ( all, \
+	$(opsys) $(PICDIR) spc \
+	rpc spc $(opsys) slash fileH(plobd) spc \
+	$(LIBRARY) spc $(SHAREDOBJECTS) spc \
+	$(BINDIR) slash $(opsys) slash fileExe(plobd), \
+	noActions )
+#else
+drule ( all, \
+	$(SHAREDOBJECTS), \
+	noActions )
+#endif
+
+rule ( gprof, \
+       noDependencies, \
+       @$(MAKE) CFLAGS="$(CFLAGS) -pg" )
+rule ( opt, \
+       noDependencies, \
+       @$(MAKE) CFLAGS="$(CFLAGS) -O" )
+
+/* ----------------------------------------------------------------------
+| Sub targets
+ ---------------------------------------------------------------------- */
+rule ( $(LIBRARY), \
+       $(OBJECTS), \
+       $(AR) $(ARFLAGS) $(OUTPUT_OPTION_LIB) $(OBJECTS) nln \
+       tab $(RANLIB) ruleTarget )
+
+MkCopyRule($(LIBDIR) slash,$(CONFDIR) slash $(opsys) slash,$(LIBPOSTORE))
+
+rule ( rpc, \
+       $(opsys) slash fileC(plobdsvc), \
+       @: )
+
+MkPlobObjects1($(opsys) slash,s)
+MkPlobObjects2($(opsys) slash,s)
+MkPlobObjects3($(opsys) slash,s)
+MkPlobObjects4($(opsys) slash,s)
+
+rule ( $(opsys) slash fileObj(splobcallb), \
+       fileC(splobcallb), \
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) spc fileC(splobcallb) )
+
+rule ( $(opsys) slash fileObj(plobdsvc), \
+       $(opsys) slash fileC(plobdsvc) \
+       $(opsys) slash fileH(plobd), \
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) ccPlobdSvcExtraOptions spc \
+       $(opsys) slash fileC(plobdsvc) )
+
+rule ( plobd dot x, \
+       $(HEADERS), \
+       $(C2RPC) option2(o,ruleTarget) $(HEADERS) )
+
+rule ( $(opsys) slash fileC(plobdsvc), \
+       plobd dot x, \
+       rm option1(f) spc ruleTarget nln \
+       tab $(RPCGEN) $(RPCGENFLAGS) plobd dot x nln \
+       tab rm option1(f) spc fileC(plobd_clnt) nln \
+       tab rm option1(f) spc fileC(plobd_xdr) nln \
+       tab rm option1(f) spc fileH(plobd) nln \
+       tab mv spc fileC(plobd_svc) spc ruleTarget )
+
+rule ( $(opsys) slash fileH(plobd), \
+       plobd dot x, \
+       rm option1(f) spc ruleTarget nln \
+       tab $(RPCGEN) $(RPCGENFLAGS) option1(h) spc \
+	             option2(o,ruleTarget) spc plobd dot x )
+
+MkPlobSharedObjects1(s)
+MkPlobSharedObjects2(s)
+MkPlobSharedObjects3(s)
+MkPlobSharedObjects4(s)
+
+/* ----------------------------------------------------------------------
+| Test program
+ ---------------------------------------------------------------------- */
+drule ( test, \
+	$(opsys) slash fileExe(splobtest), \
+	noActions )
+
+rule ( $(opsys) slash fileObj(splobtest), \
+       ddot slash client slash fileC(cplobtest) spc \
+       ddot slash include slash fileH(plobheap) spc \
+       ddot slash include slash fileH(plobbtree) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) \
+       paste5(-,D,NORPC,=,1) \
+       option1(I dot) spc \
+       option1(I ddot slash server) spc \
+       ddot slash client slash fileC(cplobtest) )
+
+/* ----------------------------------------------------------------------
+| Linking
+ ---------------------------------------------------------------------- */
+
+#if HasOpSys == hasWin32
+
+rule ( $(opsys) slash plobd dot res, \
+       plobd dot rc \
+       mop dash inside dot ico \
+       $(SRCIDIR) slash fileH(plobversion), \
+       rc option1(r) option2(fo,ruleTarget) spc \
+       option1(I$(SRCIDIR)) spc \
+       option1(I$(MSVCPATH) slash mfc slash include) spc \
+       option1(I$(MSVCPATH) slash include plobd dot rc) )
+
+rule ( $(BINDIR) slash $(opsys) slash fileExe(plobd), \
+       $(SERVERFILES) spc $(opsys) slash plobd dot res, \
+       LinkExe($(SERVERFILES) spc $(opsys) slash plobd dot res spc \
+               paste4(-,map,:,$(BINDIR) slash $(opsys) slash plobd dot map)))
+
+rule ( $(opsys) slash fileExe(splobtest), \
+       $(opsys) slash fileObj(splobtest) spc \
+       $(LIBDIR) slash $(LIBLOCALLOB), \
+       LinkExe($(opsys) slash fileObj(splobtest) spc \
+               paste4(-,libpath,:,$(LIBDIR)) spc \
+               paste4(-,map,:,$(opsys) slash splobtest dot map) spc \
+	       $(LIBLOCALPLOB)) )
+
+#else
+
+rule ( $(BINDIR) slash $(opsys) slash fileExe(plobd), \
+       $(SERVERFILES), \
+       LinkExe($(SERVERFILES)))
+
+rule ( $(opsys) slash fileExe(splobtest), \
+       $(opsys) slash fileObj(splobtest) spc \
+       $(LIBDIR) slash $(LIBSERVERPLOB) spc \
+       $(LIBDIR) slash $(LIBCOMMONPLOB) spc \
+       $(LIBDIR) slash $(LIBPOSTORE), \
+       LinkExe($(opsys) slash fileObj(splobtest) option1(L$(LIBDIR)) \
+	       option1(lloclientplob)) )
+
+#endif
+
+/* ----------------------------------------------------------------------
+| Standard targets
+ ---------------------------------------------------------------------- */
+drule ( initial, \
+	$(opsys) $(PICDIR), \
+	noActions )
+drule ( $(STDTARGETS), \
+	noDependencies, \
+	silent $(MAKE) default dash ruleTarget )
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/
