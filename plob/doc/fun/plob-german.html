@@ -1,0 +1,1147 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<html>
+
+<head><title>Persistent Lisp OBjects</title>
+<!-- Changed by: Heiko Kirschke, 13-Mar-1998 -->
+
+</head><body><a name="head"></a>
+
+<meta content="Persistent LISP Objects" name="description">
+<meta content="persistency,persistent
+      object,persistent objects,LISP,persistent LISP,CLOS,persistent
+      CLOS,MOP,Metaobject Protocol,Metaobject
+      Protocols,object-oriented database,object-oriented
+      databases,client-server,self-reflective" name="keywords">
+
+<p>This is a translation of <b>PLOB</b>'s <a
+href="../Welcome.html" target="_parent">english page</a> into german done by <a
+href="http://babelfish.altavista.digital.com/cgi-bin/software.html">AltaVista's
+babelfish</a>.</p>
+
+<table border=0 cellspacing=0 cellpadding=0 width="100%">
+<tr>
+<td>
+<h1>
+<img alt="MOP Inside!" src="http://www.lisp.de/software/plob/mop-inside.gif">
+<font size="6">P</FONT><font size="5">ERSISTENT</font> <font size="6">L</font><font size="5">ISP</font> <font size="6">OB</font><font size="5">JECTS</FONT><font size="6">!</font></h1></a>
+
+Version 2,06 von Juni 26, 1998
+
+<p>durch <a href="#contact">Heiko Kirschke</a></p>
+</td>
+<td>
+<table border=0 cellspacing=0 cellpadding=0 bgcolor="#000000">
+<tr>
+<td>
+<font face="Helvetica, Arial" size=5>
+&amp;nbsp<br>
+&amp;nbsp<br>
+&amp;nbsp<br>
+&amp;nbsp<br>
+&amp;nbsp<br>
+&amp;nbsp<br>
+&amp;nbsp<br>
+&amp;nbsp<br></font>
+</td>
+</tr>
+</table>
+</td>
+<td>
+</td>
+<td>
+<font face="Helvetica, Arial" size=5>
+Was<br>
+<br>
+Sie<br>
+w&uuml;nschen Sie<br>
+zu<br>
+suchen Sie Fehler<br>
+heute?<sup><font size=1>TM</font></sup>
+</font>
+</td>
+</tr>
+</table>
+
+<p></p><hr>
+
+<h2><a name="about">Was ist es ungef&auml;hr?</a></h2>
+
+Das System <b>PLOB!</b> (<b>P</b>ersistent <b>L</b>jects
+<b>ISPS</b>OB<b>!</b>) f&uuml;hrt orthogonale Ausdauer f&uuml;r LISP- und
+CLOS-Nachrichten ein.  Au&szlig;er dem Antrag der reinen Ausdauer, auf der
+einer Seite enth&auml;lt sie wichtige Datenbankeigenschaften wie
+Verhandlungen und sperrt und vereinigende Suche &uuml;ber hartn&auml;ckigen
+Nachrichten.  Auf der anderen Seite
+<b>PLOB!</b> ahmt die
+Eigenschaften des Protokolls Metaobject der CLOS' (REIBEN Sie), soweit
+wie m&ouml;glich, z.B. durch seine eingef&uuml;hrten Selbst-self-describing
+hartn&auml;ckigen Nachrichten und Support f&uuml;r die Kategorie &Auml;nderungen
+nach, die dynamisch zu den hartn&auml;ckigen Nachrichten gef&ouml;rdert werden
+(Schemaentwicklung).
+
+<h3>Transparente Ausdauer</h3>
+
+Ein wichtiges Thema sollte die Schnittstelle zwischen LISP
+und Ausdauer bilden, die zum Benutzer so transparent ist, wie
+m&ouml;glich, ohne Leistungsf&auml;higkeit zu opfern.  <b>PLOB!</b> l&ouml;st beide Probleme:  Indem Sie die possibilites von CLOS'
+einsetzen, REIBEN Sie, die Benutzerschnittstelle zur Ausdauer ist so
+einfach, wie sie sein kann.  Tats&auml;chlich bildet das Verwenden nur
+einiger Anweisungen &uuml;ber LISP-Code F&auml;lle von den CLOS-Kategorien
+hartn&auml;ckig, z.B..
+
+<blockquote><pre>
+CL-USER 3 &gt; (defclassperson () ((Namens:initarg:name <i>:index (Gleichgestelltes des btree:test)</i>))              
+<i>(:metaclass hartn&auml;ckig-metaclass)</i>)
+</pre></blockquote>
+
+erkl&auml;rt eine Kategorie <code>Person</code> mit seinen
+F&auml;llen, die hartn&auml;ckig sind und einem Index f&uuml;r vereinigende Suche
+auf seinem Schlitz-
+<code>Namen</code> (wirklich, wird das
+Kategorie metaobject, das die Kategorie <code>Person</code> selbst darstellt, auch hartn&auml;ckig).  Das Verwenden einiger anderer
+Anweisungen bildet die gew&ouml;hnlichen hartn&auml;ckigen LISP- und
+Strukturnachrichten.  Es ist auch m&ouml;glich, CLOS-Nachrichten
+hartn&auml;ckig zu bilden, die aus der Steuerung des Benutzers z.B. F&auml;lle
+heraus sind, in der die
+<code>defclass, welche</code> die
+Kategorie definieren, nicht vorhanden ist und nicht ge&auml;ndert werden
+kann, wie im Beispiel oben angezeigt worden.  Au&szlig;er dem
+<b>PLOB!</b> hat den Begriff der hartn&auml;ckigen Pakete und der
+hartn&auml;ckigen Symbole f&uuml;r das Binden der hartn&auml;ckigen Nachrichten:
+
+<blockquote><pre>
+CL-USER 4 &gt; (setf #!*aperson * (Bildenfall' Person:name "
+Kirschke "))
+</pre></blockquote>
+
+bindet den hartn&auml;ckigen Fall, der vom Bildenfall-
+<code>Aufruf</code> zum hartn&auml;ckigen Symbol festgelegt wird
+<code>*
+Einperson *</code>.  &Auml;hnlich vor&uuml;bergehenden Paketen und Symbolen,
+kann eine Nachricht zu einem hartn&auml;ckigen Symbol gesprungen werden
+und erh&auml;lt dadurch hartn&auml;ckig und identifyable:
+
+<blockquote><code>
+CL-USER 5
+&gt; (setf #!*azeichenkette * " eine hartn&auml;ckige Zeichenkette. ")
+</CODE><br><em>... verarbeitet irgendwelche Jahre und LISP sp&auml;ter...</em>
+<br><code>
+CL-USER 99 &gt; #!*azeichenkette *
+<br>" eine hartn&auml;ckige Zeichenkette. ",
+</code></blockquote>
+
+<h3>Anwenderarchitektur</h3>
+
+<p><b>PLOB!</b>' s-Architektur ist ein zutreffendes
+client/server-approach und steht durch UNIX ' StandardRPCs in
+Verbindung.  Der Server &uuml;bt einen hartn&auml;ckigen Nachricht Platz aus;
+  ein oder mehr Klienten k&ouml;nnen die hartn&auml;ckigen Nachrichten
+zugreifen, die im hartn&auml;ckigen Nachricht Platz enthalten werden.  Der
+Gemeinschaftszugriff serialized vollst&auml;ndig, da die eingef&uuml;hrten
+Verhandlungen und der Sperrungalgorithmus eine Lokalisierung Stufe von
+3 entsprechend der Definition SQL-92 ergibt.  Der Server ist ein
+UNIXPROZESSBETRIEB auf einer der Maschinen, die weiter unten erwaehnt
+werden;  die Klienten sind die Prozesse, die eins der LISP-Systeme
+laufen lassen, die weiter unten erwaehnt werden (besonders, k&ouml;nnen
+Klienten mit unterschiedlichen LISP-Systemen an einen Server
+gleichzeitig anschlie&szlig;en).  Indem man UNIX ' StandardRPCs verwendet,
+wird heterogene Operation auch unterst&uuml;tzt, d.h. k&ouml;nnen der Server
+und der Klient auf dem unterschiedlichen Funktionieren oder DIE
+LISP-Systeme laufen.  Zugriff zum hartn&auml;ckigen Nachricht Platz kann
+auf einer Prohauptrechnerstufe erlaubt werden oder verweigert werden.
+
+<h3>Leistungsf&auml;higkeit</h3>
+
+Leistungsf&auml;higkeit wird durch die niedrigen Schichten
+gewonnen, die in C eingef&uuml;hrt werden, verbunden mit den hoch
+entwickelten formenden Daten und der Nachricht Behandlung.  Durch das
+Einf&uuml;hren die meisten niedrigen Arten LISP's direkt als niedrigen
+Arten in <b>PLOB!</b>, wird die Anforderung f&uuml;r
+zeitraubende Konvertierungen zwischen vor&uuml;bergehenden
+LISP-Nachrichten und hartn&auml;ckigen den Nachrichten, die innerhalb des
+hartn&auml;ckigen Nachricht Platzes gespeichert werden, zu einem Minimum
+gehalten.  um den Datenaustausch zwischen Klienten und Server zu
+verringern, stellt der Klient Code f&uuml;r Nachricht Preallocation und
+Nachricht das Cachieren zur Verf&uuml;gung.  Eine Referenz von einer
+ansprechenden hartn&auml;ckigen Nachricht auf einer angesprochenen
+hartn&auml;ckigen Nachricht kann als seiend gekennzeichnet werden
+<em>abh&auml;ngig</em>;  wenn ein Klient den Referenten l&auml;dt, wird die
+angesprochene Nachricht innerhalb des gleichen Datenblockes dem
+Klienten, auch &uuml;bermittelt.
+
+<h3>Datenbankeigenschaften</h3>
+
+Ausdauer selbst ist nur H&auml;lfte des Gesch&auml;fts;  au&szlig;er dem
+<b>PLOB!</b> hat viele Datenbankeigenschaften, n&auml;mlich
+Verhandlungen, Verriegelungen und Indexe eingef&uuml;hrt.  Jeder Zugriff
+zu den hartn&auml;ckigen Nachrichten wird in wohlgeformte Verhandlungen,
+irgendeine durch einen ausdr&uuml;cklichen Verhandlungblock eingebettet,
+der durch den Code des Benutzers ge&ouml;ffnet ist:
+
+<blockquote><code> CL-USER 6 &gt;
+(Mitverhandlung ()
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(setf
+#!*azeichenkette * " folgende hartn&auml;ckige Zeichenkette. ")
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</CODE><em> ... Lots
+mehr Codes...</em>
+<code>
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(setf
+#!*bzeichenkette * " zweite Zeichenkette. "))
+</code></blockquote>
+
+oder, wenn der Benutzer nicht einen Verhandlungblock
+spezifizierte, <b>PLOB!</b> umgibt jeden Zugriff durch
+eine Verhandlung innerlich.  **time-out** in d oben genannt Beispiel,
+einbetten d Code in ein Verhandlung versichern da&szlig; entweder all
+&auml;ndern tun zu hartn&auml;ckig Nachricht in d Block werden sein festlegen
+zu d hartn&auml;ckig Nachricht Platz oder, z.B. in d Schachtel von ein
+Fehler an fortfahren d Anweisung in d Block, kein von d &Auml;nderung
+werden sein f&ouml;rdern zu d Datenbank.  Periodische Ver&ouml;ffentlichung
+zwischen gleichzeitigen Verhandlungen wird durch das
+Zweiphasenverhandlungmodell zur Verf&uuml;gung gestellt, das innerhalb
+PLOB <b>angenommen wird!</b>
+
+<p>Die Vorbedingung, damit eine Verhandlung ist wohlgeformt ist,
+da&szlig; jede Nachricht, die innerhalb einer Verhandlung erreicht wird,
+f&uuml;r den Accessor reserviert ist;  dieses wird durch hierarchisches <b>Protokoll</b>Verriegelung PLOB ' s vollendet.
+Verriegelungen k&ouml;nnen auf einer des Stufen Schlitzes, Nachricht
+angefordert werden, oder die vollst&auml;ndige Datenbank mit den Modi
+gelesen worden, schreiben oder Read-only.  Das Seite Sperrung wird
+nicht unterst&uuml;tzt, da dieses kein sinnvoll f&uuml;r die heterogene
+Bev&ouml;lkerung ist, die in einer objektorientierten Datenbank gefunden
+wird.
+
+<p>F&uuml;r Indexe <b>PLOB!</b> hat hartn&auml;ckige btrees,
+die innerlich f&uuml;r verschiedene Tabellen verwendet werden und f&uuml;r den
+Zweck des Benutzers zur Verf&uuml;gung gestellt werden, auch wie im
+Person- Kategorie Beispiel <kbd>bereits</kbd> oben gezeigt.  Es
+ist auch m&ouml;glich, btrees direkt zu verwenden:
+
+<blockquote><pre>
+CL-USER 7 &gt; (mein-btree setf * * (bildenSie:test-'
+Gleichgestelltes))
+</pre></blockquote>
+
+stellt <kbd>* mein-btree *</kbd> auf ein hartn&auml;ckiges
+btree ein.  Die Operationen auf hartn&auml;ckigen btrees sind denen der
+Hash-Tabellen, mit dem Unterschied der Tasten sehr &auml;hnlich, die
+sortiert werden.  (selbstverst&auml;ndlich, werden LISP's-Hash-Tabellen
+auch unterst&uuml;tzt; <b>PLOB!</b> verletzt kein Diagramm
+von Hash-Tabellen zu btrees.),
+
+<p></p><hr>
+
+<h2><a name="requirements">Systemanforderungen f&uuml;r eine successfullanlage</a></h2>
+
+<b>PLOB!</b> wird als shareware in der GNU-&Ouml;ffentlichkeit
+Lizenz ausgedr&uuml;ckt, sehen die Anleitung <a href="#UsersGuide">des Benutzers f&uuml;r</a> Details verteilt.  <b>PLOB!</b> l&auml;uft auf
+folgenden LISP und Betriebssysteme:
+
+<dl>
+<dt><b>LISP-Systeme</b>
+
+<dd>Unterst&uuml;tzt <a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252eharlequin%252eco%252euk%252fproducts%252fads%252flispworks%252flispworks%252ehtml">allgemeine LISP- Version 3,2</a> Harlequin LispWorks und <a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252efranz%252ecom%252fproducts%252funix%252ehtml">allgemeine LISP- Version 4,3</a> und 5,0 Franz Allegro Beta.  F&uuml;r Windows/NT <a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252eharlequin%252eco%252euk%252fproducts%252fads%252flww%252flww4%252ehtml">wird allgemeine
+LISP- Version</a> 4,0,1 Harlequin LispWorks unterst&uuml;tzt.  <a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252efranz%252ecom%252fproducts%252facl%252dnt%252ehtml">Ist allgemeine LISP- Version</a> 4,3,2 Franz Allegro
+f&uuml;r Windows/NT nicht &uuml;berpr&uuml;ft worden.
+
+<dt><b>Betriebssysteme</b>
+
+<dd> Voll geunterst&uuml;tzt Solaris 2.x, IRIX 6.x, Kernversion 2.x
+Linux und Windows/NT 4,0 PlusLispWorks 4,0,1.  F&uuml;r Klient-nur Anlagen
+sehen Sie die Erkl&auml;rungen, die unten gegeben werden.
+
+<dt><b>Systembetriebsmittel ben&ouml;tigten</b>
+
+<dd>Die komplette Anlage nimmt herum 50 MB-Speicherkapazitaet,
+plus den Platz, der durch die hartn&auml;ckigen Nachrichten zugeordnet
+wird, die von PLOB
+<b>ausge&uuml;bt werden</b>.  Die
+Speicheranforderungen f&uuml;r den Klienten sind MB herum 32, der Server
+sollten k&ouml;nnen, mit weniger Speicher zu laufen.</dd>
+
+</dl>
+
+Der Server von <b>PLOB!</b> verwendet das
+POSTORE-Teilsystem, erstellt innerhalb des Bereichs der hartn&auml;ckigen
+Programmiersprache
+ <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252dppg%252edcs%252est%252dand%252eac%252euk%252fInfo%252fNapier88%252ehtml">
+Napier88</a> an der Universit&auml;t von
+Str. Andrews.  Da das copyright auf POSTORE durch die Universit&auml;t von
+Str. Andrews besessen wird, ist eine Server Anlage auf Antrag zu mir <a
+href="mailto:Heiko.Kirschke@poet.de">f&uuml;r</a> andere Betriebssysteme m&ouml;glich.  Eine
+Klient-nur Anlage sollte f&uuml;r andere Betriebssysteme mit der
+Verteilung m&ouml;glich sein, die hier bereitgestellt wird, aber ben&ouml;tigt
+eine Maschine Solaris, IRIX, Linux oder Windows/NT, die den PLOB- <b>Server</b>
+nahe dem Klienten laufen l&auml;&szlig;t.
+
+<p></p><hr>
+
+<h2><a name="download">Software Downloadable und weitere Unterlagen</a></h2>
+
+Alle Unterlagen sind auf englisch wenn nicht anders vermerkt.
+Die PostScript-Dateien werden f&uuml;r den doppelseitigen Druck
+kompiliert, w&auml;hrend die Dateien pdf (beweglicher Dokumentaufbau, <a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252eadobe%252ecom%252fprodindex%252facrobat%252freadstep%252ehtml">sieht Seilt&auml;nzer</a> leser f&uuml;r das Erhalten eines
+Leserprogramms), f&uuml;r den einseitigen Druck kompiliert werden.  Die
+pdf-Dateien sind hyperlinked mit einander und k&ouml;nnen gut gelesen
+werden, indem sie die Installation <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252finstall%252epdf">Anleitung,</a>die
+Anleitung <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fuserg%252epdf">des Benutzers,</a>die <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252feref%252epdf">Anwendungsprogramm-Schnittstelle Anleitung und</a> die interne <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252firef%252epdf">Schnittstelle Anleitung in</a> ein einzelnes lokales
+Verzeichnis downloaden (Dokumente werden von die meisten f&uuml;r wenig
+Wert bestellt).
+
+<p><b>PLOB!</b> wird als shareware ver&ouml;ffentlicht.  Es gibt
+keine Beschr&auml;nkungen auf dem Verwenden <b>von PLOB!</b>,
+aber, wenn Sie diese Software n&uuml;tzlich finden, tun Sie bitte einen
+Finanzbeitrag.  Sehen Sie die <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fuserg%252epdf">Anleitung des Benutzers</a>, Kapitel `Shareware ', auf Details.
+
+<p>Alle Dateien werden auf einem ftp server <a
+href="ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/">widergespiegelt</a>;  sehen Sie die <a
+href="ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/README">README-</a>
+Datei, die dort f&uuml;r Details gelegen ist.
+
+
+<dl>
+
+<dt><a name="InstallationGuide"></dt><table> <tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table> <td><a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252finstall%252eps%252egz">install.ps.gz</a>, gzipped herum 26 KBS;
+<br><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252finstall%252eps">install.ps</a>, uncompressed herum 56 KBS.<br><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252finstall%252epdf">install.pdf</a>, herum 29 KBS.</td></tr></table>
+
+<dd><b>PLOB!</b> Installation Anleitung mit Tips und
+Anforderungen f&uuml;r das Tun der Anlage.  5 Seiten.
+</dd>
+
+<dt><a name="UsersGuide"><table> <tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table> <td><a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fuserg%252eps%252egz">userg.ps.gz</a>, gzipped herum 243 KBS; <br><a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fuserg%252eps">userg.ps</a>, uncompressed herum 651 KBS.<br><a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fuserg%252epdf">userg.pdf</a>, herum 614 KBS.</td></tr></table>
+
+<dd><b>PLOB!</b> Anleitung Des Benutzers.  85 Seiten.
+</dd>
+
+<dt><a name="manual"><table><tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table>
+<td><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252feref%252eps%252egz">eref.ps.gz</a>, gzipped herum 170 KBS;
+<br> <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252feref%252eps">eref.ps</a>, uncompressed herum 600 KBS.
+<br><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252feref%252epdf">eref.pdf</a>, herum 796 KBS.</td></tr></table></a>
+
+<dd><b>PLOB!</b> Anwendungsprogramm-Schnittstelle Anleitung.
+144 Seiten.
+</dd>
+
+<dt></dt><table> <tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table>
+<td><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252firef%252eps%252egz">iref.ps.gz</a>, gzipped herum 224 KBS;
+<br> <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252firef%252eps">iref.ps</a>, uncompressed herum 964 KBS.
+<br><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252firef%252epdf">iref.pdf</a>, MB herum 1,3.</td></tr></table></A>
+
+<dd><b>PLOB!</b> Interne Schnittstelle Anleitung.  260 Seiten.
+</dd>
+
+<dt></dt><table> <tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table>
+<td><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252flabstract%252eps%252egz">labstract.ps.gz</a>, gzipped herum 25 KBS; <br><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252flabstract%252eps">labstract.ps</a>, uncompressed herum 80 KBS.</td></tr></table>
+
+<dd>Ein ausgedehnter Auszug auf <b>PLOB!</b>, einige
+seiner Designrationales erkl&auml;rend.  4 Seiten.
+</dd>
+
+<dt></dt><table> <tr><td><table border="4"><tr><td><kbd>ftp</kbd></td></tr></table> <td><a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fplob%252d2%252e06%252etar%252egz">plob-2.06.tar.gz</a>, gzipped MB herum 10; <br>(uncompressed Nehmen plob-2.06.tar um MB 40, also es sind
+nicht hier vorhanden).</td></tr>
+</table>
+
+<dd>Das komplette <b>PLOB!</b> Verteilung der Version
+2,06, einschlie&szlig;lich der Quellen, alle Unterlagen und precompiled
+binaries.
+</dd>
+
+</dl>
+
+<hr>
+
+<h2><a name="bugfixes">Bugfixes f&uuml;r Version 2,06</a></h2>
+
+Aktuell gibt es keine bugfixes f&uuml;r Version 2,06.
+
+ <p>Zwischen 2,05 und 2,06, <b>hat</b>PLOB ' s
+interne API zwischen dem Klienten und dem Server Code ge&auml;ndert.  Dies
+m&uuml;ssen hei&szlig;en f&uuml;r das Schalten von 2,05 bis 2,06, alle Schichten
+ausgenommen die Datenbankschicht den neuen Code 2,06 verwenden;  PLOB
+konnte abbrechen, wenn der 2,06 Klient Code mit einem Server 2,05
+verwendet wird.  So Nehmenobacht f&uuml;r das Verwenden des Codes LISP
+2,06, des 2,06 Klient DLL und des Servers 2,06.  Eine Anlage mit 2,06
+Standards tuend, &uuml;berschreibt den alten bin&auml;ren Server 2,05.  Die
+2,06 Bestandteile k&ouml;nnen, auf Datenbanken pre-2.06 zu arbeiten.
+
+<h2>Bugfixes f&uuml;r Version 2,05</h2>
+
+<h3>Montagevorschriften</h3>
+
+Auf einigen Maschinen hat es die Probleme zum richtig
+Durchf&uuml;hren des Installation Indexes gegeben.  Da ich fand, da&szlig;
+diese Probleme mehr oder weniger ein Resultat der lokalen
+Konfiguration des Hauptrechners sind und folglich stark f&uuml;r mich
+regeln sollen, habe ich eine Beschreibung der Installation Anleitung
+was zu tun hinzugef&uuml;gt, wenn der Installation Index ausf&auml;llt (neues
+Kapitel `Installing <b>PLOB</b>
+manuell ').  F&uuml;r die
+Aktualisierung einer lokalen Anlage, downloaden Sie bitte die <a
+href="#InstallationGuide">Installation Anleitung</a> von neuem.
+
+<h3>Bitvectors in allgemeinem LISP 4,0,1 LispWorks</h3>
+
+Beachten Sie bitte, da&szlig; mit dem LispWorks 4,0,1 f&uuml;r
+Windows-/NTklienten, bitvectors nicht im Augenblick gespeichert werden
+und geladen werden k&ouml;nnen.  Dieses liegt an der neuen
+Fremdspracheschnittstelle, die mit 4,0,1 eingef&uuml;hrt wird;  Harlequin
+ber&uuml;cksichtigt dieses Problem und wird die Schnittstelle ausdehnen.
+
+<h3>Anlage auf Windows/NT</h3>
+
+Im Archiv 2,05 fehlt ein Index f&uuml;r das Tun der Anlage auf
+Windows/NT.  Nachdem Sie und bevor Sie die Anlage beginnen,
+hinzuf&uuml;gen Sie bitte die folgende Datei in plob-2.05/make.bat <kbd>entpackt haben</kbd>:
+
+<blockquote><pre>
+@echo weg von der Attrappe Rem PLOB bilden f&uuml;r Windows/NT
+Rem PLOB (c) Heiko 1994-1998 Kirschke Heiko.Kirschke@poet.de, wenn '
+%1 ' == ' ' gotodoconfig, wenn gotodoconfiggoto ' mit %1 ' ==' Config
+' Echosich attrappe der:doconfig-Bin\makeBin\make-config:err irren,
+f&uuml;r Windows/NT bilden, nur Ziel " Config " unterst&uuml;tzt wird.
+</pre></blockquote>
+
+<h3>Sperrung des Ganzspeichers</h3>
+
+Die Funktionen <kbd>lesen-Verriegelung-speichern</kbd> und
+<kbd>schreiben-Verriegelung-speichern</kbd> haben einen
+Programmfehler, der eine Server Fehlermeldung beim Versuchen, den
+Ganzspeicher zu sperren ergibt.  In
+<kbd>plob-2.05/src/allegro/plob-heap.lisp</kbd>&auml;ndern Sie bitte um
+Funktion der Zeile 2347 <kbd>lesen-Verriegelung-speichern</kbd> :
+
+<blockquote><pre>
+(defun lesen-Verriegelung-speichern (&amp;optional (Phaufen * Den
+Standardwert annehmen-hartn&auml;ckighaufen *)) "... lie&szlig;en Unterlagen
+hier... " aus,  (Null +lock-store-read+ des Lesenverriegelung Phaufens
++null-objid+:nocache +null-type-tag+))
+</pre></blockquote>
+
+In der gleichen Datei &auml;ndern Sie bitte um Funktion der Zeile
+2417
+<kbd>schreiben-Verriegelung-speichern</kbd> :
+
+<blockquote><pre>
+(defun schreiben-Verriegelung-speichern (&amp;optional (Phaufen *
+Den Standardwert annehmen-hartn&auml;ckighaufen *)) "... lie&szlig;en
+Unterlagen hier... " aus,  (Null +lock-store-write+ der Null:nocache
++null-type-tag+ des Schreibenverriegelung Phaufens +null-objid+))
+</pre></blockquote>
+
+<p></p><hr>
+
+<h2><a name="changes">&Auml;nderungen von Version 2,05 bis 2,06</a></h2>
+
+<ul type="disc">
+
+<li> Die btreeschnittstelle ist durchgef&uuml;hrt worden und
+verbessert worden:
+
+<ul type="circle">
+
+<li> Das Diagramm ist jetzt f&uuml;r btreetasten m&ouml;glich, in link-mit
+Seiten versehen oder in recht-mit Seiten versehen ge&ouml;ffnete oder
+geschlossene Abst&auml;nde.
+
+<li> Das Diagramm durch ein btree befestigt kann getanes
+steigendes oder absteigend jetzt sein.
+
+<li> Eine neue Zugriffsmethode ist f&uuml;r btrees hinzugef&uuml;gt
+worden.  Sie ist zu einer Dateischnittstelle silimar, oder zur <em>Cursor-</em> Schnittstelle, die von SQL. Please bekannt
+ist, beraten Sie die Anleitung des Benutzers, Funktionalit&auml;t des
+Kapitels `Database ', btrees des Kapitels `Persistent, Unterabschnitt
+`Cursors auf btrees f&uuml;r Details.
+
+</ul>
+
+<li> Unterst&uuml;tzen Sie f&uuml;r ACL 5,0, der auf Linux Beta ist, ist
+hinzugef&uuml;gt worden.
+
+<li> Schnellere Belegung der dynamischen sortierten Nachrichten
+(Zeichenketten und Vektoren).
+
+<li> Einfacher und (hoffnungsvoll:-)  robusteres
+Installationsverfahren.
+
+</ul>
+
+<h2>&Auml;nderungen von Version 2,04 bis 2,05</h2>
+
+In 2,04 hatte der Installation Index einen Programmfehler,
+diesen ist geregelt worden.  Nach neuen Eigenschaften sind eingef&uuml;hrt
+worden:
+
+<ul type="disc">
+
+<li> Volle Unterst&uuml;tzung f&uuml;r allgemeines LISP 4,0,1 LispWorks
+f&uuml;r Windows-/NTklienten.  In Verbindung mit <b>PLOB</b>'
+kann Server s Windows/NT, das vollst&auml;ndige System auf eine einzelne
+Windows-/NTmaschine laufen.
+
+<li> Verbesserte Pr&uuml;fermethoden f&uuml;r allgemeines LISP LispWorks.
+
+<li> Der Code des Klienten C ist jetzt mehrg&auml;ngiges Gewinde-
+Safe.
+
+<li>Vereinfachte Anlage auf Windows/NT, sehen die <a
+href="#InstallationGuide">Installation Anleitung</a> f&uuml;r Details.</li>
+
+</ul>
+
+<h2>&Auml;nderungen von Version 2,02 bis 2,04</h2>
+
+Die Verteilung 2,02 hatte einige geringe Fehler, der
+defstructf&auml;lle und -hash-Tabellen n&auml;mlich arbeiteten speichern und
+das Laden nicht richtig;  dieses ist geregelt worden.  Au&szlig;er der sind
+diese neuen Eigenschaften eingef&uuml;hrt worden:
+
+<ul type="disc">
+
+<li> Die Beschr&auml;nkung von nur einer ge&ouml;ffneten Datenbank pro
+Server Maschine nicht l&auml;nger existierent.  Jetzt kann ein Server jede
+(angemessene) Zahl der Datenbanken &ouml;ffnen.  Klienten werden noch auf
+eine ge&ouml;ffnete Datenbank hintereinander eingeschr&auml;nkt.
+
+<li> Neue Datenbanken k&ouml;nnen von der Seite des Klienten jetzt
+erstellt werden.
+
+<li> URL-WIE Datenbank sind Namen eingef&uuml;hrt worden.
+
+<li> Die Verteilung enth&auml;lt jetzt ein <b>PLOB!</b> Server, der unter Windows/NT 4,0 l&auml;uft
+
+<li> Verbesserungen auf btrees:  Seite Gr&ouml;&szlig;e kann jetzt
+angefordert werden und eingestellt worden, kann die minimale und
+maximale Taste eines btree jetzt angefordert werden.
+
+<li> Eingebaute Kategorien werden jetzt wie klassifizieren zuerst
+Nachrichten dargestellt.</li>
+
+</ul>
+
+Notiz::  Version 2,03 ist nie eine allgemeine Version aber
+ein privates f&uuml;r meinen Hauptkunden gewesen, also wird sie hier
+ausgelassen.
+
+<p></p><hr>
+
+<h2><a name="performance">Leistungsmessungen</a></h2>
+
+Die Ausr&uuml;stung war ein 200 PC MHZ Pentium-II mit RAM MB 64,
+Standard-cEide Harddisk, Service-Satz 3 des Baus 1381 Windows/NT 4,0.
+  Das benutzte LISP-System war allgemeines LISP 4,01 LispWorks.  Das
+&uuml;berpr&uuml;fte <b>PLOB</b>
+**time-out** Version sein 2,05, mit ein Server laufen auf <kbd>localhost</kbd> (dies Mittel, auf d gleich Maschine wie d LispWorks
+Klient verwenden d Server).  Die Zahlen in der sehr rechten Spalte
+sind Operationen pro Sekunde.  In den Leistungsmessungen wurde Obacht,
+da&szlig; alle Operationen einen realen Datenbankzugriff miteinbezogen, der
+bedeutet, kein Cache wurde verwendet f&uuml;r die Speicherung der resp.
+ladenden Operationen angewendet.
+
+<h3>Reihenfolgen</h3>
+
+<blockquote>
+<table border="4" width="80%">
+
+	<tr>
+	  <th align="right">Jobstep</th>
+	  <th align="left">Code</th>
+	  <th align="left">Beschreibung</th>
+	  <th align="right">Op./s</th>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step1">1&nbsp;</a></td>
+	  <td>
+<kbd>
+(Speichernnachricht<br><!--
+-->&nbsp;&nbsp;(Bildenzeichenkette 32<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;:initial-element<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;# \Space))
+</kbd>
+</td>
+	  <td>
+Speichern Sie Zeichenketten mit einer L&auml;nge von 32 Zeichen.
+</td>
+<td align="right">182&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step2">2&nbsp;</a></td>
+	  <td>
+<kbd>
+(Eingabe-Nachricht <em>&lt; objid &gt;</em>)
+</kbd>
+</td>
+	  <td>
+Laden Sie Zeichenketten mit einer L&auml;nge von 32 Zeichen. <em>&lt; objid &gt;</em>
+spricht eine der hartn&auml;ckigen
+Zeichenketten an, wie festgelegt im letzten Leistungsmessung Jobstep.
+</td>
+	  <td align="right">92&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step3">3&nbsp;</a></td>
+	  <td>
+<kbd>
+(Speichernnachricht<br><!--
+-->&nbsp;&nbsp;(Bildenliste<!--
+-->&nbsp;<em>&lt;
+L&auml;nge &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;:initial-element<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;<em>&lt; fixnum &gt;</em>))
+</kbd>
+</td>
+	  <td>
+Speichern Sie eine lineare Liste mit <em>&lt; L&auml;nge &gt;</em> den Elementen und nur immediates enthalten;  Op./s ist die
+Zahl gespeicherten Liste Elementen pro Sekunde.
+</td>
+	  <td align="right">560&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step4">4&nbsp;</a></td>
+	  <td>
+<kbd>
+(Eingabe-Nachricht <em>&lt; objid &gt;</em>)
+</kbd>
+</td>
+	  <td>
+Laden Sie eine lineare Liste; <em>&lt; objid &gt;</em> spricht eine hartn&auml;ckige lineare Liste an, wie festgelegt in <a href="#step1">Jobstep 1</a>.  Op./s ist die Zahl einprogrammiert Liste
+Elementen pro Sekunde.
+</td>
+<td align="right">414&nbsp;</td>
+</tr></a>
+
+	<tr>
+	  <td align="right"><a name="step5">5&nbsp;</a></td>
+	  <td>
+<kbd>
+(Speichernnachricht<br><!--
+-->&nbsp;&nbsp;(bilden-kleiden Sie<!--
+-->&nbsp;<em>&lt; L&auml;nge &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;:initial-element<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;<em>&lt; Hin- und
+Herbewegung &gt;</em>))
+</kbd>
+</td>
+	  <td>
+Speichern Sie einen einfachen Vektor mit <em>&lt; L&auml;nge &gt;</em> den Elementen und nicht-sofortige &lt; <em>Hin- und
+Herbewegungen &gt; enthalten</em>;  Op./s ist die Zahl gespeicherten
+vektorelementen pro Sekunde.
+</td>
+	  <td align="right">600&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step6">6&nbsp;</a></td>
+	  <td>
+<kbd>
+(Eingabe-Nachricht <em>&lt; objid &gt;</em>)
+</kbd>
+</td>
+	  <td>
+Laden Sie einen einfachen Vektor; <em>&lt; objid &gt;</em> spricht einen hartn&auml;ckigen einfachen Vektor an, wie
+festgelegt in <a href="#step5">Jobstep 5</a>.  Op./s ist die Zahl
+einprogrammiert vektorelementen pro Sekunde.
+</td>
+	  <td align="right">2100&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step7">7&nbsp;</a></td>
+	  <td>
+<kbd>
+(Speichernnachricht<br><!--
+-->&nbsp;&nbsp;(bilden-kleiden Sie<!--
+-->&nbsp;<em>&lt; L&auml;nge &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;:initial-element<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;<em>&lt; fixnum &gt;</em>))
+</kbd>
+</td>
+	  <td>
+Speichern Sie einen einfachen Vektor mit <em>&lt; L&auml;nge &gt;</em> den Elementen und nur immediates enthalten;  Op./s ist die
+Zahl gespeicherten vektorelementen pro Sekunde.
+</td>
+	  <td align="right">14000&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step8">8&nbsp;</a></td>
+	  <td>
+<kbd>
+(Eingabe-Nachricht <em>&lt; objid &gt;</em>)
+</kbd>
+</td>
+<td>
+Laden Sie einen einfachen Vektor; <em>&lt; objid &gt;</em> spricht einen hartn&auml;ckigen einfachen Vektor an, wie
+festgelegt in <a href="#step7">Jobstep 7</a>.  Op./s ist die Zahl
+einprogrammiert vektorelementen pro Sekunde.
+</td>
+	  <td align="right">&nbsp;20895&nbsp;</td>
+	</tr>
+
+      </table>
+</blockquote>
+
+<h3>CLOS-F&auml;lle</h3>
+
+Folgende CLOS-Kategorie ist f&uuml;r die Pr&uuml;fung der
+fest-gesprungenen Ausdauer benutzt worden:
+
+<blockquote><pre>
+(defclassP-Beispiel-closkategorie () (Null:extent:transient)
+Null:extent:cached) Null:extent:cached-write-through)) (:metaclass
+(slot-3:initform (slot-5:initform (slot-7:initform
+hartn&auml;ckig-metaclass))
+</pre></blockquote>
+
+Ein <kbd>:extent</kbd> von <kbd>:transient</kbd> bedeutet, da&szlig; der Schlitz nicht in der Datenbank an allen dargestellt
+wird.  Ein <kbd>:extent</kbd> von
+<kbd>:cached</kbd> bedeutet, da&szlig; der Schlitz in der Datenbank dargestellt wird, aber
+wird nur aktualisiert sein, wenn es explicitely so anfordert.  Ein
+<kbd>:extent</kbd> von <kbd>:cached-write-through</kbd> aktualisiert den Schlitz in der Datenbank jede Zeit, die es zu
+geschrieben wird;  dieses ist der R&uuml;ckstellung Umfang, der von PLOB <b>verwendet wird</b>.
+
+<blockquote>
+<table border="4" width="80%">
+
+	<tr>
+	  <th align="right">Jobstep</th>
+	  <th align="left">Code</th>
+	  <th align="left">Beschreibung</th>
+	  <th align="right">Op./s</th>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step9">9&nbsp;</a></td>
+	  <td>
+<kbd>
+(Bildenfall<br><!--
+-->&nbsp;' P-Beispiel-closkategorie)
+</kbd>
+</td>
+<td>
+Belegung eines hartn&auml;ckigen Falls und der Initialisierung
+ihrer Schlitze entsprechend ihrem resp. <kbd>:initform</kbd>.
+</td>
+	  <td align="right">165&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step10">10&nbsp;</a></td>
+	  <td>
+<kbd>
+(Eingabe-Nachricht <em>&lt; objid &gt;</em>)
+</kbd>
+</td>
+	  <td>
+Eingabe eines hartn&auml;ckigen Falls; <em>&lt; objid &gt;</em> spricht einen hartn&auml;ckigen Fall an, wie festgelegt in <a href="#step9">Jobstep 9</a>.
+</td>
+<td align="right">240&nbsp;</td>
+</tr></a>
+
+	<tr>
+	  <td align="right"><a name="step11">11&nbsp;</a></td>
+	  <td>
+<kbd>
+(setf (Schlitz-Wert <em>&lt; Nachricht &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' slot-3)<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em>&lt; fixnum &gt;</em>)
+</kbd>
+</td>
+	  <td>
+Stellen Sie einen <kbd>:transient-</kbd> Schlitz einer
+fest-gesprungenen hartn&auml;ckigen Kategorie ein (deutet keine
+Speicherung des Wertes des Schlitzes zur Datenbank an). 
+<em>&lt;
+wenden Sie &gt;</em> Referenzen ein hartn&auml;ckiger Fall ein, wie
+festgelegt in <a href="#step9">Jobstep 9</a>.
+</td>
+	  <td align="right">&nbsp;21000&nbsp;</td></tr>
+
+	<tr>
+	  <td align="right"><a name="step12">12&nbsp;</a></td>
+	  <td>
+<kbd>
+(Schlitz-Wert <em>&lt; Nachricht &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+slot-3)
+</kbd>
+</td>
+	  <td>
+Laden Sie den Wert eines <kbd>:transient-</kbd> Schlitzes einer fest-gesprungenen hartn&auml;ckigen Kategorie (deutet kein
+Laden des Wertes des Schlitzes von der Datenbank an).  <em>&lt;
+wenden Sie &gt;</em> Referenzen ein hartn&auml;ckiger Fall ein, wie
+festgelegt in <a href="#step9">Jobstep 9</a>.
+</td>
+<td align="right">29400&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step13">13&nbsp;</a></td>
+	  <td>
+<kbd>
+(setf (Schlitz-Wert <em>&lt; Nachricht &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' slot-5)<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em>&lt; fixnum &gt;</em>)
+</kbd>
+</td>
+	  <td>
+Stellen Sie einen <kbd>:cached-</kbd> Schlitz einer
+fest-gesprungenen hartn&auml;ckigen Kategorie ein (deutet keine
+Speicherung des Wertes des Schlitzes zur Datenbank an). 
+<em>&lt;
+wenden Sie &gt;</em> Referenzen ein hartn&auml;ckiger Fall ein, wie
+festgelegt in <a href="#step9">Jobstep 9</a>.
+</td>
+<td align="right">22000&nbsp;</td></tr></a>
+
+	<tr>
+	  <td align="right"><a name="step14">14&nbsp;</a></td>
+	  <td>
+<kbd>
+(Schlitz-Wert <em>&lt; Nachricht &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+slot-5)
+</kbd>
+</td>
+	  <td>
+Laden Sie den Wert eines <kbd>:cached-</kbd> Schlitzes
+einer fest-gesprungenen hartn&auml;ckigen Kategorie (deutet kein Laden des
+Wertes des Schlitzes von der Datenbank an).  <em>&lt; wenden Sie &gt;</em> Referenzen ein hartn&auml;ckiger Fall ein, wie festgelegt in <a href="#step9">Jobstep 9</a>.
+</td>
+<td align="right">31300&nbsp;</td>
+</tr></a>
+
+	<tr>
+	  <td align="right"><a name="step15">15&nbsp;</a></td>
+	  <td>
+<kbd>
+(setf (Schlitz-Wert <em>&lt; Nachricht &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' slot-7)<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em>&lt; fixnum &gt;</em>)
+</kbd>
+</td>
+<td>
+Stellen Sie einen <kbd>:cached-write-through</kbd> Schlitz einer fest-gesprungenen hartn&auml;ckigen Kategorie auf ein
+sofortiges fixnum ein.  <em>&lt; wenden Sie &gt;</em>
+ Referenzen
+ein hartn&auml;ckiger Fall ein, wie festgelegt in <a
+ href="#step9">Jobstep 9</a>.
+</td>
+	  <td align="right">1400&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step16">16&nbsp;</a></td>
+	  <td>
+<kbd>
+(Schlitz-Wert <em>&lt; Nachricht &gt;</em><br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+slot-7)
+</kbd>
+</td>
+	  <td>
+Laden Sie den Wert eines <kbd>:cached-write-through</kbd> Schlitzes einer fest-gesprungenen hartn&auml;ckigen Kategorie.
+Der geladene Wert ist ein sofortiges fixnum.  <em>&lt; Nachricht &gt;</em> spricht einen hartn&auml;ckigen Fall an, wie festgelegt in <a href="#step9">Jobstep 9</a>.
+</td>
+	  <td align="right">31300&nbsp;</td>
+	</tr>
+
+      </table>
+</blockquote>
+
+<h3>Datenbank-spezifische Funktionen</h3>
+
+<blockquote>
+<table border="4" width="80%">
+
+	<tr>
+	  <th align="right">Jobstep</th>
+	  <th align="left">Code</th>
+	  <th align="left">Beschreibung</th>
+	  <th align="right">Op./s</th>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step17">17&nbsp;</a></td>
+	  <td>
+<kbd>
+(P-zuordnenP-allocate-cons)
+</kbd>
+</td>
+	  <td>
+Belegung einer leeren hartn&auml;ckigen Conszelle.
+</td>
+	  <td align="right">&nbsp;14000&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step18">18&nbsp;</a></td>
+	  <td>
+<kbd>
+(Mitverhandlung ()<br>&nbsp;&nbsp;Null)
+</kbd>
+</td>
+	  <td>
+Leere Verhandlung.
+</td>
+	  <td align="right">&nbsp;770&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step19">19&nbsp;</a></td>
+	  <td>
+<kbd>
+(Mitverhandlung ()<br><!--
+-->&nbsp;&nbsp;(schreiben-Verriegelung-speichern Sie)<br><!--
+-->&nbsp;&nbsp;Null)
+</kbd>
+</td>
+	  <td>
+Leere Verhandlung, welche die vollst&auml;ndige Datenbank sperrt
+(diese Leistung ist mit der Leistung Einzelnnachricht des waagerecht
+ausgerichteten Sperrung vergleichbar).
+</td>
+	  <td align="right">476&nbsp;</td>
+	</tr>
+
+      </table>
+</blockquote>
+
+<h3>Unterschiedlicher Verbrauch von Verhandlungen und von
+Sperrung</h3>
+
+In diesem Kapitel wird die Leistung f&uuml;r die einzelne
+Operation von Jobstep
+<a href="#step9">9,</a>aber mit unterschiedlichem
+Verbrauch von Verhandlungen und von Nachricht Sperrung gezeigt.  Das
+R&uuml;ckstellung Verhalten durch <b>PLOB,</b> wie in Jobstep
+<a href="#step9">9 gezeigt</a> bezieht eine Verhandlung f&uuml;r jeden
+Aufruf
+<kbd>Bildenfall</kbd> und den (impliziten) Verbrauch
+einiger Verriegelungen an der Speicherung der Nachricht mit ein.  Das
+Verwenden von Verhandlungen und von Verriegelungen auf gr&ouml;sseren
+`chunks der Nachrichten verbessert Leistung f&uuml;r einen einzelnen
+Benutzer erheblich, aber wird das `granularity ' vom Nachricht Zugriff
+gr&ouml;ber bilden und bildet gleichzeitigen Zugriff langsamer.
+
+<blockquote>
+<table border="4" width="80%">
+
+	<tr>
+	  <th align="right">Jobstep</th>
+	  <th align="left">Code</th>
+	  <th align="left">Beschreibung</th>
+	  <th align="right">Op./s</th>
+	</tr>
+
+	<tr>
+	  <td align="right">9&nbsp;</td>
+	  <td>
+<kbd>
+(Bildenfall<br><!--
+-->&nbsp;' P-Beispiel-closkategorie)
+</kbd>
+</td>
+	  <td>
+Belegung eines hartn&auml;ckigen Falls und der Initialisierung
+ihrer Schlitze entsprechend ihrem resp. <kbd>:initform</kbd> (<a href="#step9">Jobstep 9</a> hier wiederholt f&uuml;r Vollst&auml;ndigkeit).
+</td>
+	  <td align="right">165&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step20">20&nbsp;</a></td>
+	  <td>
+<kbd>
+(Mitverhandlung ()<br><!--
+-->&nbsp;&nbsp;(dotimes (i 1000)<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;(Bildenfall<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+P-Beispiel-closkategorie)))
+</kbd>
+</td>
+	  <td>
+1000 F&auml;lle von <a href="#step9">Jobstep 9</a> festlegten in
+einer einzelnen Verhandlung nen;  Op./s ist die Zahl gespeicherten
+F&auml;llen pro Sekunde.
+</td>
+	  <td align="right">175&nbsp;</td>
+	</tr>
+
+	<tr>
+	  <td align="right"><a name="step21">21&nbsp;</a></td>
+	  <td>
+<kbd>
+(Mitverhandlung ()<br><!--
+-->&nbsp;&nbsp;(schreiben-Verriegelung-speichern Sie)<br><!--
+-->&nbsp;&nbsp;(dotimes (i 1000)<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;(Bildenfall<br><!--
+-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+P-Beispiel-closkategorie)))
+</kbd>
+</td>
+	  <td>
+1000 F&auml;lle von <a href="#step9">Jobstep 9</a> festlegten in
+einer einzelnen Verhandlung mit einem exklusiven schreiben die
+Verriegelung ven, die auf die vollst&auml;ndige Datenbank eingestellt;
+Op./s ist die Zahl gespeicherten F&auml;llen pro Sekunde.
+</td>
+	  <td align="right">&nbsp;270&nbsp;</td>
+	</tr>
+
+</table>
+</blockquote>
+
+<p></p><hr>
+
+<h2><a name="coming">Bald kommen...</a></h2>
+
+In naechstes Mal arbeite ich auf mehrdimensionalen Indexen in
+ <b>PLOB!</b>und eine verbesserte Schemaentwicklung.
+
+<p></p><hr>
+
+<h2><a name="publications">Publikationen</a></h2>
+
+Alle Publikationen sind auf Deutsch wenn nicht anders
+vermerkt.
+
+<dl>
+
+<dt><a name="book"></a></dt>
+<table>
+<tbody><tr><td><table border=4></td><tbody><tr><td>&amp;nbsp\<a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252fde%252fsofware%252fplob%252fbuyit%252ehtml">\ /</a>/ &amp;nbsp</td>
+</tr></tbody></tbody></table> <td><a
+href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fbuyit%252ehtml">Buch</a></td></tr></tbody>
+</table>
+
+<dd>
+Heiko Kirschke:
+<a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elogos%252dverlag%252ede%252fcgi%252dlocal%252fbuch%253fisbn%253d65">
+Persistenz objekt-orientierten
+innen Programmiersprachen.</a>
+<a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elogos%252dverlag%252ede%252f">Firmenzeichen Verlag</a>,
+Berlin.  1997.
+
+<dt></dt>
+<table>
+<tbody><tr><td><table><tr></tr></table></td></tr><tbody><tr><td></td></tr></tbody></tbody></table>
+<td>  <td><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fbericht%252eps%252egz">Berichten Sie &uuml;ber FBI-HH-B-179/95</a>, gzipped herum
+600 KBS;
+<br><a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252elisp%252ede%252fsoftware%252fplob%252fbericht%252eps">Berichten Sie &uuml;ber FBI-HH-B-179/95</a>, uncompressed MB
+herum 1,9.</td></tr></tbody></table>
+
+<dd>Heiko Kirschke:  Persistenz im der objekt-orientierten DES
+PLOB Programmiersprache CLOS morgens <b>Beispiel!</b> Systeme.  Berichten Sie &uuml;ber FBI-HH-B-179/95, Universit&auml;t von
+Hamburg, 1995.  142 Seiten.
+
+</DL>
+
+<hr></dd>
+
+<h2><a name="contact">KontaktAdresse</a></h2>
+
+F&uuml;hlen Sie frei, mit mir auf allen m&ouml;glichen Fragen,
+Anmerkungen und Tips in Verbindung zu treten:
+
+<dl>
+
+<dt><b>Sendenliste</b></dt>
+
+<dd>Es gibt eine Sendenliste auf <b>PLOB</b>;  um zu
+unterzeichnen, senden Sie ein email mit `subscribe ' im K&ouml;rper des
+email zu <a
+href="mailto:plob-request@lisp.de">plob-request@lisp.de</a>:
+<blockquote>
+<kbd>: <a href="mailto:plob-request@lisp.de">plob-request@lisp.de</a></kbd><br>
+<kbd>-- Text folgt dieser Zeile --</kbd><br>
+<kbd>unterzeichnen Sie</kbd><br>
+<kbd>Ende</kbd>
+</blockquote>
+
+F&uuml;r das Unsubscribing senden Sie ein email mit `unsubscribe
+' im K&ouml;rper des email zu <a
+href="mailto:plob-request@lisp.de">plob-request@lisp.de</a>:
+<blockquote>
+<kbd>: <a href="mailto:plob-request@lisp.de">plob-request@lisp.de</a></kbd><br>
+<kbd>-- Text folgt dieser Zeile --</kbd><br>
+<kbd>unsubscribe</kbd><br>
+<kbd>Ende</kbd>
+</blockquote>
+
+Die <kbd>Ende</kbd> Zeile ist nur notwendig, wenn es
+eine folgende Unterzeichnung geben konnte.</dd>
+
+<p>Zweck dieser Sendenliste ist, Support auf dem Installieren
+und dem Verwenden von PLOB <b>,</b>f&uuml;r das Berichten &uuml;ber
+Programmfehler, f&uuml;r das Erhalten von Ansagen auf neuen Versionen und
+f&uuml;r allgemeine Themen zu erhalten auf Ausdauer, in dieser Ordnung.
+Es ist durch Absicht eine Niedrigverkehr Sendenliste.
+
+<dt><b>Email</b></dt>
+
+<dd><a
+href="mailto:Heiko.Kirschke@poet.de">Heiko.Kirschke@poet.de</a></dd>
+
+<dt><b>Privat</b></dt>
+
+<dd>Heiko Kirschke, Beim Alten Sch&uuml;tzenhof 4, D-22083 Hamburg</dd>
+
+<dt><b>Fachmann</b></dt>
+
+<dd>Heiko Kirschke, <a href="/cgi-bin/translate?lp=en_de&urltext=http%3a%2f%2fwww%2elisp%2ede%2fcgi%2dbin%2ftranslate%3flp%3den%5fde%26urltext%3dhttp%253a%252f%252fwww%252epoet%252ede">Dichter-Software GmbH</a>,
+Kattjahren 4-8, D-22359 Hamburg
+
+<br>Telefon:  +49 (040) 60990-263, Telefax:  +49 (040) 60990-115
+</dd>
+
+<dt><b>Verzicht</b></dt>
+
+<dd>DICHTER-Software ist nicht mit meiner Arbeit angeschlossen,
+die auf PLOB
+<b>erledigt!</b>;  seine Adresse gegeben hier
+f&uuml;r das Erreichen ich an den normalen Dienststunden.  Die Meinungen,
+die auf dieser Seite und in den schriftlichen Unterlagen ausgedr&uuml;ckt,
+sind vollst&auml;ndig die von meinen Selbst.
+</dd>
+
+</dl>
+
+<hr>
+
+Erstellt Mai 13, 1997;  letzte &Auml;nderung Juni 29, 1998.
+<address><a href="http://lki-www.informatik.uni-hamburg.de/~kirschke/">
+Heiko Kirschke</a>, <a href="mailto:Heiko.Kirschke@poet.de">
+Heiko.Kirschke@poet.de</a></address></td></dd>
+
+
+</body></html>
