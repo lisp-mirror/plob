@@ -1,0 +1,77 @@
+/* ----------------------------------------------------------------------
+| PLOB! global settings
+| Heiko Kirschke 1997/03/26
+| old: kirschke@informatik.uni-hamburg.de
+| now: Heiko.Kirschke@poet.de
+ ---------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------
+| Configuration settings
+ ---------------------------------------------------------------------- */
+
+PLOBDIR=.
+
+#define HasAuth			AUTH_NONE
+#define HasClient		yes
+#define	HasFranzCL		no
+#define	HasGcc			no
+#define	HasGmake		yes
+#define	HasHarlequinCL		no
+#define	HasLaTeX		no
+#define HasOpSys		hasWin32
+#define	HasPercentFeature	yes
+#define	HasRanlib		yes
+#define HasServer		yes
+#define	HasSiginfo		no
+
+/* Directory with Allegro Common LISP: */
+FRANZCL=
+
+/* Operating system: */
+OPSYS=WIN32
+opsys=win32
+
+/* ----------------------------------------------------------------------
+| Compiler settings
+ ---------------------------------------------------------------------- */
+/* For usage of another compiler instead of gcc, please read the
+   installation's guide: */
+CC=cl
+
+/* C compiler flag to generate position independent code for shared
+   libraries: */
+COPTPIC=
+
+/* C compiler flag for debugging: */
+COPTDEB=-Zi
+
+/* C compiler flag for code optimization: */
+COPTOPT=-Ox
+
+/* ----------------------------------------------------------------------
+| CPP settings
+ ---------------------------------------------------------------------- */
+CPP=gcc -E -P
+
+/* ----------------------------------------------------------------------
+| Linker settings
+ ---------------------------------------------------------------------- */
+LDLIBS=
+
+/* ----------------------------------------------------------------------
+| Database and server settings
+ ---------------------------------------------------------------------- */
+/* Default RPC database host: */
+#define DATAHOST jungle
+/* Default RPC database transport protocol: */
+#define DATATRANS tcp
+/* Default RPC database root directory: */
+#define DATAROOT c:/opt/data/plob
+/* Default RPC database directory: */
+#define DATABASE database
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/

@@ -1,0 +1,79 @@
+/* ----------------------------------------------------------------------
+| PLOB! global settings
+| Heiko Kirschke 1997/03/26
+| now (1998/12/03): kirschke@informatik.uni-hamburg.de
+| old: Heiko.Kirschke@poet.de
+ ---------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------
+| Configuration settings
+ ---------------------------------------------------------------------- */
+
+SHELL=/bin/sh
+
+PLOBDIR=/home/hkirschk/plob-2.09
+
+#define HasAuth			AUTH_NON
+#define HasClient		yes
+#define	HasFranzCL		yes
+#define	HasGcc			no
+#define	HasGmake		yes
+#define	HasHarlequinCL		yes
+#define	HasLaTeX		yes
+#define HasOpSys		hasWin32
+#define	HasPercentFeature	no
+#define	HasRanlib		yes
+#define HasServer		yes
+#define	HasSiginfo		no
+
+/* Directory with Allegro Common LISP: */
+FRANZCL=/opt/acl50
+
+/* Operating system: */
+OPSYS=WIN32
+opsys=win32
+
+/* ----------------------------------------------------------------------
+| Compiler settings
+ ---------------------------------------------------------------------- */
+/* For usage of another compiler instead of gcc, please read the
+   installation's guide: */
+CC=cl
+
+/* C compiler flag to generate position independent code for shared
+   libraries: */
+COPTPIC=
+
+/* C compiler flag for debugging: */
+COPTDEB=-Zi
+
+/* C compiler flag for code optimization: */
+COPTOPT=-Ox
+
+/* ----------------------------------------------------------------------
+| CPP settings
+ ---------------------------------------------------------------------- */
+CPP=gcc -E -P
+
+/* ----------------------------------------------------------------------
+| Linker settings
+ ---------------------------------------------------------------------- */
+LDLIBS=
+
+/* ----------------------------------------------------------------------
+| Database and server settings
+ ---------------------------------------------------------------------- */
+/* Default RPC database host: */
+#define DATAHOST localhost
+/* Default RPC database transport protocol: */
+#define DATATRANS tcp
+/* Default RPC database root directory: */
+#define DATAROOT /opt/data/plob
+/* Default RPC database directory: */
+#define DATABASE database
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/
