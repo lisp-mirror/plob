@@ -1,0 +1,427 @@
+% This is -*-LaTeX-*-
+%
+% userg.tex
+% HK 26.5.94
+% Rewritten 1997/09
+
+\chapter{Introduction}
+
+This chapter gives an overview on persistency and persistent objects
+in common.  It explains the fundamental properties for persistent
+objects from a LISP perspective, and presents an overview on the the
+approach used in \plob\ (\emph{P}ersistent \emph{L}isp \emph{OB}jects)
+for implementing persistent objects. For technical data like supported
+operating systems, supported LISP systems etc.\ see
+section \Nameref{sec:TechnicalData}.
+
+\section{Ways to persistency}
+
+Focusing on application programming, persistency is an issue in many
+applications. There are different ways to achieve persistency, each
+having its benefits and drawbacks:
+
+\begin{description}
+
+\item[File oriented] In file-oriented persistency, \marginlabel{File
+    oriented persistency: Save and load objects states to and from a
+    file.}the state of each object to make persistent is written into
+  a file and read in again later. The only benefit of this approach is
+  that it is simple to implement. One of its drawbacks is that it is
+  data- and system-dependent.  Also, relocation and establishing
+  references between objects is hard to achieve. Support for changes
+  on an object's structure is hard to implement. Database-like
+  features, like selecting single objects out of the set of all
+  objects, are also hard to implement.
+
+  In the sense of LISP, constructs using methods specialized to
+  \fcite{make-load-form}\ belong into this category of persistency.
+
+\item[Database oriented] In database-oriented persistency,
+  \marginlabel{Database oriented persistency: Save and load objects
+    states to and from a (relational) database.}the objects are stored
+  in a (relational) database. In relational databases, there is a
+  different paradigm of viewing `objects' (that means, tuples) as
+  \hyperlink{link:Value}{values}\footnote{Values will be defined in
+    section \Nameref{sec:DefinitionOfObjects}.}\ having no identity
+  independent from their state.  Because of the different programming
+  paradigms, the interfacing between a relational database and a
+  programming language can get quite complex and obscure (see for
+  example ESQL for a binding between SQL and C); this is often called
+  `impedance mismatch'.  Because there are certain means of
+  establishing a mapping between object-oriented and database concepts
+  (figure~\ref{tab:MapObjectsToRelations}), this approach can make
+  sometimes usage of database features, like complex queries,
+  transactions etc. Prerequisite is that this mapping from
+  object-oriented into database concepts is simple and straight
+  forward enough so that the database manipulation functions can work
+  on the mapped data at all. For example, to administrate data
+  efficiently, attributes must be typed statically in most relational
+  databases; so, this approach results either in static typed slots of
+  objects (which is inappropiate for a dynamic type language as LISP
+  is) or this mismatch requires rather expensive mapping operations.
+  In object-oriented systems, there is a notion of objects having an
+  identity, making each one unique among the set of all objects
+  considered; a (single directed) reference between two objects is
+  established by using an appropiate representation of an object's
+  identity, for example by using its memory address.  In a relational
+  database, this has to be mimiced by using (bi directional) expensive
+  joins. In databases, aggregate types are represented implicit by
+  relations; especially in LISP, an explicit type representation by
+  \clsmo[s]\ is preferred.
+
+  Because LISP has no standardized relational database interface, only
+  single examples can be quoted, as the SQL interface offerred by \lw\ 
+  and \allegro\ \cl.
+
+\item[Object-oriented] In object-oriented persistency,
+  \marginlabel{Object-oriented persistency: Persistency as an
+    orthogonal feature of each object.}persistent objects are viewed
+  as usual in an object-oriented sense, and to be more specific in
+  this context, as LISP or \clos\ objects. This has some consequences
+  on the design of an object-oriented database. For example, each LISP
+  object has a (more or less) explicit represented class, and since
+  objects are typed dynamically, each object knows of its type. Also,
+  LISP has a notion of identity of objects for establishing references
+  between them, and this identity should be represented for persistent
+  objects, too.
+
+  Besides the system described here,
+  \href{http://www.franz.com/products/allegrostore.html}{\allegro{}{\sc
+      Store}}\ and \href{http://www.ibex.ch/}{Itasca}\ can be
+  mentioned as examples for object-oriented databases.
+
+\end{description}
+
+The object-oriented approach has been favored in \plobwoexcl, although
+there are some theoretical and some practical drawbacks on this
+approach.  The theoretical drawback \marginlabel{There is no common
+  calculus for object-oriented databases.}is that there is no calculus
+on object-oriented persistency as the relational calculus for
+relational databases. Relying on the relational calculus, some
+mathematical attractive properties can be shown, like the existence of
+normal forms to avoid redundancies and anomalies; this does not hold
+for object-oriented persistency. From a very stringent point of view,
+object-oriented persistency can even be seen as a step back towards
+hierarchical databases, which have been wide-spread in the sixties and
+have been the motivation for Codd to develop the concept of relational
+databases \cite{bib:Codd-79}. The practical drawbacks
+\marginlabel{Relational databases are now quite mature.}have more or
+less to do with the fact that usable relational databases have now
+been on the market for at least 15 years, so they are now quite mature
+and have sophisticated query optimization techniques, good transaction
+behavior etc.\footnote{It took quite long for the market since Codd's
+  original publication on relational databases in 1969 to provide a
+  `real' relational database.} These are also features which should be
+found in an object-oriented database, but naturally it takes some time
+to code and test these features.
+\begin{figure}\centerline{%
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Object-oriented}
+        & \textbf{Relational Database}\\
+\hline\hline
+Class
+        & Relation\\
+Instance
+        & Tuple \\
+Slot
+        & Attribute\\
+\hline
+\end{tabular}}%
+\caption{Mapping between o-o and relational database concepts}%
+\label{tab:MapObjectsToRelations}%
+\end{figure}
+
+\section[The approach taken by PLOB]{The approach taken by \protect\plob}
+
+Start working on \plobwoexcl, the aim was and is to implement a
+database with certain features, some more external features from
+viewing towards \plobwoexcl's API, some more internal features for the
+overall design. Some of them are borrowed from \emph{The
+  Object-Oriented Database System Manifesto}\ 
+\cite{bib:Atkinson-et-al-92}.
+
+\iconpar{\psfig{figure=\Path/schampus.eps,height=2.666666\baselineskip}}%
+At first, persistency should be an
+\hyperlink{link:Orthogonal}{orthogonal}\ property
+\marginlabel{Persistency should be orthogonal and transparent.}w.r.t.\ 
+LISP's type system; in practice, this means that each LISP and \clos\ 
+object should have the possibility of becoming persistent, independent
+of its actual type.  Persistency should be as
+\hyperlink{link:Transparent}{transparent}\ as possible, meaning that
+users should not need to learn a new programming language for handling
+persistent objects, but rather integrate persistency into their
+applications with minimal or no changes, covering both new and legacy
+systems. Transparency in a wider sense also lead to integrate some of
+the transient LISP environment into \plobwoexcl, \marginlabel{Features
+  of LISP should be integrated; database features should be
+  added.}like persistent packages and persistent symbols, and
+implementing persistency by
+\hyperlink{link:Reachability}{reachability}.  Other important features
+are \emph{database features}, like transactions, locking, queries (at
+least to some extent), \emph{efficiency} and \emph{performance}. All
+of these features have been taken into consideration or have been
+implemented in \plobwoexcl.
+
+Looking towards the internal features, \marginlabel{Explicite
+  representation of types and classes as objects in \plobwoexcl.}it
+was decided to represent types and classes of persistent objects
+explicit, similar the way LISP does it; this simplifies the usage of
+persistent objects, since there is no necessity for a mapping between
+different paradigms as shown in
+figure~\ref{tab:MapObjectsToRelations}. Since LISP offers a lot of
+useful and efficiently represented numeric and non-numeric types,
+\marginlabel{Demand for type completeness.}it was decided to represent
+all of those types in \plobwoexcl, too. \plob\ distinguishes
+internally between representations \marginlabel{Efficient and
+  appropiate representation of persistent objects.}for instances of
+\hyperlink{link:Immediate}{immediates}\footnote{Immediates will be
+  defined in section \Nameref{sec:DefinitionOfObjects}.}, built in
+classes, structure classes and `true' \clos\ classes
+(figure~\ref{fig:ObjectTaxonomie}),
+\begin{figure}[htbp]
+\centerline{\psfig{figure=\Path/objtax.eps}}
+\caption{Taxonomy of object representations}%
+\label{fig:ObjectTaxonomie}
+\end{figure}%
+all of them except the immediates extended by some database-specific
+slots. The principle of self-describing structures was obeyed, which
+may be characterized by two axioms:
+\begin{enumerate}
+\item Each object has a class.
+\item Classes are represented by objects.
+\end{enumerate}
+Exactly as in LISP, structure classes have some restrictions compared
+to \clos\ classes, the most important one that
+\hyperlink{link:SchemaEvolution}{schema evolution}\footnote{Schema
+  evolution will be defined in section
+  \Nameref{sec:DefinitionOfSchemaEvolution}.}\ is supported for
+instances of structure classes only if either the number of slots did
+not increase or a structure class' instance undergoing a schema
+evolution is allowed to change its persistent identity. For instances
+of persistent \clos\ classes, full schema evolution without loss of
+identity is supported.
+
+The experience with integrated systems in the past showed that
+integration is most of the time useful when doing everyday work. When
+it comes to certain `special tasks' (for example, for performance or
+efficiency reasons), \marginlabel{Working `directly' on persistent
+  objects.}it is sometimes necessary to abandon integration and to do
+it on her or his own. When using a system which prevents bypassing
+integration, these tasks are hard to solve. A consequence for \plob\ 
+is that the transparent interface should and can be used, but it is
+also possible to work directly on low-level representations of
+persistent objects. This is important for LISP objects which are out
+of control for \plob\ and are modified by side effects, for example,
+lists which are modified destructively.
+
+\section{Related documentation}
+
+This document describes how to use \plobwoexcl's API to make objects
+persistent, and how the system itself is administrated.  The more
+low-level documentation accompaning this user's guide can be found in
+\cite{bib:PLOB-manual}, which describes in detail each constant,
+variable, macro, class, function, generic function and method
+implemented in \plob\ and exported from package \lisp{PLOB}.
+\cite{bib:PLOB-internals} describes the internal program constructs
+not exported from package \lisp{PLOB}.  \cite{bib:Kirschke-95b}\ is an
+abstract giving a course overview on \plob\ and is a supplement to
+this introduction.
+
+The fundamental principles of \plob\ are explained in my
+(german-written) computer science master's thesis
+\cite{bib:Kirschke-94a}.  If you are interested in making a reference
+manual by extracting documentation from LISP source files see
+\cite{bib:LispDoc-Manual}.
+
+More background information on (relational) databases can be found in
+\cite{bib:ONeil-94}. A vast amount of transaction techniques for
+databases is explained in \cite{bib:Gray-et-al-93}.
+
+\section{Notion used}
+
+\lisp{Typewriter}\ \lisp{type}\ is used for programming examples and
+LISP code. \marginlabel{The margin notes summarize a section of text
+  or give some other background information.} Code which is important
+in the current context is emphasized by
+\underline{\lisp{underlining}}. Using a listener prompt
+\lisp{\listener} in front of a code example means that the example can
+be typed in directly into a listener. This is a
+\emph{\lt{}non-terminal\gt}, meant to be replaced by some concrete
+object. Repetitions are indicated by curly braces, so
+\lisp{\{}\,\emph{\lt{}repeat me\gt}\,\lisp{\}} means 0 to \emph{n}
+occurencies of the non-terminal \emph{\lt{}repeat me\gt}.
+
+\refpar A paragraph labeled \textbf{References} gives references to
+other sections or documents.
+
+\section{Terms used}%
+\label{sec:TermsUsed}
+
+This section defines some of the terms used within this document, some
+having to do with object-oriented programming in common, others having
+to do with databases.
+
+\subsection{Objects and classes}%
+\label{sec:DefinitionOfObjects}
+
+\subsubsection{Object}
+
+An \emph{object} is the abstraction of a real-world entity; it owns an
+\emph{identity} and has a \emph{state} and a \emph{behavior}.
+
+\subsubsection{Identity}
+
+Identity is a property which makes an object unique among the set of
+all objects in consideration; by its identity it can be distinguished
+from all other objects.
+
+\subsubsection{Value}
+
+A \hypertarget{link:Value}{value}\ is an object whose identity can be
+completely defined by its state, that means, two values are identical
+if and only if they have the same state. In this context, a value is
+further restricted to be an instance of a LISP's built in class, like
+a numbers or a character. With `real' (non-value) objects, their
+identity is independent from their current state, that means, two
+non-value objects having the same state are equal, but not necessarily
+identical.  With a \emph{representation of identity} an object can be
+referenced.
+
+\subsubsection{Immediate}
+
+An \hypertarget{link:Immediate}{Immediate}\ is a value object whose
+state itself is represented directly in a representation of identity,
+because its state needs less memory than an identity representation.
+It differs from a value only by its special form of representation.
+Candidate classes for an immediate representation are for example
+fixnums, that means, integer numbers with their absolute value $<
+2^{n}$, with $n <$ the number of bits used for an identity
+representation.
+
+\subsubsection{Class}
+
+\begin{fortune}[4cm]%
+More than \lisp{this}
+\from{Roxy Music}
+\end{fortune}%
+
+The structure of an object's state and its behavior is defined by its
+\emph{class}. The structure of an object's state is an aggregation of
+\emph{slots}; a \emph{slot state} is the partial state of an object
+represented in a single slot. To be accordant with \clos' terminology,
+a slot state is called also a \emph{slot value}.  The behavior of an
+object is made up by its \emph{methods}; each single method defines a
+part of the object's behavior. Classes are represented by \clsmo[s],
+slots by \sltmo[s], and methods are represented by \mtdmo[s].
+
+\subsection{Database terms}
+
+\subsubsection{Reachability}
+
+\hypertarget{link:Reachability}{Persistency by reachability} means
+that all objects which are reachable from a designated persistent root
+object will remain persistent. Objects not being reachable from this
+root object will be deleted with the next garbage collection. This
+closely resembles the concept of \emph{indefinite extent} as defined
+in \stcite{43}.  Further details will be given in section
+\Nameref{sec:ObtainingReachability}.
+
+\subsubsection{Orthogonal and transparent persistency}
+
+Persistency is \hypertarget{link:Orthogonal}{orthogonal}\ if it is a
+base property of an object which is independent from other object
+properties, like inheriting from a certain class. Persistency is
+\hypertarget{link:Transparent}{transparent}\ if there are no or few
+changes necessary to link persistency into an application's code.
+
+\subsubsection{Transaction}
+
+A transaction is a database state changing operation which fulfills
+the following \acid\ properties
+\cite[\citepage{166}]{bib:Gray-et-al-93}:
+\begin{quote}\begin{description}
+\item[Atomicity] A transaction's changes to the state are atomic:
+  either all happen or none happen. These changes include database
+  changes, messages, and actions on transducers.
+\item[Consistency] A transaction is a correct transformation of
+  state. The actions taken as a group do not violate any of the
+  integrity constraints associated with the state. This requires the
+  transaction be a correct program.
+\item[{\hypertarget{link:Isolation}{Isolation}}] Even though
+  transactions execute concurrently, it appears to each transaction,
+  T, that others executed either before T or after T, but not both.
+\item[Durability] Once a transaction completes successfully (commits),
+  its changes to the state survive failures.
+\end{description}\end{quote}
+Figure~\ref{fig:TransactionStateChange}\ %
+\begin{figure}[htbp]
+\centerline{\psfig{figure=\Path/trtime.eps}}
+\caption{State change at ending or aborting a transaction}%
+\label{fig:TransactionStateChange}
+\end{figure}%
+shows what happens during a transaction: At $t_n$, a transaction is
+started which lasts until $t_{n+1}$. At $t_{n+1}$, the transaction is
+either ended (comitted) or aborted (for example, if an error occurs
+during the transaction being active). The database states $z_n$ and
+$z_{n+1}$ are defined as being consistent from the application's point
+of view before $t_n$ or after $t_{n+1}$. In the interval
+$[t_n,t_{n+1}]$, the database may become temporary inconsistent, which
+is shielded to other concurrent transactions by isolation.
+
+\subsubsection{Index and query}
+
+An \emph{index} is an associative memory mapping a key to a value.  In
+a database, an index is usually bound to one or more slots of a class,
+with imposing a 1-dimensional key ordering when using more than one
+slot.  It maps a slot value (as an index key) to the object having
+that slot value (as the value associated to the index' key).  This
+association is maintained more or less automatically by the database
+system itself.  In general, the keys of the index are ordered, for
+better performance on selecting objects falling into a range of slot
+values.  As will be shown in \Nameref{sec:SlotIndexAndReachability},
+an index will also ensure reachability for a persistent object.
+
+A \emph{query} selects objects out of the set of all objects of a
+class or aggregates information on a [sub]set of these objects; the
+condition used for discrimination is usually some specific slot value
+or a range of slot values. So, an index is used to speed up a query.
+
+For example, let us assume that a class \class{person}\ maintains an
+index on its slot \lisp{soc-sec-\#}. This index will maintain the
+mapping of \lisp{soc-sec-\#}s to the \class{person}\ instance bound to
+that \lisp{soc-sec-\#}:
+\begin{CompactCode}
+\listener{}(make-instance 'person :soc-sec-# 2000)\marginnumber{\smalloi}
+#\lt{}instance person soc-sec-#=2000 short-objid=50326730\gt
+\listener{}(make-instance 'person :soc-sec-# 3000)\marginnumber{\smalloii}
+#\lt{}instance person soc-sec-#=3000 short-objid=50326732\gt
+\listener{}(p-select 'person :where 'soc-sec-# := 2000)\marginnumber{\smalloiii}
+#\lt{}instance person soc-sec-#=2000 short-objid=50326730\gt
+\end{CompactCode}
+
+The mappings are established at \oi\ and \oii, and the index is
+accessed with the query at \oiii.
+
+\subsubsection{Schema evolution}%
+\label{sec:DefinitionOfSchemaEvolution}
+
+A \hypertarget{link:SchemaEvolution}{schema evolution}\ means changing
+the definition (`schema' in database terminology) of a persistent
+class stored in a database and what should happen to the instances
+whose class has been redefined. In general, there are two ways to
+handle this, either a \emph{destructive} or \emph{non-destructive}
+proceeding.\marginlabel{Schema evolution can be done destructive or
+  non-destructive.} In the destructive approach, a mapping from the
+instance' structure as given by the `old' definition to the instance'
+structure as given by the `new' definition is established, and the
+instance slots are rearranged permanently to match the `new'
+definition. With the non-destructive approach, the mapping is done
+too, but the instance is not written back into the database, but used
+only to pretend the `new' structure to the upper application levels
+requesting the object's state.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "userg"
+%%% End: 
