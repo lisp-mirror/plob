@@ -1,0 +1,111 @@
+%       This is -*-LaTeX-*-
+%
+% 21.10.93
+%
+\input{diagdefs}%
+%
+%\mkdotdarrow%
+%
+\newsavebox{\oibox}\sbox{\oibox}{\oi}%
+%
+\newlength{\coliw}\setlength{\coliw}{6em}%
+\newlength{\colw}\setlength{\colw}{2em}%
+\newlength{\lineh}\setlength{\lineh}{\ht\oibox}%
+\setlength{\lineh}{0.8\lineh}%
+\def\colsep{2ex}%
+%
+\def\rlineh{\rule{0em}{\lineh}}%
+% Um die drei Punkte aus jeder Box zu entfernen, folgende Zeile
+% auskommentieren ...
+\def\etcetc{\text{\textrm{\ldots}}}
+% ... und folgende aktivieren:
+%\def\etcetc{}
+%
+\newlength{\ocolw}\setlength{\ocolw}{\colw}%
+\addtolength{\ocolw}{2\stdomargin}%
+%
+\def\mkbox#1#2{%
+\makebox[\colw]{\rlineh#1}
+\save\go[#2,0]\merge\framed<5pt>\restore}%
+\def\hr{\makebox[\colw]{\rlineh\hrulefill}}
+%
+\def\begptr{%
+\makebox[\colw]{%
+\rlineh%
+\hspace*{\fill}\raisebox{0.25\lineh}{$\bullet$}}%
+\save\go[0,0]+<\cR,0ex>\xline+<-1.3\stdomargin,0ex>\restore}%
+%
+\spreaddiagramrows{-2pc}%
+\spreaddiagramcolumns{-2pc}%
+%
+\spreaddiagramrows{-\stdomargin}%
+\spreaddiagramcolumns{\colsep}%
+\objectmargin{\stdomargin}%
+%
+\begin{diagram}%
+%
+\rule{\coliw}{0ex}%
+\save\go[13,0]\merge\framed\restore%
+        &\rule{\ocolw}{0ex}%
+         \save\go[13,7]\merge\framed\restore\\
+        &\mkbox{\noi}{3}%
+                &&\mkbox{\noii}{4}%
+                        &&\mkbox{\noiii}{2}\\
+        &\hr%
+                &&\hr%
+                        &&\hr\\
+        &\begptr\xto'[0,1]+<0ex,0em>'[-2,1]+<0ex,0em>[-2,2]%
+                &&\begptr\xto'[0,1]+<0ex,0em>'[-2,1]+<0ex,0em>[-2,2]%
+                        &&\etcetc\\
+        &\etcetc%
+                &&\begptr\xto[0,4]%
+                                &&&&\mkbox{\noiv}{3}&\\
+\makebox[\colw]{\rlineh\lisp{P}}
+\save\go[2,0]\merge\framed\restore%
+        &\save\Drop{\rule{0em}{2ex}%
+         \text{\textrm{\footnotesize{}root}}}\restore%
+                &&\etcetc%
+                                &&&&\hr\\
+\hr%
+        &%
+                        &&&&\mkbox{\nov}{4}%
+                                &&\begptr%
+                                  \xto'[0,1]+<0ex,0em>%
+                                      '[-2,1]+<0ex,0em>[-2,0]&\\
+\begptr\xto[0,3]%
+        &%
+                &&\mkbox{\novi}{3}
+                        &&\hr%
+                                &&\etcetc\\
+\save\Drop{\rule{0em}{4ex}\text{\textrm{\footnotesize{}variable}}}\restore%
+        &%
+                &&\hr%
+                        &&\begptr\xto'[0,1]+<0ex,0em>%
+                          '[-3,1]+<0ex,0em>[-3,2]&\\
+        &%
+                &&\begptr\xto'[0,1]+<0ex,0em>'[-3,1]+<0ex,0em>[-3,2]%
+                        &&\begptr\xto'[0,1]+<0ex,0em>'[3,1]+<0ex,0em>%
+                                     '[3,-3]+<0ex,0em>'[-1,-3]+<0ex,0em>%
+                                      [-1,-2]&\\
+        &%
+                &&\etcetc%
+                        &&\etcetc&\\
+        &%
+                &&&&&\\
+        &%
+                &&&&&\\
+\rule{0em}{5ex}%
+\save\Drop{\parbox{\coliw}{\raggedright\footnotesize{}%
+Transient\\object system}}\restore%
+        &\rule{0em}{5ex}%
+         \save\go[0,0]+<4.5\colw,0ex>,+<-\stdomargin,0ex>%
+         \Drop{\parbox{10\colw}{\footnotesize{}%
+         \ \\%
+         Persistent object system}}\restore&&&&&&&\rule{0em}{5ex}\\
+\rule{0em}{2ex}\\
+\save\go[0,0]+<15em,-1ex>\Drop{\parbox{35em}{\footnotesize{}%
+\oi: Root object\\[\smallskipamount]
+\oii, \oiii, \oiv: Reachable objects
+\ov, \ovi: Reachable objects by transient variable \lisp{P}%
+}}\restore%
+\end{diagram}%

@@ -1,0 +1,62 @@
+%       This is -*-LaTeX-*-
+%
+% 30.6.94
+%
+\input{diagdefs}%
+%
+\newlength{\xstrutw}\newlength{\ystruth}%
+\def\xstrut{\rule{\xstrutw}{0ex}}
+\def\ystrut{\rule{0em}{\ystruth}}
+%
+\def\state#1{\xstrut\ystrut\save\Drop{\usebox{#1}}\restore}
+\def\trans#1{\xstrut\ystrut\save\Drop{#1}\restore}
+%
+\def\mkstate#1{%
+\begin{diagram}%
+\framed<100pt>{\grow<1ex>{\text{\textrm{#1}}}}%
+\end{diagram}}%
+%
+\newsavebox{\stnull}\sbox{\stnull}{\mkstate{NULL}}%
+\newsavebox{\stactive}\sbox{\stactive}{\mkstate{\em active}}%
+\newsavebox{\stcommitted}\sbox{\stcommitted}{\mkstate{\em committed\/}}%
+\newsavebox{\staborted}\sbox{\staborted}{\mkstate{\em aborted\/}}%
+%
+\setlength{\xstrutw}{\wd\stcommitted}
+\setlength{\ystruth}{\ht\stnull}%
+\addtolength{\ystruth}{\dp\stnull}%
+%
+\spreaddiagramrows{-2pc}
+\spreaddiagramcolumns{-2pc}
+\objectmargin{0pc}
+%
+\newlength{\rowh}\setlength{\rowh}{0.5pc}%
+%
+\newlength{\colw}\setlength{\colw}{\xstrutw}%
+\divide\colw\ystruth\multiply\colw\rowh%
+%
+\spreaddiagramrows{\rowh}
+\spreaddiagramcolumns{\colw}
+%
+\def\trattr{\normalsize\em}%
+\newlength{\trw}\settowidth{\trw}{\trattr transaction}%
+%
+\begin{diagram}%
+%
+\state{\stnull}%
+\xto'[0,2][0,4]%
+        &&\trans{\parbox{\trw}{\trattr begin-\\[-\smallskipamount]%
+                                       transaction}}%
+                &&\state{\stactive}%
+                  \xto'[3,-3][4,-4]%
+                  \xto'[2,0][4,0]\\
+\\
+\trans{\text{\textrm{\trattr terminate}}}%
+                &&&&\trans{\text{\textrm{\trattr rollback}}}\\
+&\trans{\text{\textrm{\trattr commit}}}%
+                &&\trans{\text{\textrm{\trattr terminate}}}\\
+\state{\stcommitted}%
+\xto'[-2,0][-4,0]%
+                &&&&\state{\staborted}%
+                    \xto'[-1,-1][-4,-4]
+%
+\end{diagram}%
