@@ -1,0 +1,1273 @@
+% This is -*-LaTeX-*-
+%
+% userg.tex
+% HK 26.5.94
+% Rewritten 1997/09
+
+\chapter{Database functionality}
+
+This chapter describes concepts, functions and classes of \plob\ whose
+transient counterparts are either not found in \cite{bib:CLtLII}\ at
+all because they represent certain database features not needed by a
+transient LISP system or whose meaning in \plob\ has been adopted for
+the needs in a persistent system.
+
+\section{Databases, sessions, transactions and locks}
+
+This section describes some terms and design issues of \plob\ 
+concerning databases, sessions, transactions and locks from a
+programmer's point of view, and the relations between them.
+
+\subsection{Database}
+
+A database contains persistent objects. At the moment (1998/08/27), a
+\plob\ client can have only one database open at a
+time.\footnote{Please note that a single \plob\ server can handle any
+  number of clients.} It is a global resource shared among all LISP
+lightweight processes running in a LISP image. A database is opened
+the very first time when the first `session' is established.
+
+\subsubsection{Multiple Databases}
+
+Working with multiple databases would mean to open the first database,
+do something with it, close the first database, open the second
+database, etc. To be more concrete, for true working with multiple
+databases, the processing would look like:
+\begin{IndentedCompactCode}
+(progn
+
+  \comment{;; Open the session; since the database is currently closed,}
+  \comment{;; this implies opening the database referenced by the passed URL:}
+  (open-my-session "tcp://localhost/database1")
+  \comment{;; Do something:}
+  (do-something-with-database-1)
+  \comment{;; This closes all sessions and the database:}
+  (close-heap)
+
+  \comment{;; Open the session; since the database is currently closed,}
+  \comment{;; this implies opening the database referenced by the passed URL:}
+  (open-my-session "tcp://localhost/database2")
+  \comment{;; Do something:}
+  (do-something-with-database-2)
+  \comment{;; This closes all sessions and the database:}
+  (close-heap))
+\end{IndentedCompactCode}
+
+For historical reasons (because of its global character), the
+representation of a database is a bit unclear/smeared in \plobwoexcl.
+     
+\subsection{Session}%
+\label{sec:SessionManagement}
+
+A session is used as an `access organizer' or `access helper' to a
+database. A session organizes access to the persistent objects
+contained in the database by ensuring that each access is within an
+active transaction, that a read access to a persistent object in the
+database is done within a read lock and a write access within a write
+lock. By default, each LISP lightweight process (thread) gets its own
+session when the thread does its first access to a persistent
+object. All sessions of a running LISP image are bound to the same
+underlying database.
+
+The session associated to the current thread is contained in
+\fcite{*default-persistent-heap*}. There is one global session which
+is used at the bootstrap and for storing metaobject information; this
+one is contained in \fcite{*root-persistent-heap*}.
+
+Sessions are represented as persistent objects of
+\fcite{persistent-heap}.
+
+\refpar \Fcite{open-my-session}\ and \fcite{*database-url*},
+\fcite{*default-database-url*}; \fcite{close-my-session},
+\fcite{show-sessions}, \fcite{p-sessions}, \fcite{with-session}.
+
+\subsection{Transaction}%
+\label{sec:Transaction}
+
+A transaction is some state-changing operation to the underlying
+database. The transactions implemented in \plob\ are two phased
+transactions. This transaction model ensures that each single
+transaction has isolated access to persistent objects; essentially, it
+means that a transaction is always divided into two phases, the first
+phase where locks are established and the second phase which starts
+with the first lock being released. From the user's side, the second
+phase is never visible, since it is embedded into the transaction's
+commit processing.
+
+Figure~\ref{fig:TransactionSTDiagram} shows
+\begin{figure}[htbp]
+\centerline{\psfig{figure=\Path/sttrans.eps}}
+\caption{S/T diagram of a transaction}%
+\label{fig:TransactionSTDiagram}
+\end{figure}%
+the possible states of a transaction; only in the active state, a
+transaction is allowed to change the database's state.  According to
+the isolation table given in \cite[\citepage{399}]{bib:Gray-et-al-93},
+\plob\ implements an isolation of 3$^{\circ}$. Since starting and
+stopping a transaction might have side effects in the highest
+application layer, transactions are always started and ended by the
+highest application layer.
+
+A transaction could also be seen as a mean to ensure that the database
+is in a consistent state before the transaction has been started and
+after it has been finished. Here, consistency is defined in terms
+purely of the application programmer's point of view, and involves no
+other constraints.
+
+For now, a transaction is bound exactly to one session. An active
+transaction in a session is for example shown in its print output;
+with no active transaction on the default session, the value of
+\fcite{*default-persistent-heap*}\ prints like:
+\begin{CompactCode}
+\listener{}*default-persistent-heap*
+#<heap kirschke@localhost `Initial Lisp Listener' short-objid=133987850>
+\end{CompactCode}
+
+Within an active transaction, it prints like:
+\begin{CompactCode}
+\listener{}(begin-transaction *default-persistent-heap*)
+179048
+\listener{}*default-persistent-heap*
+#<heap kirschke@localhost `Initial Lisp Listener' transaction=179048
+                                                  short-objid=133987850>
+\listener{}(in-transaction-p *default-persistent-heap*)
+179048
+\listener{}(end-transaction *default-persistent-heap*)
+179048
+\listener{}*default-persistent-heap*
+#<heap kirschke@localhost `Initial Lisp Listener' short-objid=133987850>
+\listener{}(in-transaction-p *default-persistent-heap*)
+NIL
+\end{CompactCode}
+
+Since transactions are bound to exactly one session, a transaction is
+not represented explicit but implicit by a session containing a
+transaction id.
+
+\refpar \Fcite{with-transaction}, \fcite{begin-transaction},
+\fcite{end-transaction}, \fcite{cancel-transaction}.
+
+\subsubsection{Aborting a transaction}%
+\label{sec:TransactionAbort}
+
+At the moment, aborting a transaction will clear the cache to enforce
+a reload of the persistent objects into transient representations,
+with all of its consequences (section \Nameref{sec:IdAndCache}).
+Future versions of \plob\ will support a more elaborate handling of
+transaction aborts.
+
+\subsection{Lock}%
+\label{sec:Locking}
+
+A lock ensures that there is no conflicting access to a persistent
+object. In conjunction with transactions, locking is an implementation
+of the concept of \hyperlink{link:Isolation}{isolation}.  The locking
+mechanism implemented is hierarchical or tree locking, a specialized
+version of predicate locking \cite[\citepage{406}]{bib:Gray-et-al-93}.
+Locking is possible on the levels \textbf{store} (lock all persistent
+objects), \textbf{vector} (lock one persistent object) and
+\textbf{element} (lock one slot of a persistent object) with the lock
+modes \textbf{read-only}, \textbf{read} or \textbf{write}. The locking
+protocol is a pessimistic one: An object must be locked before its
+state can be accessed. All locking is done implicit during accessing
+the state of a persistent object.
+
+All locks must be set within an active transaction; they are bound to
+the transaction. When ending the transaction (either committing or
+aborting), all locks set in the scope of the transaction are removed.
+Before any access can be done to a persistent object, a read or write
+lock must be granted to the modifying transaction. If a lock cannot be
+granted, a lock conflict occurs. A lock conflict is given by the
+following rules:
+
+\begin{enumerate}
+
+\item Conflicts between locks set by different transactions are given
+  by the conflict matrix shown in table~\ref{tab:lockconfl}. In
+  essence, this matrix says that read locks are shared among a locked
+  object, whereas a write lock requires no other lock set onto the
+  object.
+
+\item A lock which should be set by a transaction never conflicts with
+  other locks already set by the same transaction. For example, if a
+  transaction requested a write lock for a persistent object and the
+  same transaction requests later a read lock, these locks do not
+  conflict.
+
+\end{enumerate}
+
+\begin{figure}[htbp]%
+\centering%
+\def\coliw{3em}%
+\def\pbox#1{\parbox{\coliw}{\centering#1}}%
+\def\vvbox{\pbox{\checked}}%
+\def\XXbox{\pbox{\crossed}}%
+\begin{\figurefontsize}%
+\begin{tabular}{%
+|c|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}|p{\coliw}|}
+\cline{2-7}
+\multicolumn{1}{c|}{\parbox{8em}{%
+ \hspace*{\fill}Already granted$\rightarrow$\\[\smallskipamount]%
+ Requested$\downarrow$\hspace*{\fill}}}
+ &\pbox{\tabularheader{RO-Intent}}
+  &\pbox{\tabularheader{Read-Only}}
+   &\pbox{\tabularheader{Read-Intent}}
+    &\pbox{\tabularheader{Read}}
+     &\pbox{\tabularheader{Write-Intent}}
+      &\pbox{\tabularheader{Write}}\\ \hline
+%
+%        ROI     RO      RI      R       WI      W
+\tabularheader{Read-Only-Intent}
+        &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox\\ \hline
+\tabularheader{Read-Only}
+        &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox\\ \hline
+\tabularheader{Read-Intent}
+        &\vvbox &\vvbox &\vvbox &\vvbox &\vvbox &\XXbox\\ \hline
+\tabularheader{Read}
+        &\vvbox &\vvbox &\vvbox &\vvbox &\XXbox &\XXbox\\ \hline
+\tabularheader{Write-Intent}
+        &\vvbox &\vvbox &\vvbox &\XXbox &\vvbox &\XXbox\\ \hline
+\tabularheader{Write}
+        &\vvbox &\XXbox &\XXbox &\XXbox &\XXbox &\XXbox\\ \hline
+%
+\multicolumn{7}{r}{%
+\checked\ $\equiv$\ Compatible locks\quad
+\crossed\ $\equiv$\ Conflicting locks}
+\end{tabular}%
+\end{\figurefontsize}%
+
+\let\figurename\tablename%
+\caption{Conflictmatrix for locks}%
+\label{tab:lockconfl}%
+\end{figure}%
+
+A conflict is `resolved' by the client requesting the conflicting lock
+to wait until either the other lock involved in the conflict is
+removed (for example, because another transaction holding this lock
+has terminated) or a timeout is encountered (this indicates a maybe
+not solvable conflict, like a deadlock, and will raise an error).
+
+The functions \fcite*{write-lock-store}\ and \fcite*{read-lock-store}\ 
+can be used to place a write or read lock onto the whole database.
+This is usefull when the whole database should be written or read, see
+section \Nameref{sec:LotsOfData} for an example.
+
+Locks are represented as persistent objects. They will almost never be
+seen directly by the database programmer, since most of the locking is
+done automatically.
+
+\refpar \Fcite{write-lock-store}, \fcite{read-lock-store}; section
+\fcite{locking ...}.
+
+\section{Making objects reachable}%
+\label{sec:ObtainingReachability}
+
+In figure~\ref{fig:ReachableObjects},
+\begin{figure}[htbp]
+\centerline{\psfig{figure=\Path/gctrpe.eps}}
+\caption{Reachable objects}%
+\label{fig:ReachableObjects}
+\end{figure}%
+objects \oi\ -- \oiv\ are reachable from the designated persistent
+root object and will not be garbage collected.  Objects \ov\ and \ovi\ 
+are only reachable from a transient variable and are not reachable
+from the persistent root,\marginlabel{References from transient
+  variables to persistent objects are not regarded by \plobwoexcl.}
+since the persistent system does not know anything about references
+from transient objects to persistent objects. In consequence, objects
+\ov\ and \ovi\ would be garbage-collected. The problem with references
+from (transient) variables to persistent objects is solved two-fold in
+\plobwoexcl:
+\begin{enumerate}
+
+\item A garbage collection is triggered\marginlabel{Offline garbage
+    collection.} if and only if there are no references from transient
+  to persistent objects. This is the case when there is no (transient)
+  client connected to the persistent object system.  To be more
+  specific, a garbage collection is triggered in the server after the
+  last client has disconnected itself.
+
+\item \plob\ offers an interface to persistent
+  symbols,\marginlabel{Persistent symbols with persistent values.}
+  which are defined as being reachable, both the symbol itself and its
+  value.  Another advantage is that an object bound to a persistent
+  symbol can be located in the persistent object system by the
+  symbol's name.
+
+\end{enumerate}
+Additionally, declaring an index on a persistent class using the tight
+binding will ensure reachability for the class' instances (section
+\Nameref{sec:SlotIndexAndReachability}).
+
+\section{Persistent symbols}%
+\label{sec:PersistentSymbol}
+
+As with transient symbols, persistent symbols serve for naming
+persistent objects.\footnote{Named objects are found in ODMG
+  \cite[\citepage{242}, \textbf{bind()} method]{bib:ODMG-2}, too, but
+  ODMG does not cope with symbols, only with simple names.} Persistent
+symbols always have a global scope, there is no mean to establish a
+local scope for a persistent symbol. For convenience, the construct
+\lisp{\#!}\emph{\lt{}symbol\gt}\ is established by \plob\ to refer to
+the persistent \emph{\lt{}symbol\gt} having the same name and package
+as the transient \emph{\lt{}symbol\gt}.
+\begin{IndentedCompactCode}
+\listener{}(setf #!*foo* 3)\marginnumber{\smalloi}
+3
+\listener{}#!*foo*
+3
+\listener{}*foo*\marginnumber{\smalloii}
+Error: Attempt to take the value of the unbound variable `*FOO*'.
+  [condition type: UNBOUND-VARIABLE]
+\OmitUnimportant
+\listener{}#!*bar*\marginnumber{\smalloiii}
+Error: Cannot locate a persistent symbol named *BAR*.
+  [condition type: SIMPLE-ERROR]
+\OmitUnimportant
+\listener{}(p-intern '*bar*)\marginnumber{\smalloiv}
+50327204        \comment{;; This is the numeric objid of the created symbol}
+NIL             \comment{;; NIL means it is a new created persistent symbol}
+\listener{}#!*bar*\marginnumber{\smallov}
+#<unbound-marker=0x104>
+\end{IndentedCompactCode}
+
+The value of a persistent symbol can be set with \fcite{setf}\ \oi.
+The value of the transient symbol will neither be set
+nor be changed \oii; only the name and package of the transient symbol
+are used to reference the persistent symbol's name and package.
+Opposed to transient symbols, a read access to a non-existing
+persistent symbol will not result in the persistent symbol being
+automatically inserted into the database's symbol table, but will
+raise an error \oiii.  This is done to prevent the database from
+getting littered with a lot of automatic inserted and maybe otherwise
+unused symbols.  Creating a new, unbound persistent symbol can be done
+by calling \fcite{p-intern}\ \oiv. Referencing an unbound persistent
+symbol will not raise an error, but will return a special marker
+instance representing an unbound persistent object \ov.
+
+The complete reference chain to a persistent symbol is:
+\begin{quote}
+  Persistent root $\rightarrow$ package table
+  $\stackrel{*}{\rightarrow}$ package $\rightarrow$ list of internal
+  symbols $\stackrel{*}{\rightarrow}$ symbol
+\end{quote}
+
+\refpar[for persistent symbols]
+\begin{RefList}\itemsep0pt
+
+  \Allocator \Fcite{p-allocate-symbol}
+
+  \Creator \Fcite{p-setq}
+
+  \TypePredicate \Fcite{p-symbolp}
+
+  \ObjectStore \Fcite{(setf p-symbol)}
+
+  \ObjectLoad \Fcite{p-symbol}
+
+  \SlotReader \Fcite{p-symbol-function}, \fcite{p-symbol-name},
+  \fcite{p-symbol-package}, \fcite{p-symbol-plist},
+  \fcite{p-symbol-value}
+
+  \SlotWriter \Fcite{(setf p-symbol-function)}, \fcite{(setf
+    p-symbol-plist)}, \fcite{(setf p-symbol-value)},
+  \fcite{p-fmakunbound}, \fcite{p-makunbound}.
+
+  Once established, the name of a persistent symbol can not be
+  changed, so there is no writer for a symbol's name.
+
+  \Information \Fcite{p-boundp}, \fcite{p-fboundp}
+
+\item[Administration] \Fcite{p-find-symbol}, \fcite{p-intern},
+  \fcite{p-unintern}
+
+\end{RefList}
+
+\section{Persistent packages}
+
+Persistent packages serve as containers for persistent symbols; all
+persistent packages are reachable and are therefore never garbage
+collected. At the moment, all persistent symbols belonging to a
+persistent package are internal persistent symbols.  If the same
+database is used by different LISP systems (for example, by \lwcl\ and
+\allegrocl\ at the same time), there is a need for exporting symbols
+and a persistent use-package list, see \fcite{p-find-class}\ and
+section \Nameref{sec:MissingUsePackage}.
+
+\refpar \Fcite{p-find-package}, \fcite{p-delete-package},
+\fcite{p-package-internals}, \fcite{p-apropos-packages},
+\fcite{p-package}, \fcite{p-package-name},
+\fcite{p-package-externals}.
+
+\section{Markers}%
+\label{sec:Markers}
+
+\plob\ has an addtional class \class{marker}.  Its nature and semantic
+shows some resemblance to \cl's condition classes, with the difference
+that it does not have an associated error handling protocol.  Markers
+are used for representing certain conditions, which are not
+necessarily error conditions.
+\begin{description}
+
+\item[Unbound slot] The marker object contained in
+  \fcite{+plob-unbound-marker+}\ is used for slots which are not bound
+  to a value: A slot which references such a marker is considered as
+  being unbound.
+
+\item[Unstorable object] If \plob\ encounteres objects it can not
+  store into the database, the instance in
+  \fcite{+plob-unstorable-object-marker+}\ is stored instead of the
+  unstorable object itself. Since \plob\ is almost type-complete, this
+  marker is used very rare, mainly when attempting to store binary
+  function code.
+
+\item[Extremal value] The marker object contained in
+  \fcite{+plob-min-marker+}/\fcite{+plob-max-marker+}\ represent a
+  generic object with its state being equal to the state of the
+  minimum/maximum object in a set. For a set of persistent numeric
+  values, they serve as a representation for the minimum/maximum
+  number contained in the set. For a set with persistent strings, they
+  represent the first/last string in this [ASCII-]ordered set.
+
+  For example, let's take the \lisp{*c*}\ btree from
+  \Nameref{sec:HierarchicalKeys}. The data associated to the
+  minimum/maximum key stored in btree \lisp{*c*}\ can be retrieved by:
+  \begin{CompactCode}
+\listener{}(getbtree +plob-min-marker+ *c*)
+"string (1 1)."
+\listener{}(getbtree +plob-max-marker+ *c*)
+"string (4d0 3)."
+  \end{CompactCode}
+  The corresponding key values themselves can be requested by a call
+  to \fcite{btree-minkey}/\fcite{btree-maxkey}:
+  \begin{CompactCode}
+\listener{}(btree-minkey *c*)
+#(1 1)
+\listener{}(btree-maxkey *c*)
+#(4d0 3)
+  \end{CompactCode}
+
+\end{description}
+Often, those conditions are represented by LISP implementators by
+using singular objects, like a string or a symbol for each marker
+instance.  The concept of a marker class represents those conditions
+explicit by instances of a disjunctive class. Markers are
+represented as immediates, and so do not take up much space.
+
+\refpar \Fcite{+plob-min-marker+}, \fcite{+plob-max-marker+},
+\fcite{+plob-unbound-marker+},
+\fcite{+plob-unstorable-object-marker+}.
+
+\section{Persistent btrees}%
+\label{sec:PersistentBTree}
+
+A btree is similar to the well-known hash table: It associates a value
+to a key. The difference to a hash table is that the keys are
+1-dimensional sorted. Two kinds of sortings can be used:
+\begin{description}
+
+\item[By identity] This will sort the keys according to their
+  \objid[s]. Since each persistent object has an \objid, all
+  persistent objects regardless of their class can be used as key
+  objects in a single btree.
+
+\item[By state] This will sort the keys according to their state. This
+  implies for key objects to be inserted, that they must be able to
+  compare their state with the state of all keys which are already
+  stored in the btree. For the most important persistent classes used
+  with btrees, compare methods have been implemented.
+
+\end{description}
+The kind of sorting is selected with the \keyarg{test}\ argument
+passed to \fcite{make-btree}. A \keyarg{test}\ argument of \lisp{eq}\ 
+will sort the keys by identity, and a \keyarg{test}\ argument of
+\lisp{equal}\ will sort the keys by state.
+
+\refpar \Fcite{persistent-btree}\ and \fcite{make-btree},
+\fcite{getbtree}, \fcite{clrbtree}, \fcite{rembtree},
+\fcite{btree-count}, \fcite{btree-size},
+\fcite{btree-test}, \fcite{p-apropos-btree}.
+
+\subsection{Btrees sorted by state}
+
+For an \lisp{equal}\ btree, the type(s) of keys it can contain is
+fixed with the first object inserted into the btree.
+\begin{IndentedCompactCode}
+\listener{}(setf *b* (make-btree :test 'equal))
+#<btree equal 0/0=0*678 short-objid=50327519>
+\listener{}(setf (getbtree 1 *b*) "string 1.")\marginnumber{\smalloi}
+"string 1."
+\listener{}(setf (getbtree 2.0 *b*) "string 2.0.")\marginnumber{\smalloii}
+"string 2.0."
+\listener{}(setf (getbtree "three" *b*) "string three.")\marginnumber{\smalloiii}
+Error: From server at executing client:SH_btree_insert_by_string:
+       splobbtree.c(1153): fnKeyCmp:
+       Illegal search key "three" for
+       object #<btree equal 2/678=1*678 short-objid=50327519>:
+       compare failed with
+       object 1.
+  [condition type: POSTORE-ERROR]
+\end{IndentedCompactCode}
+
+For example, if the first object inserted into an \lisp{equal}\ btree
+is a number \oi, only numbers can be inserted afterwards \oii; trying
+to insert for example a string will raise an error \oiii.
+
+\subsubsection{Hierarchical keys}%
+\label{sec:HierarchicalKeys}
+
+Using a non-atomic object as a key in an \lisp{equal}\ btree has a
+special meaning: \plob\ will try to insert the key according to an
+element-wise comparision to the slots of the keys already found in the
+btree. This way, a non-atomic key object is a compound key, with its
+first slot being the primary key, the second slot being the secondary
+key and so on:
+\begin{IndentedCompactCode}
+\listener{}(setf *c* (make-btree :test 'equal))
+#<btree equal 0/0=0*678 short-objid=50327520>
+\listener{}(setf (getbtree #(1 1) *c*) "string (1 1).")
+"string (1 1)."
+\listener{}(setf (getbtree #(1 2) *c*) "string (1 2).")
+"string (1 2)."
+\listener{}(setf (getbtree #(1 3.0) *c*) "string (1 3.0).")
+"string (1 3.0)."
+\listener{}(setf (getbtree #(4d0 3) *c*) "string (4d0 3).")
+"string (4d0 3)."
+\listener{}(p-apropos-btree *c*)
+#(1 1), data: #<simple-string `string (1 1).' short-objid=50327507>
+#(1 2), data: #<simple-string `string (1 2).' short-objid=50327504>
+#(1 3.0), data: #<simple-string `string (1 3.0).' short-objid=50327502>
+#(4.0d0 3), data: #<simple-string `string (4d0 3).' short-objid=50327369>
+\end{IndentedCompactCode}
+
+\subsection{Mapping btrees}
+
+\Fcite{mapbtree}\ can be used to map all elements of a btree.
+\begin{IndentedCompactCode}
+\listener{}(mapbtree #'(lambda (key data)\marginnumber{\smalloi}
+                          (format t "key ~A, data ~A~%" key data) t)\marginnumber{\smalloii}
+                       *b*)
+key 1, data string 1.
+key 2.0, data string 2.0.
+2\marginnumber{\smalloiii}
+\listener{}(mapbtree #'(lambda (key data)
+                          (format t "key ~A, data ~A~%" key data) t)
+                       *b* :descending t)\marginnumber{\smalloiv}
+key 2.0, data string 2.0.
+key 1, data string 1.
+2\marginnumber{\smalloiii}
+\listener{}(mapbtree #'(lambda (key data)\marginnumber{\smallov}
+                          (format t "key ~A, data ~A~%" key data) t)
+                       *b* :>= 2)
+key 2.0, data string 2.0.
+1\marginnumber{\smalloiii}
+\end{IndentedCompactCode}
+
+Since the keys are ordered, the map function is called by default with
+the keys in ascending order \oi.  It is important that the map
+function returns a \nonnil\ value if the mapping should continue with
+the next element \oii. The call to \fcite{mapbtree}\ returns the
+number of mapped btree elements \oiii.  If the \keyarg{:descending}\ 
+argument is passed with a \nonnil\ value, the key interval is iterated
+in descending order \oiv.  It is possible to restrict the mapping to
+an interval of key values \ov. The lower key to map can be passed with
+a \keyarg{:>}\ or \keyarg{:>=}\ argument, the upper key to map with a
+\keyarg{:<}\ or \keyarg{:<=}\ argument.
+
+It is allowed to delete the key currently passed to the map function
+from the btree.
+
+\refpar \Fcite{mapbtree}
+
+\subsection{Cursors on btrees}
+
+An access interface similar to cursors in SQL is available for btrees.
+Instances of \fcite{persistent-btree-mapper}\ can be used for
+accessing a btree by positioning. For example, create a btree with
+some elements in it.
+\begin{IndentedCompactCode}
+\listener{}(setf *btree* (make-btree :test 'equal))
+#<btree equal 0/0=0*678 short-objid=50327518>
+\listener{}(dotimes (i 1000) (setf (getbtree i *btree*)
+                                   (format nil "String ~A" i)))
+\end{IndentedCompactCode}
+
+Now, the btree is accessed by an instance of
+\fcite{persistent-btree-mapper}.
+\begin{IndentedCompactCode}
+\listener{}(setf *mapper* (make-btree-mapper *btree*))\marginnumber{\smalloi}
+\listener{}(btree-mapper-seek *mapper* 1)\marginnumber{\smalloii}
+1
+0
+"String 0"
+\listener{}(btree-mapper-seek *mapper* 1)\marginnumber{\smalloii}
+1
+1
+"String 1"
+\listener{}(btree-mapper-seek *mapper* -1 :end)\marginnumber{\smalloiii}
+1
+998
+"String 998"
+\end{IndentedCompactCode}
+A mapper is established by calling the constructor of the mapper with
+the btree as its argument which should be iterated \oi; further
+optional arguments can specify a search interval for the mapper. With
+a call to \fcite{btree-mapper-seek}, the next or previous element is
+returned. Positioning can be done relative to the start or end of the
+current search interval \smalloiii.
+
+\refpar \Fcite{make-btree-mapper}, \fcite{btree-mapper-search},
+\fcite{btree-mapper-seek}, \fcite{(setf btree-mapper-seek)}
+
+\subsection{Setting the page size}
+
+The internal used page size of a btree can be set either by passing
+the key argument \keyarg{pagesize}\ along with the number of objects
+each btree page should hold, or by calling \fcite{(setf
+  btree-pagesize)}. For very small or very big btrees, a smaller
+or larger page size than the default page size should be used. To
+be more exact, the page size' optimum is fulfilled for
+\begin{displaymath}\begin{array}{rcl}
+%
+n^{n} &\approx& o\\[\smallskipamount]
+%
+n &\equiv& \textrm{page size}\\
+o &\equiv& \textrm{total number of objects in btree}
+\end{array}\end{displaymath}
+
+\refpar \Fcite{make-btree}, \fcite{(setf btree-pagesize)},
+\fcite{btree-pagesize}.
+
+\subsection{Requesting extremal values}
+
+The data object associated to the minimum or maximum key object
+contained in a btree can be requested by passing the special marker
+objects \fcite{+plob-min-marker+}\ and \fcite*{+plob-max-marker+}\ to
+\fcite{getbtree}. This way, it is also possible to modify the data
+objects associated to the minimum or maximum key by passing the
+marker object to \fcite*{(setf getbtree)}.  The minimum or maximum
+key object itself is returned by a call to \fcite{btree-minkey}\ 
+or \fcite{btree-maxkey}.
+
+\refpar \Fcite{+plob-min-marker+}, \fcite{+plob-max-marker+};
+\Fcite{btree-minkey}, \fcite{btree-maxkey}.
+
+\subsection{Inspecting btrees}
+
+In \lwcl, a btree's contents can be viewed with the built in \lw\
+inspector. Simply start an inspector on a btree object to look at its
+contents. To see the structure of the btree correctly, in the
+inspector's `View' menu the entry `Unsorted' should be selected.
+
+\subsubsection[Inspecting the index associated to a slot]{Example:
+  Inspecting the index associated to a slot} 
+
+For example, store some thousand persons by evaluating
+\lisp{(store-n-random-people 2000)}\ (found in
+\lisp{plob-\thisversion/}\lisp{src/}\lisp{example/}\lisp{plob-example.lisp}.
+Evaluate \lisp{(p-find-class 'person)}, this will return as first
+value the \clsdo\ of class \class{person}. Inspect this first value.
+Next, inspect the vector labelled \lisp{PLOB::P-EFFECTIVE-SLOTS}.
+Next, inspect the instance marked as being the
+effective-slot-description for slot \textbf{soc-sec-\#}. In this \sltdo,
+the index defined for slot \textbf{soc-sec-\#}\ of class \class{person}\ 
+can be found within the line labelled \lisp{PLOB::P-INDEX}. Inspect
+this instance; this will show the btree which is used for representing
+the index declared on slot \textbf{soc-sec-\#}\ within class
+\class{person}.
+
+\section{Class management}
+
+A \clsmo\ is stored into the database as a \clsdo\ the first time an
+instance of the class is to be stored to the database. Vice versa, if
+a persistent instance is loaded from the database, its class
+definition is compiled into the transient LISP image.  A \clsdo\ is a
+poor man's version of a \clsmo: In contrary to the elegant definition
+of \mo[s]\ based on their behavior as given in \cite{bib:AMOP}, it is
+defined in terms of its structure.  This restriction was necessary
+since \plob\ can not store methods.
+
+Conflicts are resolved at the moment that at storing a class a
+definition mismatch will result in the class being stored anew, and a
+conflict at loading a class will be solved by overwriting the
+transient definition by the persistent one. For future directions, see
+section \Nameref{sec:Views}.
+
+Not all slots of a \clsmo\ are stored; some slots are omitted, since
+otherwise the transitive closure of the \clsmo\ would contain more or
+less all classes of the current LISP image. For example, the slot
+containing all subclasses of a class is omitted, since this would
+store all classes of the current LISP image to the database (when
+referencing the class' superclasses).  Since \plob\ can not store
+binary function code, no methods are stored, too.  System created
+methods, like the ones created by the \lisp{:accessor},
+\lisp{:reader}\ or \lisp{:writer}\ slot options, are not stored as
+methods, but will be generated when the class is compiled into the
+current LISP image.
+
+If a class is deleted from the class table by a call to
+\fcite{p-delete-class}, it will be reinserted if an instance of the
+class is referenced.
+
+\refpar \Fcite{p-find-class}, \fcite{p-delete-class},
+\fcite{p-class-of}, \fcite{p-apropos-classes}.
+
+\section{Schema evolution}%
+\label{sec:SchemaEvolution}
+
+The default schema evolution for all structure classes is specified by
+the value of \fcite{*default-structure-schema-evolution*}; for \clos\ 
+classes, the value of \fcite{*default-clos-schema-evolution*}\ is
+used.
+
+\refpar \Fcite{(setf schema-evolution)},
+\fcite{*default-structure-schema-evolution*},
+\fcite{*default-clos-schema-evolution*}.
+
+\section{Other useful functions}
+
+\Fcite{p-apropos}\ will print out all persistent symbols containing
+the passed string in their name:
+\begin{IndentedCompactCode}
+\listener{}(p-apropos "person")
+common-lisp-user::*last-name->person-list*,
+                  value: #<btree equal 9/678 short-objid=50329169>
+common-lisp-user::person
+common-lisp-user::person-age (defined)
+common-lisp-user::person-first-name (defined)
+common-lisp-user::person-last-name (defined)
+common-lisp-user::person-name (defined)
+common-lisp-user::person-occupation (defined)
+common-lisp-user::person-sex (defined)
+common-lisp-user::person-soc-sec-# (defined)
+\end{IndentedCompactCode}
+
+This is the output after file
+\lisp{plob-\thisversion/}\lisp{}src/\lisp{example/}\lisp{plob-example.lisp}\ 
+has been compiled and loaded and some random persons have been
+generated (see \fcite{random-person}). A \lisp{(defined)} indicates
+that a function binding has been done to the persistent symbol as
+explained in section \Nameref{sec:BinaryCode}.
+
+Functions \fcite*{p-statistics}\ and \fcite*{p-configuration}\ will
+return some low level database informations.
+
+Calling \fcite{p-stabilise}\ will force a flush of all pending file
+operations in the server.
+
+\refpar \Fcite{p-apropos}, \fcite{p-statistics}, \fcite{p-configuration},
+\fcite{p-stabilise}.
+
+\section{Performance}%
+\label{sec:Performance}%
+%
+\begin{fortune}[7cm]%
+Don't let the sun go down on me.
+\from{Elton John}\\[\medskipamount]
+\emph{[\plob\ 1.0 was developed on a SUN SPARCstation.]}
+\end{fortune}%
+
+\newlength{\codew}\setlength{\codew}{0.3\textwidth}%
+\newlength{\perfw}\setlength{\perfw}{0.35\textwidth}%
+\newlength{\timew}\setlength{\timew}{8\lispblank}%
+\newcounter{perfcount}%
+\newlength\codeblank%
+\settowidth\codeblank{\texttt{\CompactCodeSize\ }}%
+\def\timeboxi#1{\parbox[t]{\timew}{%
+\hspace*{\fill}#1}\smallskip}%
+\def\timeboxii#1#2{\parbox[t]{\timew}{%
+S+\hspace*{\fill}#1\\%
+S-\hspace*{\fill}#2}\smallskip}%
+%%%
+\noindent{}The equipment used for performance testing was a 200 MHz
+Pentium-II PC with 64 MB RAM, standard EIDE Harddisk, Windows/NT 4.0
+build 1381 service pack 3. The LISP system used was LispWorks Common
+LISP 4.0.1.  The checked \plob\ version was 2.07. The numbers in the
+very right column are operations per second. Those numbers marked `S+'
+are with a server running on \lisp{localhost}\ (that means, on the
+same machine as the LispWorks client using the server); the numbers
+marked by `S-' are for the serverless version.  In the performance
+measurements, care was taken that all operations involved a real
+database access, that means, no cache was used for the storing or
+loading operations.
+
+\subsection{Sequences}
+
+This section contains performance measurements for sequences, namely
+strings, lists and vectors.
+
+\begin{longtable}[c]{|r|p{\codew}|p{\perfw}|p{\timew}|}
+%%%
+  \hline%
+  \textbf{Step} & \textbf{Code} & \textbf{Description} &
+  \textbf{Op./s}\\
+  \hline\hline\endhead
+%%%
+  \refstepcounter{perfcount}\theperfcount\label{step:step1} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (store-object\\
+      \hspace*{2\codeblank}(make-string 32\\
+      \hspace*{4\codeblank}:initial-element\\
+      \hspace*{4\codeblank}\#\bslash{}Space))\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Store strings with a length of 32 characters.}\smallskip &
+%%%
+  \timeboxii{182}{401}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step2} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (load-object\\
+      \hspace*{2\codeblank}\emph{\lt{}objid\gt})\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Load strings with a length of 32 characters. \emph{\lt{}objid\gt}
+    references one of the persistent strings as generated in the last
+    performance measurement step.}\smallskip &
+%%%
+  \timeboxii{92}{467}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step3} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (store-object\\
+      \hspace*{2\codeblank}(make-list\\
+      \hspace*{4\codeblank}\emph{\lt{}length\gt}\\
+      \hspace*{4\codeblank}:initial-element\\
+      \hspace*{4\codeblank}\emph{\lt{}fixnum\gt}))\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Store a linear list with \emph{\lt{}length\gt} elements, containing
+    only immediates; Op./s is the number of stored list elements per
+    second.}\smallskip &
+%%%
+  \timeboxii{560}{1666}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step4} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (load-object\\
+      \hspace*{2\codeblank}\emph{\lt{}objid\gt})\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Load a linear list; \emph{\lt{}objid\gt} references a persistent
+    linear list as generated in step \ref{step:step1}. Op./s is the
+    number of loaded list elements per second.}\smallskip &
+%%%
+  \timeboxii{414}{1428}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step5} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (store-object\\
+      \hspace*{2\codeblank}(make-array\\
+      \hspace*{4\codeblank}\emph{\lt{}length\gt}\\
+      \hspace*{4\codeblank}:initial-element\\
+      \hspace*{4\codeblank}\emph{\lt{}float\gt}))\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Store a simple vector with \emph{\lt{}length\gt} elements,
+    containing non-immediate \emph{\lt{}floats\gt}; Op./s is the number
+    of stored vector elements per second.}\smallskip &
+%%%
+  \timeboxii{600}{4761} \\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step6} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (load-object\\
+      \hspace*{2\codeblank}\emph{\lt{}objid\gt})\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Load a simple vector; \emph{\lt{}objid\gt} references a persistent
+    simple vector as generated in step \ref{step:step5}. Op./s is
+    the number of loaded vector elements per second.}\smallskip &
+%%%
+  \timeboxii{2100}{2857}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step7}&
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (store-object\\
+      \hspace*{2\codeblank}(make-array\\
+      \hspace*{4\codeblank}\emph{\lt{}length\gt}\\
+      \hspace*{4\codeblank}:initial-element\\
+      \hspace*{4\codeblank}\emph{\lt{}fixnum\gt}))\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Store a simple vector with \emph{\lt{}length\gt} elements,
+    containing only immediates; Op./s is
+    the number of stored vector elements per second.}\smallskip &
+%%%
+  \timeboxii{14000}{12500}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step8}&
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (load-object\\
+      \hspace*{2\codeblank}\emph{\lt{}objid\gt})\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Load a simple vector; \emph{\lt{}objid\gt} references a persistent
+    simple vector as generated in step \ref{step:step7}. Op./s is
+    the number of loaded vector elements per second.}\smallskip &
+%%%
+  \timeboxii{20895}{33333}\\
+%%%
+%%%
+  \hline
+%%%
+\end{longtable}
+
+Step \ref{step:step7} is the only performance test step where the
+server mode outperforms the serverless mode. The only explanation I
+have is that this performance test step has been done with a rather
+big array containing 100000 elements, and that the blockwise (and
+implicit concurrent) transfer of the server mode does a better job
+here than the serverless mode, which does no blockwise or concurrent
+transfer at all.
+
+\subsection{CLOS instances}
+
+Following CLOS class has been used for testing tight-bounded
+persistency (section \Nameref{sec:TightBinding}):
+\begin{IndentedCompactCode}
+(defclass p-example-clos-class ()\\
+  ((slot-3 :initform nil :extent :transient)\\
+   (slot-5 :initform nil :extent :cached)\\
+   (slot-7 :initform nil :extent :cached-write-through))\\
+  (:metaclass persistent-metaclass))
+\end{IndentedCompactCode}
+
+An \lisp{:extent}\ of \lisp{:transient}\ means that the slot is
+not represented in the database at all.  An \lisp{:extent}\ of
+\lisp{:cached}\ means that the slot is represented in the database,
+but will only be updated when explicitely requesting so.  An
+\lisp{:extent}\ of \lisp{:cached-write-through}\ will update the
+slot in the database each time it is written to; this is the default
+extent used by \plob\ (section \Nameref{sec:AdditionalSlotOptions}).
+
+\begin{longtable}[c]{|r|p{\codew}|p{\perfw}|p{\timew}|}
+%%%
+  \hline
+  \textbf{Step} & \textbf{Code} & \textbf{Description} &
+  \textbf{Op./s} \\ 
+  \hline\hline\endhead
+%%%
+  \refstepcounter{perfcount}\theperfcount\label{step:step9}&
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (make-instance\\
+      \hspace*{2\codeblank}'p-example-clos-\\
+      \hspace*{3\codeblank}class)\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Allocation of a persistent instance and initialization of their slots
+    according to their \lisp{:initform}.}\smallskip &
+%%%
+  \timeboxii{165}{285}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step10} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (load-object\\
+      \hspace*{2\codeblank}\emph{\lt{}objid\gt})\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Load of a persistent instance; \emph{\lt{}objid\gt} references a
+    persistent instance as generated in step
+    \ref{step:step9}.}\smallskip &
+%%%
+  \timeboxii{240}{344}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step11}&
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (setf (slot-value
+      \hspace*{7\codeblank}\emph{\lt{}object\gt}\\
+      \hspace*{7\codeblank}'slot-3)\\
+      \hspace*{2\codeblank}\emph{\lt{}fixnum\gt})\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Set a \lisp{:transient}\ slot of a tight-bounded persistent class
+    (implies no storing of the slot's value to the database).
+    \emph{\lt{}object\gt} references a persistent instance as generated
+    in step \ref{step:step9}.}\smallskip &
+%%%
+  \timeboxi{21000}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step12}&
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (slot-value \emph{\lt{}object\gt}\\
+      \hspace*{2\codeblank}'slot-3)\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Load the value of a \lisp{:transient}\ slot of a tight-bounded
+    persistent class (implies no loading of the slot's value from the
+    database).  \emph{\lt{}object\gt} references a persistent instance
+    as generated in step \ref{step:step9}.}\smallskip &
+%%%
+  \timeboxi{29400}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step13} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (setf (slot-value\\
+      \hspace*{7\codeblank}\emph{\lt{}object\gt}\\
+      \hspace*{7\codeblank}'slot-5)\\
+      \hspace*{2\codeblank}\emph{\lt{}fixnum\gt})\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Set a \lisp{:cached}\ slot of a tight-bounded persistent class
+    (implies no storing of the slot's value to the database).
+    \emph{\lt{}object\gt} references a persistent instance as generated
+    in step \ref{step:step9}.}\smallskip &
+%%%
+  \timeboxi{22000}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step14} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+    (slot-value \emph{\lt{}object\gt}\\
+    \hspace*{2\codeblank}'slot-5)\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Load the value of a \lisp{:cached}\ slot of a tight-bounded
+    persistent class (implies no loading of the slot's value from the
+    database).  \emph{\lt{}object\gt} references a persistent instance
+    as generated in step \ref{step:step9}.}\smallskip &
+%%%
+  \timeboxi{31300}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step15}&
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (setf (slot-value\\
+      \hspace*{7\codeblank}\emph{\lt{}object\gt}\\
+      \hspace*{7\codeblank}'slot-7)\\
+      \hspace*{2\codeblank}\emph{\lt{}fixnum\gt})\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Set a \lisp{:cached-write-through}\ slot of a tight-bounded
+    persistent class to an immediate fixnum.  \emph{\lt{}object\gt}
+    references a persistent instance as generated in step
+    \ref{step:step9}.}\smallskip &
+%%%
+  \timeboxii{384}{1315}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step16}&
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (slot-value \emph{\lt{}object\gt}\\
+      \hspace*{2\codeblank}'slot-7)\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Load the value of a \lisp{:cached-write-through}\ slot of a
+    tight-bounded persistent class. The value loaded is an immediate
+    fixnum.  \emph{\lt{}object\gt} references a persistent instance as
+    generated in step \ref{step:step9}.}\smallskip &
+%%%
+  \timeboxi{31300}\\
+%%%
+%%%
+  \hline
+%%%
+\end{longtable}
+
+For steps \ref{step:step11}--\ref{step:step14} and \ref{step:step16}
+there are no performance differences between the serverless and server
+mode, because no data transfer between the client and the database is
+involved (for these steps, the LISP layer is never left).
+
+\subsection{Database-specific functions}
+
+\begin{longtable}[c]{|r|p{\codew}|p{\perfw}|p{\timew}|}
+%%%
+  \hline
+  \textbf{Step} & \textbf{Code} & \textbf{Description} &
+  \textbf{Op./s} \\ 
+  \hline\hline\endhead
+%%%
+  \refstepcounter{perfcount}\theperfcount\label{step:step17}&
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (p-allocate-cons)\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Allocation of an empty persistent cons cell.}\smallskip &
+%%%
+  \timeboxii{1639}{9090}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step18} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (with-transaction ()\\
+      \hspace*{2\codeblank}nil)\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Empty transaction.}\smallskip &
+%%%
+  \timeboxii{770}{5000}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step19} &
+%%%
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+    (with-transaction ()\\
+    \hspace*{2\codeblank}(write-lock-store)\\
+    \hspace*{2\codeblank}nil)\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Empty transaction locking the whole database (this performance is
+    comparable to the performance of single-object level
+    locking).}\smallskip &
+%%%
+  \timeboxii{476}{1818}\\
+%%%
+%%%
+  \hline
+%%%
+\end{longtable}
+
+\subsection{Different usage of transactions and locking}
+
+In this section, the performance is shown for the single operation of
+step \ref{step:step9}, but with different usage of transactions
+and object locking.  The default behavior of \plob\ as shown in
+step \ref{step:step9} involves one transaction for each call to
+\fcite{make-instance}\ and the (implicit) usage of some locks at
+storing the object. Using transactions and locks on bigger `chunks' of
+objects improves performance for a single user significantly, but will
+make the `granularity' of object access more coarse, making concurrent
+access slower.
+
+\begin{longtable}[c]{|r|p{\codew}|p{\perfw}|p{\timew}|}
+%%%
+  \hline%
+  \textbf{Step} & \textbf{Code} & \textbf{Description} &
+  \textbf{Op./s} \\
+  \hline\hline\endhead
+%%%
+  \ref{step:step9} &
+  \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+      (make-instance\\
+      \hspace*{2\codeblank}'p-example-clos-\\
+      \hspace*{3\codeblank}class)\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    Allocation of a persistent instance and initialization of their
+    slots according to their \lisp{:initform}\ (this is step
+    \ref{step:step9} repeated here for completeness).}\smallskip &
+%%%
+  \timeboxii{165}{285}\\
+%%%
+%%%
+  \hline%
+  \refstepcounter{perfcount}\theperfcount\label{step:step20}&
+%%%
+ \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+     (with-transaction ()\\
+     \hspace*{2\codeblank}(dotimes (i 1000)\\
+     \hspace*{4\codeblank}(make-instance\\
+     \hspace*{6\codeblank}'p-example-clos-\\
+     \hspace*{7\codeblank}class)))\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    1000 instances of step \ref{step:step9} generated in a single
+    transaction; Op./s is the number of stored instances per
+    second.}\smallskip &
+%%%
+ \timeboxii{175}{322}\\
+%%%
+%%%
+ \hline%
+ \refstepcounter{perfcount}\theperfcount\label{step:step21} &
+%%%
+ \parbox[t]{\codew}{\begin{tt}\CompactCodeSize%
+     (with-transaction ()\\
+     \hspace*{2\codeblank}(write-lock-store)\\
+     \hspace*{2\codeblank}(dotimes (i 1000)\\
+     \hspace*{4\codeblank}(make-instance\\
+     \hspace*{6\codeblank}'p-example-clos-\\
+     \hspace*{7\codeblank}class)))\end{tt}}\smallskip &
+%%%
+  \parbox[t]{\perfw}{%
+    1000 instances of step \ref{step:step9} generated in a single
+    transaction with an exclusive write lock set onto the whole
+    database; Op./s is the number of stored instances per
+    second.}\smallskip &
+%%%
+ \timeboxii{270}{357}\\
+%%%
+%%%
+  \hline
+%%%
+\end{longtable}
+
+\subsection{File space allocation}
+
+This section explains how much file space is allocated by \plob\ for a
+persistent object. All persistent objects are stored in a
+(memory-mapped) file; this is the file named \lisp{stablestore}\ in
+each database directory.  \hyperlink{link:Immediate}{Immediates}\ use
+up no file space at all.
+
+\subsubsection[Non-CLOS objects]{Non-\protect\clos\ objects}
+
+Non-immediates, non-\clos\ objects and \lisp{defstruct}\ objects have
+an overhead of 6 words $\equiv$ 24 bytes. The total file space
+allocated for such an object is the sum of the overhead plus 1 word
+$\equiv$ 4 bytes per `slot'. For example, a cons cell has 2 slots
+(\lisp{car}\ and \lisp{cdr}) and will take up a total of 6 + 2 = 8
+words $\equiv$ 24 + 8 = 32 bytes.
+
+\subsubsection[CLOS objects]{\protect\clos\ objects}
+
+For \clos\ instances, the overhead is 14 words $\equiv$ 56 bytes plus
+1 word $\equiv$ 4 bytes per slot. For example, a \clos\ instance with
+2 slots will take up a total of 14 + 2 = 16 words $\equiv$ 56 + 8 = 64
+bytes.
+
+\section{Technical data}%
+\label{sec:TechnicalData}
+
+\input{\Path/techdata}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "userg"
+%%% End: 

@@ -1,0 +1,52 @@
+%
+\begin{deflist}[XXXXXXXXXXXXXXX]
+
+\item[Architecture] Client/server
+
+\item[Operating systems] Solaris 2.x, Linux kernel version 2.x, IRIX
+  6.x, Windows/NT 4.0.
+
+\item[LISP systems]
+  \href{http://www.harlequin.co.uk/products/ads/lispworks/lispworks.html}{\lwcl}\ 
+  3.x for Unix and 4.0.1 for Windows/NT,
+  \href{http://www.franz.com/products/products.html}{\allegrocl}\ 4.3
+  for Unix and 5.0 beta for Unix and Windows/NT.
+
+\item[Databases per Server] Any number of open databases.
+
+\item[Databases per Client] 1
+
+\item[Multi user access] Multiple clients can connect to one server
+  process.
+
+\item[Object space size] Maximum of 384 MB per database (1 GB on a
+  Windows/NT server). This is a technical limit of the low-level
+  persistent storage used for the server.
+
+\item[Access control] Login deny/allow on per-machine basis
+
+\item[Lock protocol] Hierarchical locking.
+
+\item[Lock levels] Whole storage, object, slot.
+
+\item[Lock modes] Read-only, read, write; read-only intent, read
+  intent, write intent
+
+\item[Transactions] Flat transactions. Concurrent transactions are
+  supported, both between different clients and between different
+  database sessions of a single client.
+
+\item[Access protocol] Two phased transactions and locking of the
+  persistent object at object state transfer between client and
+  server.
+
+\item[Indexes supported] Btrees on slots of persistent \clos\ 
+  instances are maintained automatically; direct usage of btrees is
+  possible.
+
+\item[LISP types] All types defined in \cite{bib:CLtLII} are
+  supported, with the exception of binary function code.
+
+\item[Name spaces] Persistent packages containing persistent symbols.
+
+\end{deflist}
