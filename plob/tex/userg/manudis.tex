@@ -1,0 +1,236 @@
+
+\chapter{Distribution}
+
+This chapter contains miscellaneous topics having to do with the
+distribution of \plobwoexcl.
+
+\flabel{\crfsection}{WWW and email addresses}{}
+{\section{WWW and email addresses}}%
+\label{sec:ContactAddress}
+
+The official distribution site is \url{\thiswww}.  The author's email
+address is \url{mailto:\thisemail}.  New versions will be announced to
+the mailing list \url{mailto:plob@lisp.de}\ (for subscribing, use
+\url{mailto:plob-request@lisp.de}\ with \lisp{subscribe}\ in the
+email's text). The list is intended for getting support on problems
+with the installation or usage of \plobwoexcl.
+
+\flabel{\crfsection}{Submitting a bug}{}
+{\section{Submitting a bug}}%
+\label{sec:BugSubmit}
+
+Submit bugs to \url{mailto:plob@lisp.de}. Before submitting a bug,
+please consult \fcite{Common error messages}. When you
+submit a bug, please supply the following informations:
+
+\begin{enumerate}
+
+\item The machine and operating system used, for example as returned
+  by calling \lisp{uname -a}\ in a shell.
+
+\item The LISP system and version used.
+
+\item The \plob\ version used.
+
+\item If applicable, the output shown in the LISP listener which led
+  to the error. If the LISP debugger is raised, please add a stack
+  backtrace, namely both \lisp{:zoom}\ and \lisp{:bt}\ for \allegrocl\ 
+  or \lisp{:bq}\ and \lisp{:bb}\ for \lwcl.
+
+\item If applicable, take a look into the server's logfile
+  \lisp{messages.log}\ located in the database directory and try to
+  identify any error output which might have to do with the error
+  shown at the LISP listener's error prompt. If in doubt, send the
+  whole server's logfile.
+
+\end{enumerate}
+
+\section{Directory structure}
+
+This section explains the structure of the directories delivered with
+\plobwoexcl.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/bin/}}
+
+Find here the server process \lisp{plobd}\ and some shell scripts used
+for compiling, generating documentation etc.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/conf/}}
+
+\unix\ \lisp{make}\ configuration and rule files.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/database/}}
+
+This conatains an empty database file \lisp{stablestore.empty}\ used
+by the \plob\ server for storing the persistent objects.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/lib/}}
+
+C libraries: The library \lisp{libplob.a}\ with object code common to
+the server and client, the server library \lisp{libsplob.a}, the
+client library \lisp{libcplob.a}\ and the \postore\ library
+\lisp{libpostore.a}.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/mail/}}
+
+Some mailings done to different sites.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/ps/}}
+
+The \ps\ files with the documentation.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/server/}}
+
+The C code for the \plob\ server.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/client/}}
+
+The C code for the \plob\ client.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/allegro/}}
+
+The LISP code for the \plob\ \allegrocl\ client.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/lispworks/}}
+
+The LISP code for the \plob\ \lwcl\ client.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/common/}}
+
+The C code used by both the \plob\ server and client.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/include/}} C header files.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/include/allegro/}, 
+\lisp{plob-\protect\thisversion/src/include/lispworks/}}
+
+The LISP files generated from C header files for the foreign function
+interface.
+
+\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/lisp-doc/}}
+
+The LISP module and %
+\tracingmacros2
+\TeX\ %
+\tracingmacros0
+styles used for preparing the reference
+manual \cite{bib:PLOB-manual} by extracting the documentation strings from
+the LISP sources.
+
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/src/lispworks/memory\protect\us{}representation/}}
+
+Some early experiments about the memory representation of transient
+objects in \lw.
+
+\subsection*{Subdirectories \protect\lisp{plob-\protect\thisversion/tex/inputs/},
+ \protect\lisp{plob-\protect\thisversion/tex/manual/}}
+
+The documentation style and \TeX\ source files.
+
+\section[Make targets]%
+{Standard \protect\lisp{make}\ targets}
+
+Each \lisp{Makefile}\ found in one subdirectory of
+\lisp{plob-\thisversion/}\ has following standard targets. One or some
+of these standard targets can be given as arguments to a call of
+\lisp{make}\ as additional command line arguments.  Some
+\lisp{Makefiles}\ have more targets than described here; consult the
+\lisp{Makefile}\ comments to find out which additional targets are
+defined.  It is not necessary to use always the `top-level' makefile
+\lisp{plob-\thisversion/\lb{}Makefile}\ when only files in one
+subdirectory have been changed; calling \lisp{make}\ in each
+subdirectory will re-build only that subdirectory.
+
+\subsection*{Standard \protect\lisp{make}\ target \protect\lisp{all}}
+
+This is the default target; all sources are compiled with default
+compiler settings.
+
+\subsection*{Standard \protect\lisp{make}\ target \protect\lisp{initial}}
+
+Calling this target `initializes' the subdirectory, for example by
+setting up symbolic links, creating directories etc. This target
+should only be called exactly once, but no damage will result from
+calling it more than once.
+
+\subsection*{Standard \protect\lisp{make}\ target \protect\lisp{clean}}
+
+All `garbage' files are removed; these are files with their names
+matching \lisp{*\td}\ (emacs backup files), \lisp{core}, \lisp{a.out}\
+etc. No object files are removed.
+
+\subsection*{Standard \protect\lisp{make}\ target \protect\lisp{dist-clean}}
+
+Like standard target `clean' plus all object files, libraries and
+otherwise generated files are removed. `dist-clean' is an abbrevation
+for `distribution-clean'. All files not belonging to a distribution
+are removed.
+
+\subsection*{Standard \protect\lisp{make}\ target \protect\lisp{toc}}
+
+This target is only found in makefiles which generate \ps\ files.
+It calls \TeX\ up to three times to make sure that the table of
+contents of the documentation will be correct.
+
+\section{Disclaimer}
+
+The work on \plob\ in its entire contents, that means all its software
+and its documentation, has been carried out private.  POET Software
+GmbH has nothing to do with the work presented here. POET Software
+GmbH neither develops nor supports \plob\ nor will do so in the future
+in any way.
+
+\flabel{\crfsection}{License Terms}{}
+{\section{License Terms}}%
+\label{sec:LicenseTerms}
+
+\edef\THISAUTHOR{\expandafter\uppercase{\thisauthor}}
+
+\plob\ Copyright \copyright\ 1994--\thisyear\ \thisauthor. All
+rights reserved.
+
+Unlimited use, reproduction, modification and distribution of this
+software is permitted.  Any copy or modified version of this software
+must include both the above copyright notice of \thisauthor\ and this
+paragraph; for each modified version, an additional statement must be
+added telling the year of modification and quoting the author of the
+modification.  Any distribution of this software must comply with all
+applicable German export control laws.  This software is made
+available AS IS, and \THISAUTHOR\ DISCLAIMS ALL
+WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE, AND NOTWITHSTANDING ANY OTHER PROVISION CONTAINED HEREIN, ANY
+LIABILITY FOR DAMAGES RESULTING FROM THE SOFTWARE OR ITS USE IS
+EXPRESSLY DISCLAIMED, WHETHER ARISING IN CONTRACT, TORT (INCLUDING
+NEGLIGENCE) OR STRICT LIABILITY, EVEN IF \THISAUTHOR\ IS
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+Please note that these license terms adhere only to the code of \plob\ 
+itself. \plob\ uses \postore\ (\textit{P}ersistent \textit{O}bject
+\textit{Store}) as a low-level persistent memory; it is provided in
+binary form within \plob\ with the permission of the
+\href{http://www-ppg.dcs.st-andrews.ac.uk/Default.html}{University of
+  St.\ Andrews}. Contact the University of St.\ Andrews for getting
+their license terms on \postore.
+
+Permission is given to redistribute \plob\ within other software
+packages, given that the redistribution contains exactly the original
+\plob\ distribution files, with all source and binary code and all
+documentation files. For redistributed versions of \plob, the license
+terms remain the same and must not be changed by the distribution
+containing the \plob\ distribution.
+
+\vspace*{\fill}
+\begin{fortune}
+  \hspace*{\fill}There are \emph{(sic!)} a finite number of jokes in
+  the universe.
+% Von einem D. Byrne CD Cover (Stop Making Sense); da steht wirklich
+% ,,are'', nicht das korrekte ,,is''
+\from{David Byrne: Stop Making Sense}
+\end{fortune}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "userg"
+%%% End: 
