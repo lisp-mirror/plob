@@ -1,0 +1,42 @@
+
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+
+\ProvidesPackage{plobbib}
+                [1998/07/01
+ LaTeX2e package]
+
+\newif\if@bibhref
+\@bibhreftrue
+
+\DeclareOption{href}{\@bibhreftrue}
+\DeclareOption{nohref}{\@bibhreffalse}
+
+\ExecuteOptions{href}
+\ProcessOptions
+
+\newcommand{\ifhref}[2]{
+\let\temp@if\relax
+\if@bibhref%
+\ifx\href\undefined\def\temp@if{#2}\else%
+\ifx\hyper@linkend\@empty\def\temp@if{#2}\else%
+\def\temp@if{#1}\fi\fi
+\else\def\temp@if{#2}\fi%
+\temp@if\let\temp@if\relax}
+
+\newcommand{\hrefif}[2]{%
+\def\temp@url{{#1}}\def\temp@txt{#2}%
+\ifhref{\href{\temp@url}{\temp@txt}}%
+{URL \expandafter\url\temp@url}%
+\let\temp@url\@empty\let\temp@txt\@empty}
+
+\newcommand{\urlif}[2]{
+\def\temp@url{{#1}}\def\temp@txt{#2}%
+\ifhref{\href{\temp@url}{\temp@txt}}%
+{URL \expandafter\url\temp@url}%
+\let\temp@url\@empty\let\temp@txt\@empty}
+
+\newcommand{\unknownItem}{\underline{\ \ }}
+\newcommand{\LocalCopy}{Local copy}
+\newcommand{\localCopy}{local copy}
+\newcommand{\RemoteCopy}{Remote copy}
+\newcommand{\remoteCopy}{remote copy}
