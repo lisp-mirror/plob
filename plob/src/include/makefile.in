@@ -61,6 +61,26 @@ drule ( all, \
 	LispTarget, \
 	noActions )
 
+drule ( initial, \
+	allegro dash directories lispworks dash directories, \
+	noActions )
+
+rule ( allegro dash directories, \
+       allegro4 allegro5 allegro6, \
+       noActions )
+
+rule ( allegro4 allegro5 allegro6, \
+       noDependencies, \
+       mkdir ruleTarget )
+
+rule ( lispworks dash directories, \
+       lispworks3 lispworks4, \
+       noActions )
+
+rule ( lispworks3 lispworks4, \
+       noDependencies, \
+       mkdir ruleTarget )
+
 drule ( doc, \
 	ddot slash ddot slash tex slash inputs slash plobversion dot tex, \
 	noActions )

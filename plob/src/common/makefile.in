@@ -213,6 +213,8 @@ drule ( $(STDTARGETS), \
 	noDependencies, \
 	silent $(MAKE) default dash ruleTarget )
 
-# Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
-# End:
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/
