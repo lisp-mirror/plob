@@ -1,0 +1,221 @@
+ plobdadmin
+
+ Timestamp is 37bf4944 (Sun Aug 22 02:50:12 1999)
+
+ Preferred load address is 00400000
+
+ Start         Length     Name                   Class
+ 0001:00000000 0000244cH .text                   CODE
+ 0002:00000000 0000063cH .rdata                  DATA
+ 0002:0000063c 00000000H .edata                  DATA
+ 0003:00000000 00000004H .CRT$XCA                DATA
+ 0003:00000004 00000004H .CRT$XCZ                DATA
+ 0003:00000008 00000004H .CRT$XIA                DATA
+ 0003:0000000c 00000004H .CRT$XIZ                DATA
+ 0003:00000010 00000f20H .data                   DATA
+ 0003:00000f30 00000024H .bss                    DATA
+ 0004:00000000 0000003cH .idata$2                DATA
+ 0004:0000003c 00000014H .idata$3                DATA
+ 0004:00000050 0000014cH .idata$4                DATA
+ 0004:0000019c 0000014cH .idata$5                DATA
+ 0004:000002e8 00000504H .idata$6                DATA
+ 0005:00000000 00000178H .rsrc$01                DATA
+ 0005:00000180 00001bfcH .rsrc$02                DATA
+
+  Address         Publics by Value              Rva+Base   Lib:Object
+
+ 0001:000020f0       _main                      004030f0 f plobdadmin.obj
+ 0001:000021b0       _fnRegisterCcallable       004031b0 f librpclientplobimp:librpclientplob.dll
+ 0001:000021b6       _longjmp                   004031b6 f msvcrt:MSVCRT.dll
+ 0001:000021bc       _exit                      004031bc f msvcrt:MSVCRT.dll
+ 0001:000021c2       _sscanf                    004031c2 f msvcrt:MSVCRT.dll
+ 0001:000021c8       _fgets                     004031c8 f msvcrt:MSVCRT.dll
+ 0001:000021ce       _fflush                    004031ce f msvcrt:MSVCRT.dll
+ 0001:000021d4       _fprintf                   004031d4 f msvcrt:MSVCRT.dll
+ 0001:000021da       _getenv                    004031da f msvcrt:MSVCRT.dll
+ 0001:000021e0       _sprintf                   004031e0 f msvcrt:MSVCRT.dll
+ 0001:000021e6       __strdup                   004031e6 f msvcrt:MSVCRT.dll
+ 0001:000021f0       __setjmp3                  004031f0 f msvcrt:MSVCRT.dll
+ 0001:000021f6       _free                      004031f6 f msvcrt:MSVCRT.dll
+ 0001:000021fc       _strncpy                   004031fc f msvcrt:MSVCRT.dll
+ 0001:00002202       _fputs                     00403202 f msvcrt:MSVCRT.dll
+ 0001:00002208       _fopen                     00403208 f msvcrt:MSVCRT.dll
+ 0001:0000220e       _fclose                    0040320e f msvcrt:MSVCRT.dll
+ 0001:00002214       _memmove                   00403214 f msvcrt:MSVCRT.dll
+ 0001:0000221a       _strtok                    0040321a f msvcrt:MSVCRT.dll
+ 0001:00002220       _fputc                     00403220 f msvcrt:MSVCRT.dll
+ 0001:00002226       _strncmp                   00403226 f msvcrt:MSVCRT.dll
+ 0001:0000222c       __chdir                    0040322c f msvcrt:MSVCRT.dll
+ 0001:00002232       __getcwd                   00403232 f msvcrt:MSVCRT.dll
+ 0001:00002240       __onexit                   00403240 f msvcrt:atonexit.obj
+ 0001:00002270       _atexit                    00403270 f msvcrt:atonexit.obj
+ 0001:00002290       _mainCRTStartup            00403290 f msvcrt:crtexe.obj
+ 0001:000023e0       ___dllonexit               004033e0 f msvcrt:MSVCRT.dll
+ 0001:000023e6       __XcptFilter               004033e6 f msvcrt:MSVCRT.dll
+ 0001:000023ec       __initterm                 004033ec f msvcrt:MSVCRT.dll
+ 0001:00002400       __setdefaultprecision      00403400 f msvcrt:fp8.obj
+ 0001:00002420       __matherr                  00403420 f msvcrt:merr.obj
+ 0001:00002430       __setargv                  00403430 f msvcrt:dllargv.obj
+ 0001:00002440       __except_handler3          00403440 f msvcrt:MSVCRT.dll
+ 0001:00002446       __controlfp                00403446 f msvcrt:MSVCRT.dll
+ 0003:00000000       ___xc_a                    00405000   msvcrt:cinitexe.obj
+ 0003:00000004       ___xc_z                    00405004   msvcrt:cinitexe.obj
+ 0003:00000008       ___xi_a                    00405008   msvcrt:cinitexe.obj
+ 0003:0000000c       ___xi_z                    0040500c   msvcrt:cinitexe.obj
+ 0003:00000f28       __fmode                    00405f28   binmode.obj
+ 0003:00000f2c       ___defaultmatherr          00405f2c   msvcrt:merr.obj
+ 0003:00000f3c       __dowildcard               00405f3c   msvcrt:wildcard.obj
+ 0003:00000f40       __newmode                  00405f40   msvcrt:_newmode.obj
+ 0003:00000f44       __commode                  00405f44   msvcrt:xncommod.obj
+ 0003:00000f48       __adjust_fdiv              00405f48   <common>
+ 0003:00000f4c       ___onexitend               00405f4c   <common>
+ 0003:00000f50       ___onexitbegin             00405f50   <common>
+ 0004:00000000       __IMPORT_DESCRIPTOR_librpclientplob 00406000   librpclientplobimp:librpclientplob.dll
+ 0004:00000014       __IMPORT_DESCRIPTOR_MSVCRT 00406014   msvcrt:MSVCRT.dll
+ 0004:00000028       __IMPORT_DESCRIPTOR_KERNEL32 00406028   kernel32:KERNEL32.dll
+ 0004:0000003c       __NULL_IMPORT_DESCRIPTOR   0040603c   librpclientplobimp:librpclientplob.dll
+ 0004:0000019c       __imp__DebugBreak@0        0040619c   kernel32:KERNEL32.dll
+ 0004:000001a0       \177KERNEL32_NULL_THUNK_DATA 004061a0   kernel32:KERNEL32.dll
+ 0004:000001a4       __imp___controlfp          004061a4   msvcrt:MSVCRT.dll
+ 0004:000001a8       __imp___except_handler3    004061a8   msvcrt:MSVCRT.dll
+ 0004:000001ac       __imp____set_app_type      004061ac   msvcrt:MSVCRT.dll
+ 0004:000001b0       __imp____p__commode        004061b0   msvcrt:MSVCRT.dll
+ 0004:000001b4       __imp___adjust_fdiv        004061b4   msvcrt:MSVCRT.dll
+ 0004:000001b8       __imp____p__fmode          004061b8   msvcrt:MSVCRT.dll
+ 0004:000001bc       __imp___initterm           004061bc   msvcrt:MSVCRT.dll
+ 0004:000001c0       __imp____getmainargs       004061c0   msvcrt:MSVCRT.dll
+ 0004:000001c4       __imp____setusermatherr    004061c4   msvcrt:MSVCRT.dll
+ 0004:000001c8       __imp___XcptFilter         004061c8   msvcrt:MSVCRT.dll
+ 0004:000001cc       __imp___exit               004061cc   msvcrt:MSVCRT.dll
+ 0004:000001d0       __imp____p___initenv       004061d0   msvcrt:MSVCRT.dll
+ 0004:000001d4       __imp____dllonexit         004061d4   msvcrt:MSVCRT.dll
+ 0004:000001d8       __iob                      004061d8   msvcrt:MSVCRT.dll
+ 0004:000001d8       __imp___iob                004061d8   msvcrt:MSVCRT.dll
+ 0004:000001dc       __imp___onexit             004061dc   msvcrt:MSVCRT.dll
+ 0004:000001e0       __imp___chdir              004061e0   msvcrt:MSVCRT.dll
+ 0004:000001e4       __imp__strncmp             004061e4   msvcrt:MSVCRT.dll
+ 0004:000001e8       __imp___getcwd             004061e8   msvcrt:MSVCRT.dll
+ 0004:000001ec       __imp__strtok              004061ec   msvcrt:MSVCRT.dll
+ 0004:000001f0       __imp__memmove             004061f0   msvcrt:MSVCRT.dll
+ 0004:000001f4       __imp__fputc               004061f4   msvcrt:MSVCRT.dll
+ 0004:000001f8       __imp__fopen               004061f8   msvcrt:MSVCRT.dll
+ 0004:000001fc       __imp__fputs               004061fc   msvcrt:MSVCRT.dll
+ 0004:00000200       __imp__fclose              00406200   msvcrt:MSVCRT.dll
+ 0004:00000204       __imp__free                00406204   msvcrt:MSVCRT.dll
+ 0004:00000208       __imp___setjmp3            00406208   msvcrt:MSVCRT.dll
+ 0004:0000020c       __imp__strncpy             0040620c   msvcrt:MSVCRT.dll
+ 0004:00000210       __imp__sprintf             00406210   msvcrt:MSVCRT.dll
+ 0004:00000214       __imp__getenv              00406214   msvcrt:MSVCRT.dll
+ 0004:00000218       __imp___strdup             00406218   msvcrt:MSVCRT.dll
+ 0004:0000021c       __imp__fflush              0040621c   msvcrt:MSVCRT.dll
+ 0004:00000220       __imp__fgets               00406220   msvcrt:MSVCRT.dll
+ 0004:00000224       __imp__fprintf             00406224   msvcrt:MSVCRT.dll
+ 0004:00000228       __imp__sscanf              00406228   msvcrt:MSVCRT.dll
+ 0004:0000022c       __imp__exit                0040622c   msvcrt:MSVCRT.dll
+ 0004:00000230       __imp__longjmp             00406230   msvcrt:MSVCRT.dll
+ 0004:00000234       \177MSVCRT_NULL_THUNK_DATA 00406234   msvcrt:MSVCRT.dll
+ 0004:00000238       __imp__fnClientDbStatistics 00406238   librpclientplobimp:librpclientplob.dll
+ 0004:0000023c       __imp__fnClientDbSessions  0040623c   librpclientplobimp:librpclientplob.dll
+ 0004:00000240       __imp__fnMallocFlags       00406240   librpclientplobimp:librpclientplob.dll
+ 0004:00000244       __imp__fnClientTransactionBegin 00406244   librpclientplobimp:librpclientplob.dll
+ 0004:00000248       __imp__fnClientObjectPrettyPrint 00406248   librpclientplobimp:librpclientplob.dll
+ 0004:0000024c       __imp__fnClientBtreemapFirst 0040624c   librpclientplobimp:librpclientplob.dll
+ 0004:00000250       __imp__fnClientBtreemapNext 00406250   librpclientplobimp:librpclientplob.dll
+ 0004:00000254       __imp__fnClientDbReset     00406254   librpclientplobimp:librpclientplob.dll
+ 0004:00000258       __imp__fnClientTransactionEnd 00406258   librpclientplobimp:librpclientplob.dll
+ 0004:0000025c       __imp__fnClientRestart     0040625c   librpclientplobimp:librpclientplob.dll
+ 0004:00000260       __imp__fnClientDbStabilise 00406260   librpclientplobimp:librpclientplob.dll
+ 0004:00000264       __imp__fnClientGetVersion  00406264   librpclientplobimp:librpclientplob.dll
+ 0004:00000268       __imp__fnGetVersionString  00406268   librpclientplobimp:librpclientplob.dll
+ 0004:0000026c       __imp__fnStartRemoteServer 0040626c   librpclientplobimp:librpclientplob.dll
+ 0004:00000270       __imp__fnClientExit        00406270   librpclientplobimp:librpclientplob.dll
+ 0004:00000274       __imp__fnSplitURL          00406274   librpclientplobimp:librpclientplob.dll
+ 0004:00000278       __imp__szSpace             00406278   librpclientplobimp:librpclientplob.dll
+ 0004:0000027c       __imp__szPlobd             0040627c   librpclientplobimp:librpclientplob.dll
+ 0004:00000280       __imp__fnStartLocalServer  00406280   librpclientplobimp:librpclientplob.dll
+ 0004:00000284       __imp____lpszErrorFile__   00406284   librpclientplobimp:librpclientplob.dll
+ 0004:00000288       __imp__szEmpty             00406288   librpclientplobimp:librpclientplob.dll
+ 0004:0000028c       __imp__fnReAlloc           0040628c   librpclientplobimp:librpclientplob.dll
+ 0004:00000290       __imp____nErrorLine__      00406290   librpclientplobimp:librpclientplob.dll
+ 0004:00000294       __imp____lpszErrorProc__   00406294   librpclientplobimp:librpclientplob.dll
+ 0004:00000298       __imp____eErrorLevel__     00406298   librpclientplobimp:librpclientplob.dll
+ 0004:0000029c       __imp__fnMergeURLs         0040629c   librpclientplobimp:librpclientplob.dll
+ 0004:000002a0       __imp___fnGlobalError      004062a0   librpclientplobimp:librpclientplob.dll
+ 0004:000002a4       __imp__szStreamRead        004062a4   librpclientplobimp:librpclientplob.dll
+ 0004:000002a8       __imp__fnClientPlobd       004062a8   librpclientplobimp:librpclientplob.dll
+ 0004:000002ac       __imp__fnServerGetDirectory 004062ac   librpclientplobimp:librpclientplob.dll
+ 0004:000002b0       __imp__fnClientDbClose     004062b0   librpclientplobimp:librpclientplob.dll
+ 0004:000002b4       __imp__fnFree              004062b4   librpclientplobimp:librpclientplob.dll
+ 0004:000002b8       __imp__fnClientPlobdFlush  004062b8   librpclientplobimp:librpclientplob.dll
+ 0004:000002bc       __imp__fnClientDbOpen      004062bc   librpclientplobimp:librpclientplob.dll
+ 0004:000002c0       __imp__fnMalloc            004062c0   librpclientplobimp:librpclientplob.dll
+ 0004:000002c4       __imp__szLocalhost         004062c4   librpclientplobimp:librpclientplob.dll
+ 0004:000002c8       __imp__szTcp               004062c8   librpclientplobimp:librpclientplob.dll
+ 0004:000002cc       __imp__fnGlobalErrorHandler 004062cc   librpclientplobimp:librpclientplob.dll
+ 0004:000002d0       __imp___fnGlobalAssertFailed 004062d0   librpclientplobimp:librpclientplob.dll
+ 0004:000002d4       __imp__szFormatURL         004062d4   librpclientplobimp:librpclientplob.dll
+ 0004:000002d8       __imp__fnGetCopyrightString 004062d8   librpclientplobimp:librpclientplob.dll
+ 0004:000002dc       __imp__ppszErrorLevel2String 004062dc   librpclientplobimp:librpclientplob.dll
+ 0004:000002e0       __imp__fnRegisterCcallable 004062e0   librpclientplobimp:librpclientplob.dll
+ 0004:000002e4       \177librpclientplob_NULL_THUNK_DATA 004062e4   librpclientplobimp:librpclientplob.dll
+
+ entry point at        0001:00002290
+
+ Static symbols
+
+ 0001:00000000       _fnAdminErrorHandler       00401000 f plobdadmin.obj
+ 0001:00000370       _fnAdminInit               00401370 f plobdadmin.obj
+ 0001:000004f0       _fnAdminDeInit             004014f0 f plobdadmin.obj
+ 0001:00000570       _fnAdminAtExit             00401570 f plobdadmin.obj
+ 0001:000005a0       _fnAdminStreamIn           004015a0 f plobdadmin.obj
+ 0001:00000600       _fnAdminStreamOut          00401600 f plobdadmin.obj
+ 0001:00000640       _fnAdminAssertOpen         00401640 f plobdadmin.obj
+ 0001:00000770       _fnAdminClose              00401770 f plobdadmin.obj
+ 0001:000007a0       _fnAdminSetRootDirectory   004017a0 f plobdadmin.obj
+ 0001:000007f0       _fnAdminReadRootDirectory  004017f0 f plobdadmin.obj
+ 0001:000008a0       _fnAdminSetURL             004018a0 f plobdadmin.obj
+ 0001:000008f0       _fnAdminReadURL            004018f0 f plobdadmin.obj
+ 0001:00000970       _fnAdminLineGet            00401970 f plobdadmin.obj
+ 0001:00000ae0       _fnAdminFilePush           00401ae0 f plobdadmin.obj
+ 0001:00000be0       _fnAdminFilePop            00401be0 f plobdadmin.obj
+ 0001:00000c60       _fnAdminFileLineInc        00401c60 f plobdadmin.obj
+ 0001:00000cb0       _fnAdminFileStackPrint     00401cb0 f plobdadmin.obj
+ 0001:00000cf0       _fnAdminArgPush            00401cf0 f plobdadmin.obj
+ 0001:00000de0       _fnAdminArgPeek            00401de0 f plobdadmin.obj
+ 0001:00000e20       _fnAdminArgPeekNotOption   00401e20 f plobdadmin.obj
+ 0001:00000e40       _fnAdminArgPeekGet         00401e40 f plobdadmin.obj
+ 0001:00000ed0       _fnAdminArgPop             00401ed0 f plobdadmin.obj
+ 0001:00000fc0       _fnAdminArgPopAll          00401fc0 f plobdadmin.obj
+ 0001:00001000       _fnAdminParse              00402000 f plobdadmin.obj
+ 0001:00001050       _fnAdminArgGet             00402050 f plobdadmin.obj
+ 0001:00001180       _fnAdminCmdClose           00402180 f plobdadmin.obj
+ 0001:00001190       _fnAdminCmdEcho            00402190 f plobdadmin.obj
+ 0001:00001260       _fnAdminCmdHelp            00402260 f plobdadmin.obj
+ 0001:000013d0       _fnAdminCreateStartLocal   004023d0 f plobdadmin.obj
+ 0001:00001500       _fnAdminCreateStartRemote  00402500 f plobdadmin.obj
+ 0001:00001530       _fnAdminCreateStart        00402530 f plobdadmin.obj
+ 0001:000016e0       _fnAdminCmdCreate          004026e0 f plobdadmin.obj
+ 0001:00001700       _fnAdminCmdStop            00402700 f plobdadmin.obj
+ 0001:00001790       _fnAdminCmdFlush           00402790 f plobdadmin.obj
+ 0001:000017c0       _fnAdminCmdInfo            004027c0 f plobdadmin.obj
+ 0001:000018b0       _fnAdminCmdQuit            004028b0 f plobdadmin.obj
+ 0001:000018c0       _fnAdminCmdReset           004028c0 f plobdadmin.obj
+ 0001:00001950       _fnAdminCmdRestart         00402950 f plobdadmin.obj
+ 0001:000019e0       _fnAdminCmdRoot            004029e0 f plobdadmin.obj
+ 0001:00001a60       _fnAdminCmdSessions        00402a60 f plobdadmin.obj
+ 0001:00001c00       _fnAdminCmdSource          00402c00 f plobdadmin.obj
+ 0001:00001c50       _fnAdminCmdStart           00402c50 f plobdadmin.obj
+ 0001:00001c70       _fnAdminCmdStatistics      00402c70 f plobdadmin.obj
+ 0001:00001d80       _fnAdminCmdURL             00402d80 f plobdadmin.obj
+ 0001:00001e10       _fnAdminRun                00402e10 f plobdadmin.obj
+
+FIXUPS: 340b fffffefb 1c f 3b 1f 20 fffffebd e fffff7a8 1d 12 24 12f 9
+FIXUPS: 2c21 12 2a 1d 11e 1d 9 1d d e 41 2d 10 23 29 c5 a7 54 57 33 14
+FIXUPS: 3133 4e 9 9 d fffff369 53 8d b 17 33 14 1c 14 11 16 1e 26 35 13
+FIXUPS: 2757 14 17 15 35 116 13 22 14 17 30 13 22 14 17 26 1d fffff6bb
+FIXUPS: 20e7 28 77 20 25 d 24 9 d a d 14 9 9 1c 11 52 46 9 20 9 4f 9 14
+FIXUPS: 23bb 35 c 6e 26 2f 2b fffff4fd 11 e 15 13 d e 14 19 3c 94 1f 98
+FIXUPS: 1c22 b1 9 da 70 24 74 89 18 2d 3e 11 a 29 13 10 3a 1d 2c fffff28e
+FIXUPS: 141a 49 d 1d 19 1f 11 21 36 b b 9 d 33 111 3a 78 62 1b 59 25 3c
+FIXUPS: 18b1 1b 46 4a 53 a 9 9 9 fffff6b4 9 13 44 9 f 14 9 13 9 25 9 27
+FIXUPS: 1197 20 9 24 9 f 9 1a 9 f 9 f 9 e 13 23 4b 10 31
