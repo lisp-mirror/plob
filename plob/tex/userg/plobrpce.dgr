@@ -1,0 +1,78 @@
+%       This is -*-LaTeX-*-
+%
+% 15.09.93
+%
+\newsavebox{\diskfile}\sbox{\diskfile}{\psfig{figure=../manual/diskfile.eps}}%
+%
+\input{diagdefs}%
+%
+\begin{small}
+\def\lheight{18pt}%     % Zeilenhoehe
+\def\fwidth{\smltxtw}%
+%
+\spreaddiagramrows{-1pc}
+\objectmargin{0pt}
+%
+\def\nfrbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\save\Drop{\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}}\restore%
+}%
+\def\frbox#1#2{%
+\save\Drop{\parbox{#1}{\centering#2}}\restore%
+\framebox{\rule{0em}{\lheight}\rule{#1}{0ex}}%
+}%
+%
+\def\frtxt#1{\frbox{\fwidth}{#1}}%
+\def\nfrtxt#1{\nfrbox{\fwidth}{#1}}%
+%
+\begin{diagram}%
+%
+\save\Drop{\text{\textrm{Layer}}}\restore
+  & \rule{8ex}{0ex} & \rule{2em}{0ex}\\
+%
+\Text{\textrm{5}} & \save\Drop{\Text{\textrm{Application-}\\{}\textrm{layer}}}\restore
+        &&\nfrtxt{Session}
+                        &&\nfrtxt{Session}\\
+%
+                &&&\drto|<{\rotate\tip}
+                &&\dlto|<{\rotate\tip}\\
+%
+\Text{\textrm{4}}
+                &&&&\frtxt{\plob}\\
+%
+& \save\Drop{\Text{\plob\\{}\textrm{client}}}\restore\\
+%
+\Text{\textrm{3}}
+                &&&&\uuto|<{\rotate\tip}%
+                    \frtxt{C-\plob\ client}\\
+%
+                       &&&&\rule{0ex}{2em}
+                             &\save\go+<0.5\fwidth,-1em>\Drop{%
+                              \text{\textrm{\small%
+                               Transaction-UNDO-{\em Logs}}}}\restore\\
+%
+\Text{\textrm{2}} & \save\Drop{\Text{\plob\\{}\textrm{server}}}\restore
+                &&&%
+                   %\uuto|<{\rotate\tip}%
+                   %^{\Text{\textrm{TCP/IP}}}%
+                   %_{\Text{\textrm{RPCs}}}%
+                   \ar @{{<}{~}{>}}%
+                     ^{\Text{\textrm{TCP/IP}}}%
+                     _{\Text{\textrm{RPCs}}}%
+                     [uu]%
+                   \frtxt{C-\plob\ server}%
+                   \rto|<{\rotate\tip}%
+                        &\usebox{\diskfile}&\usebox{\diskfile}\\
+%
+\\
+%
+\Text{\textrm{1}} & \save\Drop{\Text{\textrm{Persistent}\\{}\textrm{Memory}}}\restore
+                &&&\uuto|<{\rotate\tip}%
+                   \frtxt{POSTORE}%
+                   \rto|<{\rotate\tip}%
+                        &\usebox{\diskfile}%
+                                &\save\Drop{%
+                                  \text{\textrm{\small\sh\ file}}}\restore
+%
+\end{diagram}%
+\end{small}
