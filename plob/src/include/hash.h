@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------------
 | Module	hash.h
 | Author	Heiko Kirschke
-|		kirschke@kogs26.informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		28.10.93
 | Description	Implements hash tables. An entry into this table consists
 |		of a hash key and an attached data field. The size of the
@@ -9,7 +9,7 @@
 |		specified at hash table creation. The hash table grows
 |		at reaching its capacity.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -35,6 +35,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 

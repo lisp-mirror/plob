@@ -118,6 +118,7 @@ s/\([,`]\)[^!-~]*/\1/g
 s/^[	 ]*;[	 ]*$//
 s/^\(#ident\)/;; \1/g
 s/^\(#line\)/;; \1/g
+s/^  *\((in-package\)/\1/
 p'
 } # fnTrimLispFile
 
@@ -178,14 +179,14 @@ szCmdLine="${CPP}"
 if ${bVerbous}; then
   szCmdLine="${szCmdLine} -v"
 fi
-szIncludes="`echo "${szIncludes}"|sed 's/:/ -I/g'`"
-szCmdLine="${szCmdLine} ${szDefines} -I${szIncludes} ${szTmpCfile}"
+szIncludes="`echo "-I'${szIncludes}'"|sed -e "s/:/' -I'/g"`"
+szCmdLine="${szCmdLine} ${szDefines} ${szIncludes} '${szTmpCfile}'"
 
 if [ -z "${szLispFile}" ]; then
   if ${bVerbous}; then
     echo "${szCmdLine}" 1>&2
   fi
-  ${szCmdLine}|fnTrimLispFile
+  eval ${szCmdLine}|fnTrimLispFile
   nExitCode="$?"
 else
   if ${bVerbous}; then
@@ -193,10 +194,10 @@ else
   fi
   case "`uname`" in
   *[cC][yY][gG][wW][iI][nN]*)
-    ${szCmdLine}|fnTrimLispFile >${TMP}/${nPID}_${szScript}.cr
-    dos2unix ${TMP}/${nPID}_${szScript}.cr ${szLispFile};;
+    eval ${szCmdLine}|fnTrimLispFile >${TMP}/${nPID}_${szScript}.cr
+    dos2unix "${TMP}/${nPID}_${szScript}.cr" "${szLispFile}";;
   *)
-    ${szCmdLine}|fnTrimLispFile >${szLispFile}
+    eval ${szCmdLine}|fnTrimLispFile >${szLispFile}
   esac
   nExitCode="$?"
 fi

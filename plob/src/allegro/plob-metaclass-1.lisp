@@ -1,7 +1,7 @@
 ;;;; -*- Package: PLOB; Mode: LISP; Syntax: ANSI-Common-Lisp -*----------------
 ;;;; Module	plob-metaclass.lisp
 ;;;; Author	Heiko Kirschke
-;;;;		kirschke@kogs26.informatik.uni-hamburg.de
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	9.3.94
 ;;;; Description	PLOB metaclass for persistent classes
 ;;;;
@@ -15,7 +15,7 @@
 ;;;;		The Art of the Metaobject Protocol
 ;;;;		The MIT Press, Cambridge, Massachusetts, 1991
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -42,6 +42,8 @@
 ;;;; (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
+;;;;
+;;;; $Header$
 ;;;;
 ;;;; --------------------------------------------------------------------------
 

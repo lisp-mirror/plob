@@ -2,25 +2,26 @@
 	PLOB! - Persistent Lisp OBjects
 		=	   =    ==
 
-(C) 1994--2000 Heiko Kirschke
-    *New email address*: Heiko.Kirschke@acm.org
+(C) 1994--2001 Heiko Kirschke
+    mailto: Heiko.Kirschke@acm.org
 
-This version: 2.09 as of May 22, 2000
+This version: 2.10 as of February 9, 2001
+$Header$
 
 	ftp Download
 	============
 
-2.09: ftp download is currently not possible from 
+2.10: ftp download is currently not possible from 
 ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/.
 
 The files on http://www.lisp.de/software/plob are mirrored to
 ftp://kogs1.informatik.uni-hamburg.de/pub/software/plob/. Don't forget
 to switch to binary mode (ftp command `bin'). If you encounter
 problems with timeouts, try to download the divided archive in files
-plob-2.09.tar.gz.aa to plob-2.09.tar.gz.ah. On Unix, the original
+plob-2.10.tar.gz.aa to plob-2.10.tar.gz.ah. On Unix, the original
 archive can be restored after having downloaded all files by:
 
-    cat plob-2.09.tar.gz.* > plob-2.09.tar.gz
+    cat plob-2.10.tar.gz.* > plob-2.10.tar.gz
 
 For Windows/NT, download script restore-plob.bat into the same
 directory as the archive components and call
@@ -32,16 +33,15 @@ to restore the complete archive from its components.
 	Release notes
 	=============
 
-A new paper plob-2.09/ps/plobelugm99.pdf has been added which
-describes the experiences made when developing PLOB.
+Release 2.10 supports ACL 6.0.
 
-Between 2.08 and 2.09, PLOB's internal API between the client and
-server code has changed. This means for switching from 2.08 to 2.09,
-all layers except the database layer must use the new 2.09 code; PLOB
-might crash when the 2.09 client code is used with a 2.08 server. So,
-take care for using the 2.09 LISP code, the 2.09 client DLL and the
-2.09 server. Doing a 2.09 standard installation will overwrite the old
-2.08 server binary. The 2.09 components are able to work on pre-2.09
+Between 2.09 and 2.10, PLOB's internal API between the client and
+server code has changed. This means for switching from 2.09 to 2.10,
+all layers except the database layer must use the new 2.10 code; PLOB
+might crash when the 2.10 client code is used with a 2.09 server. So,
+take care for using the 2.10 LISP code, the 2.10 client DLL and the
+2.10 server. Doing a 2.10 standard installation will overwrite the old
+2.09 server binary. The 2.10 components are able to work on pre-2.10
 databases.
 
 	Latest bug fixes
@@ -54,7 +54,7 @@ contain not yet fixed bugs.
 	Documentation
 	=============
 
-Please read the documentation found in subdirectory plob-2.09/ps;
+Please read the documentation found in subdirectory plob-2.10/ps;
 these are the PostScript files:
 
             | Pa- | 
@@ -107,11 +107,11 @@ Here's the roadmap to a quick installation of PLOB!:
 2. Depending on your LISP target system (LispWorks or Allegro), cd
    either to
 
-	cd plob-2.09/src/lispworks
+	cd plob-2.10/src/lispworks
    or
-	cd plob-2.09/src/allegro
+	cd plob-2.10/src/allegro
 
-   For Windows/NT only: cd always to plob-2.09/src/allegro
+   For Windows/NT only: cd always to plob-2.10/src/allegro
    --------------------
 
 3. Start LispWorks or Allegro Common LISP.
@@ -125,7 +125,7 @@ Here's the roadmap to a quick installation of PLOB!:
    to contain an absolute path to the local PLOB! installation, for
    example:
 
-	(defconstant +plob-dir+ "c:/opt/plob/plob-2.09"
+	(defconstant +plob-dir+ "c:/opt/plob/plob-2.10"
 	  #+:lisp-doc "\\plob\\ installation directory.")
 
 5. In the LISP listener, evaluate
@@ -136,8 +136,8 @@ Here's the roadmap to a quick installation of PLOB!:
 	(load-plob)
 
 6. That's it. For getting first experiences with PLOB!, compile and
-   load plob-2.09/src/example/plob-example.lisp and
-   plob-2.09/src/example/plob-quick-tour.lisp
+   load plob-2.10/src/example/plob-example.lisp and
+   plob-2.10/src/example/plob-quick-tour.lisp
 
 Have fun,
 Heiko

@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------------
 | Module	libcommonplob.rc
 | Author	Heiko Kirschke
-| Copyright	(C) 1998 Heiko Kirschke
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1998/03/04
 | Description	PLOB resource file for common DLL
 |
@@ -31,6 +31,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 

@@ -1,7 +1,7 @@
 ;;;; -*-Lisp-*-----------------------------------------------------------------
 ;;;; Module	plob-sysdep.lisp
 ;;;; Author	Heiko Kirschke, Fachbereich Informatik, Universitaet Hamburg
-;;;;		kirschke@informatik.uni-hamburg.de
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	24.11.93
 ;;;; Description	Interface between PLOB and the used LISP system.
 ;;;;		Here is the interface to many functions found often in the
@@ -20,7 +20,7 @@
 ;;;;		The Art of the Metaobject Protocol
 ;;;;		The MIT Press, Cambridge, Massachusetts, 1991
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -47,6 +47,8 @@
 ;;;; (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
+;;;;
+;;;; $Header$
 ;;;;
 ;;;; --------------------------------------------------------------------------
 
@@ -454,10 +456,17 @@
 
 ;;; ---------------------------------------------------------------------------
 (defconstant +bignum-deref+
-    #+(and :allegro (version>= 5))
-    t
-    #-(and :allegro (version>= 5))
-    nil
+    (or
+     #+(and :allegro (not (version>= 5)))
+     ;; 2001-02-08 HK: ACL 4:
+     nil
+     #+(and :allegro (not (version>= 6)))
+     ;; 2001-02-08 HK: ACL 5:
+     t
+     #+(and :allegro (version>= 6))
+     ;; 2001-02-08 HK: ACL 6:
+     nil
+     nil)
     #+:lisp-doc "
  \\Purposelabel
   A flag if the pointer to a bignum needs one more dereferencing.
@@ -469,49 +478,75 @@
 
 ;;; ---------------------------------------------------------------------------
 (defconstant +bignum-header-size+
-    #+(and :allegro (not (version>= 5)))
-    4
-    #+(and :allegro (version>= 5))
-    0
-    #+:lispworks4 ;; and later
-    ;; low:bignum-length
-    12
-    ;; If constants::*raw-bignum-data-offset* is no longer
-    ;; defined: its value in LispWorks 3.1.1 was 8:
-    #+:lispworks3
-    constants::*raw-bignum-data-offset*
-    #+:lisp-doc "
+    (or
+     #+(and :allegro (not (version>= 5)))
+     ;; 2001-02-08 HK: ACL 4:
+     4
+     #+(and :allegro (not (version>= 6)))
+     ;; 2001-02-08 HK: ACL 5:
+     0
+     #+(and :allegro (version>= 6))
+     ;; 2001-02-08 HK: ACL 6:
+     -12 ;; Just a guess ...
+     #+:lispworks4 ;; and later
+     ;; low:bignum-length
+     12
+     ;; If constants::*raw-bignum-data-offset* is no longer
+     ;; defined: its value in LispWorks 3.1.1 was 8:
+     #+:lispworks3
+     constants::*raw-bignum-data-offset*
+     0)
+  #+:lisp-doc "
 \\Purposelabel
  Size of \\lw\\ bignum objects header information in bytes.
 \\Remarkslabel
  \\sysdep{constant}")
 
 ;;; ---------------------------------------------------------------------------
-(defconstant +bignum-poi-tag+
-    #+(and :allegro (not (version>= 5)))
-    7
-    #+(and :allegro (version>= 5))
-    0
-    #+:lispworks4 ;; and later
-    low:tag-and
-    ;; If constants::*poi-tag* is no longer
-    ;; defined: its value in LispWorks 3.1.1 was 3:
-    #+:lispworks3
-    constants::*poi-tag*
-    #+:lisp-doc "
+(defconstant +poi-tag+
+    (or
+     #+(and :allegro (not (version>= 5)))
+     ;; 2001-02-08 HK: ACL 4:
+     7
+     #+(and :allegro (not (version>= 6)))
+     ;; 2001-02-08 HK: ACL 5:
+     0
+     #+(and :allegro (version>= 6))
+     ;; 2001-02-08 HK: ACL 6:
+     7
+     #+:lispworks4 ;; and later
+     low:tag-and
+     ;; If constants::*poi-tag* is no longer
+     ;; defined: its value in LispWorks 3.1.1 was 3:
+     #+:lispworks3
+     constants::*poi-tag*)
+     #+:lisp-doc "
 \\Purposelabel
- A mask for adressing a bignum directly from within C code with
+ A mask for adressing a LISP object directly from within C code with
  the help of an \\lisp{:as-is}\\ parameter of the \\lw\\ foreign language
  interface passed down to a C function.
  This is the bitmask which must be used in C for unmasking a C
  \\lisp{:as-is}\\ parameter
  before using that \\lisp{:as-is}\\ parameter in C as a pointer to a
- \\lw\\ bignum object; the masked-out bits are a type tag
- saying that the de-referenced object is a bignum. If they are
+ LISP object; the masked-out bits are a type tag. If they are
  not masked out, a bus error is raised when de-referencing the
  bignum from within a C function.
 \\Remarkslabel
  \\sysdep{constant}")
+
+;;; ---------------------------------------------------------------------------
+(defconstant +simple-vector-header-size+
+    (or
+     #+(and :allegro (not (version>= 6)))
+     ;; 2001-02-08 HK: ACL 4 & 5:
+     0
+     #+(and :allegro (version>= 6))
+     ;; 2001-02-08 HK: ACL 6: No idea why this must be -12:
+     -12
+     ;; All other LISP systems:
+     0)
+  #+:lisp-doc "The header size of a simple-vector.")
+
 
 ;;; ---------------------------------------------------------------------------
 (defconstant +structure-class-class+ (find-class 'structure-class)
@@ -1218,7 +1253,11 @@
       (setf slot-name-symbol (slot-definition-name slot-name-symbol)))
     (when (find slot-name-symbol
 		(class-slots class-of-structure)
-		:key #'(lambda (s) (slot-value s 'clos::name)))
+		:key #'(lambda (s) (slot-value s
+					       #-(version>= 6)
+					       'clos::name
+					       #+(version>= 6)
+					       'excl::name)))
       (let* ((defstruct-description (get (class-name class-of-structure)
 					 'excl::%structure-definition))
 	     (conc-name (svref defstruct-description 4)))
@@ -1265,7 +1304,11 @@
 ;;; ---------------------------------------------------------------------------
 #+:allegro
 (defmethod slot-definition-initargs
-    ((slot clos::structure-effective-slot-definition))
+    ((slot
+      #-(version>= 6)
+      clos::structure-effective-slot-definition
+      #+(version>= 6)
+      excl::structure-effective-slot-definition))
   #+:lisp-doc "
   \\Remarkslabel
  \\sysdep{method}
@@ -1285,7 +1328,11 @@
 ;;; ---------------------------------------------------------------------------
 #+:allegro
 (defmethod slot-definition-initfunction
-    ((slot clos::structure-effective-slot-definition))
+    ((slot 
+      #-(version>= 6)
+      clos::structure-effective-slot-definition
+      #+(version>= 6)
+      excl::structure-effective-slot-definition))
   #+:lisp-doc "
   \\Remarkslabel
  \\sysdep{method}"
@@ -1296,7 +1343,11 @@
 ;;; ---------------------------------------------------------------------------
 #+:allegro
 (defmethod slot-definition-allocation
-    ((slot clos::structure-effective-slot-definition))
+    ((slot 
+      #-(version>= 6)
+      clos::structure-effective-slot-definition
+      #+(version>= 6)
+      excl::structure-effective-slot-definition))
   #+:lisp-doc "
   \\Remarkslabel
  \\sysdep{method}"

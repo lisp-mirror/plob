@@ -68,8 +68,8 @@ input xyd
 bye.
 %
 % $Log$
-% Revision 1.1  1997/03/10 18:46:50  hkirschk
-% Initial revision
+% Revision 1.2  2001/02/14 10:57:04  hkirschk
+% Plob 2.10 beta 1 checkin
 %
 % Revision 3.0  1995/07/07  20:14:21  kris
 % Major release w/new User's Guide!

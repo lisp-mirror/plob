@@ -1,11 +1,15 @@
 /* -------------------------------------------------------------------------
 | Module	dos2unix.c
 | Author	Heiko Kirschke
-|		Heiko.Kirschke@acm.org
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1999-08-24
 | Description	Change end-of-line CR+LF into LF
+|		When compiling this file, take care to use cygwin's
+|		gcc if possible, since this will support cygwin's
+|		canonical drive designators (e.g., "/cygwin/c/tmp/"
+|		instead of "c:/tmp/").
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -32,9 +36,16 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  ------------------------------------------------------------------------- */
 
 #include	<stdio.h>
+#include	<stdlib.h>
+#include	<string.h>
+
+/* ----------------------------------------------------------------------- */
+#define length(array)		(sizeof(array)/sizeof((array)[0]))
 
 /* ----------------------------------------------------------------------- */
 typedef const char *		STRING;
@@ -83,6 +94,7 @@ typedef struct {
   TRANSITION	transition [ isLen ];
 }	STATE, * PSTATE;
 
+/* ----------------------------------------------------------------------- */
 static void	noOperation	( char		input,
 				  PENVIRONMENT	environment );
 static void	writeChar	( char		input,
@@ -90,6 +102,7 @@ static void	writeChar	( char		input,
 static void	writeCRandChar	( char		input,
 				  PENVIRONMENT	environment );
 
+/* ----------------------------------------------------------------------- */
 /* The deterministic finite automaton transforming CR, LF lineends into LF: */
 static const STATE dfa [ labelLen ]	= {
   {
@@ -110,6 +123,9 @@ static const STATE dfa [ labelLen ]	= {
     }
   }
 };
+
+/* ----------------------------------------------------------------------- */
+static const char cygdrive []	= "/cygdrive/";
 
 /* ----------------------------------------------------------------------- */
 static CHARCLASS	getCharClass	( char	input )

@@ -1,10 +1,11 @@
 /* -------------------------------------------------------------------------
 | Module	plobpxdr.c
 | Author	Heiko Kirschke
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1998/11/09
 | Description	Patched XDR functions to handle dynamic typed marshalling.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -30,6 +31,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 
@@ -296,7 +299,7 @@ static bool_t	xdr_values_vector_typed		( XDR		* pXdr,
       WARN (( "Encountered unknown type tag %s (0x%X) at\n"
 	      "       %sserializing a value vector with %d element(s).",
 	      fnTypeTagName ( eTyp ), eTyp,
-	      ( ( pXdr->x_op == XDR_DECODE ) ? "de" : szEmpty ),
+	      ( ( pXdr->x_op == XDR_DECODE ) ? szEmpty : "de" ),
 	      *pLen ));
       bDone	= FALSE;
     } else {

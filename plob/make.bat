@@ -1,6 +1,6 @@
 @echo off
 rem PLOB dummy make for Windows/NT
-rem PLOB (C) 1994-1998 Heiko Kirschke Heiko.Kirschke@poet.de
+rem PLOB (C) 1994-1998 Heiko Kirschke Heiko.Kirschke@acm.org
 if '%1' == '' goto doconfig
 if '%1' == 'config' goto doconfig
 goto err

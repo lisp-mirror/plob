@@ -6,7 +6,7 @@
 | Script	Makefile
 | Description	Makefile for this directory
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -32,6 +32,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ---------------------------------------------------------------------- */
 
@@ -93,24 +95,39 @@ rule ( lisp, \
 
 MkAllegro4aFiles
 MkAllegro4bFiles
+MkAllegro4cFiles
+MkAllegro4dFiles
 
 MkAllegro5aFiles
 MkAllegro5bFiles
+MkAllegro5cFiles
+MkAllegro5dFiles
+
+MkAllegro6aFiles
+MkAllegro6bFiles
+MkAllegro6cFiles
+MkAllegro6dFiles
 
 ALLEGRO4FILES=\
 PlobFiles(allegro4 slash,dot lisp)
 ALLEGRO5FILES=\
 PlobFiles(allegro5 slash,dot lisp)
-ALLEGROFILES=$(ALLEGRO4FILES) $(ALLEGRO5FILES)
+ALLEGRO6FILES=\
+PlobFiles(allegro6 slash,dot lisp)
+ALLEGROFILES=$(ALLEGRO4FILES) $(ALLEGRO5FILES) $(ALLEGRO6FILES)
 rule ( allegro dash code, \
        $(ALLEGROFILES), \
        noActions )
 
 MkLispWorks3aFiles
 MkLispWorks3bFiles
+MkLispWorks3cFiles
+MkLispWorks3dFiles
 
 MkLispWorks4aFiles
 MkLispWorks4bFiles
+MkLispWorks4cFiles
+MkLispWorks4dFiles
 
 LISPWORKS3FILES=\
 PlobFiles(lispworks3 slash,dot lisp)

@@ -1,10 +1,11 @@
 ;;;; -*-Lisp-*-----------------------------------------------------------------
 ;;;; Module	plob-btree-mapper.lisp
 ;;;; Author	Heiko Kirschke, Fachbereich Informatik, Universitaet Hamburg
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	1998/06/26
 ;;;; Description	PLOB persistent btree mapper class methods.
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -31,6 +32,8 @@
 ;;;; (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
+;;;;
+;;;; $Header$
 ;;;;
 ;;;; --------------------------------------------------------------------------
 

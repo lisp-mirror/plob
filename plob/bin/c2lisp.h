@@ -1,10 +1,39 @@
 /* -------------------------------------------------------------------------
 | Module	c2lisp.h
 | Author	Heiko Kirschke
-|		kirschke@kogs26.informatik.uni-hamburg.de
-| Copyright	(C) 1993,1994 Heiko Kirschke
+|		mailto:Heiko.Kirschke@acm.org
 | Date		17.12.93
 | Description	Generator macros for LISP.
+|
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
+|		All rights reserved.
+|
+| Unlimited use, reproduction, modification and distribution of this
+| software is permitted.  Any copy or modified version of this
+| software must include both the above copyright notice of
+| Heiko Kirschke and this paragraph; for each modified version, an
+| additional statement must be added telling the year of modification
+| and quoting the author of the modification.  Any distribution of
+| this software must comply with all applicable German export control
+| laws.  This software is made available AS IS, and HEIKO KIRSCHKE
+| DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT
+| LIMITATION THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+| A PARTICULAR PURPOSE, AND NOTWITHSTANDING ANY OTHER PROVISION
+| CONTAINED HEREIN, ANY LIABILITY FOR DAMAGES RESULTING FROM THE
+| SOFTWARE OR ITS USE IS EXPRESSLY DISCLAIMED, WHETHER ARISING IN
+| CONTRACT, TORT (INCLUDING NEGLIGENCE) OR STRICT LIABILITY, EVEN IF
+| HEIKO KIRSCHKE IS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+|
+| Please note that these license terms adhere only to the code of
+| PLOB!  itself. PLOB! uses POSTORE (Persistent Object Store) as a
+| low-level persistent memory; it is provided in binary form within
+| PLOB! with the permission of the University of St. Andrews
+| (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
+| University of St. Andrews for getting their license terms on
+| POSTORE.
+|
+| $Header$
+|
  ------------------------------------------------------------------------- */
 
 #ifndef	C2LISP_H
@@ -234,6 +263,8 @@ define_foreign_callable(READ_TIME_EVAL(C2L_##result_type),\
 #include	<c2allegro4.h>
 #elif defined(ALLEGRO5)
 #include	<c2allegro5.h>
+#elif defined(ALLEGRO6)
+#include	<c2allegro6.h>
 #elif defined(another_lisp_system)
 #include	<c2another_lisp_system.h>
 #else

@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------
 | Module	plobroot.h
 | Author	Heiko Kirschke
-|		kirschke@kogs26.informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		11.1.94
 | Description	Foreign language interface to PLOB root object.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -32,12 +32,14 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  ------------------------------------------------------------------------- */
 
 #if defined(LISP)
-;;;; --------------------------------------------------------------------------
+;;;; -------------------------------------------------------------------------
 ;;;; For further comments look into file plobroot.h
-;;;; --------------------------------------------------------------------------
+;;;; -------------------------------------------------------------------------
 
 #elif ! defined(C2C) && ! defined(RPC)
 #include	"c2c.h"

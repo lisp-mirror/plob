@@ -1,6 +1,7 @@
 @echo off
 rem PLOB installation script for Windows/NT
-rem PLOB (C) 1994--1998 Heiko Kirschke kirschke@informatik.uni-hamburg.de
+rem PLOB (C) 1994--2001 Heiko Kirschke Heiko.Kirschke@acm.org
+rem $Header$
 
 if '%1' == '-goto' goto %2
 
@@ -339,7 +340,7 @@ rem ------------------------------------------------------------
   echo   %szWWW% is the official
   echo   distribution site for PLOB.
   echo Copyright:
-  echo   (C) 1994-1998 Heiko Kirschke kirschke@informatik.uni-hamburg.de
+  echo   (C) 1994--2001 Heiko Kirschke Heiko.Kirschke@acm.org
   goto exit
 
 :xtraarg

@@ -1,10 +1,11 @@
 ;;;; -*- Package: PLOB; Mode: LISP; Syntax: ANSI-Common-Lisp -*----------------
 ;;;; Module	plob-int.lisp
 ;;;; Author	Heiko Kirschke
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	1998/04/07
 ;;;; Description	Handling of C [unsigned] int vectors
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -31,6 +32,8 @@
 ;;;; (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
+;;;;
+;;;; $Header$
 ;;;;
 ;;;; --------------------------------------------------------------------------
 

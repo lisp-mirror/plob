@@ -1,10 +1,11 @@
 /* ----------------------------------------------------------------------------
 | Module	plobff.c
 | Author	Heiko Kirschke
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1998/04/14 Created
 | Description	Foreign function interface to LISP
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -31,6 +32,8 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  --------------------------------------------------------------------------- */
 
 #include	<stdio.h>
@@ -50,12 +53,36 @@
 /* ----------------------------------------------------------------------- */
 MODULE ( __FILE__ );
 
+/* ----------------------------------------------------------------------- */
+/* #define LOGGING to show on stderr some messages what's happening:
+   0 (no), 1 (module initialisation), 2 (register c callables) */
+#if 0
+#define	LOGGING	(0x01|0x02)
+static FILE *	pStreamDebug;
+#else
+#define	LOGGING	0x00
+#endif
+
 /* -------------------------------------------------------------------------
 | Module initialization function
  ------------------------------------------------------------------------- */
 void			fnInitCommonFfModule	( void )
 {
   PROCEDURE	( fnInitCommonFfModule );
+
+#if (LOGGING+0)
+  pStreamDebug = fopen ( "/tmp/plobff.log", szStreamAppend );
+
+#if (LOGGING+0) & 0x02
+  /* 2001-02-13 HK: Debug: */
+  if ( pStreamDebug != NULL ) {
+    fprintf ( pStreamDebug, "%s:%s(%d): "
+	      "Initialised module.\n",
+	      __szFile__, __szProc__, __LINE__ );
+    fflush ( pStreamDebug );
+  }
+#endif
+#endif
 
   RETURN ( VOID );
 } /* fnInitCommonFfModule */
@@ -64,6 +91,14 @@ void			fnInitCommonFfModule	( void )
 void			fnDeinitCommonFfModule	( void )
 {
   PROCEDURE	( fnDeinitCommonFfModule );
+
+#if (LOGGING+0)
+  /* 2001-02-13 HK: Debug: */
+  if ( pStreamDebug != NULL && pStreamDebug != stdout ) {
+    fclose ( pStreamDebug );
+    pStreamDebug	= NULL;
+  }
+#endif
 
   RETURN ( VOID );
 } /* fnDeinitCommonFfModule */
@@ -81,6 +116,18 @@ BeginFunction ( voidResult,
 {
   INITIALIZEPLOB;
 
+#if (LOGGING+0) & 0x02
+  /* 2001-02-13 HK: Debug: */
+  if ( pStreamDebug != NULL ) {
+    fprintf ( pStreamDebug, "%s:%s(%d): ",
+	      __szFile__, __szProc__, __LINE__ );
+    fflush ( pStreamDebug );
+    fprintf ( pStreamDebug,
+	      "Registering function '%s', address 0x%lX\n",
+	      lpszFunctionName, lpfnFunctionCode );
+    fflush ( pStreamDebug );
+  }
+#endif
   fnRegisterFunction ( __szFile__, __szProc__, __LINE__,
 		       (LPFNVOID) lpfnFunctionCode, lpszFunctionName );
 

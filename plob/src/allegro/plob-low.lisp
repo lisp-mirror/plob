@@ -1,11 +1,11 @@
 ;;;; -*- Package: PLOB; Mode: LISP; Syntax: ANSI-Common-Lisp -*----------------
 ;;;; Module	plob-low.lisp
 ;;;; Author	Heiko Kirschke
-;;;;		kirschke@kogs26.informatik.uni-hamburg.de
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	15.11.93
 ;;;; Description	More LISP suitable interface to PLOB stable heap.
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -32,6 +32,8 @@
 ;;;; (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
+;;;;
+;;;; $Header$
 ;;;;
 ;;;; --------------------------------------------------------------------------
 
@@ -482,7 +484,7 @@ Return a string describing the Stable Heap to be created."
 	    (catch-errors
 	     (c-sh-make-bignum p-heap-objid format-objid size-in-bits from
 			       (if +bignum-deref+ +c-true+ +c-false+)
-			       +bignum-poi-tag+ +bignum-header-size+)))
+			       +poi-tag+ +bignum-header-size+)))
       p-heap-objid from)))
 
 ;;; ---------------------------------------------------------------------------
@@ -573,7 +575,7 @@ Return a string describing the Stable Heap to be created."
 	  (c-sh-read-bignum p-heap-objid format-objid
 			    p-objid size-in-bits the-bignum
 			    (if +bignum-deref+ +c-true+ +c-false+)
-			    +bignum-poi-tag+ +bignum-header-size+)))
+			    +poi-tag+ +bignum-header-size+)))
      p-heap-objid p-objid)
     (if (eq (minusp size-in-bits) (minusp the-bignum))
 	the-bignum
@@ -885,7 +887,8 @@ Return a string describing the Stable Heap to be created."
 			  (canonicalize-expecting-class expecting-class)
 			  (canonicalize-expecting-type-tag expecting-type-tag)
 			  0 element-type-tag number-of-elements
-			  to-t-simple-vector)))
+			  to-t-simple-vector
+			  +poi-tag+ +simple-vector-header-size+)))
    p-heap-objid p-objid))
 
 ;;; ---------------------------------------------------------------------------
@@ -1184,7 +1187,7 @@ Return a string describing the Stable Heap to be created."
 	     (c-sh-write-bignum p-heap-objid format-objid p-objid
 				size-in-bits the-bignum
 				(if +bignum-deref+ +c-true+ +c-false+)
-				+bignum-poi-tag+ +bignum-header-size+)))
+				+poi-tag+ +bignum-header-size+)))
       p-heap-objid p-objid)))
 
 ;;; ---------------------------------------------------------------------------
@@ -1451,7 +1454,8 @@ Return a string describing the Stable Heap to be created."
 			   (canonicalize-expecting-class expecting-class)
 			   (canonicalize-expecting-type-tag expecting-type-tag)
                            0 element-type-tag number-of-elements
-			   from-t-simple-vector)))
+			   from-t-simple-vector
+			   +poi-tag+ +simple-vector-header-size+)))
    p-heap-objid p-objid))
 
 ;;; ---------------------------------------------------------------------------

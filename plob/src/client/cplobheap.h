@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------------
 | Module	cplobheap.h
 | Author	Heiko Kirschke
-|		kirschke@informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1996/09/23
 | Description	PLOB client header file:
 |		Macros and functions for usage by the PLOB client
@@ -15,7 +15,7 @@
 | server; the end-of-transaction call is trapped by the client and will
 | delete all cahced objects too.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -41,6 +41,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 

@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------
 | Module	cplob.c
 | Author	Heiko Kirschke
-|		kirschke@informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1996/09/23
 | Description	PLOB client source code.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -31,6 +31,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 
@@ -70,8 +72,14 @@
 MODULE ( __FILE__ );
 
 /* ----------------------------------------------------------------------- */
-/* #define LOGGING to show on stderr some messages what's happening: */
-#define	LOGGING	0x00	/* 0 (no), 1 (flush object), 2 (create object) */
+/* #define LOGGING to show on stderr some messages what's happening:
+   0 (no), 1 (flush object), 2 (create object),
+   4 (write values), 8 (read values) */
+#if 0
+#define	LOGGING	(0x04|0x08)
+#else
+#define	LOGGING	0x00
+#endif
 
 /* ----------------------------------------------------------------------- */
 /* Persistent object pre-allocation. The idea is not to allocate
@@ -373,6 +381,59 @@ void		fnDeinitializePlobModule	( void )
 
   RETURN ( VOID );
 } /* fnDeinitializePlobModule */
+
+/* ----------------------------------------------------------------------- */
+#if (LOGGING+0)|0x04|0x08
+
+static void		fnInfoSimpleVector ( SHTYPETAG nElementTypeTag,
+					     FIXNUM nSizeInElements,
+					     LPVOID pBuffer,
+					     FIXNUM nUnmask,
+					     FIXNUM nBufferOffset,
+					     LPCSTR szPrompt,
+					     LPCSTR szFinish,
+					     LPVOID pCooked )
+{
+  PROCEDURE	( fnInfoSimpleVector );
+
+  if ( nElementTypeTag == eshUnsignedByte32Tag ) {
+    unsigned int *	pI = (unsigned int *) pCooked;
+    unsigned int	i;
+    LPSTR		pStringBuffer = NULL;
+    LPSTR		pB;
+    INFO (( "nSizeInElements %d, pBuffer 0x%lX, nUnmask 0x%X, nBufferOffset %d, pCooked 0x%lX\n",
+	    nSizeInElements, pBuffer, nUnmask, nBufferOffset, pCooked ));
+    pStringBuffer	= Malloc ( nSizeInElements * 16 +
+				   strlen ( szPrompt ) +
+				   strlen ( szFinish ) );
+    pB			= pStringBuffer;
+    strcpy ( pB, szPrompt );
+    pB	+= strlen ( pB );
+    for ( i = 0; i < nSizeInElements; i++, pI++ ) {
+      char	szNumber [ 16 ];
+      if ( i > 0 ) {
+	strcpy ( pB, ", " );
+	pB	+= strlen ( pB );
+      }
+      sprintf ( szNumber, "%u", *pI );
+      strcpy ( pB, szNumber );
+      pB	+= strlen ( pB );
+    }
+    strcpy ( pB, szFinish );
+    INFO (( pStringBuffer ));
+    Free ( pStringBuffer );
+  }
+
+  RETURN ( VOID );
+} /* fnInfoSimpleVector */
+
+#else
+
+#define fnInfoSimpleVector(nElementTypeTag,nSizeInElements,\
+		           pBuffer,nUnmask,nBufferOffset,\
+			   szPrompt,szFinish,pCooked) 0
+
+#endif
 
 /* ----------------------------------------------------------------------- */
 static SHORTOBJID	fnCreateObjIdFromBuffer
@@ -751,7 +812,7 @@ BeginFunction ( SHORTOBJID,
 	      "       into %s\n"
 	      "       with store lock level 0x%X",
 	      szObject, szHeap, nLockStore ));
-#endif /* #if (LOGGING+0) & 0x01 */
+#endif /* #if (LOGGING+0) & 0x02 */
       fnCacheCreateObject ( oShortObjIdHeap, oShortObjId, nTypeTag,
 			    AlignBitsToWords ( pClntTypeInfo->nFixSizeObjId ) +
 			    nExtraReferences,
@@ -1072,6 +1133,8 @@ static FIXNUM	fnReadValuesInBlocks	( SHORTOBJID	oShortObjIdHeap,
   int		nTotalRead	= 0;
   SHORTOBJID	oExp		= oExpectingClass;
   SHTYPETAG	nExp		= nExpectingTypeTag;
+  int		nR;
+  SHTYPETAG	nE;
 
   PROCEDURE	( fnReadValuesInBlocks );
 
@@ -1100,7 +1163,7 @@ static FIXNUM	fnReadValuesInBlocks	( SHORTOBJID	oShortObjIdHeap,
     nRead	=
       fnServerObjectReadValues ( oShortObjIdHeap, oShortObjId,
 				 oExp, nExp, nIndex, 
-				 nElementTypeTag, nToRead, NULL, NULL,
+				 nElementTypeTag, nToRead, &nE, &nR,
 				 (void *) & ( (psint *) pBuffer ) [ b ] );
     if ( nRead < 0 ) {
       /* Error detected, e.g. a lock conflict: */
@@ -1144,15 +1207,22 @@ BeginFunction ( FIXNUM,
 		  argument ( VECTOR ( void,
 				      fnTypeTagSizeValue(1,&nElementTypeTag,
 							 &nSizeInElements ) ),
-			     vector_out, pBuffer ) ) )
+			     vector_out, pBuffer )
+		  and
+		  argument ( FIXNUM, value_in, nUnmask )
+		  and
+		  argument ( FIXNUM, value_in, nBufferOffset ) ) )
 {
-  LPCLASSINFO	pClassInfo;
+  LPVOID		pCooked;
+  LPCLASSINFO		pClassInfo;
   int			nAlignment, nBitsPerElement;
   PHEAPOBJECTCACHE	pHeapObjectCache;
   int			nValues, nValuesClipped, nTotalRead = 0;
 
   INITIALIZEPLOB;
 
+  pCooked		=
+    fnMakeLispPointer ( pBuffer, FALSE, nUnmask, nBufferOffset );
   pClassInfo		= (LPCLASSINFO) FindClassInfo ( nElementTypeTag );
   ASSERT ( pClassInfo != NULL );
   nBitsPerElement	= pClassInfo->nFixSizeValue;
@@ -1188,11 +1258,17 @@ BeginFunction ( FIXNUM,
 	  RETURN ( eshGeneralError );
 	}
 	nTotalRead	= nValuesClipped;
-	memcpy ( pBuffer,
+	memcpy ( pCooked,
 		 & ( (psint *) pHeapObjectCache->pObjectCache->pValues )
 		 [ AlignBitsToWords ( nIndex * nBitsPerElement ) ],
 		 AlignBitsToWords ( nValuesClipped * nBitsPerElement ) *
 		 sizeof ( psint ) );
+	/* 2001-02-13 HK: Debug: */
+#if (LOGGING+0) & 0x08
+	fnInfoSimpleVector ( nElementTypeTag, nSizeInElements, pBuffer,
+			     nUnmask, nBufferOffset, "Received #(",
+			     ") from cache.", pCooked );
+#endif /* #if (LOGGING+0) & 0x04 */
       }
       if ( nTotalRead > 0 ) {
 	pHeapObjectCache->nValuesRead	+= nTotalRead;
@@ -1201,10 +1277,17 @@ BeginFunction ( FIXNUM,
       RETURN ( nTotalRead );
     }
   }
-  RETURN ( fnReadValuesInBlocks ( oShortObjIdHeap, oShortObjId,
-				  oExpectingClass, nExpectingTypeTag,
-				  nIndex, nElementTypeTag,
-				  nSizeInElements, pBuffer ) );
+  nTotalRead	= fnReadValuesInBlocks ( oShortObjIdHeap, oShortObjId,
+					 oExpectingClass, nExpectingTypeTag,
+					 nIndex, nElementTypeTag,
+					 nSizeInElements, pCooked );
+	/* 2001-02-13 HK: Debug: */
+#if (LOGGING+0) & 0x08
+  fnInfoSimpleVector ( nElementTypeTag, nSizeInElements, pBuffer,
+		       nUnmask, nBufferOffset, "Received #(",
+		       ") from server.", pCooked );
+#endif /* #if (LOGGING+0) & 0x04 */
+  RETURN ( nTotalRead );
 } EndFunction ( fnClientObjectReadValues );
 
 /* ----------------------------------------------------------------------- */
@@ -1573,8 +1656,13 @@ BeginFunction ( FIXNUM,
 		  argument ( VECTOR ( void,
 				      fnTypeTagSizeValue(1,&nElementTypeTag,
 							 &nSizeInElements ) ),
-			     vector_in, pBuffer ) ) )
+			     vector_in, pBuffer )
+		  and
+		  argument ( FIXNUM, value_in, nUnmask )
+		  and
+		  argument ( FIXNUM, value_in, nBufferOffset ) ) )
 {
+  LPVOID		pCooked;
   LPCLASSINFO		pClassInfo;
   int			nAlignment, nBitsPerElement;
   PHEAPOBJECTCACHE	pHeapObjectCache;
@@ -1583,6 +1671,14 @@ BeginFunction ( FIXNUM,
 
   INITIALIZEPLOB;
 
+  pCooked		=
+    fnMakeLispPointer ( pBuffer, FALSE, nUnmask, nBufferOffset );
+  /* 2001-02-13 HK: Debug: */
+#if (LOGGING+0) & 0x04
+  fnInfoSimpleVector ( nElementTypeTag, nSizeInElements, pBuffer,
+		       nUnmask, nBufferOffset, "Received #(",
+		       ") from LISP.", pCooked );
+#endif /* #if (LOGGING+0) & 0x04 */
   pClassInfo		= (LPCLASSINFO) FindClassInfo ( nElementTypeTag );
   ASSERT ( pClassInfo != NULL );
   nBitsPerElement	= pClassInfo->nFixSizeValue;
@@ -1622,17 +1718,17 @@ BeginFunction ( FIXNUM,
 	    AlignBitsToWords ( nTotalWritten * nBitsPerElement ) *
 	    sizeof ( psint );
 	  if ( memcmp ( & ( (psint *) pHeapObjectCache->pObjectCache->pValues )
-			[ nIndexInWords ], pBuffer, nSizeInBytes ) != 0 ) {
+			[ nIndexInWords ], pCooked, nSizeInBytes ) != 0 ) {
 	    pHeapObjectCache->pObjectCache->nChanges++;
 	    memcpy ( & ( (psint *) pHeapObjectCache->pObjectCache->pValues )
-		     [ nIndexInWords ], pBuffer, nSizeInBytes );
+		     [ nIndexInWords ], pCooked, nSizeInBytes );
 	  }
 	} else {
 	  nTotalWritten	= 
 	    fnWriteValuesInBlocks ( oShortObjIdHeap, oShortObjId,
 				    oExpectingClass, nExpectingTypeTag,
 				    nIndex, nElementTypeTag,
-				    nValuesClipped, pBuffer );
+				    nValuesClipped, pCooked );
 	  if ( nTotalWritten >= 0 ) {
 	    /* The write placed implicit a vector lock onto oShortObjId: */
 	    nSizeInBytes	=
@@ -1647,7 +1743,7 @@ BeginFunction ( FIXNUM,
 	      ( (unsigned int) pHeapObjectCache->nVectorLockOld |
 		(unsigned int) eshLockVectorWrite );
 	    memcpy ( & ( (psint *) pHeapObjectCache->pObjectCache->pValues )
-		     [ nIndexInWords ], pBuffer, nSizeInBytes );
+		     [ nIndexInWords ], pCooked, nSizeInBytes );
 	  }
 	}
       }
@@ -1662,7 +1758,7 @@ BeginFunction ( FIXNUM,
 				   oExpectingClass, nExpectingTypeTag,
 				   nIndex,
 				   nElementTypeTag, nSizeInElements,
-				   pBuffer ) );
+				   pCooked ) );
 } EndFunction ( fnClientObjectWriteValues );
 
 /*

@@ -1,12 +1,12 @@
 /* -------------------------------------------------------------------------
 | Module	plobintern.h
 | Author	Heiko Kirschke
-|		kirschke@kogs26.informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		17.12.93
 | Description	Contains the 'secret' constants, types & functions necessary
 |		to implement PLOB built-in types.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -32,6 +32,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 
@@ -85,6 +87,10 @@ OBJID DLLEXPORT 	fnImmediate2ObjId	( FIXNUM nImmediate,
 						  SHTYPETAG *pnTypeTag );
 FIXNUM DLLEXPORT	fnObjId2Immediate	( OBJID oObjId,
 						  SHTYPETAG nTypeTag );
+LPVOID		fnMakeLispPointer	( LPVOID	pRaw,
+					  BOOL		bDereferencePointer,
+					  FIXNUM	nUnmask,
+					  FIXNUM	nObjectDataOffset );
 						  
 /* -------------------------------------------------------------------------
 | ObjId <-> type tags

@@ -1,12 +1,11 @@
 ;;;; -*- Package: PLOB; Mode: LISP; Syntax: ANSI-Common-Lisp -*----------------
 ;;;; Module	ff-mapping.lisp
 ;;;; Author	Heiko Kirschke
-;;;;		old: kirschke@informatik.uni-hamburg.de
-;;;;            now (1998/06/18): Heiko.Kirschke@poet.de
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	1997/03/04
 ;;;; Description	PLOB functions for foreign function interface
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -34,6 +33,8 @@
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
 ;;;;
+;;;; $Header$
+;;;;
 ;;;; --------------------------------------------------------------------------
 
 (in-package :plob)
@@ -49,6 +50,10 @@
   (cadr argument))
 (defun argument-reference (argument)
   (caddr argument))
+(defun argument-buffer (argument)
+  (cadddr argument))
+(defun argument-buffer-alloc (argument)
+  (cadddr (cdr argument)))
 
 (defun pass-by-reference-p (argument)
   (let ((reference (argument-reference argument)))
@@ -204,10 +209,29 @@
 #+(and :allegro (version>= 5))
 (defun map-foreign-type-to-c-type (foreign-type reference)
   (if (eq foreign-type :string)
+       #-(version>= 6)
+       ;; 2001-02-08 HK: ACL 5:
       '(* :char)
-    (case reference
+       #+(version>= 6)
+       ;; 2001-02-08 HK: ACL 6:
+       (if (or (eq reference :value-out)
+	       (eq reference :vector-out))
+	   :int
+	   '(* :char))
+       (case reference
       (:value-in foreign-type)
-      (t `(* ,foreign-type)))))
+      (t 
+       #-(version>= 6)
+       ;; 2001-02-08 HK: ACL 5:
+       `(* ,foreign-type)
+       #+(version>= 6)
+       ;; 2001-02-08 HK: ACL 6:
+       (if (eq foreign-type :lisp)
+	   ;; 2001-02-08 HK: In ACL 6, :lisp objects are always passed
+	   ;; by reference: (really?)
+	   foreign-type
+	 `(* ,foreign-type))
+       ))))
 
 #+(and :allegro (version>= 5))
 (defun map-foreign-type-to-lisp-type (foreign-type reference)
@@ -217,26 +241,40 @@
 		     (:double 'double-float)
 		     (:lisp t)
 		     (t (intern (symbol-name foreign-type) :cl)))))
-    (if (or (eq reference :value-out)
-	    (and (eq lisp-type t) (or (eq reference :vector-in)
-				      (eq reference :vector-out))))
-	(progn
-	  (if (eq lisp-type 'integer)
-	      (setf lisp-type '(signed-byte 32)))
-	  `(simple-array ,lisp-type (1)))
-      lisp-type)))
+    (cond
+     #+(version>= 6)
+     ;; 2001-02-08 HK: ACL 6:
+     ((eq lisp-type t)
+      lisp-type)
+     #+(version>= 6)
+     ;; 2001-02-08 HK: ACL 6:
+     ((eq lisp-type 'string)
+      (when (or (eq reference :value-out)
+		(eq reference :vector-out))
+	  'integer))
+     ((or (eq reference :value-out)
+	  (and (eq lisp-type t)
+	       (or (eq reference :vector-in)
+		   (eq reference :vector-out))))
+      `(simple-array ,(if (eq lisp-type 'integer)
+			  '(signed-byte 32)
+			lisp-type)
+		     (1)))
+     (t lisp-type))))
 
 #+(and :allegro (version>= 5))
 (defun map-foreign-arguments (arguments-list)
   (map 'list
     #'(lambda (argument)
-	(let ((name (argument-name argument))
-	      (type (argument-type argument))
-	      (reference (argument-reference argument)))
-	  (list
-	   name
-	   (map-foreign-type-to-c-type type reference)
-	   (map-foreign-type-to-lisp-type type reference))))
+	(let* ((name (argument-name argument))
+	       (type (argument-type argument))
+	       (reference (argument-reference argument))
+	       (lisp-type 
+		(map-foreign-type-to-lisp-type type reference)))
+	  `(,name
+	    ,(map-foreign-type-to-c-type type reference)
+	    ,@(when lisp-type
+		(list lisp-type)))))
     arguments-list))
 
 #+(and :allegro (version>= 5))
@@ -246,66 +284,135 @@
   (labels
       (
        (make-foreign-function
-        (result-type c-function-name lisp-function-name arguments-list)
-        `(ff:def-foreign-call
-          (,lisp-function-name ,c-function-name)
-	     ,(map-foreign-arguments arguments-list)
-	   :convention :c
-	   :returning ,(map-foreign-type-to-c-type result-type :value-in)))
-       
-       (map-set-foreign-arguments
+	   (result-type c-function-name lisp-function-name arguments-list)
+	 (let ((body `(ff:def-foreign-call
+			  (,lisp-function-name ,c-function-name)
+			  ,(map-foreign-arguments arguments-list)
+			:convention :c
+			:returning
+			,(map-foreign-type-to-c-type result-type :value-in)
+			#+(version>= 6)
+			;; 2001-02-08 HK: ACL 6:
+			:strings-convert
+			#+(version>= 6)
+			;; 2001-02-08 HK: ACL 6:
+			t)))
+	   body))
+
+       (map-let-foreign-arguments
         (arguments-list)
         (mapcan #'(lambda (argument)
-                    (let ((type (argument-type argument))
-                          (reference (argument-reference argument)))
-                      (when (or (and (not (eq type :string))
-				     (eq reference :value-out))
-				(and (eq type :lisp)
-				     (or (eq reference :vector-in)
-					 (eq reference :vector-out))))
-                        (let ((name (argument-name argument))
-                              (cl-type (map-foreign-type-to-lisp-type
-					type :value-in)))
-			  (if (eq cl-type 'integer)
-			      (setf cl-type '(signed-byte 32)))
-                          `((setf ,name (make-array
-                                         1
-                                         :element-type (quote ,cl-type)
-                                         :initial-element ,name)))))))
+                    (let ((buffer (argument-buffer argument))
+                          (buffer-alloc (argument-buffer-alloc argument)))
+                      (when buffer
+			`((,buffer ,buffer-alloc)))))
                 arguments-list))
 
+       (map-set-foreign-arguments
+	   (arguments-list)
+	 (mapcan #'(lambda (argument)
+		     (let ((type (argument-type argument))
+			   (reference (argument-reference argument)))
+		       (nconc
+			(when (and #-(version>= 6)
+				   ;; 2001-02-08 HK: ACL 5:
+				   t
+				   #+(version>= 6)
+				   ;; 2001-02-08 HK: ACL 6:
+				   (not (eq type :lisp))
+				   (or (and (not (eq type :string))
+					    (eq reference :value-out))
+				       (and (eq type :lisp)
+					    (or (eq reference :vector-in)
+						(eq reference :vector-out)))))
+			  (let ((name (argument-name argument))
+				(cl-type (map-foreign-type-to-lisp-type
+					  type :value-in)))
+			    (if (eq cl-type 'integer)
+				(setf cl-type '(signed-byte 32)))
+			    `((setf ,name (make-array
+					   1
+					   :element-type (quote ,cl-type)
+					   :initial-element ,name)))))
+			#+(version>= 6)
+			;; 2001-02-08 HK: ACL 6:
+			(when (and (eq type :string)
+				   (pass-by-reference-p argument))
+			  (let ((name (argument-name argument))
+				(string-buffer
+				 (gensym-with-prefix 'string-buffer)))
+			    ;; Append name of string buffer argument:
+			    (nconc argument (list string-buffer))
+			    (nconc argument
+				   `((excl:aclmalloc
+				      (1+ (length ,name))))))
+			  nil))))
+		 arguments-list))
+
        (map-return-values
-        (arguments-list)
-        (mapcan #'(lambda (argument)
-                    (when (pass-by-reference-p argument)
-                      (let ((name (argument-name argument))
-                            (type (argument-type argument))
-                            (reference (argument-reference argument)))
-                        (cond
-                         ((eq type :string)
-                          `((set-sequence-length
-                             ,name
-                             (position #\Null ,name))))
-                         ((eq reference :value-out)
-                          `((aref ,name 0)))
-                         (t (list name))))))
-                arguments-list))
-       )
+	   (arguments-list)
+	 (mapcan #'(lambda (argument)
+		     (when (pass-by-reference-p argument)
+		       (let ((name (argument-name argument))
+			     (type (argument-type argument))
+			     (reference (argument-reference argument)))
+			 (cond
+			  ((eq type :string)
+			   #-(version>= 6)
+			   ;; 2001-02-08 HK: ACL 5:
+			   `((set-sequence-length
+			      ,name
+			      (position #\Null ,name)))
+			   #+(version>= 6)
+			   ;; 2001-02-08 HK: ACL 6:
+			   (let ((string-buffer (argument-buffer argument)))
+			     `((progn
+				 (setf ,name
+				   (excl:native-to-string
+				    ,string-buffer :string ,name))
+				 (setf ,name
+				   (set-sequence-length
+				    ,name
+				    (excl::char*-string-length
+				     ,string-buffer)))
+				 (excl:aclfree ,string-buffer)
+				 ,name))))
+			  ((and #-(version>= 6)
+				;; 2001-02-08 HK: ACL 5:
+				t
+				#+(version>= 6)
+				;; 2001-02-08 HK: ACL 6:
+				(not (eq type :lisp))
+				(eq reference :value-out))
+			   `((aref ,name 0)))
+			  (t (list name))))))
+		 arguments-list)))
     
     (let ((set-arguments (map-set-foreign-arguments function-args))
+	  (let-arguments (map-let-foreign-arguments function-args))
 	  (return-values (map-return-values function-args)))
-      (if (or set-arguments return-values)
+      (if (or set-arguments let-arguments return-values)
 	  (let* ((c-result (unless (eq result-type :void)
 			     (gensym-with-prefix 'c-result)))
 		 (lisp-stub-function-name
 		  (gensym-with-prefix lisp-function-name))
 		 (call-stub-expr `(,lisp-stub-function-name
-				   ,@(ff-map-extract-arguments
-				      function-args)))
+				   ,@(map 'list
+				       #'(lambda (argument)
+					   (let ((buffer (argument-buffer
+							  argument)))
+					     (if buffer
+						 buffer
+					       (argument-name argument))))
+				       function-args)))
 		 (lisp-call-stub-expr
-		  (if c-result
-		      `((let ((,c-result ,call-stub-expr))
-			  (values ,c-result ,@return-values)))
+		  (if (or let-arguments c-result)
+		      `((let* (,@let-arguments
+			       ,@(if c-result
+				     `((,c-result ,call-stub-expr))))
+			  ,@(unless c-result (list call-stub-expr))
+			  (values ,@(when c-result (list c-result))
+				  ,@return-values)))
 		    `(,call-stub-expr
 		      (values ,@return-values)))))
 	    `(progn
@@ -673,7 +780,7 @@
   "Logical pathname of local client library.")
 
 (defun sh-load (&optional (lib +lib-local-client-plob+))
- "Load the \\plob\\ client code object files.
+  "Load the \\plob\\ client code object files.
 \\Remarkslabel
   HK 1996/10/24: Strange, loading \\lisp{librpclientplob.a}\\ will
   result in undefined references signalled by \\lispworks;
@@ -689,24 +796,41 @@
   \\lisp{-KPIC}\\ option (for Sun \lisp{cc}) to build the
   object code, since \\lispworks\\ won't load such object code."
 
- (cond
-  ((and *lib-plob-loaded* (not (equal lib *lib-plob-loaded*)))
-   (cerror "Use the already loaded library."
-           "Request to load library ~a with an already loaded library ~a."
-           lib *lib-plob-loaded*))
-  (*lib-plob-loaded* nil)
-  (t #+:lispworks4
-     (fli:register-module :plob-dll
-                          :real-name
-                          (translate-logical-pathname lib)
-                          :connection-style :automatic)
-     #+:lispworks3
-     (foreign:read-foreign-modules (translate-logical-pathname lib))
-     #+:allegro
-     (load (translate-logical-pathname lib))
-     (setf *lib-plob-loaded* lib)
-     (when (> (hash-table-count *ff-name-to-entry-table*) 0)
-       (maphash #'register-c-callable-to-c *ff-name-to-entry-table*)))))
+  (cond
+   ((and *lib-plob-loaded* (not (equal lib *lib-plob-loaded*)))
+    (cerror "Use the already loaded library."
+	    "Request to load library ~a with an already loaded library ~a."
+	    lib *lib-plob-loaded*))
+   (*lib-plob-loaded* nil)
+   (t 
+    (when (and *verbose* (>= *verbose* 9))
+      (format t "; Start loading foreign library ~A ...~%" lib))
+    #+:lispworks4
+    (fli:register-module :plob-dll
+			 :real-name
+			 (translate-logical-pathname lib)
+			 :connection-style :automatic)
+    #+:lispworks3
+    (foreign:read-foreign-modules (translate-logical-pathname lib))
+    #+:allegro
+    (load (translate-logical-pathname lib))
+    (setf *lib-plob-loaded* lib)
+    (when (and *verbose* (>= *verbose* 9))
+      (format t "; Finished loading foreign library ~A~%" lib))
+    (when (and *verbose* (>= *verbose* 9))
+      (format t "; Start registering c-callables ...~%"))
+    (when (> (hash-table-count *ff-name-to-entry-table*) 0)
+      (if (and *verbose* (>= *verbose* 9))
+	  (maphash #'(lambda (key value)
+		       (format t "; Registering c-callable ~A with address 0x~X ...~%"
+			       key value)
+		       (register-c-callable-to-c key value)
+		       (format t "; Registered c-callable ~A with address 0x~X~%"
+			       key value))
+		   *ff-name-to-entry-table*)
+	  (maphash #'register-c-callable-to-c *ff-name-to-entry-table*)))
+    (when (and *verbose* (>= *verbose* 9))
+      (format t "; Finished registering c-callables.~%")))))
 
 ;;;; Local variables:
 ;;;; buffer-file-coding-system: iso-latin-1-unix

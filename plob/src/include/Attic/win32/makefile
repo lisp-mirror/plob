@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------------
 SHELL=/bin/sh
 PLOBDIR=/home/hkirschk/plob-2.09
-FRANZCL=/opt/acl50
+FRANZCL=/opt/acl60
 OPSYS=WIN32
 opsys=win32
 CC=cl
@@ -41,7 +41,7 @@ STDTARGETS=all clean dist-clean initial makefiles
 SHELL=/bin/sh
 C2RPC=$(BINDIR)/c2rpc -CPP   '$(CPP)' -I$(BINDIR)   -P   $(RPC_PROGRAM) -V   $(RPC_VERSION) $(C2RPCFLAGS)
 C2LISP=$(BINDIR)/c2lisp -CPP   '$(CPP)' -I$(BINDIR)   $(C2LISPFLAGS)
-SUFFIXES=.exe .dll .lib .obj \
+SUFFIXES=.exe .dll .lib .obj  \
 	 .x .lisp .c .h \
 	 .bbl .aux \
 	 .ps .eps .dvi .dgr .tex
@@ -54,7 +54,7 @@ OUTPUT_OPTION_OBJ= -c    -Fo$@
 OUTPUT_OPTION_LIB=  -out:$@
 OUTPUT_OPTION_DLL= $(LDSHAREDOPT)  -out:$@
 OUTPUT_OPTION_EXE=  -out:$@
-CPPFLAGS=  -I$(opsys)    -I$(SRCIDIR)    -I$(FRANZCL)/home/misc -DDATABASE='"$(DEFAULTBASE)"' -D$(OPSYS)=1 -DOPSYS='"$(OPSYS)"' -DHASAUTH=$(HASAUTH) -nologo -D_DLL   -D_NTSDK -D_WIN32_WINNT=0x0400 -Fd$(LIBDIR)/ -I$(MSVCPATH)/include -I$(RELPLOBDIR)/oncrpc-1.12
+CPPFLAGS=  -I$(opsys)    -I$(SRCIDIR)    -I$(FRANZCL)/home/misc -DDATABASE='"$(DEFAULTBASE)"' -D$(OPSYS)=1 -DOPSYS='"$(OPSYS)"' -DHASAUTH=$(HASAUTH)  -nologo -D_DLL   -D_NTSDK -D_WIN32_WINNT=0x0400 -Fd$(LIBDIR)/ -I$(MSVCPATH)/include -I$(RELPLOBDIR)/oncrpc-1.12
 RPCGEN=rpcgen
 RPCGENFLAGS=
 all :: 
@@ -280,9 +280,9 @@ mkdir  $@   ; \
 fi
 default-all :: 
 default-clean :: 
-	-rm -f   *~ core a.out gmon.out *.log log/*
+		-rm -f   *~ core a.out gmon.out *.log log/*
 default-dist-clean :: clean
-	-rm -f     *.lib       *.obj *.dll     *.fsl *.fasl *.wfasl
+		-rm -f     *.lib       *.obj *.dll     *.fsl *.fasl *.wfasl
 default-initial :: $(opsys)
 $(RULES) : 
 $(CONFDIR)/make.server.in : 
@@ -353,6 +353,18 @@ allegro4/plobsequ.lisp : plobsequ.h     $(plobsequDeps) $(STDINCLUDE)
 	$(C2LISP) -DALLEGRO4=1 -DPACKAGE=:plob   -o $@ plobsequ.h
 allegro4/plobstruct.lisp : plobstruct.h     $(plobstructDeps) $(STDINCLUDE)
 	$(C2LISP) -DALLEGRO4=1 -DPACKAGE=:plob   -o $@ plobstruct.h
+allegro4/plobclos.lisp : plobclos.h     $(plobclosDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO4=1 -DPACKAGE=:plob   -o $@ plobclos.h
+allegro4/plobtype.lisp : plobtype.h     $(plobtypeDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO4=1 -DPACKAGE=:plob   -o $@ plobtype.h
+allegro4/plobnumber.lisp : plobnumber.h     $(plobnumberDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO4=1 -DPACKAGE=:plob   -o $@ plobnumber.h
+allegro4/ploblock.lisp : ploblock.h     $(ploblockDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO4=1 -DPACKAGE=:plob   -o $@ ploblock.h
+allegro4/plobheap.lisp : plobheap.h     $(plobheapDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO4=1 -DPACKAGE=:plob   -o $@ plobheap.h
+allegro4/plobbtree.lisp : plobbtree.h     $(plobbtreeDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO4=1 -DPACKAGE=:plob   -o $@ plobbtree.h
 allegro5/plobroot.lisp : plobroot.h     $(plobrootDeps) $(STDINCLUDE)
 	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ plobroot.h
 allegro5/plobadmin.lisp : plobadmin.h     $(plobadminDeps) $(STDINCLUDE)
@@ -367,9 +379,48 @@ allegro5/plobsequ.lisp : plobsequ.h     $(plobsequDeps) $(STDINCLUDE)
 	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ plobsequ.h
 allegro5/plobstruct.lisp : plobstruct.h     $(plobstructDeps) $(STDINCLUDE)
 	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ plobstruct.h
+allegro5/plobclos.lisp : plobclos.h     $(plobclosDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ plobclos.h
+allegro5/plobtype.lisp : plobtype.h     $(plobtypeDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ plobtype.h
+allegro5/plobnumber.lisp : plobnumber.h     $(plobnumberDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ plobnumber.h
+allegro5/ploblock.lisp : ploblock.h     $(ploblockDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ ploblock.h
+allegro5/plobheap.lisp : plobheap.h     $(plobheapDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ plobheap.h
+allegro5/plobbtree.lisp : plobbtree.h     $(plobbtreeDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO5=1 -DPACKAGE=:plob   -o $@ plobbtree.h
+allegro6/plobroot.lisp : plobroot.h     $(plobrootDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobroot.h
+allegro6/plobadmin.lisp : plobadmin.h     $(plobadminDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobadmin.h
+allegro6/plob.lisp : plob.h     $(plobDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plob.h
+allegro6/plobmisc.lisp : plobmisc.h     $(plobmiscDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobmisc.h
+allegro6/plobff.lisp : plobff.h     $(plobffDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobff.h
+allegro6/plobsequ.lisp : plobsequ.h     $(plobsequDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobsequ.h
+allegro6/plobstruct.lisp : plobstruct.h     $(plobstructDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobstruct.h
+allegro6/plobclos.lisp : plobclos.h     $(plobclosDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobclos.h
+allegro6/plobtype.lisp : plobtype.h     $(plobtypeDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobtype.h
+allegro6/plobnumber.lisp : plobnumber.h     $(plobnumberDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobnumber.h
+allegro6/ploblock.lisp : ploblock.h     $(ploblockDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ ploblock.h
+allegro6/plobheap.lisp : plobheap.h     $(plobheapDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobheap.h
+allegro6/plobbtree.lisp : plobbtree.h     $(plobbtreeDeps) $(STDINCLUDE)
+	$(C2LISP) -DALLEGRO6=1 -DPACKAGE=:plob   -o $@ plobbtree.h
 ALLEGRO4FILES=          allegro4/plobroot.lisp allegro4/plobadmin.lisp allegro4/plob.lisp allegro4/plobmisc.lisp allegro4/plobff.lisp allegro4/plobsequ.lisp allegro4/plobstruct.lisp allegro4/plobclos.lisp allegro4/plobtype.lisp allegro4/plobnumber.lisp allegro4/ploblock.lisp allegro4/plobheap.lisp allegro4/plobbtree.lisp
 ALLEGRO5FILES=          allegro5/plobroot.lisp allegro5/plobadmin.lisp allegro5/plob.lisp allegro5/plobmisc.lisp allegro5/plobff.lisp allegro5/plobsequ.lisp allegro5/plobstruct.lisp allegro5/plobclos.lisp allegro5/plobtype.lisp allegro5/plobnumber.lisp allegro5/ploblock.lisp allegro5/plobheap.lisp allegro5/plobbtree.lisp
-ALLEGROFILES=$(ALLEGRO4FILES) $(ALLEGRO5FILES)
+ALLEGRO6FILES=          allegro6/plobroot.lisp allegro6/plobadmin.lisp allegro6/plob.lisp allegro6/plobmisc.lisp allegro6/plobff.lisp allegro6/plobsequ.lisp allegro6/plobstruct.lisp allegro6/plobclos.lisp allegro6/plobtype.lisp allegro6/plobnumber.lisp allegro6/ploblock.lisp allegro6/plobheap.lisp allegro6/plobbtree.lisp
+ALLEGROFILES=$(ALLEGRO4FILES) $(ALLEGRO5FILES) $(ALLEGRO6FILES)
 allegro-code : $(ALLEGROFILES)
 lispworks3/plobroot.lisp : plobroot.h     $(plobrootDeps) $(STDINCLUDE)
 	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ plobroot.h
@@ -385,6 +436,18 @@ lispworks3/plobsequ.lisp : plobsequ.h     $(plobsequDeps) $(STDINCLUDE)
 	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ plobsequ.h
 lispworks3/plobstruct.lisp : plobstruct.h     $(plobstructDeps) $(STDINCLUDE)
 	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ plobstruct.h
+lispworks3/plobclos.lisp : plobclos.h     $(plobclosDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ plobclos.h
+lispworks3/plobtype.lisp : plobtype.h     $(plobtypeDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ plobtype.h
+lispworks3/plobnumber.lisp : plobnumber.h     $(plobnumberDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ plobnumber.h
+lispworks3/ploblock.lisp : ploblock.h     $(ploblockDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ ploblock.h
+lispworks3/plobheap.lisp : plobheap.h     $(plobheapDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ plobheap.h
+lispworks3/plobbtree.lisp : plobbtree.h     $(plobbtreeDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS3=1 -DPACKAGE=:plob   -o $@ plobbtree.h
 lispworks4/plobroot.lisp : plobroot.h     $(plobrootDeps) $(STDINCLUDE)
 	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ plobroot.h
 lispworks4/plobadmin.lisp : plobadmin.h     $(plobadminDeps) $(STDINCLUDE)
@@ -399,6 +462,18 @@ lispworks4/plobsequ.lisp : plobsequ.h     $(plobsequDeps) $(STDINCLUDE)
 	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ plobsequ.h
 lispworks4/plobstruct.lisp : plobstruct.h     $(plobstructDeps) $(STDINCLUDE)
 	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ plobstruct.h
+lispworks4/plobclos.lisp : plobclos.h     $(plobclosDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ plobclos.h
+lispworks4/plobtype.lisp : plobtype.h     $(plobtypeDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ plobtype.h
+lispworks4/plobnumber.lisp : plobnumber.h     $(plobnumberDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ plobnumber.h
+lispworks4/ploblock.lisp : ploblock.h     $(ploblockDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ ploblock.h
+lispworks4/plobheap.lisp : plobheap.h     $(plobheapDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ plobheap.h
+lispworks4/plobbtree.lisp : plobbtree.h     $(plobbtreeDeps) $(STDINCLUDE)
+	$(C2LISP) -DLISPWORKS4=1 -DPACKAGE=:plob   -o $@ plobbtree.h
 LISPWORKS3FILES=          lispworks3/plobroot.lisp lispworks3/plobadmin.lisp lispworks3/plob.lisp lispworks3/plobmisc.lisp lispworks3/plobff.lisp lispworks3/plobsequ.lisp lispworks3/plobstruct.lisp lispworks3/plobclos.lisp lispworks3/plobtype.lisp lispworks3/plobnumber.lisp lispworks3/ploblock.lisp lispworks3/plobheap.lisp lispworks3/plobbtree.lisp
 LISPWORKS4FILES=          lispworks4/plobroot.lisp lispworks4/plobadmin.lisp lispworks4/plob.lisp lispworks4/plobmisc.lisp lispworks4/plobff.lisp lispworks4/plobsequ.lisp lispworks4/plobstruct.lisp lispworks4/plobclos.lisp lispworks4/plobtype.lisp lispworks4/plobnumber.lisp lispworks4/ploblock.lisp lispworks4/plobheap.lisp lispworks4/plobbtree.lisp
 LISPWORKSFILES=$(LISPWORKS3FILES) $(LISPWORKS4FILES)

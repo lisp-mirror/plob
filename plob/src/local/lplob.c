@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------
 | Module	lplob.c
 | Author	Heiko Kirschke
-|		kirschke@informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1998/07/03
 | Description	PLOB local source code.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -31,6 +31,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 
@@ -291,18 +293,25 @@ BeginFunction ( FIXNUM,
 		  argument ( VECTOR ( void,
 				      fnTypeTagSizeValue(1,&nElementTypeTag,
 							 &nSizeInElements ) ),
-			     vector_out, pBuffer ) ) )
+			     vector_out, pBuffer )
+		  and
+		  argument ( FIXNUM, value_in, nUnmask )
+		  and
+		  argument ( FIXNUM, value_in, nBufferOffset ) ) )
 {
+  LPVOID	pCooked;
   int		nR;
   SHTYPETAG	nE;
 
   INITIALIZEPLOB;
   UNSTORESESSION ();
   ASSERT ( nSizeInElements == 0 || pBuffer != NULL );
+  pCooked	=
+    fnMakeLispPointer ( pBuffer, FALSE, nUnmask, nBufferOffset );
   RETURN ( fnServerObjectReadValues ( oShortObjIdHeap, oShortObjId,
 				      oExpectingClass, nExpectingTypeTag,
 				      nIndex, nElementTypeTag,
-				      nSizeInElements, &nE, &nR, pBuffer ) );
+				      nSizeInElements, &nE, &nR, pCooked ) );
 } EndFunction ( fnClientObjectReadValues );
 
 /* ----------------------------------------------------------------------- */
@@ -424,14 +433,22 @@ BeginFunction ( FIXNUM,
 				      fnTypeTagSizeValue(1,&nElementTypeTag,
 							 &nSizeInElements ) ),
 			     vector_in,
-			     pBuffer ) ) )
+			     pBuffer )
+		  and
+		  argument ( FIXNUM, value_in, nUnmask )
+		  and
+		  argument ( FIXNUM, value_in, nBufferOffset ) ) )
 {
+  LPVOID	pCooked;
+
   INITIALIZEPLOB;
   UNSTORESESSION ();
+  pCooked	=
+    fnMakeLispPointer ( pBuffer, FALSE, nUnmask, nBufferOffset );
   RETURN ( fnServerObjectWriteValues ( oShortObjIdHeap, oShortObjId,
 				       oExpectingClass, nExpectingTypeTag,
 				       nIndex, nElementTypeTag,
-				       nSizeInElements, pBuffer ) );
+				       nSizeInElements, pCooked ) );
 } EndFunction ( fnClientObjectWriteValues );
 
 /*

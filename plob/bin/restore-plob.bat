@@ -1,6 +1,7 @@
 @echo off
 rem ------------------------------------------------------------
-rem 1998/05/07 Heiko Kirschke kirschke@informatik.uni-hamburg.de
+rem 1998/05/07 Heiko Kirschke Heiko.Kirschke@acm.org
+rem $Header$
 rem This script is a replacement for the UNIX one-liner:
 rem	cat plob-*.gz.* > plob.tar.gz
 rem I *really* like DOS ... it cares for good jobs
@@ -109,7 +110,7 @@ rem ------------------------------------------------------------
   echo   %szWWW% is the official
   echo   distribution site for PLOB.
   echo Copyright:
-  echo   (C) 1994-1998 Heiko Kirschke Heiko.Kirschke@poet.de
+  echo   (C) 1994--2001 Heiko Kirschke Heiko.Kirschke@acm.org
   goto exit
 
 :xtraargs

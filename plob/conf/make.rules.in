@@ -12,7 +12,7 @@
 |		possibility of calling LaTeX from a make file.
 |		For the usage of make.rules, read the man pages of make.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -38,6 +38,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ---------------------------------------------------------------------- */
 
@@ -458,21 +460,46 @@ rule ( paste3(prefix,filename,dot lisp), \
 MkPlobFiles31(MkLispRule,allegro4 slash,ALLEGRO4)
 #define MkAllegro4bFiles \
 MkPlobFiles32(MkLispRule,allegro4 slash,ALLEGRO4)
+#define MkAllegro4cFiles \
+MkPlobFiles33(MkLispRule,allegro4 slash,ALLEGRO4)
+#define MkAllegro4dFiles \
+MkPlobFiles34(MkLispRule,allegro4 slash,ALLEGRO4)
 
 #define MkAllegro5aFiles \
 MkPlobFiles31(MkLispRule,allegro5 slash,ALLEGRO5)
 #define MkAllegro5bFiles \
 MkPlobFiles32(MkLispRule,allegro5 slash,ALLEGRO5)
+#define MkAllegro5cFiles \
+MkPlobFiles33(MkLispRule,allegro5 slash,ALLEGRO5)
+#define MkAllegro5dFiles \
+MkPlobFiles34(MkLispRule,allegro5 slash,ALLEGRO5)
+
+#define MkAllegro6aFiles \
+MkPlobFiles31(MkLispRule,allegro6 slash,ALLEGRO6)
+#define MkAllegro6bFiles \
+MkPlobFiles32(MkLispRule,allegro6 slash,ALLEGRO6)
+#define MkAllegro6cFiles \
+MkPlobFiles33(MkLispRule,allegro6 slash,ALLEGRO6)
+#define MkAllegro6dFiles \
+MkPlobFiles34(MkLispRule,allegro6 slash,ALLEGRO6)
 
 #define MkLispWorks3aFiles \
 MkPlobFiles31(MkLispRule,lispworks3 slash,LISPWORKS3)
 #define MkLispWorks3bFiles \
 MkPlobFiles32(MkLispRule,lispworks3 slash,LISPWORKS3)
+#define MkLispWorks3cFiles \
+MkPlobFiles33(MkLispRule,lispworks3 slash,LISPWORKS3)
+#define MkLispWorks3dFiles \
+MkPlobFiles34(MkLispRule,lispworks3 slash,LISPWORKS3)
 
 #define MkLispWorks4aFiles \
 MkPlobFiles31(MkLispRule,lispworks4 slash,LISPWORKS4)
 #define MkLispWorks4bFiles \
 MkPlobFiles32(MkLispRule,lispworks4 slash,LISPWORKS4)
+#define MkLispWorks4cFiles \
+MkPlobFiles33(MkLispRule,lispworks4 slash,LISPWORKS4)
+#define MkLispWorks4dFiles \
+MkPlobFiles34(MkLispRule,lispworks4 slash,LISPWORKS4)
 
 /* ----------------------------------------------------------------------
 | OS/compiler-specific settings:
@@ -551,7 +578,8 @@ LDSHAREDOPT=trim(option1(shared))
  paste4(-,libpath,:,$(RELPLOBDIR) slash oncrpc dash 1 dot 12 slash bin) spc \
  paste4(-,libpath,:,$(MSVCPATH) slash lib) spc \
  fileObj(binmode) fileLib(oncrpc) fileLib(msvcrt) spc \
- fileLib(advapi32) fileLib(ws2_32) fileLib(kernel32)
+ fileLib(advapi32) fileLib(ws2_32) fileLib(kernel32) spc \
+ fileLib(oldnames)
 #define ccGenMultThread paste5(-,D,MULTITHREAD,=,1)
 LDSHAREDOPT=trim(option1(dll))
 

@@ -235,7 +235,7 @@ slot-4 ~A~%"
   (setf (getbtree 20.0d0 *b*) "Zwanzig.")
   (setf (getbtree 3.0s0 *b*) "Short drei.")
   (setf (getbtree 4.0e0 *b*) "Single vier.")
-  (mapbtree #'(lambda (k d) (format t "k ~A, d ~A~%" k d) t) *b* :start 1.0e0))
+  (mapbtree #'(lambda (k d) (format t "k ~A, d ~A~%" k d) t) *b* :>= 1.0e0))
 
 #+haha
 (progn
@@ -248,8 +248,9 @@ slot-4 ~A~%"
 ;;; ---------------------------------------------------------------------------
 (defun st-pic ()
   (setf *picture* (make-array '(256 256 3)
-                              :element-type 'single-float
-                              :initial-element 128.0e0))
+			      ;; :element-type 'single-float
+			      :element-type '(unsigned-byte 8)
+                              :initial-element 64))
   (time (setf *p* (store-object *picture*)))
   (setf *picture* nil)
   *p*)
@@ -345,6 +346,22 @@ slot-4 ~A~%"
 	    number
 	    p-bignum)
     p-bignum))
+
+;;; ---------------------------------------------------------------------------
+(defun tst-array ()
+  (let ((a (make-array '(7 3) :element-type '(unsigned-byte 32))))
+    (dotimes (i (first (array-dimensions a)))
+      (dotimes (j (second (array-dimensions a)))
+	(setf (aref a i j) (+ (* i (second (array-dimensions a))) j))))
+    (format t "a ~A~%" a)
+    (setf *a* a)
+    (setf #!*a* a)
+    (clear-cache)
+    (let ((b (make-array (array-dimensions a)
+			   :element-type (array-element-type a)
+			   :initial-element 0)))
+      (setf b #!*a*)
+      (format t "#!*a* ~A~%" b))))
 
 ;;;; Local variables:
 ;;;; buffer-file-coding-system: iso-latin-1-unix

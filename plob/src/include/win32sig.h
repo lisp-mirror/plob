@@ -1,6 +1,15 @@
 /* -------------------------------------------------------------------------
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Module	win32sig.h
+| Author	Heiko Kirschke
+|		mailto:Heiko.Kirschke@acm.org
+| Date		1998-02-16
+| Description	Hacked up version of signal.h and asm/sigcontext.h
+|		found in Linux kernel version 2.0.0. Since signal.h
+|		is used in Windows/NT too, all the sigaction stuff
+|		belonging into signal.h has been implemented here.
+|
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -27,13 +36,10 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  ------------------------------------------------------------------------- */
-/**
- * 1998/02/16 HK: Hacked up version of signal.h and asm/sigcontext.h
- * found in Linux kernel version 2.0.0. Since signal.h is used in
- * Windows/NT, too, all the sigaction stuff belonging into signal.h
- * has been implemented here.
- */
+
 #ifndef _WIN32SIG_H
 #define _WIN32SIG_H
 

@@ -1,7 +1,9 @@
 #!/bin/sh
 # ---------------------------------------------------------------------
 # Script	mk
-# Date/author	1998/03/13 HK Heiko.Kirschke@poet.de
+# Author	Heiko Kirschke
+#		mailto:Heiko.Kirschke@acm.org
+# Date		1998/03/13
 # Purpose	Call make with appropriate arguments
 # ---------------------------------------------------------------------
 

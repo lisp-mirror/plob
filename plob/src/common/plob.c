@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------
 | Module	plob.c
 | Author	Heiko Kirschke
-|		kirschke@informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1996/09/23
 | Description	PLOB source code common for server and client.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -31,6 +31,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 
@@ -286,6 +288,29 @@ FIXNUM DLLEXPORT	fnObjId2Immediate	( OBJID oObjId,
   }
   RETURN ( nImmediate );
 } /* fnObjId2Immediate */
+
+/* ----------------------------------------------------------------------- */
+LPVOID		fnMakeLispPointer	( LPVOID	pRaw,
+					  BOOL		bDereferencePointer,
+					  FIXNUM	nUnmask,
+					  FIXNUM	nObjectDataOffset )
+{
+  LPVOID	pCooked = NULL;
+
+  PROCEDURE	( fnMakeLispPointer );
+  INITIALIZEPLOB;
+
+  ASSERT ( pRaw != NULL );
+  if ( bDereferencePointer ) {
+    pRaw	= * (LPVOID *) pRaw;
+    ASSERT ( pRaw != NULL );
+  }
+  pCooked	= (LPVOID) ( ( (LPSTR) ( ( (unsigned long) pRaw ) &
+					 ~(unsigned long) nUnmask ) ) +
+			     nObjectDataOffset );
+
+  RETURN ( pCooked );
+} /* fnMakeLispPointer */
 
 /*
   Local variables:

@@ -1,11 +1,11 @@
 ;;;; -*- Package: PLOB; Mode: LISP; Syntax: ANSI-Common-Lisp -*----------------
 ;;;; Module	plob-error.lisp
 ;;;; Author	Heiko Kirschke
-;;;;		kirschke@informatik.uni-hamburg.de
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	1997/03/11
 ;;;; Description	PLOB error handling functions
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -32,6 +32,8 @@
 ;;;; (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
+;;;;
+;;;; $Header$
 ;;;;
 ;;;; --------------------------------------------------------------------------
 
@@ -189,16 +191,14 @@
  The \\allegrocl\\ callback called when a server error occurres in
  the C level of \\plob."
 
-  (let* ((error-level (sh-get-error-level))
-	 (continue-message (make-string +error-message-buffer-size+
-					:initial-element #\Space))
-	 (error-message (make-string +error-message-buffer-size+
-				     :initial-element #\Space)))
-    (sh-get-error-continue continue-message
-			   +error-message-buffer-size+)
-    (sh-get-error-message error-message
-			  +error-message-buffer-size+)
-    (sh-signal-error error-level continue-message error-message)))
+  (let ((error-level (sh-get-error-level))
+	(continue-message (make-string +error-message-buffer-size+
+				       :initial-element #\Space))
+	(error-message (make-string +error-message-buffer-size+
+				    :initial-element #\Space)))
+      (sh-get-error-continue continue-message +error-message-buffer-size+)
+      (sh-get-error-message error-message +error-message-buffer-size+)
+      (sh-signal-error error-level continue-message error-message)))
 
 ;;; ---------------------------------------------------------------------------
 (defmacro catch-errors (&body forms)

@@ -1,10 +1,11 @@
-/* ----------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
 | Module	plobff.h
 | Author	Heiko Kirschke
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1998/04/14 Created
 | Description	Foreign function interface to LISP
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -31,12 +32,14 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
- --------------------------------------------------------------------------- */
+| $Header$
+|
+ -------------------------------------------------------------------------- */
 
 #if defined(LISP)
-;;;; --------------------------------------------------------------------------
+;;;; -------------------------------------------------------------------------
 ;;;; For further comments look into file cplobff.h
-;;;; --------------------------------------------------------------------------
+;;;; -------------------------------------------------------------------------
 
 #elif ! defined(C2C) && ! defined(RPC)
 #include	"c2c.h"

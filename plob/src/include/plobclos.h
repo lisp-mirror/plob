@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------
 | Module	plobclos.h
 | Author	Heiko Kirschke
-|		kirschke@kogs26.informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		9.3.94
 | Description	PLOB CLOS instance functions.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -32,12 +32,14 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  ------------------------------------------------------------------------- */
 
 #if defined(LISP)
-;;;; --------------------------------------------------------------------------
+;;;; -------------------------------------------------------------------------
 ;;;; For further comments look into file plobclos.h
-;;;; --------------------------------------------------------------------------
+;;;; -------------------------------------------------------------------------
 
 #elif ! defined(C2C) && ! defined(RPC)
 #include	"c2c.h"

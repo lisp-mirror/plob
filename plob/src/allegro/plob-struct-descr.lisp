@@ -1,12 +1,12 @@
 ;;;; -*- Package: PLOB; Mode: LISP; Syntax: ANSI-Common-Lisp -*----------------
 ;;;; Module	plob-struct-descr.lisp
 ;;;; Author	Heiko Kirschke
-;;;;		kirschke@kogs26.informatik.uni-hamburg.de
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	23.2.94	Derived from plob-struct.lisp
 ;;;; Description	PLOB allocate and accessor functions for
 ;;;;		LISP structure descriptions
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -33,6 +33,8 @@
 ;;;; (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
+;;;;
+;;;; $Header$
 ;;;;
 ;;;; --------------------------------------------------------------------------
 

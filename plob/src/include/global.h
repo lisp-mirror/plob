@@ -1,11 +1,11 @@
-/* ----------------------------------------------------------------------------
-| Module	_global.h
+/* ---------------------------------------------------------------------------
+| Module	global.h
 | Author	Heiko Kirschke
-|		kirschke@kogs26.informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		22.10.92
 | Description	Defines some common C stuff.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -32,7 +32,9 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
- --------------------------------------------------------------------------- */
+| $Header$
+|
+ -------------------------------------------------------------------------- */
 
 #ifndef	_GLOBAL_H_INCLUDED
 #define	_GLOBAL_H_INCLUDED

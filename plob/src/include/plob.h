@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------------
-| Module	plob.h resp. plob.lisp
+| Module	plob.h
 | Author	Heiko Kirschke
-|		kirschke@informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		17.12.93
 | Description	Foreign language interface to postore persistent heap.
 |		The interface here is a low-level interface just for calling
@@ -10,7 +10,7 @@
 |		For a description of the stable store and stable heap
 |		interface please look into the man pages.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -37,12 +37,14 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  ------------------------------------------------------------------------- */
 
 #if defined(LISP)
-;;;; --------------------------------------------------------------------------
+;;;; -------------------------------------------------------------------------
 ;;;; For further comments look into file plob.h
-;;;; --------------------------------------------------------------------------
+;;;; -------------------------------------------------------------------------
 
 #elif ! defined(C2C) && ! defined(RPC)
 #include	"c2c.h"
@@ -1198,7 +1200,11 @@ DefineFunction ( FIXNUM,
 		   argument ( VECTOR ( void,
 				       fnTypeTagSizeValue(1,&nElementTypeTag,
 							  &nSizeInElements ) ),
-			      vector_out, pBuffer ) ) );
+			      vector_out, pBuffer )
+		   and
+		   argument ( FIXNUM, value_in, nUnmask )
+		   and
+		   argument ( FIXNUM, value_in, nBufferOffset ) ) );
 #endif	/* ! RPC */
 
 DefineFunction ( BOOL,
@@ -1424,7 +1430,11 @@ DefineFunction ( FIXNUM,
 		   argument ( VECTOR ( void,
 				       fnTypeTagSizeValue(1,&nElementTypeTag,
 							  &nSizeInElements ) ),
-			      vector_in, pBuffer ) ) );
+			      vector_in, pBuffer )
+		   and
+		   argument ( FIXNUM, value_in, nUnmask )
+		   and
+		   argument ( FIXNUM, value_in, nBufferOffset ) ) );
 #endif	/* ! RPC */
 
 /*

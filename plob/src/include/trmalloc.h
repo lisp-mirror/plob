@@ -1,11 +1,11 @@
-/* ----------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
 | Module	trmalloc.h
 | Author	Heiko Kirschke
-|		kirschke@informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1997/06/27
 | Description	Traced malloc
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -32,7 +32,9 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
- --------------------------------------------------------------------------- */
+| $Header$
+|
+ -------------------------------------------------------------------------- */
 
 #ifndef	TRMALLOC_H_INCLUDED
 #define	TRMALLOC_H_INCLUDED
@@ -40,9 +42,9 @@
 #include	<stdlib.h>
 #include	"global.h"
 
-/* ----------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
 | Constants, types
- --------------------------------------------------------------------------- */
+ -------------------------------------------------------------------------- */
 typedef enum {
   /* Fast operation, with minimal overhead: */
   emFast,
@@ -55,9 +57,9 @@ typedef enum {
   emGetFlags = -1
 }	MALLFLAGS, * PMALLFLAGS;
 
-/* ----------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
 | Macros
- --------------------------------------------------------------------------- */
+ -------------------------------------------------------------------------- */
 #define	Malloc( nSize )			\
 fnMalloc ( (nSize), __szFile__, __szProc__, __LINE__ )
 
@@ -70,9 +72,9 @@ fnFree ( (lpAllocated), __szFile__, __szProc__, __LINE__ )
 #define	MallocLog()			\
 fnMallocLog ( __szFile__, __szProc__, __LINE__ )
 
-/* ----------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
 | Function protoypes
- --------------------------------------------------------------------------- */
+ -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------
 | Function	fnMalloc
@@ -132,9 +134,9 @@ void DLLEXPORT	fnMallocLog	( LPCSTR	pszModule,
 				  LPCSTR	pszProcedure,
 				  int		nLine );
 
-/* ----------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
 | Module initialization / Deinitialization
- --------------------------------------------------------------------------- */
+ -------------------------------------------------------------------------- */
 void		fnInitializeMallocModule	( void );
 void		fnDeinitializeMallocModule	( void );
 

@@ -1,7 +1,7 @@
 ;;;; -*- Package: PLOB; Mode: LISP; Syntax: ANSI-Common-Lisp -*----------------
 ;;;; Module	plob-metaclass-3.lisp
 ;;;; Author	Heiko Kirschke
-;;;;		kirschke@informatik.uni-hamburg.de
+;;;;		mailto:Heiko.Kirschke@acm.org
 ;;;; Date	1997/03/11
 ;;;; Description	PLOB metaclass for persistent classes
 ;;;;
@@ -15,7 +15,7 @@
 ;;;;		The Art of the Metaobject Protocol
 ;;;;		The MIT Press, Cambridge, Massachusetts, 1991
 ;;;;
-;;;; Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+;;;; Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 ;;;;		All rights reserved.
 ;;;;
 ;;;; Unlimited use, reproduction, modification and distribution of
@@ -42,6 +42,8 @@
 ;;;; (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 ;;;; University of St. Andrews for getting their license terms on
 ;;;; POSTORE.
+;;;;
+;;;; $Header$
 ;;;;
 ;;;; --------------------------------------------------------------------------
 
@@ -407,7 +409,11 @@
                      (setf effective-extent extent))))))
            direct-slot-definitions))
     (when (and (not effective-extent)
-	       (find slot-name (slot-value the-class 'clos::direct-slots)
+	       (find slot-name (slot-value the-class
+					   #-(and :allegro (version>= 6))
+					   'clos::direct-slots
+					   #+(and :allegro (version>= 6))
+					   'excl::direct-slots)
 		     :key #'slot-definition-name))
       (setf effective-extent (class-extent the-class)))
     (unless effective-extent

@@ -1,10 +1,11 @@
 /* -------------------------------------------------------------------------
 | Module	plobversion.h
 | Author	Heiko Kirschke
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1998/03/04
 | Description	PLOB version number
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -31,6 +32,8 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  ------------------------------------------------------------------------- */
 
 #ifdef C2TEX
@@ -41,14 +44,21 @@
 /* Current version of PLOB: */
 
 #define	PLOBVERSIONMAJOR	2
+#define	PLOBVERSIONMINOR	10
+
+#define	PLOBVERSIONDAY		9
+#define	PLOBVERSIONMONTH	February
+#define	PLOBVERSIONYEAR		2001
+
+/* Older version of PLOB: */
+/*
+#define	PLOBVERSIONMAJOR	2
 #define	PLOBVERSIONMINOR	09
 
 #define	PLOBVERSIONDAY		22
 #define	PLOBVERSIONMONTH	May
 #define	PLOBVERSIONYEAR		2000
 
-/* Older version of PLOB: */
-/*
 #define	PLOBVERSIONMAJOR	2
 #define	PLOBVERSIONMINOR	08
 

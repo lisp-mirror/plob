@@ -1,14 +1,14 @@
 /* -------------------------------------------------------------------------
 | Module	splobbtree.c
 | Author	Heiko Kirschke
-|		kirschke@kogs26.informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		11.1.94 Derived from c-plob.c
 | Description	PLOB BTrees. BTree algorithms taken from:
 |		Niklaus Wirth:
 |		Algorithmen und Datenstrukturen
 |		p. 283
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -34,6 +34,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 

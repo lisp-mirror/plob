@@ -44,6 +44,8 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
+| $Header$
+|
  ---------------------------------------------------------------------- */
 
 #define	ccLocalOptions	paste5(-,D,BUILDDLL,=,1) spc paste3(-,I,ddot slash server slash $(opsys))

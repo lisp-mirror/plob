@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------
 | Module	lcplob.c
 | Author	Heiko Kirschke
-|		kirschke@informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1998/07/03
 | Description	PLOB local source code.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -31,6 +31,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 
@@ -127,7 +129,7 @@ BeginFunction ( FIXNUM,
       fnClientObjectReadValues ( oShortObjIdHeap, oShortObjId,
 				 oExpectingClass, nExpectingTypeTag,
 				 0, eshCharacterTag, nSizeInCharacters,
-				 (void *) pszBuffer );
+				 (void *) pszBuffer, 0, 0 );
     if ( nWordsRead >= 0 ) {
       nRead		= nWordsRead * nSizeOfPostoreWord;
       nRead		= MIN ( nRead, nSizeInCharacters );
@@ -167,7 +169,7 @@ BeginFunction ( FIXNUM,
       fnClientObjectWriteValues ( oShortObjIdHeap, oShortObjId,
 				  oExpectingClass, nExpectingTypeTag,
 				  0, eshCharacterTag, nSizeInCharacters,
-				  (void *) pszBuffer );
+				  (void *) pszBuffer, 0, 0 );
     if ( nWordsWritten >= 0 ) {
       nWritten	= nWordsWritten * nSizeOfPostoreWord;
       nWritten	= MIN ( nWritten, nSizeInCharacters );

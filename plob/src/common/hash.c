@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------------
 | Module	hash.c
 | Author	Heiko Kirschke
-|		kirschke@informatik.uni-hamburg.de
+|		mailto:Heiko.Kirschke@acm.org
 | Date		28.10.93
 | Description	Implements hash tables based on Coalesced chaining as
 |		proposed in:
@@ -10,7 +10,7 @@
 |			Vol. 3: Sorting and Searching
 |			p. 515
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -36,6 +36,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 

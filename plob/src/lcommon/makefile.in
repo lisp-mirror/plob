@@ -13,9 +13,9 @@
 |			test:
 |		Builds a stand-alone test program for testing the
 |		PLOB C routines.
-| Description	Code shared between RPC client and non-RPC local `client'
+| Description	Code shared between RPC client and non-RPC local client
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -42,7 +42,9 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
- ---------------------------------------------------------------------- */
+| $Header$
+|
+---------------------------------------------------------------------- */
 
 #define	ccLocalOptions	paste5(-,D,BUILDDLL,=,1)
 #define	relPlobDir	ddot slash ddot

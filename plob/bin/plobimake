@@ -193,14 +193,14 @@ szCmdLine="${CPP}"
 if ${bVerbous}; then
   szCmdLine="${szCmdLine} -v"
 fi
-szIncludes="`echo "${szIncludes}"|sed 's/:/ -I/g'`"
-szCmdLine="${szCmdLine} ${szDefines} -I${szIncludes} ${szTmpCfile}"
+szIncludes="`echo "-I'${szIncludes}'"|sed -e "s/:/' -I'/g"`"
+szCmdLine="${szCmdLine} ${szDefines} ${szIncludes} '${szTmpCfile}'"
 
 if [ -z "${szMakeFile}" ]; then
   if ${bVerbous}; then
     echo "1. ${szCmdLine}" 1>&2
   fi
-  ${szCmdLine}|fnTrimMakeFile 'stdout'
+  eval ${szCmdLine}|fnTrimMakeFile 'stdout'
   nExitCode="$?"
 else
   szDirectory="`dirname ${szMakeFile}`"
@@ -211,7 +211,7 @@ else
   if ${bVerbous}; then
     echo "2. ${szCmdLine} > ${szMakeFile}" 1>&2
   fi
-  ${szCmdLine} > ${szTmpOutfile}
+  eval ${szCmdLine} > ${szTmpOutfile}
   nExitCode="$?"
   if [ "${nExitCode}" -eq 0 ]; then
     if [ -r "${szMakeFile}" ]; then
@@ -219,10 +219,10 @@ else
     fi
     case "`uname`" in
     *[cC][yY][gG][wW][iI][nN]*)
-      fnTrimMakeFile `basename ${szMakeFile}` <${szTmpOutfile} >${TMP}/${nPID}_${szScript}.cr
-      dos2unix ${TMP}/${nPID}_${szScript}.cr ${szMakeFile};;
+      fnTrimMakeFile "`basename ${szMakeFile}`" <${szTmpOutfile} >${TMP}/${nPID}_${szScript}.cr
+      dos2unix "${TMP}/${nPID}_${szScript}.cr" "${szMakeFile}";;
     *)
-      fnTrimMakeFile `basename ${szMakeFile}` <${szTmpOutfile} >${szMakeFile}
+      fnTrimMakeFile "`basename ${szMakeFile}`" <${szTmpOutfile} >${szMakeFile}
     esac
   else
     nExitCode='1'

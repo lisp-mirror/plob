@@ -41,7 +41,9 @@
 #ifndef C2ALLEGRO6_H
 #define C2ALLEGRO6_H
 
-#include	<c2allegro5.h>
+#include	<c2allegro.h>
+
+#define	_VECTOR_void		AS_IS
 
 #endif /* C2ALLEGRO6_H */
 

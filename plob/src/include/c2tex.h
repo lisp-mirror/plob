@@ -1,13 +1,14 @@
 /* -------------------------------------------------------------------------
 | Module	c2tex.h
 | Author	Heiko Kirschke
+|		mailto:Heiko.Kirschke@acm.org
 | Date		1998/04/16
 | Description	Convert C version info to TeX
 | Copyright	(C) 1993,1994 Heiko Kirschke
 | Date		17.12.93
 | Description	Generator macros for C.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2001 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -33,6 +34,8 @@
 | (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
 | University of St. Andrews for getting their license terms on
 | POSTORE.
+|
+| $Header$
 |
  ------------------------------------------------------------------------- */
 

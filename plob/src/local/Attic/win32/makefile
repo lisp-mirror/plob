@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------------
 SHELL=/bin/sh
 PLOBDIR=/home/hkirschk/plob-2.09
-FRANZCL=/opt/acl50
+FRANZCL=/opt/acl60
 OPSYS=WIN32
 opsys=win32
 CC=cl
@@ -41,7 +41,7 @@ STDTARGETS=all clean dist-clean initial makefiles
 SHELL=/bin/sh
 C2RPC=$(BINDIR)/c2rpc -CPP   '$(CPP)' -I$(BINDIR)   -P   $(RPC_PROGRAM) -V   $(RPC_VERSION) $(C2RPCFLAGS)
 C2LISP=$(BINDIR)/c2lisp -CPP   '$(CPP)' -I$(BINDIR)   $(C2LISPFLAGS)
-SUFFIXES=.exe .dll .lib .obj \
+SUFFIXES=.exe .dll .lib .obj  \
 	 .x .lisp .c .h \
 	 .bbl .aux \
 	 .ps .eps .dvi .dgr .tex
@@ -54,7 +54,7 @@ OUTPUT_OPTION_OBJ= -c    -Fo$@
 OUTPUT_OPTION_LIB=  -out:$@
 OUTPUT_OPTION_DLL= $(LDSHAREDOPT)  -out:$@
 OUTPUT_OPTION_EXE=  -out:$@
-CPPFLAGS=  -I$(opsys)    -I$(SRCIDIR)    -I$(FRANZCL)/home/misc -DDATABASE='"$(DEFAULTBASE)"' -D$(OPSYS)=1 -DOPSYS='"$(OPSYS)"' -DHASAUTH=$(HASAUTH) -nologo -D_DLL   -D_NTSDK -D_WIN32_WINNT=0x0400 -Fd$(LIBDIR)/ -I$(MSVCPATH)/include -I$(RELPLOBDIR)/oncrpc-1.12     -DBUILDDLL=1 -I../server/$(opsys)
+CPPFLAGS=  -I$(opsys)    -I$(SRCIDIR)    -I$(FRANZCL)/home/misc -DDATABASE='"$(DEFAULTBASE)"' -D$(OPSYS)=1 -DOPSYS='"$(OPSYS)"' -DHASAUTH=$(HASAUTH)  -nologo -D_DLL   -D_NTSDK -D_WIN32_WINNT=0x0400 -Fd$(LIBDIR)/ -I$(MSVCPATH)/include -I$(RELPLOBDIR)/oncrpc-1.12     -DBUILDDLL=1 -I../server/$(opsys)
 RPCGEN=rpcgen
 RPCGENFLAGS=
 all :: 
@@ -280,9 +280,9 @@ mkdir  $@   ; \
 fi
 default-all :: 
 default-clean :: 
-	-rm -f   *~ core a.out gmon.out *.log log/*
+		-rm -f   *~ core a.out gmon.out *.log log/*
 default-dist-clean :: clean
-	-rm -f     *.lib       *.obj *.dll     *.fsl *.fasl *.wfasl
+		-rm -f     *.lib       *.obj *.dll     *.fsl *.fasl *.wfasl
 default-initial :: $(opsys)
 $(RULES) : 
 $(CONFDIR)/make.server.in : 
@@ -409,12 +409,12 @@ $(opsys)/pic/lplobheap.obj : lplobheap.c lplobheap.h $(SRCIDIR)/plobheap.h $(lpl
 $(opsys)/pic/lplobbtree.obj : lplobbtree.c lplobbtree.h $(SRCIDIR)/plobbtree.h $(lplobbtreeDeps) $(STDINCLUDE)
 	$(COMPILEc) $(COPTPIC) $(OUTPUT_OPTION_OBJ) lplobbtree.c
 $(SHAREDLIBRARY) : $(SHAREDLIBFILES) $(opsys)/libloclientplob.res
-	$(LINKc) $(OUTPUT_OPTION_DLL) -nologo       -implib:$(LIBDIR)/libloclientplobimp.lib $(SHAREDLIBFILES) $(opsys)/libloclientplob.res    -nodefaultlib -libpath:$(LIBDIR) -libpath:$(RELPLOBDIR)/oncrpc-1.12/bin -libpath:$(MSVCPATH)/lib binmode.obj       oncrpc.lib       msvcrt.lib advapi32.lib       ws2_32.lib       kernel32.lib      $(LDLIBS)
+	$(LINKc) $(OUTPUT_OPTION_DLL) -nologo       -implib:$(LIBDIR)/libloclientplobimp.lib $(SHAREDLIBFILES) $(opsys)/libloclientplob.res    -nodefaultlib -libpath:$(LIBDIR) -libpath:$(RELPLOBDIR)/oncrpc-1.12/bin -libpath:$(MSVCPATH)/lib binmode.obj       oncrpc.lib       msvcrt.lib advapi32.lib       ws2_32.lib       kernel32.lib oldnames.lib      $(LDLIBS)
 test :: $(opsys)/lplobtest.exe
 $(opsys)/lplobtest.obj : ../client/cplobtest.c ../include/plobheap.h ../include/plobbtree.h $(STDINCLUDE)
 	$(COMPILEc) $(OUTPUT_OPTION_OBJ)        -DNORPC=1          -I. -I../server ../client/cplobtest.c
 $(opsys)/lplobtest.exe : $(opsys)/lplobtest.obj $(LIBDIR)/$(LIBLOCLIENTPLOBLIB) $(LIBDIR)/$(LIBPLOB)
-	$(LINKc) $(OUTPUT_OPTION_EXE) -nologo      $(opsys)/lplobtest.obj -libpath:$(LIBDIR) -map:$(opsys)/lplobtest.map $(LIBLOCLIENTPLOBLIB) $(LIBPLOB)    -nodefaultlib -libpath:$(LIBDIR) -libpath:$(RELPLOBDIR)/oncrpc-1.12/bin -libpath:$(MSVCPATH)/lib binmode.obj       oncrpc.lib       msvcrt.lib advapi32.lib       ws2_32.lib       kernel32.lib      $(LDLIBS)
+	$(LINKc) $(OUTPUT_OPTION_EXE) -nologo      $(opsys)/lplobtest.obj -libpath:$(LIBDIR) -map:$(opsys)/lplobtest.map $(LIBLOCLIENTPLOBLIB) $(LIBPLOB)    -nodefaultlib -libpath:$(LIBDIR) -libpath:$(RELPLOBDIR)/oncrpc-1.12/bin -libpath:$(MSVCPATH)/lib binmode.obj       oncrpc.lib       msvcrt.lib advapi32.lib       ws2_32.lib       kernel32.lib oldnames.lib      $(LDLIBS)
 initial :: $(opsys) $(PICDIR)
 $(STDTARGETS) :: 
 	@$(MAKE) default-$@
