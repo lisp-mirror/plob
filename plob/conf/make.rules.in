@@ -1,0 +1,1128 @@
+/* ----------------------------------------------------------------------
+| Script	make.rules.in
+| Targets		clean:
+|		Removes all *~, core, a.out and similar garbage
+|			dist-clean:
+|		Like clean + removes all *.o, *.a and *.*fasl
+|		Also removes the stable heap file; the caller is asked
+|		before removing if this is ok.
+| Description	Global make rules
+| Remark	This file can also be used directly as a make.rules
+|		file in your current directory; this will add the
+|		possibility of calling LaTeX from a make file.
+|		For the usage of make.rules, read the man pages of make.
+|
+| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+|		All rights reserved.
+|
+| Unlimited use, reproduction, modification and distribution of this
+| software is permitted.  Any copy or modified version of this
+| software must include both the above copyright notice of
+| Heiko Kirschke and this paragraph; for each modified version, an
+| additional statement must be added telling the year of modification
+| and quoting the author of the modification.  Any distribution of
+| this software must comply with all applicable German export control
+| laws.  This software is made available AS IS, and HEIKO KIRSCHKE
+| DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT
+| LIMITATION THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+| A PARTICULAR PURPOSE, AND NOTWITHSTANDING ANY OTHER PROVISION
+| CONTAINED HEREIN, ANY LIABILITY FOR DAMAGES RESULTING FROM THE
+| SOFTWARE OR ITS USE IS EXPRESSLY DISCLAIMED, WHETHER ARISING IN
+| CONTRACT, TORT (INCLUDING NEGLIGENCE) OR STRICT LIABILITY, EVEN IF
+| HEIKO KIRSCHKE IS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+|
+| Please note that these license terms adhere only to the code of
+| PLOB!  itself. PLOB! uses POSTORE (Persistent Object Store) as a
+| low-level persistent memory; it is provided in binary form within
+| PLOB! with the permission of the University of St. Andrews
+| (http://www-ppg.dcs.st-andrews.ac.uk/Default.html).  Contact the
+| University of St. Andrews for getting their license terms on
+| POSTORE.
+|
+ ---------------------------------------------------------------------- */
+
+#include	"make.undef.in"
+#include	"make.const.in"
+#include	"make.vars.in"
+
+#if ! defined(relPlobDir)
+#error Parameter macro relPlobDir is not defined.
+#endif
+
+RELPLOBDIR=trim(relPlobDir)
+
+BINDIR=trim($(RELPLOBDIR) slash bin)
+
+CONFDIR=trim($(RELPLOBDIR) slash conf)
+RULES=trim($(CONFDIR) slash make dot rules dot in)
+
+LIBDIR=trim($(RELPLOBDIR) slash lib slash $(opsys))
+
+PSDIR=trim($(RELPLOBDIR) slash ps)
+
+SRCDIR=trim($(RELPLOBDIR) slash src)
+
+SRCIDIR=trim($(SRCDIR) slash include)
+LISPDOCDIR=trim($(SRCDIR) slash lisp dash doc)
+
+TEXDIR=trim($(RELPLOBDIR) slash tex)
+TEXIDIR=trim($(TEXDIR) slash inputs)
+
+/* ----------------------------------------------------------------------
+| RPC stuff
+ ---------------------------------------------------------------------- */
+/* RPC program number (0x506E62=`Plb'): */
+RPC_PROGRAM=0x20506E62
+RPC_VERSION=1
+
+/* Authentication: */
+HASAUTH=trim(HasAuth)
+
+/* ----------------------------------------------------------------------
+| List of PLOB! source files:
+ ---------------------------------------------------------------------- */
+
+/* 1998/05/26 HK: Had to split the list of files, since on Solaris the
+   postprocessor sed had problems reading very long lines: */
+
+#define MkPlobFiles31(wrapper,prefix,suffix)\
+ wrapper(prefix,plobroot,suffix) spc \
+ wrapper(prefix,plobadmin,suffix) spc \
+ wrapper(prefix,plob,suffix) spc \
+ wrapper(prefix,plobmisc,suffix)
+
+#define MkPlobFiles32(wrapper,prefix,suffix)\
+ wrapper(prefix,plobff,suffix) spc \
+ wrapper(prefix,plobsequ,suffix) spc \
+ wrapper(prefix,plobstruct,suffix)
+
+#define MkPlobFiles33(wrapper,prefix,suffix)\
+ wrapper(prefix,plobclos,suffix) spc \
+ wrapper(prefix,plobtype,suffix) spc \
+ wrapper(prefix,plobnumber,suffix)
+
+#define MkPlobFiles34(wrapper,prefix,suffix)\
+ wrapper(prefix,ploblock,suffix) spc \
+ wrapper(prefix,plobheap,suffix) spc \
+ wrapper(prefix,plobbtree,suffix)
+
+#define MkPlobFiles20(wrapper,prefix,suffix)\
+ MkPlobFiles31(wrapper,prefix,suffix) spc \
+ MkPlobFiles32(wrapper,prefix,suffix) spc \
+ MkPlobFiles33(wrapper,prefix,suffix) spc \
+ MkPlobFiles34(wrapper,prefix,suffix)
+
+#define MkPlobFiles21(wrapper,prefix,suffix)\
+ MkPlobFiles31(wrapper,prefix,suffix)
+
+#define MkPlobFiles22(wrapper,prefix,suffix)\
+ MkPlobFiles32(wrapper,prefix,suffix)
+
+#define MkPlobFiles23(wrapper,prefix,suffix)\
+ MkPlobFiles33(wrapper,prefix,suffix)
+
+#define MkPlobFiles24(wrapper,prefix,suffix)\
+ MkPlobFiles34(wrapper,prefix,suffix)
+
+#define MkPlobFiles(wrapper,prefix,suffix)\
+ MkPlobFiles20(wrapper,prefix,suffix)
+
+#define MkPlobFiles1(wrapper,prefix,suffix)\
+ MkPlobFiles21(wrapper,prefix,suffix)
+
+#define MkPlobFiles2(wrapper,prefix,suffix)\
+ MkPlobFiles22(wrapper,prefix,suffix)
+
+#define MkPlobFiles3(wrapper,prefix,suffix)\
+ MkPlobFiles23(wrapper,prefix,suffix)
+
+#define MkPlobFiles4(wrapper,prefix,suffix)\
+ MkPlobFiles24(wrapper,prefix,suffix)
+
+/* ----------------------------------------------------------------------
+| List of common source files:
+ ---------------------------------------------------------------------- */
+#define MkCommonFiles31(wrapper,prefix,suffix)\
+ wrapper(prefix,global,suffix) spc \
+ wrapper(prefix,trmalloc,suffix) spc \
+ wrapper(prefix,hash,suffix) spc \
+ wrapper(prefix,generic,suffix)
+
+#define MkCommonFiles32(wrapper,prefix,suffix)\
+ MkPlobFiles1(wrapper,prefix,suffix)
+
+#define MkCommonFiles33(wrapper,prefix,suffix)\
+ MkPlobFiles2(wrapper,prefix,suffix)
+
+#define MkCommonFiles34(wrapper,prefix,suffix)\
+ MkPlobFiles3(wrapper,prefix,suffix)
+
+#define MkCommonFiles35(wrapper,prefix,suffix)\
+ MkPlobFiles4(wrapper,prefix,suffix)
+
+#define MkCommonFiles20(wrapper,prefix,suffix)\
+ MkCommonFiles31(wrapper,prefix,suffix) spc \
+ MkCommonFiles32(wrapper,prefix,suffix) spc \
+ MkCommonFiles33(wrapper,prefix,suffix) spc \
+ MkCommonFiles34(wrapper,prefix,suffix) spc \
+ MkCommonFiles35(wrapper,prefix,suffix)
+
+#define MkCommonFiles21(wrapper,prefix,suffix)\
+ MkCommonFiles31(wrapper,prefix,suffix)
+
+#define MkCommonFiles22(wrapper,prefix,suffix)\
+ MkCommonFiles32(wrapper,prefix,suffix)
+
+#define MkCommonFiles23(wrapper,prefix,suffix)\
+ MkCommonFiles33(wrapper,prefix,suffix)
+
+#define MkCommonFiles24(wrapper,prefix,suffix)\
+ MkCommonFiles34(wrapper,prefix,suffix)
+
+#define MkCommonFiles25(wrapper,prefix,suffix)\
+ MkCommonFiles35(wrapper,prefix,suffix)
+
+#define MkCommonFiles(wrapper,prefix,suffix)\
+ MkCommonFiles20(wrapper,prefix,suffix)
+
+#define MkCommonFiles1(wrapper,prefix,suffix)\
+ MkCommonFiles21(wrapper,prefix,suffix)
+
+#define MkCommonFiles2(wrapper,prefix,suffix)\
+ MkCommonFiles22(wrapper,prefix,suffix)
+
+#define MkCommonFiles3(wrapper,prefix,suffix)\
+ MkCommonFiles23(wrapper,prefix,suffix)
+
+#define MkCommonFiles4(wrapper,prefix,suffix)\
+ MkCommonFiles24(wrapper,prefix,suffix)
+
+#define MkCommonFiles5(wrapper,prefix,suffix)\
+ MkCommonFiles25(wrapper,prefix,suffix)
+
+/* ----------------------------------------------------------------------
+| File name suffixes:
+ ---------------------------------------------------------------------- */
+#if HasOpSys == hasWin32
+
+#define	suffixObj dot obj
+#define	suffixLib dot lib
+#define suffixDll dot dll
+#define suffixExe dot exe
+
+#define outputOptionObj option1(c) paste3(-,Fo,ruleTarget)
+#define outputOptionLib paste4(-,out,:,ruleTarget)
+#define outputOptionDll $(LDSHAREDOPT) paste4(-,out,:,ruleTarget)
+#define outputOptionExe paste4(-,out,:,ruleTarget)
+
+#define MkLibMember3(prefix,filename,suffix)\
+paste3(prefix,filename,suffix)
+#define MkLibMember2(prefix,filename,suffix)\
+MkLibMember3(prefix,filename,suffix)
+#define MkLibMember(prefix,filename,suffix)\
+MkLibMember2(prefix,filename,suffix)
+
+AR=lib
+ARFLAGS=
+
+LINK=link
+LINKc=$(LINK) $(LDFLAGS)
+
+/* 1999-08-17 HK: Use make of CYGWIN distribution: */
+/* MAKE_EXE=nmake option1(nologo) */
+MAKE_EXE=make
+MAKE_F=option1(f)
+MAKE_FILE=trim(win32 slash makefile)
+MAKE=$(MAKE_EXE) $(MAKE_F) $(MAKE_FILE)
+
+#if HasPercentFeature
+#undef  HasPercentFeature
+#define HasPercentFeature 0
+#endif
+#if HasRanlib
+#undef	HasRanlib
+#define	HasRanlib 0
+#endif
+
+#else
+
+#define	suffixObj dot o
+#define	suffixLib dot a
+#define suffixDll dot so
+#define suffixExe 
+
+#define outputOptionObj option1(c) option1(o) ruleTarget
+#define outputOptionLib ruleTarget
+#define outputOptionDll $(LDSHAREDOPT) option1(o) ruleTarget
+#define outputOptionExe option1(o) ruleTarget
+
+#define MkLibMember3(prefix,filename,suffixlib,suffix)\
+trim(paste4($(LIBDIR) slash lib,prefix,plob,suffixlib))\
+trim((trim(paste3(prefix,filename,suffix))))
+
+#define MkLibMember2(prefix,filename,suffixlib,suffix)\
+MkLibMember3(prefix,filename,suffixlib,suffix)
+
+#define MkLibMember(prefix,filename,suffix)\
+MkLibMember2(prefix,filename,suffixLib,suffix)
+
+#define percentDepVar $%
+AR=ar
+ARFLAGS=rv
+
+LINK=$(CC)
+LINKc=$(LINK) $(LDFLAGS)
+
+#if HasGmake
+/* MAKE_EXE=make paste3(--n,o,-print-directory) */
+MAKE_EXE=make
+#else
+MAKE_EXE=make
+#endif
+MAKE_F=option1(f)
+MAKE_FILE=trim($(opsys) slash makefile)
+MAKE=$(MAKE_EXE) $(MAKE_F) $(MAKE_FILE)
+
+#endif /* win32 */
+
+#define	suffixC dot c
+#define	suffixH dot h
+
+#define fileC(file) paste2(file,suffixC)
+#define fileH(file) paste2(file,suffixH)
+
+#define fileObj(file) paste2(file,suffixObj)
+#define fileLib(file) paste2(file,suffixLib)
+#define fileDll(file) paste2(file,suffixDll)
+#define fileExe(file) paste2(file,suffixExe)
+
+/* ----------------------------------------------------------------------
+| Rule-generating cpp macros:
+ ---------------------------------------------------------------------- */
+#define MkFilename(prefix,filename,suffix)\
+paste3(prefix,filename,suffix)
+
+#define PlobFiles(directory,extension)\
+MkPlobFiles(MkFilename,directory,extension)
+
+#define CommonFiles(directory,extension)\
+MkCommonFiles(MkFilename,directory,extension)
+
+#define PlobLibFiles(prefix) \
+MkPlobFiles(MkLibMember,prefix,suffixObj)
+
+#define CommonLibFiles(prefix) \
+MkCommonFiles(MkLibMember,prefix,suffixObj)
+
+#define MkCommonObjectRule(prefix,filename,suffix) \
+rule ( paste3(prefix,filename,suffix),\
+\
+       fileC(filename) spc \
+       $(SRCIDIR) slash fileH(filename) spc \
+       $(trim(paste2(filename,Deps))) spc \
+       $(STDINCLUDE), \
+\
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) spc fileC(filename) )
+
+#define MkCommonSharedObjectRule(prefix,filename,suffix) \
+rule ( paste3(prefix,filename,suffix), \
+\
+       fileC(filename) spc \
+       $(SRCIDIR) slash fileH(filename) spc \
+       $(trim(paste2(filename,Deps))) spc \
+       $(STDINCLUDE), \
+\
+       $(COMPILEc) $(COPTPIC) $(OUTPUT_OPTION_OBJ) spc fileC(filename) )
+
+#define MkCommonObjects \
+MkCommonFiles(MkCommonObjectRule,$(opsys) slash,suffixObj)
+
+#define MkCommonObjects1 \
+MkCommonFiles1(MkCommonObjectRule,$(opsys) slash,suffixObj)
+
+#define MkCommonObjects2 \
+MkCommonFiles2(MkCommonObjectRule,$(opsys) slash,suffixObj)
+
+#define MkCommonObjects3 \
+MkCommonFiles3(MkCommonObjectRule,$(opsys) slash,suffixObj)
+
+#define MkCommonObjects4 \
+MkCommonFiles4(MkCommonObjectRule,$(opsys) slash,suffixObj)
+
+#define MkCommonObjects5 \
+MkCommonFiles5(MkCommonObjectRule,$(opsys) slash,suffixObj)
+
+#define MkCommonSharedObjects \
+MkCommonFiles(MkCommonSharedObjectRule,$(opsys) slash pic slash,suffixObj)
+
+#define MkCommonSharedObjects1 \
+MkCommonFiles1(MkCommonSharedObjectRule,$(opsys) slash pic slash,suffixObj)
+
+#define MkCommonSharedObjects2 \
+MkCommonFiles2(MkCommonSharedObjectRule,$(opsys) slash pic slash,suffixObj)
+
+#define MkCommonSharedObjects3 \
+MkCommonFiles3(MkCommonSharedObjectRule,$(opsys) slash pic slash,suffixObj)
+
+#define MkCommonSharedObjects4 \
+MkCommonFiles4(MkCommonSharedObjectRule,$(opsys) slash pic slash,suffixObj)
+
+#define MkCommonSharedObjects5 \
+MkCommonFiles5(MkCommonSharedObjectRule,$(opsys) slash pic slash,suffixObj)
+
+#define MkPlobObjectRule3(prefix,filename,suffixobj,suffix)\
+rule ( paste4(prefix,suffix,filename,suffixobj), \
+\
+       paste2(suffix,fileC(filename)) spc \
+       paste2(suffix,fileH(filename)) spc \
+       $(SRCIDIR) slash fileH(filename) spc \
+       $(trim(paste3(suffix,filename,Deps))) spc \
+       $(STDINCLUDE), \
+\
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) spc paste2(suffix,fileC(filename)) )
+
+#define MkPlobObjectRule2(prefix,filename,suffixobj,suffix)\
+MkPlobObjectRule3(prefix,filename,suffixobj,suffix)
+
+#define MkPlobObjectRule(prefix,filename,suffix)\
+MkPlobObjectRule2(prefix,filename,suffixObj,suffix)
+
+#define MkPlobSharedObjectRule3(prefix,filename,suffixobj,suffix)\
+rule ( paste4(prefix,suffix,filename,suffixobj), \
+\
+       paste2(suffix,fileC(filename)) spc \
+       paste2(suffix,fileH(filename)) spc \
+       $(SRCIDIR) slash fileH(filename) spc \
+       $(paste3(suffix,filename,Deps)) spc \
+       $(STDINCLUDE), \
+\
+       $(COMPILEc) $(COPTPIC) $(OUTPUT_OPTION_OBJ) spc \
+       paste2(suffix,fileC(filename)) )
+
+#define MkPlobSharedObjectRule2(prefix,filename,suffixobj,suffix)\
+MkPlobSharedObjectRule3(prefix,filename,suffixobj,suffix)
+
+#define MkPlobSharedObjectRule(prefix,filename,suffix)\
+MkPlobSharedObjectRule2(prefix,filename,suffixObj,suffix)
+
+#define MkPlobObjects(prefix1,prefix2) \
+MkPlobFiles(MkPlobObjectRule,prefix1,prefix2)
+
+#define MkPlobObjects1(prefix1,prefix2) \
+MkPlobFiles1(MkPlobObjectRule,prefix1,prefix2)
+
+#define MkPlobObjects2(prefix1,prefix2) \
+MkPlobFiles2(MkPlobObjectRule,prefix1,prefix2)
+
+#define MkPlobObjects3(prefix1,prefix2) \
+MkPlobFiles3(MkPlobObjectRule,prefix1,prefix2)
+
+#define MkPlobObjects4(prefix1,prefix2) \
+MkPlobFiles4(MkPlobObjectRule,prefix1,prefix2)
+
+#define MkPlobSharedObjects(prefix) \
+MkPlobFiles(MkPlobSharedObjectRule,$(opsys) slash pic slash,prefix)
+
+#define MkPlobSharedObjects1(prefix) \
+MkPlobFiles1(MkPlobSharedObjectRule,$(opsys) slash pic slash,prefix)
+
+#define MkPlobSharedObjects2(prefix) \
+MkPlobFiles2(MkPlobSharedObjectRule,$(opsys) slash pic slash,prefix)
+
+#define MkPlobSharedObjects3(prefix) \
+MkPlobFiles3(MkPlobSharedObjectRule,$(opsys) slash pic slash,prefix)
+
+#define MkPlobSharedObjects4(prefix) \
+MkPlobFiles4(MkPlobSharedObjectRule,$(opsys) slash pic slash,prefix)
+
+#define MkLinkRule(target,source)\
+rule ( target, \
+       paste2(source,target), \
+       ln option1(s) spc paste2(source,target) spc target )
+
+#define MkCopyRule(target,source,file)\
+rule ( paste2(target,file), \
+       paste2(source,file), \
+       cp option1(p) spc paste2(source,file) spc paste2(target,file) )
+
+#define MkLispRule(prefix,filename,suffix)\
+rule ( paste3(prefix,filename,dot lisp), \
+\
+       fileH(filename) $(trim(paste2(filename,Deps))) $(STDINCLUDE), \
+\
+       $(C2LISP) spc paste5(-,D,suffix,=,1) spc \
+       paste6(-,D,PACKAGE,=,:,plob) \
+       option2(o,ruleTarget) spc fileH(filename) )
+
+#define MkAllegro4aFiles \
+MkPlobFiles31(MkLispRule,allegro4 slash,ALLEGRO4)
+#define MkAllegro4bFiles \
+MkPlobFiles32(MkLispRule,allegro4 slash,ALLEGRO4)
+
+#define MkAllegro5aFiles \
+MkPlobFiles31(MkLispRule,allegro5 slash,ALLEGRO5)
+#define MkAllegro5bFiles \
+MkPlobFiles32(MkLispRule,allegro5 slash,ALLEGRO5)
+
+#define MkLispWorks3aFiles \
+MkPlobFiles31(MkLispRule,lispworks3 slash,LISPWORKS3)
+#define MkLispWorks3bFiles \
+MkPlobFiles32(MkLispRule,lispworks3 slash,LISPWORKS3)
+
+#define MkLispWorks4aFiles \
+MkPlobFiles31(MkLispRule,lispworks4 slash,LISPWORKS4)
+#define MkLispWorks4bFiles \
+MkPlobFiles32(MkLispRule,lispworks4 slash,LISPWORKS4)
+
+/* ----------------------------------------------------------------------
+| OS/compiler-specific settings:
+ ---------------------------------------------------------------------- */
+#if HasGcc
+#define gccLibOpt option1(lgcc)
+#else
+#define gccLibOpt
+#endif
+
+#if HasFranzCL
+#define	ccExtraIncludes paste3(-,I,$(FRANZCL) slash home slash misc)
+#endif
+
+#if HasRanlib
+RANLIB=ranlib
+#else
+RANLIB=: ranlib
+#endif
+
+#if HasSiginfo
+#define ccSiginfoDefine paste5(-,D,HASSIGINFO,=,1)
+#else
+#define ccSiginfoDefine
+#endif
+
+#if (HasOpSys+0) == 0
+
+/* Unknown operating system */
+#define ccExtraOptions ccSiginfoDefine
+#define ldLibsBefore gccLibOpt
+LDSHAREDOPT=
+
+#elif HasOpSys == hasSolaris
+
+/* Solaris */
+#define ccExtraOptions ccSiginfoDefine
+#define ldLibsBefore gccLibOpt paste3(-,l,malloc) paste3(-,l,nsl)
+#define rpcGenMultThread option1(M)
+#define ccGenMultThread paste5(-,D,MULTITHREAD,=,1)
+#define ccPlobdSvcExtraOptions paste5(-,D,RPC_SVC_FG,=,1)
+LDSHAREDOPT=option1(G)
+
+#elif HasOpSys == hasIrix
+
+/* Irix */
+/* 1998/12/03 HK: Use:
+   option1(o32) for pre-6.5, ACL 4.x
+   option1(n32) for 6.5, ACL 5.x */
+#define ccExtraOptions ccSiginfoDefine option1(n32) option1(woff) 608,625
+#define ldLibsBefore option1(w) option1(n32) gccLibOpt
+#define ldLibsAfter option1(lc)
+LDSHAREDOPT=option1(shared)
+
+#elif HasOpSys == hasLinux
+
+/* Linux */
+#define ccExtraOptions ccSiginfoDefine
+#define ldLibsBefore
+#define ldLibsAfter
+LDSHAREDOPT=trim(option1(shared))
+
+#elif HasOpSys == hasWin32
+
+#define ccExtraOptions ccSiginfoDefine spc \
+ option1(nologo) spc \
+ option1(D_DLL) option1(D_NTSDK) spc \
+ paste5(-,D,_WIN32_WINNT,=,0x0400) spc \
+ paste3(-,Fd,$(LIBDIR) slash) spc \
+ paste3(-,I,$(MSVCPATH) slash include) spc \
+ paste3(-,I,$(RELPLOBDIR) slash oncrpc dash 1 dot 12)
+#define ldLibsBefore option1(nologo)
+#define ldLibsAfter\
+ option1(nodefaultlib) spc \
+ paste4(-,libpath,:,$(LIBDIR)) spc \
+ paste4(-,libpath,:,$(RELPLOBDIR) slash oncrpc dash 1 dot 12 slash bin) spc \
+ paste4(-,libpath,:,$(MSVCPATH) slash lib) spc \
+ fileObj(binmode) fileLib(oncrpc) fileLib(msvcrt) spc \
+ fileLib(advapi32) fileLib(ws2_32) fileLib(kernel32)
+#define ccGenMultThread paste5(-,D,MULTITHREAD,=,1)
+LDSHAREDOPT=trim(option1(dll))
+
+#else
+
+/* Known operating system, but missing option settings here */
+#define ccExtraOptions ccSiginfoDefine
+#define ldLibsBefore gccLibOpt
+LDSHAREDOPT=
+
+#endif
+
+/* ----------------------------------------------------------------------
+| Include of standard make rules
+ ---------------------------------------------------------------------- */
+/* For SunOS: */
+/* include /usr/include/make/default.mk */
+/* For Solaris: */
+/* include /usr/share/lib/make/make.rules */
+
+/* ----------------------------------------------------------------------
+| Standard make targets
+ ---------------------------------------------------------------------- */
+STDTARGETS=all clean dist dash clean initial makefiles
+
+/* ----------------------------------------------------------------------
+| Utilities settings
+ ---------------------------------------------------------------------- */
+SHELL=/bin/sh
+
+C2RPC=$(BINDIR)/c2rpc option1(CPP) '$(CPP)' option1(I$(BINDIR)) option1(P) $(RPC_PROGRAM) option1(V) $(RPC_VERSION) $(C2RPCFLAGS)
+C2LISP=$(BINDIR)/c2lisp option1(CPP) '$(CPP)' option1(I$(BINDIR)) $(C2LISPFLAGS)
+
+/* ----------------------------------------------------------------------
+| Make settings
+ ---------------------------------------------------------------------- */
+
+SUFFIXES=suffixExe spc suffixDll spc suffixLib spc suffixObj spc bsnl
+	 .x .lisp .c .h bsnl
+	 .bbl .aux bsnl
+	 .ps .eps .dvi .dgr .tex
+
+/* Defaults from make.vars.in as makefile macros: */
+DEFAULTHOST=trim(DATAHOST)
+DEFAULTTRANS=trim(DATATRANS)
+DEFAULTROOT=trim(DATAROOT)
+DEFAULTBASE=trim(DATABASE)
+
+COMPILEc=$(CC) $(CFLAGS) $(CPPFLAGS)
+#ifndef outputOptionObj
+#define outputOptionObj option1(c) option1(o) ruleTarget
+#endif
+OUTPUT_OPTION_OBJ=outputOptionObj
+#ifndef outputOptionLib
+#define outputOptionLib ruleTarget
+#endif
+OUTPUT_OPTION_LIB=outputOptionLib
+#ifndef outputOptionDll
+#define outputOptionDll $(LDSHAREDOPT) option1(o) ruleTarget
+#endif
+OUTPUT_OPTION_DLL=outputOptionDll
+#ifndef outputOptionExe
+#define outputOptionExe option1(o) ruleTarget
+#endif
+OUTPUT_OPTION_EXE=outputOptionExe
+
+#ifndef ccExtraIncludes
+#define	ccExtraIncludes
+#endif
+#ifndef ccExtraOptions
+#define ccExtraOptions
+#endif
+#ifndef ccLocalOptions
+#define ccLocalOptions
+#endif
+#ifndef ccGenMultThread
+#define ccGenMultThread
+#endif
+#ifndef ccPlobdSvcExtraOptions
+#define ccPlobdSvcExtraOptions
+#endif
+#ifndef rpcGenMultThread
+#define rpcGenMultThread
+#endif
+
+CPPFLAGS=paste3(-,I,$(opsys)) paste3(-,I,$(SRCIDIR)) ccExtraIncludes spc \
+paste8(-,D,DATA,BASE,=,squ,"$(DEFAULTBASE)",squ) spc \
+paste5(-,D,$(OPSYS),=,1) spc \
+paste7(-,D,OPSYS,=,squ,"$(OPSYS)",squ) spc \
+paste5(-,D,HASAUTH,=,$(HASAUTH)) spc \
+ccExtraOptions \
+ccLocalOptions
+
+#ifndef ldLibsBefore
+#define	ldLibsBefore
+#endif
+#ifndef ldLibsAfter
+#define	ldLibsAfter
+#endif
+
+#define LinkDll2(files)\
+$(LINKc) $(OUTPUT_OPTION_DLL) ldLibsBefore files ldLibsAfter $(LDLIBS)
+#define LinkDll(files) LinkDll2(files)
+
+#define LinkExe2(files)\
+$(LINKc) $(OUTPUT_OPTION_EXE) ldLibsBefore files ldLibsAfter $(LDLIBS)
+#define LinkExe(files) LinkExe2(files)
+
+RPCGEN=rpcgen
+#if HasOpSys == hasWin32
+RPCGENFLAGS=
+#else
+RPCGENFLAGS=paste5(-,D,$(OPSYS),=,1)
+#endif
+
+/* ----------------------------------------------------------------------
+| Default target
+ ---------------------------------------------------------------------- */
+drule ( all, \
+        noDependencies, \
+        noActions )
+
+/* ----------------------------------------------------------------------
+| Rules
+ ---------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------
+| Macro		MAKECMD
+| Arguments	$1		list of subdirectories
+|		$2..${$#}	arguments for make
+| Description	Call make on subdirectory
+ ---------------------------------------------------------------------- */
+MAKECMD=fnCallMake () { bsnl
+  set +e; bsnl
+  status="0"; bsnl
+  dirs="$$1"; bsnl
+  if [ option1(n) "$$2" ]; then bsnl
+    shift; bsnl
+    args="$$*"; bsnl
+  fi; bsnl
+  if [ option1(d) "$(BINDIR)" ]; then bsnl
+    PATH="$(BINDIR):$${PATH}"; export PATH; bsnl
+  elif [ option1(d) "bin" ]; then bsnl
+    PATH="`pwd`/bin:$${PATH}"; export PATH; bsnl
+  fi; bsnl
+  case "$(MAKEFLAGS)" in bsnl
+  ''|'-'*)	szMakeflags="$(MAKEFLAGS)";; bsnl
+  *)		szMakeflags="-$(MAKEFLAGS)";; bsnl
+  esac; bsnl
+  if [ "$${szMakeflags}" = "-w" ]; then bsnl
+    szMakeflags="--no-print-directory"; bsnl
+  else bsnl
+    szMakeflags=""; bsnl
+  fi; bsnl
+  if [ ! option1(r) "$(opsys)/makefile" ]; then bsnl
+    echo "Making bootstrap makefile"; bsnl
+    plobimake option2(CPP,"$(CPP)") option2(I,"$(CONFDIR)/$(opsys)") option2(o,"$(opsys)/makefile") "makefile.in"; bsnl
+  fi; bsnl
+  for dir in evalVar(dirs); do bsnl
+    if [ ! option1(r) "$${dir}/$(opsys)/makefile" ]; then bsnl
+      echo "Making bootstrap makefile in $${dir}"; bsnl
+      plobimake option2(CPP,"$(CPP)") option2(I,"$(CONFDIR)/$(opsys)") option2(o,"$${dir}/$(opsys)/makefile") "$${dir}/makefile.in"; bsnl
+    fi; bsnl
+    ( bsnl
+      echo "cd `pwd`/$${dir}"; bsnl
+      cd "$${dir}"; bsnl
+      $(MAKE_EXE) evalVar(szMakeflags) $(MAKE_F) "$(opsys)/makefile" evalVar(args); bsnl
+    ); bsnl
+    s="$$?"; bsnl
+    if [ "$${s}" option1(ne) 0 ]; then bsnl
+      status="$$s"; bsnl
+    fi; bsnl
+  done; bsnl
+  return evalVar(status); bsnl
+}; fnCallMake
+
+#if HasLaTeX
+
+/* DGRTODVI enthaelt den Namen der TeX-Datei ohne .tex Extension, die
+   zur Umwandlung einer .dgr- in eine .dvi-Datei verwendet werden
+   soll: */
+/* DGRTODVI=$(HOMEDIR)/tex/inputs/dgrtodvi */
+DGRTODVI=dgrtodvi
+
+/* ----------------------------------------------------------------------
+| Makro		LATEXCMD
+| Argumente	$1		.tex-Datei.
+|		$2..${$#}	Optionale LaTeX-Kommandos; werden VOR
+|				dem Einlesen der .tex-Datei von LaTeX
+|				evaluiert.
+| Beschreibung	Ruft LaTeX auf. Nach Beendigung des LaTex-Laufs wird
+|	die .log-Datei in das Unterverzeichnis log verschoben. Es
+|	wird geprueft, ob sich in den letzten 12 Zeilen der .log-Datei
+|	der Eintrag 'have changed' befindet; wenn ja, wird die
+|	generierte .dvi-Datei als seeehr alt markiert (mit touch). Ein
+|	naechster Aufruf von make fuehrt damit praktischerweise zu
+|	einem erneuten LaTeX-Aufruf.
+ ---------------------------------------------------------------------- */
+LATEXCMD=fnCallLaTeX () { bsnl
+  set +e; bsnl
+  trap "rm -f /tmp/*.$$$$" 1 2 15; bsnl
+  TEXINPUTS="$(TEXIDIR):$(LISPDOCDIR):$${TEXINPUTS}"; bsnl
+  export TEXINPUTS; bsnl
+  srcfile="$$1"; bsnl
+  texfile="`echo $${srcfile}|sed 's/\.[^./]*$$//'`"; shift; bsnl
+  jobname="`basename $${texfile}`"; bsnl
+  touch="/usr/5bin/touch"; bsnl
+  if [ option1(n) "$(BATCHMODE)" ]; then bsnl
+    batchmode="\batchmode"; bsnl
+  else bsnl
+    batchmode=""; bsnl
+  fi; bsnl
+  options="$${batchmode}$(TEXOPTS)$$*"; bsnl
+  if [ option1(z) "$${options}" ]; then bsnl
+    cmd="latex '$${texfile}'"; bsnl
+  else bsnl
+    cmd="latex '$${options}\input{$${texfile}}'"; bsnl
+  fi; bsnl
+  echo "$${cmd}"; evalShell(evalVar(cmd)); status="$$?"; bsnl
+  logfile="$${jobname}.log"; bsnl
+  if [ option1(d) "log" ]; then bsnl
+    logpath="log/$${logfile}"; bsnl
+    cmd="mv $${logfile} $${logpath}"; bsnl
+    echo "$${cmd}"; evalVar(cmd); bsnl
+  else bsnl
+    logpath="$${logfile}"; bsnl
+  fi; bsnl
+  auxfile="$${jobname}.aux"; bsnl
+  bblfile="$${jobname}.bbl"; bsnl
+  dvifile="$${jobname}.dvi"; bsnl
+  glofile="$${jobname}.glo"; bsnl
+  if [ "$${status}" option1(eq) 0 ]; then bsnl
+    if [ "$${dvifile}" != "$@" ]; then bsnl
+      cmd="mv $${dvifile} $@"; bsnl
+      echo "$${cmd}"; $${cmd}; bsnl
+    fi; bsnl
+    if [ option1(s) "$${glofile}" option1(a) option1(w) "$${glofile}" ]; then bsnl
+      tmpfile="/tmp/$${jobname}.$$$$"; bsnl
+      cmd="sort -bdfi $${glofile}"; bsnl
+      echo "$${cmd} > $${tmpfile}"; bsnl
+      evalVar(cmd) > $${tmpfile}; bsnl
+      cmd="mv $${tmpfile} $${glofile}"; bsnl
+      echo "$${cmd}"; bsnl
+      evalVar(cmd); bsnl
+    fi; bsnl
+    if tail option1(32) "${logpath}"|grep option1(is) "have changed">/dev/null 1>&2; then bsnl
+      cmd="$${touch} 01010101 $@"; bsnl
+      echo "$${cmd}"; evalVar(cmd); bsnl
+      if [ "$@" = "$${dvifile}" ]; then bsnl
+        unset dvifile; bsnl
+      fi; bsnl
+    fi; bsnl
+    if head option1(32) "$${auxfile}"|grep option1(is) "\\bibstyle">/dev/null 1>&2; then bsnl
+      if grep option1(is) "citation.*undefined" "$${logpath}">/dev/null 1>&2; then bsnl
+        cmd="rm -f $${bblfile}"; bsnl
+        echo "$${cmd}"; evalVar(cmd); bsnl
+      elif [ option1(s) "$${bblfile}" ]; then bsnl
+        cmd="$${touch} $${dvifile} $${auxfile} $${bblfile}"; bsnl
+        echo "$${cmd}"; evalVar(cmd); bsnl
+      fi; bsnl
+    fi; bsnl
+  else bsnl
+    cmd="rm -f $${dvifile} $@ $${glofile}"; bsnl
+    echo "$${cmd}"; evalVar(cmd); bsnl
+    if [ option1(s) "$${bblfile}" ]; then bsnl
+      cmd="$${touch} $${bblfile}"; bsnl
+      echo "$${cmd}"; evalVar(cmd); bsnl
+    fi; bsnl
+  fi; bsnl
+  return evalVar(status); bsnl
+}; fnCallLaTeX
+
+/* ----------------------------------------------------------------------
+| Makro		BIBTEXCMD
+| Argumente	$1		.aux-Datei.
+| Beschreibung	Ruft BiBTeX auf.
+ ---------------------------------------------------------------------- */
+BIBTEXCMD=fnCallBiBTeX () { bsnl
+  set +e; bsnl
+  srcfile="$$1"; bsnl
+  bibfile="`echo $${srcfile}|sed 's/\.[^./]*$$//'`"; shift; bsnl
+  jobname="`basename $${bibfile}`"; bsnl
+  cmd="bibtex $${bibfile}"; bsnl
+  echo "$${cmd}"; evalVar(cmd); status="$$?"; bsnl
+  logfile="$${jobname}.blg"; bsnl
+  if [ option1(d) "log" ]; then bsnl
+    logpath="log/$${logfile}"; bsnl
+    cmd="mv $${logfile} $${logpath}"; bsnl
+    echo "$${cmd}"; evalVar(cmd); bsnl
+  else bsnl
+    logpath="$${logfile}"; bsnl
+  fi; bsnl
+  return evalVar(status); bsnl
+}; fnCallBiBTeX
+
+#endif
+
+/* ----------------------------------------------------------------------
+| Macro		LNCMD
+| Arguments	$*		link-source(s)
+| Description	Make symbolic links from $* to files with the same
+|	name into the current directory
+ ---------------------------------------------------------------------- */
+LNCMD=fnCallLn () { bsnl
+  set +e; bsnl
+  for file in evalVar(*); do bsnl
+    target="`basename $${file}`"; bsnl
+    if [ ! option1(r) "$${target}" ]; then bsnl
+      cmd="ln -s $${file} $${target}"; bsnl
+      echo "$${cmd}"; evalVar(cmd); bsnl
+    fi bsnl
+  done; bsnl
+  return 0; bsnl
+}; fnCallLn
+
+/*  ----------------------------------------------------------------------
+| Macro		RMCMD
+| Arguments	$1		prompt to show
+| 		$2		probe file(s) to remove
+| 		$3..${$#}	more file(s) to remove
+| Description	Remove file(s) $* with user interrogation
+ ---------------------------------------------------------------------- */
+RMCMD=fnCallRm () { bsnl
+  set +e; bsnl
+  if [ option1(r) "$$2" ]; then bsnl
+    echo ""; bsnl
+    echo "$$1"; bsnl
+    echo option1(n) "Answer 'yes' if this is ok. "; bsnl
+    read answer; bsnl
+    if [ "$${answer}" != "yes" ]; then bsnl
+      echo ""; bsnl
+      echo "Canceled $@"; bsnl
+      exit 255; bsnl
+    fi;	 bsnl
+  fi; bsnl
+  shift; bsnl
+  echo "rm $$*"; bsnl
+  rm evalVar(*); bsnl
+  return 0; bsnl
+}; fnCallRm
+
+/* ----------------------------------------------------------------------
+| Macro		GZIPCMD
+| Arguments	$@
+|		$<
+| Description	Compress a file with gzip preserving the original
+|		(uncompressed) file
+ ---------------------------------------------------------------------- */
+GZIP=gzip
+GZIPCMD=fnCallGZip () { bsnl
+  set +e; bsnl
+  status="0"; bsnl
+  trap "mv $<.$$$$ $<" 1 2 15; bsnl
+  cmd="cp $< $<.$$$$"; bsnl
+  echo "$${cmd}"; evalShell(evalVar(cmd)); status="$$?"; bsnl
+  if [ "$${status}" option1(eq) 0 ]; then bsnl
+    cmd="$(GZIP) $(GZIPFLAGS) -f $<"; bsnl
+    echo "$${cmd}"; evalShell(evalVar(cmd)); status="$$?"; bsnl
+    if [ "$${status}" option1(eq) 0 ]; then bsnl
+      cmd="mv $<.$$$$ $<; touch $@"; bsnl
+      echo "$${cmd}"; evalShell(evalVar(cmd)); bsnl
+    else bsnl
+      cmd="rm -f $@ $<.$$$$"; bsnl
+      echo "$${cmd}"; evalShell(evalVar(cmd)); bsnl
+    fi; bsnl
+  fi; bsnl
+  return evalVar(status); bsnl
+}; fnCallGZip
+
+/* ----------------------------------------------------------------------
+| Standard rules
+ ---------------------------------------------------------------------- */
+
+#if HasPercentFeature
+#if HasLaTeX
+tenpt/%.dvi:%.dgr
+	silent prefix="`echo $<|sed 's/\.[^ .]*//'`"; bsnl
+	rm option1(f) "$${prefix}.log" "$${prefix}.aux"
+	silent $(LATEXCMD) $(DGRTODVI) "\def\dgrsize{x}\def\dgrfile{$<}"
+	silent rm option1(f) $(DGRTODVI).aux
+twelvept/%.dvi:%.dgr
+	silent prefix=`echo $<|sed 's/\.[^ .]*//'`; bsnl
+	rm option1(f) "$${prefix}.log" "$${prefix}.aux"
+	silent $(LATEXCMD) $(DGRTODVI) "\def\dgrsize{xii}\def\dgrfile{$<}"
+	silent rm option1(f) $(DGRTODVI).aux
+
+/* %.dvi:%.dgr */
+.dgr.dvi:
+	silent prefix="`echo $<|sed 's/\.[^ .]*//'`"; bsnl
+	rm option1(f) "$${prefix}.log" "$${prefix}.aux"
+	silent $(LATEXCMD) $(DGRTODVI) "\def\dgrfile{$<}"
+	silent rm option1(f) $(DGRTODVI).aux
+
+/* Das in dieser Standard-Regel verwendete Kommando dviteps ist ein von
+   mir (HK) selbst gestricktes Skript, zu finden in
+   $(BINDIR)/dviteps; es hat einen eigenen Hilfstext. */
+DVITEPSFLAGS=option1(s) option1(v)
+/* %.eps:%.dvi */
+.dvi.eps:
+	dviteps $(DVITEPSFLAGS) option1(o) ruleTarget option1(F) "$(DVIPSFLAGS)" $<
+/* %.dvi:%.tex */
+.tex.dvi:
+	silent $(LATEXCMD) $<
+/* %.bbl:%.aux */
+.aux.bbl:
+	silent $(BIBTEXCMD) $<
+/* %.bbl: */
+.bbl:
+
+/* %.ps:%.dvi */
+.dvi.ps:
+	dvips option1(o) ruleTarget $(DVIPSFLAGS) $<
+#endif
+#endif
+
+/* ----------------------------------------------------------------------
+| Configuration
+ ---------------------------------------------------------------------- */
+
+ASSERTTOPLEVEL= bsnl \
+PWD="`pwd`"; bsnl \
+if [ ! option1(d) "src/include/allegro5" ]; then bsnl \
+  echo "*** "'`'"make $@' can be called only" 1>&2; bsnl \
+  echo "*** in the top-level directory of PLOB!" 1>&2; bsnl \
+  exit 1; bsnl \
+fi; bsnl \
+PATH="$${PWD}/bin:$${PATH}"; export PATH
+
+rule ( config shipout, \
+       noDependencies, \
+       silent $(ASSERTTOPLEVEL); bsnl \
+       plobconfig option1(ruleTarget) )
+
+rule ( standard dash config, \
+       noDependencies, \
+       silent $(ASSERTTOPLEVEL); bsnl \
+       plobconfig option1(config) option1(standard) )
+
+rule ( advanced dash config, \
+       noDependencies, \
+       silent $(ASSERTTOPLEVEL); bsnl \
+       plobconfig option1(config) option1(advanced) )
+
+ADDBINDIR=if [ option1(d) "bin" ]; then bsnl
+	    BINPATH="`pwd`/bin"; bsnl
+	  elif [ option1(d) "../bin" ]; then bsnl
+	    BINPATH="`(cd ../bin;pwd)`"; bsnl
+	  elif [ option1(d) "../../bin" ]; then bsnl
+	    BINPATH="`(cd ../../bin;pwd)`"; bsnl
+	  fi; bsnl
+	  PATH="$${BINPATH}:$${PATH}"; export PATH
+
+rule ( $(CONFDIR) slash $(opsys) slash make dot server, \
+       $(RULES) \
+       $(CONFDIR) slash make dot server dot in spc \
+       $(CONFDIR) slash $(opsys) slash make dot vars dot in, \
+       silent $(ADDBINDIR); bsnl \
+       echo "plobimake -CPP \"$(CPP)\" -I $(CONFDIR)/$(opsys) -o $@ $(CONFDIR)/make.server.in"; bsnl \
+       evalVar(BINPATH) slash plobimake option2(CPP,"$(CPP)") spc \
+       option2(I,"$(CONFDIR)/$(opsys)") spc \
+       option2(o,ruleTarget) "$(CONFDIR)/make.server.in" )
+
+rule ( server, \
+       $(CONFDIR) slash $(opsys) slash make dot server, \
+       silent $(MAKE_EXE) $(MAKE_F) "$(CONFDIR)/$(opsys)/make.server" )
+
+/* ----------------------------------------------------------------------
+| Targets checking if directories are installed
+ ---------------------------------------------------------------------- */
+rule ( tex dash log dash directory, \
+       log, \
+       noActions )
+
+rule ( bin log $(CONFDIR) slash $(opsys) spc \
+       $(opsys) $(opsys) slash pic, \
+       noDependencies, \
+       silent if [ ! option1(d) "$@" ]; then bsnl \
+	  echo "mkdir $@"; bsnl \
+	  mkdir ruleTarget; bsnl \
+	fi )
+
+/* ----------------------------------------------------------------------
+| Standard targets
+ ---------------------------------------------------------------------- */
+drule ( default dash all, \
+        noDependencies, \
+	noActions )
+
+drule ( default dash clean, \
+        noDependencies, \
+	tab dash rm option1(f) *~ core a dot out gmon dot out * dot log log slash * )
+
+drule ( default dash dist dash clean, \
+        clean, \
+	tab dash rm option1(f) fileLib(*) fileObj(*) spc \
+        fileDll(*) * dot fsl * dot fasl * dot wfasl )
+
+drule ( default dash initial, \
+        $(opsys), \
+	noActions )
+
+rule ( $(RULES), \
+       noDependencies, \
+       noActions )
+
+rule ( $(CONFDIR) slash make dot server dot in, \
+       noDependencies, \
+       noActions )
+
+GETMAKEVARSCMD=fnCallGetMakeVars () { bsnl
+  echo 'Looking for old configuration file, please wait ...'; bsnl
+  szOldConfFile="`ls -1t $$1/../../*/conf/$(opsys)/make.vars.in 2>/dev/null|head -1`"; bsnl
+  if [ option1(r) "$${szOldConfFile}" ]; then bsnl
+    szOldConfDir="`dirname $${szOldConfFile}`"; bsnl
+    szOldConfFile="`( cd $${szOldConfDir}; pwd )`/`basename $${szOldConfFile}`"; bsnl
+    echo "Using old configuration file $${szOldConfFile}"; bsnl
+    cp option1(p) "$${szOldConfFile}" "$$2"; bsnl
+  fi; bsnl
+  if [ ! option1(r) "$$2" ]; then bsnl
+    cp option1(p) "$$1/make.vars.def" "$$2"; bsnl
+  fi; bsnl
+}; fnCallGetMakeVars
+
+rule ( $(CONFDIR) slash $(opsys) slash make dot vars dot in, \
+       noDependencies, \
+       silent if [ option1(d) "$(CONFDIR)" ]; then bsnl \
+	  $(GETMAKEVARSCMD) $(CONFDIR) ruleTarget; bsnl \
+        elif [ option1(r) "conf/make.vars.def" option1(a) ! option1(r) "conf/make.vars.in" ]; then bsnl \
+	  $(GETMAKEVARSCMD) conf $(CONFDIR) slash $(opsys) slash make dot vars dot in; bsnl \
+	fi )
+
+drule ( makefile default dash makefiles, \
+	makefile dot in $(RULES) \
+        $(CONFDIR) slash $(opsys) slash make dot vars dot in, \
+	silent $(ADDBINDIR); bsnl \
+	echo "plobimake -CPP '$(CPP)' -I $(CONFDIR)/$(opsys) -o $(opsys)/makefile makefile.in"; bsnl \
+        evalVar(BINPATH) slash plobimake option2(CPP,"$(CPP)") spc \
+        option2(I,"$(CONFDIR)/$(opsys)") spc \
+        option2(o,"$(opsys)/makefile") spc \
+	"makefile.in" )
+
+ALLOPSYS=irix linux solaris win32
+
+MKMAKEFILE=fnMkMakefile () { bsnl
+  set +e; bsnl
+  echo ''; bsnl
+  echo "Making makefiles for $${1}"; bsnl
+  if [ ! option1(r) "$(CONFDIR)/$${1}/make.vars.in" ]; then bsnl
+    if [ option1(r) "$(CONFDIR)/$${1}/make.vars.def" ]; then bsnl
+      cp option1(p) "$(CONFDIR)/$$1/make.vars.def" "$(CONFDIR)/$${1}/make.vars.in"; bsnl
+    elif [ option1(r) "$(CONFDIR)/make.vars.def" ]; then bsnl
+      cp option1(p) "$(CONFDIR)/make.vars.def" "$(CONFDIR)/$${1}/make.vars.in"; bsnl
+    fi; bsnl
+  fi; bsnl
+  if [ ! option1(r) "$${1}/makefile" ]; then bsnl
+    echo "Making bootstrap makefile for $${1}"; bsnl
+    plobimake option2(CPP,"$(CPP)") option2(I,"$(CONFDIR)/$${1}") spc \
+              option2(o,"$${1}/makefile") spc "makefile.in"; bsnl
+  fi; bsnl
+  $(MAKE_EXE) $(MAKE_F) "$${1}/makefile" makefiles; bsnl
+}
+
+rule ( all dash makefiles, \
+       noDependencies, \
+       silent $(ADDBINDIR); bsnl \
+       $(MKMAKEFILE); bsnl \
+       for o in $(ALLOPSYS); do bsnl \
+         fnMkMakefile evalVar(o); bsnl \
+       done )
+
+/*
+  Local variables:
+  buffer-file-coding-system: iso-latin-1-unix
+  End:
+*/
