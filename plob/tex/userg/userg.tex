@@ -1,0 +1,110 @@
+% This is -*-LaTeX-*-
+%
+% userg.tex
+% 1997/08/04 HK
+%
+%
+%\def\notableofcontents{}       % Unterdrueckt Inhaltsverzeichnis
+%\nofiles%
+%
+\def\thistitle{User's Guide}
+\def\thispartnumber{UG}
+\input{plobhyper}%
+%
+\defattr{objid}{\sl}%
+\defattr{typetag}{\sl}%
+\defattr{Typetag}{\sl}%
+\defattr{TypeTag}{\sl}%
+%
+\providecommand\td{\ensuremath{\sim}}% ASCII-Tilde
+%
+% Tiefe des Inhaltsverzeichnis; wird von report.sty standardmaessig
+% auf 2 gesetzt:
+%\def\mytocdepth{99}
+%
+% \includeonlys
+%
+% \includeonly{\Path/manuquik}
+%
+% Commands
+%
+\readaux{\Path/../eref/\NoOfSides/eref}{bib:PLOB-manual}{eref.pdf}
+\readaux{\Path/../eref/\NoOfSides/manexam}{bib:PLOB-manual}{eref.pdf}
+\readaux{\Path/../iref/\NoOfSides/iref}{bib:PLOB-internals}{iref.pdf}
+%
+\newcommand\refpar[1][]{\paragraph{References #1}}
+%
+\def\OmitUnimportant{\textrm{\emph{;;~\ldots}}}
+\setcounter{chistory}{0}
+%
+\newcommand{\AllocatorLabel}    {Allocator}
+\newcommand{\TypePredicateLabel}{Type Predicate}
+\newcommand{\SlotAccessorLabel} {Slot Accessor}
+\newcommand{\SlotReaderLabel}   {Slot Reader}
+\newcommand{\SlotWriterLabel}   {Slot Writer}
+\newcommand{\ObjectStoreLabel}  {Object Store}
+\newcommand{\ObjectLoadLabel}   {Object Load}
+\newcommand{\CreatorLabel}      {Creator}
+\newcommand{\InformationLabel}  {Information}
+%
+\newenvironment{RefList}%
+{\begin{deflist}[\TypePredicateLabel]%
+\def\Allocator{\item[\AllocatorLabel]}
+\def\TypePredicate{\item[\TypePredicateLabel]}
+\def\SlotAccessor{\item[\SlotAccessorLabel]}
+\def\SlotReader{\item[\SlotReaderLabel]}
+\def\SlotWriter{\item[\SlotWriterLabel]}
+\def\ObjectStore{\item[\ObjectStoreLabel]}
+\def\ObjectLoad{\item[\ObjectLoadLabel]}
+\def\Creator{\item[\CreatorLabel]}
+\def\Information{\item[\InformationLabel]}
+}%
+{\end{deflist}}
+%
+\newenvironment{NarrowRefList}%
+{\begin{RefList}\itemsep-\parsep\parsep0pt}%
+{\end{RefList}}%
+%
+\begin{document}
+%
+\newcommand{\lb}{\linebreak[0]}                 % Linebreaks in \tt
+%
+\input{mutitle}
+%
+\pagenumbering{roman}\pagestyle{headings}
+%
+\ifx\mytocdepth\undefined\relax\else%
+\settocdepth{\mytocdepth}%
+\fi%
+%
+\ifx\notableofcontents\undefined%
+\tableofcontents%
+\clearpage\thispagestyle{plain}\cleardoublepage%
+\listoffigures%
+\fi%
+\clearpage\thispagestyle{plain}\cleardoublepage%
+%
+\pagenumbering{arabic}%
+\BetterSloppy%
+\include{manuint}%
+\thispagestyle{plain}\cleardoublepage%
+\include{manuquik}%
+\thispagestyle{plain}\cleardoublepage%
+\include{manuserg}%
+\thispagestyle{plain}\cleardoublepage%
+\include{manuadd}%
+\thispagestyle{plain}\cleardoublepage%
+\include{manuadm}%
+\bibliographystyle{cdnamed}
+\bibliography{bibdefs,bibstrings,plob}
+\thispagestyle{plain}\cleardoublepage%
+\appendix%
+\thispagestyle{plain}\cleardoublepage%
+\include{manuarc}%
+\thispagestyle{plain}\cleardoublepage%
+\include{manubug}%
+\thispagestyle{plain}\cleardoublepage%
+\include{manucon}%
+\thispagestyle{plain}\cleardoublepage%
+\include{manudis}%
+\end{document}
