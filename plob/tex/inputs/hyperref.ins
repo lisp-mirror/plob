@@ -1,0 +1,30 @@
+\def\batchfile{hyperref.ins}
+\input docstrip.tex
+\keepsilent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\preamble
+\endpreamble
+
+
+\generateFile{backref.sty}{f}{\from{backref.dtx}{package}}
+\generateFile{hyperref.sty}{f}{\from{hyperref.dtx}{package}}
+\generateFile{hypertex.def}{f}{\from{hyperref.dtx}{check,hypertex}}
+\generateFile{pdfmark.def}{f}{\from{hyperref.dtx}{pdfmark,outlines}}
+\generateFile{hdvipson.def}{f}{\from{hyperref.dtx}{check,dvipsone}}
+\generateFile{hdvips.def}{f}{\from{hyperref.dtx}{check,dvips}}
+\generateFile{hpdftex.def}{f}{\from{hyperref.dtx}{check,pdftex,outlines}}
+\generateFile{hdvipdf.def}{f}{\from{hyperref.dtx}{check,dvipdf,outlines}}
+\generateFile{hdviwind.def}{f}{\from{hyperref.dtx}{check,dviwindo}}
+\generateFile{nameref.sty}{f}{\from{nameref.dtx}{package}}
+%\generateFile{makebook.pl}{f}{\from{hyperref.dtx}{package}}
+
+\Msg{***************************************************************}
+\Msg{*}
+\Msg{* To finish the installation you have to move the file}
+\Msg{*}
+\Msg{*\space\space *.sty into a directory searched by TeX}
+\Msg{*}
+\Msg{***************************************************************}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\endinput

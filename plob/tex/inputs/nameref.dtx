@@ -1,0 +1,280 @@
+\def\filedate{1997/11/24}
+\def\fileversion{2.10}
+%
+% \iffalse
+% File: nameref.dtx Copyright (C) 1995-7 Sebastian Rahtz
+% 
+% Permission is hereby granted, free of charge, to any person obtaining
+% a copy of this software and associated documentation files (the
+% ``Software''), to deal in the Software without restriction, including
+% without limitation the rights to use, copy, modify, merge, publish,
+% distribute, sublicense, and/or sell copies of the Software, and to
+% permit persons to whom the Software is furnished to do so, subject to
+% the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included
+% in all copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS
+% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+% IN NO EVENT SHALL SEBASTIAN RAHTZ BE LIABLE FOR ANY CLAIM, DAMAGES OR
+% OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+% ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+% OTHER DEALINGS IN THE SOFTWARE.
+%<*driver>
+\documentclass{ltxdoc}
+\begin{document}
+ \title{Section name references in \LaTeX\thanks{This file
+        has version number \fileversion, last
+        revised \filedate.}}
+ \author{Sebastian Rahtz}
+ \date{\filedate}
+ \maketitle
+ \tableofcontents
+ \DocInput{nameref.dtx}
+\end{document}
+%</driver>
+% \fi
+% \CheckSum{348}
+% \StopEventually{}
+% \section{Introduction}
+% Cross-referencing to include the \emph{name} of the section, rather than
+% just the number or page. This works by redefining some of the inside
+% \LaTeX\ macros, so it is vulnerable to future changes.
+% \section{History}
+% Sebastian Rahtz, for Lou Burnard, March 15th 1994;
+% SPQR CERN July 1994;
+% Last mod. Sept. 3th MG; 
+% Sept. 19th SPQR;
+% April 11th 1995 SPQR (added section formatting hook);
+% April 14th 1995 SPQR (compatibility with hyperref);
+% June 22 1995 SPQR (removed typeout from Sectionformat);
+% September 22 1997 added varioref hacks by Corey Minyard;
+% September 28th changes by David Carlisle.
+%    \begin{macrocode}
+%<*package>
+\ProvidesPackage{nameref}[\filedate\space Cross-referencing by name of section]
+%    \end{macrocode}
+%
+% We redefine |\label| so that it also writes the name of the 
+% current section to the .aux file; if the name ends in a dot, 
+% we zap it. To allow for the hyperref package, also write
+% fourth and fifth fields (empty by default; 
+% used for cross-ref name, and file).
+%    \begin{macrocode}
+\def\strip@period#1.\relax#2\@@@{#1}
+\def\label#1{%
+  \@bsphack
+  \bgroup
+  \let\label\@gobble
+  \def\ref{\protect\ref}%
+  \edef\@currentlabstr{\expandafter\strip@prefix\meaning\@currentlabelname}%
+  \protected@write\@auxout{}%
+         {\string\newlabel{#1}{%
+            {\@currentlabel}%
+            {\thepage}%
+            {\expandafter\strip@period\@currentlabstr\relax.\relax\@@@}%
+            {\@currentHref}{}%
+          }}%
+  \egroup
+  \@esphack
+}
+\let\ltx@label\label
+%    \end{macrocode}
+% Needed for the \emph{subeqnarray} package.
+%    \begin{macrocode}
+\@ifundefined{slabel}{}{%
+\def\slabel#1{%
+  \@bsphack
+  \if@filesw
+    {\let\label\@gobble
+     \def\ref{\protect\ref}%
+     \edef\@currentlabstr{\expandafter\strip@prefix\meaning\@currentlabelname}%
+     \let\thepage\relax
+     \def\protect{\noexpand\noexpand\noexpand}%
+     \edef\@tempa{\write\@auxout{\string
+        \newlabel{#1}{%
+            {\thesubequation}%
+            {\thepage}%
+            {\expandafter\strip@period\@currentlabstr\relax.\relax\@@@}%
+            {\@currentHref}{}%
+            }}}%
+     \expandafter}\@tempa
+     \if@nobreak \ifvmode\nobreak\fi\fi
+  \fi\@esphack}}
+%    \end{macrocode}
+% Overload an AMS \LaTeX\ command, which uses |\newlabel|. Sigh!
+%    \begin{macrocode}
+\def\@writetocindents@{%
+  \begingroup
+  \@for\@tempa:=-1,0,1,2,3\do{%
+    \immediate\write\@auxout{%
+      \string\newlabel{tocindent\@tempa}{%
+        \csname r@tocindent\@tempa\endcsname{}{}{}{}}}%
+  }%
+  \endgroup}
+%    \end{macrocode}
+% Add to the underlying section heading macros so that they
+% note the section name for use by label. 
+%
+% If a section heading or the like has a |\label| in it,
+% we need to extract it, or subsequent processing breaks.
+% This is done by the label-writing routine.
+%    
+% First the numbered sections. While we are about it, put in
+% a useful section formatting macro.
+%    \begin{macrocode}
+\let\old@sect\@sect
+\def\@sect#1#2#3#4#5#6[#7]#8{%
+ \def\@currentlabelname{#7}%
+ \old@sect{#1}{#2}{#3}{#4}{#5}{#6}[{#7}]{\Sectionformat{#8}{#2}}%
+}
+%    \end{macrocode}
+% and now the unnumbered ones
+%    \begin{macrocode}
+\let\old@ssect\@ssect
+\def\@ssect#1#2#3#4#5{%
+ \def\@currentlabelname{#5}%
+ \old@ssect{#1}{#2}{#3}{#4}{\Sectionformat{#5}{#1}}%
+}
+%    \end{macrocode}
+%
+% Parts and chapters are treated differently. sigh.
+%
+%    \begin{macrocode}
+\let\old@part\@part
+\def\@part[#1]#2{%
+  \def\@currentlabelname{#1}%
+  \old@part[{#1}]{#2}%
+}
+\let\old@chapter\@chapter
+\def\@chapter[#1]#2{%
+  \def\@currentlabelname{#1}%
+  \old@chapter[{#1}]{#2}%
+}
+\let\old@schapter\@schapter
+\def\@schapter#1{%
+  \def\@currentlabelname{#1}%
+  \old@schapter{#1}%
+}
+%    \end{macrocode}
+% We default the label and hypertext reference to be empty.
+%    \begin{macrocode}
+\def\@currentlabelname{}
+\def\@currentHref{}
+%    \end{macrocode}
+% Since the second part of the preserved reference now has five parts
+% (number, page, name, hypertext reference and file), we need extra utility
+% macros:
+%    \begin{macrocode}
+\long\def\@firstoffive#1#2#3#4#5{#1}
+\long\def\@secondoffive#1#2#3#4#5{#2}
+\long\def\@thirdoffive#1#2#3#4#5{#3}
+\long\def\@fourthoffive#1#2#3#4#5{#4}
+\long\def\@fifthoffive#1#2#3#4#5{#5}
+%    \end{macrocode}
+% We have to redefine |\ref| and |\pageref| to know about extra
+% reference elements. Make them robust.
+%    \begin{macrocode}
+\def\T@ref#1{\expandafter\@setref\csname r@#1\endcsname\@firstoffive{#1}}
+\def\T@pageref#1{\expandafter\@setref\csname r@#1\endcsname
+                                     \@secondoffive{#1}}
+\def\ref{\protect\T@ref}
+\def\pageref{\protect\T@pageref}
+%    \end{macrocode}
+% \section{Usage and frontend}
+% Access the (third) name part with |\nameref|;
+%    \begin{macrocode}
+\def\T@nameref#1{\expandafter\@setref\csname r@#1\endcsname 
+ \@thirdoffive{#1}}
+\def\nameref{\protect\T@nameref}
+%    \end{macrocode}
+% An extended form which gives title and page number.
+%    \begin{macrocode}
+\def\Nameref#1{`\nameref{#1}' on page~\pageref{#1}}
+%    \end{macrocode}
+%
+% The default for |\Sectionformat|
+%    \begin{macrocode}
+\def\Sectionformat#1#2{#1}
+%    \end{macrocode}
+% \subsection{Compatibility with varioref}
+% [This section was derived by Corey Minyard \texttt{minyard@acm.org}
+% from the varioref package]
+%    \begin{macrocode}
+\ifx\csname @@vpageref\endcsname\relax\else
+\def\@@vpageref#1[#2]#3{%
+  \leavevmode\unskip
+  \global\advance\c@vrcnt\@ne
+  \@ifundefined{r@\the\c@vrcnt @vr}%
+         {\@namedef{r@\the\c@vrcnt @vr}{{??}{??}{??}{??}{??}}}{}%
+  \edef\@tempa{\expandafter\expandafter\expandafter
+                \@secondoffive\csname r@\the\c@vrcnt @vr\endcsname}%
+  \@ifundefined{r@\the\c@vrcnt @xvr}%
+         {\@namedef{r@\the\c@vrcnt @xvr}{{??}{??}{??}{??}{??}}}{}%
+  \edef\@tempb{\expandafter\expandafter\expandafter
+                \@secondoffive\csname r@\the\c@vrcnt @xvr\endcsname}%
+  {\let\@currentlabel\@empty
+   \expandafter\label\expandafter{\the\c@vrcnt @xvr}}%
+  \ifx\@tempa\@tempb\else
+  \vref@err{\noexpand\vref at page boundary
+            \@tempb-\@tempa\space (may loop)%
+            }%
+  \fi
+  \@ifundefined{r@#3}{\@namedef{r@#3}{{??}{??}{??}{??}{??}}}{}%
+  \edef\@tempb{\expandafter\expandafter\expandafter
+                \@secondoffive\csname r@#3\endcsname}%
+  \space
+  \ifx\@tempa\@tempb
+    #1%
+  \else
+    #2%
+    \is@pos@number\@tempb
+       {%
+        \is@pos@number\@tempa
+         {\@tempcnta\@tempa
+          \advance\@tempcnta\@ne
+         }%
+         {\@tempcnta\maxdimen}%
+        \ifnum \@tempb =\@tempcnta
+         \ifodd\@tempcnta
+           \if@twoside
+             \reftextfaceafter
+           \else
+             \reftextafter
+           \fi
+         \else
+           \reftextafter
+         \fi
+        \else
+          \advance\@tempcnta-2
+          \ifnum \@tempb =\@tempcnta
+            \ifodd\@tempcnta
+              \reftextbefore
+            \else
+              \if@twoside
+                \reftextfacebefore
+              \else
+                \reftextbefore
+              \fi
+            \fi
+          \else
+            \reftextfaraway{#3}%
+          \fi
+        \fi
+       }%
+       {\reftextfaraway{#3}}%
+  \fi
+  {\let\@currentlabel\@empty
+   \expandafter\label\expandafter{\the\c@vrcnt @vr}}%
+}%
+\DeclareRobustCommand\vnameref[1]{%
+  \unskip~\nameref{#1}%
+  \@vpageref[\unskip]{#1}%
+} \fi
+%</package>
+%    \end{macrocode}
+%
+% \Finale
+
