@@ -1,0 +1,3150 @@
+% ----------------------------------------------------------------------
+%
+% M O V I S
+%
+% Mobile Optoelectronical Visual-Interpretative System for the Blind
+% and Visually Impaired
+%
+% http://lki-www.informatik.uni-hamburg.de/~kirschke/movis/movis-home.html
+%
+% Bibliographic references considered up to now (see Updated: list
+% below), maintained by Heiko Kirschke
+% email: kirschke(at)informatik.uni-hamburg.de
+% WWW  : http://lki-www.informatik.uni-hamburg.de/~kirschke/home.html
+%
+% This document contains strings defined in other BiBTeX files held
+% locally at the Computer Science Department of the University of
+% Hamburg. EMail me (kirschke(at)informatik.uni-hamburg.de) for
+% details.
+%
+% Examples for TeX commands for a german bibliography:
+%       \usepackage{cdnamed}
+%       ...
+%       \begin{document}
+%       ...
+%       \bibliographystyle{cdgermannamed}
+%       ...
+%       \makebibliography{germanbibdefs,bibstrings,movis,proceedings}
+%
+% Examples for TeX commands for an english bibliography:
+%       \usepackage{cdnamed}
+%       ...
+%       \begin{document}
+%       ...
+%       \bibliographystyle{cdnamed}
+%       ...
+%       \makebibliography{bibdefs,bibstrings,movis,proceedings}
+%
+% Some notes on the extra field `signature':
+% - A two-character upper-case signature designates a person owning a
+%   hard copy of the text:
+%     "HK" is kirschke(at)informatik.uni-hamburg.de
+%     "BN" is neumann(at)informatik.uni-hamburg.de
+% - All other signatures are the signatures of the text as used in
+%   the library of the Computer Science Department at the University
+%   of Hamburg.
+%
+%  Updated:     by:     Remarks:
+% ------------------------------------------------------------------
+%  1994/12/??   HK      Initial version
+%  1995/08/15   HK
+%  1996/01/10   HK
+%  1996/01/25   HK
+%  1996/05/06   HK
+%  1996/11/19   HK
+%  1996/12/16   HK
+% ----------------------------------------------------------------------
+ 
+% ----------------------------------------------------------------------
+%       S t r i n g s
+% ----------------------------------------------------------------------
+@string{ABLEX           = "Ablex Publishing Corp."}
+@string{ABLEX-ADD       = "Norwood, NJ" }
+@string{ABLEX+          = ABLEX  # ", " # ABLEX-ADD}
+@string{ABLEX++         = ABLEX+ # ", "}
+@string{CAMBRIDGE       = "Cambridge University Press"}
+@string{CAMBRIDGE-ADD   = "Cambridge"}
+@string{CAMBRIDGE+      = CAMBRIDGE # ", " # CAMBRIDGE-ADD}
+@string{CAMBRIDGE++     = CAMBRIDGE+ # ", "}
+@string{CHAPMAN         = "Chapman {\&} Hall"}
+@string{CHAPMAN-ADD     = "London"}
+@string{CHAPMAN+        = CHAPMAN # ", " # CHAPMAN-ADD}
+@string{CHAPMAN++       = CHAPMAN+ # ", "}
+@string{cmu             = "Carnegie Mellon University"}
+@string{cmu-add         = "Pittsburgh, PA"}
+@string{DIGITALPRESS    = "Digital Press"}
+@string{DIGITALPRESS-ADD = "Bedford, MA"}
+@string{DIGITALPRESS+   = DIGITALPRESS  # ", " # DIGITALPRESS-ADD}
+@string{DIGITALPRESS++  = DIGITALPRESS+ # ", "}
+@string{gmip            = "Graphical Models and Image Processing"}
+@string{iee-ies         = "Intelligent Systems Engineering"}
+@string{ieee-co         = "IEEE Trans.\ Comm."}
+@string{ieee-nn         = "IEEE Trans.\ Neural Networks"}
+@string{ieee-proc       = "Proceedings of the IEEE"}
+@string{jacm            = "Journal of the Association for Computing Machinery"}
+@string{LKI             = "Labor f{\"u}r K{\"u}nstliche Intelligenz,
+                           Fachbereich Informatik,
+                           Universit{\"a}t Hamburg"}
+@string{lnis            = "Lecture Notes in Information Science"}
+@string{MITAILAB        = "MIT, Artificial Intelligence Laboratory"}
+@string{needs-check     = " ??? (needs to be checked)"}
+@string{prsl            = "Proceedings of Royal Society of London"}
+@string{siam-re         = "SIAM Review"}
+@string{spatial-v       = "Spatial Vision"}
+@string{VDIVDEIT        = "VDI/VDE-Technologiezentrum
+                           Informationstechnik GmbH"}
+@string{VDIVDEIT-ADD    = "Teltow"}
+@string{VDIVDEIT+       = VDIVDEIT # ", " # VDIVDEIT-ADD}
+@string{WS              = "World Scientific Publishing Company"}
+@string{WS-ADD          = "Singapore"}
+@string{WS+             = WS # ", " # WS-ADD}
+@string{WS++            = WS # ", " # WS-ADD # ", "}
+@string{unknown         = "???"}
+ 
+% ----------------------------------------------------------------------
+%       A r t i c l e s,   P h D s,   T e c h   R e p o r t s
+% ----------------------------------------------------------------------
+@TechReport{bib:Ahmad-et-al-93,
+  author        = "Subutai Ahmad and Volker Tresp",
+  title         = "Some Solutions to the Missing Feature Problem in Vision",
+  institution   = "Central Research and Development, Siemens AG",
+  address       = "M{\"u}nchen",
+  year          = 1993,
+  note          = toappearin # "\cite{bib:Hanson-et-al-93}",
+  url           = "ftp://archive.cis.ohio-state.edu/pub/neuroprose/ahmad.missing.ps.Z",
+  signature     = "HK"
+}
+ 
+@Manual{bib:Aldus-92,
+  key           = "Aldus",
+  organization  = "Aldus Corporation",
+  title         = "TIFF Revision 6.0",
+  address       = "Seattle, WA",
+  year          = 1992,
+  month         = jun,
+  url           = "ftp://ftp.sgi.com/graphics/tiff/TIFF6.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Aloimonos-et-al-93,
+  author        = "Yiannis Aloimonos and Zoran Duric",
+  title         = "Estimating the Heading Direction Using Normal Flow",
+  journal       = ijcv,
+  year          = 1994,
+  volume        = 13,
+  number        = 1,
+  pages         = "33--56",
+  month         = jan,
+  signature     = "HK"
+}
+ 
+@Manual{bib:Amerinex-95a,
+  key           = "Amerinex",
+  organization  = "Amerinex Artificial Intelligence, Inc.",
+  title         = "IUE Overview",
+  address       = "Amherst, MA",
+  year          = 1995,
+  month         = feb,
+  url           = "ftp://ftp.aai.com/pub/iue/doc/manuals/ov-*.ps.Z",
+  signature     = "HK",
+  keywords      = "image understanding environment"
+}
+ 
+@Manual{bib:Amerinex-95b,
+  key           = "Amerinex",
+  organization  = "Amerinex Artificial Intelligence, Inc.",
+  title         = "IUE Programmer's Reference",
+  address       = "Amherst, MA",
+  year          = 1995,
+  month         = feb,
+  url           = "ftp://ftp.aai.com/pub/iue/doc/manuals/pg-*.ps.Z",
+  signature     = "HK",
+  keywords      = "image understanding environment"
+}
+ 
+@Article{bib:Ballard-et-al-92,
+  author        = "Dana H. Ballard and Christopher M. Brown",
+  title         = "Principles of Animate Vision",
+  journal       = cvgip-iu,
+  year          = 1992,
+  volume        = 56,
+  number        = 1,
+  pages         = "3--21",
+  month         = jul,
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Ballard-et-al-94a,
+  author        = "Dana H. Ballard and Rajesh P. N. Rao",
+  title         = "Seeing Behind Occlusions",
+  institution   = "University of Rochester",
+  address       = "Rochester, NY",
+  year          = 1994,
+  number        = "TR~487",
+  month         = feb,
+  url           = "ftp://ftp.cs.rochester.edu/pub/papers/robotics/94.tr487.Seeing_behind_occlusions.somefigs.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Bartsch-87,
+  author        = "Thomas Bartsch",
+  title         = "Untersuchungen zur Detektion und Lokalisation
+                   markanter Punkte in Farbbildern",
+  institution   = FBI,
+  address       = "Hamburg",
+  year          = 1987,
+  number        = "FBI-HH-B-131/87",
+  month         = oct,
+  signature     = "R17615B",
+  keywords      = "monotonie-operator"
+}
+ 
+@Article{bib:Bergholm-87,
+  author        = "Fredrik Bergholm",
+  title         = "Edge Focussing",
+  journal       = ieee-pami,
+  year          = 1987,
+  volume        = 9,
+  number        = 6,
+  pages         = "726--741",
+  month         = nov
+}
+ 
+@Article{bib:Berman-94,
+  author        = "Mark Berman",
+  title         = "Automated Smoothing of Image and Other Regularly
+                   Spaced Data",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 5,
+  pages         = "460--468",
+  month         = may
+}
+ 
+@TechReport{bib:Betke-et-al-94,
+  author        = "Margrit Betke and Nicholas C. Makris",
+  title         = "Fast Object Recognition in Noisy Images Using
+                   Simulated Annealing",
+  institution   = MITAILAB,
+  address       = MIT-ADD,
+  year          = 1994,
+  number        = "AIM-1510",
+  month         = dec,
+  url           = "ftp://publications.ai.mit.edu/ai-publications/1500-1999/AIM-1510.ps.Z",
+  signature     = "HK",
+  keywords      = "template matching, normalized correlation"
+}
+ 
+% Hans du Buf: dubuf(at)mozart.si.ualg.pt http://www.ualg.pt
+@Article{bib:Bigun-et-al-94,
+  author        = "Josef Big{\"u}n and J. M. Hans du Buf",
+  title         = "{\em N\/}-folded Symmetries by Complex Moments in
+                   Gabor Space and Their Application to Unsupervised
+                   Texture Segmentation",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 1,
+  pages         = "80--87",
+  month         = jan
+}
+ 
+@Article{bib:Boyer-et-al-94,
+  author        = "Kim L. Boyer and Sudeep Sarkar",
+  title         = "On the Localization Performance Measure and Optimal
+                   Edge Detection",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 1,
+  pages         = "106--108",
+  month         = jan
+}
+ 
+@Article{bib:Breuel-96,
+  author        = "Thomas M. Breuel",
+  title         = "Finding Lines under Bounded Error",
+  journal       = pr,
+  year          = 1996,
+  volume        = 29,
+  number        = 1,
+  pages         = "167--178",
+  signature     = "HK",
+  keywords      = "straight lines, hough transformation,
+                   recursive subdivisions, parameter space,
+                   bounded error models, vision, object recognition"
+}
+ 
+@TechReport{bib:Brown-94a,
+  author        = "Christopher Brown",
+  title         = "Tutorial on Filtering, Restoration,
+                   and State Estimation",
+  institution   = "University of Rochester",
+  address       = "Rochester, NY",
+  year          = 1994,
+  number        = "TR~534",
+  month         = sep,
+  url           = "ftp://ftp.cs.rochester.edu/pub/papers/robotics/94.tr534.Tutor
+ial_on_filtering_restoration_and_state_estimation.ps.Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Burkhardt-et-al-92b,
+  author        = "H. Burkhardt and A. Fenske and H. Schulz-Mirbach",
+  title         = "Invariants for the Recognition of Planar Contour
+                   and Gray-Scale Images",
+  pages         = "1--26",
+  crossref      = "bib:Burkhardt-et-al-92a",
+  signature     = "HK"
+}
+ 
+@Article{bib:Burt-et-al-83,
+  author        = "Peter J. Burt and Edward H. Adelson",
+  title         = "The Laplacian Pyramid as a Compact Image Code",
+  journal       = ieee-co,
+  year          = 1983,
+  volume        = "COM-31",
+  number        = 4,
+  pages         = "532--540",
+  month         = apr,
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Caelli-et-al-93,
+  author        = "Terry Caelli and Michael Jonston and Terry Robinson",
+  title         = "3D Object Recognition: Inspirations and Lessons
+                   from Biological Vision",
+  pages         = "1--16",
+  crossref      = "bib:Jain-et-al-93"
+}
+ 
+@Article{bib:Califano-et-al-94,
+  author        = "Andrea Califano and Rakesh Mohan",
+  title         = "Multidimensional Indexing for Recognizing Visual
+                   Shapes",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 4,
+  pages         = "373--392",
+  month         = apr
+}
+ 
+@Article{bib:Canny-86,
+  author        = "John Canny",
+  title         = "A Computational Approach to Edge Detection",
+  journal       = ieee-pami,
+  year          = 1986,
+  volume        = 8,
+  number        = 6,
+  pages         = "679--698",
+  month         = nov,
+  signature     = "HK",
+  keywords      = "edge detection, feature extraction,
+                   image processing, machine vision,
+                   multiscale image analysis"
+}
+ 
+@PhdThesis{bib:Chaney-93,
+  author        = "Ronald Dean Chaney",
+  title         = "Feature Extraction Without Edge Detection",
+  school        = MITAILAB,
+  address       = MIT-ADD,
+  year          = 1993,
+  number        = "AITR-1434",
+  month         = aug,
+  url           = "ftp://publications.ai.mit.edu/ai-publications/1000-1499/AITR-
+1434.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Chaudhuri-et-al-95,
+  author        = "B. B. Chaudhuri and Nirupam Sarkar",
+  title         = "Texture Segmentation Using Fractal Dimension",
+  journal       = ieee-pami,
+  year          = 1995,
+  volume        = 17,
+  number        = 1,
+  pages         = "72--77",
+  month         = jan,
+  signature     = "HK",
+  keywords      = "texture, segmentation, fractal dimension,
+                   multi-fractal, classification"
+}
+ 
+@Article{bib:ChenSW-et-al-93,
+  author        = "Sei-Wang Chen and Anil K. Jain",
+  title         = "Strategies of Multi-view and Multi-matching for 3D
+                   Object Recognition",
+  journal       = cvgip-iu,
+  year          = 1993,
+  volume        = 57,
+  number        = 1,
+  pages         = "121--130",
+  month         = jan,
+  signature     = "HK"
+}
+ 
+@Article{bib:Conners-et-al-80,
+  author        = "Richard W. Conners and Charles A. Harlow",
+  title         = "A theoretical Comparision of Texture Algorithms",
+  journal       = ieee-pami,
+  year          = 1980,
+  volume        = 2,
+  number        = 3,
+  pages         = "204--222",
+  month         = may
+}
+ 
+@PhdThesis{bib:Coombs-92,
+  author        = "David John Coombs",
+  title         = "Real-time Gaze Holding in Binocular Robot Vision",
+  school        = "University of Rochester",
+  address       = "Rochester, NY",
+  year          = 1992,
+  number        = "TR~415",
+  month         = jun,
+  url           = "ftp://ftp.cs.rochester.edu/pub/papers/robotics/92.tr415.real_
+time_gaze_holding.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Deriche-87,
+  author        = "Rachid Deriche",
+  title         = "Using Canny's criteria to derive a recursively
+                   implemented optimal edge detector",
+  journal       = ijcv,
+  year          = 1987,
+  volume        = 1,
+  number        = 2,
+  pages         = "167--187",
+  month         = may
+}
+ 
+@PhdThesis{bib:deSa-94,
+  author        = "Virginia Ruth de Sa",
+  title         = "Unsupervised Classification Learning from
+                   Cross-Modal Environmental Structure",
+  school        = "University of Rochester",
+  address       = "Rochester, NY",
+  year          = 1994,
+  number        = "TR~536",
+  url           = "ftp://ftp.cs.rochester.edu/pub/papers/ai/94.tr536.Unsupervise
+d_classification_learning.ps.Z",
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Dickinson-93,
+  author        = "Sven J. Dickinson",
+  title         = "Part-Based Modeling and Qualitative Recognition",
+  pages         = "201--228",
+  crossref      = "bib:Jain-et-al-93"
+}
+ 
+@InProceedings{bib:Dijkstra-et-al-94,
+  author        = "T. M. H. Dijkstra and P. R. Snoeren and
+                   C. C. A. M. Gielen",
+  title         = "Extraction of 3D Shape from Optic Flow:
+                   A Geometric Approach",
+  pages         = "135--140",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Drewniok-88,
+  author        = "Christian Drewniok",
+  title         = "Untersuchungen zur Detektion von Kanten in
+                   digitalen Farbbildern",
+  institution   = FBI,
+  address       = "Hamburg",
+  year          = 1988,
+  number        = "FBI-HH-B-138/88",
+  month         = oct,
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Dubes-93,
+  author        = "Richard C. Dubes",
+  title         = "Cluster Analysis and Related Issues",
+  chapter       = "1.1",
+  pages         = "3--32",
+  crossref      = "bib:ChenCH-et-al-93",
+  keywords      = "proximity, exploratory data analysis, projection,
+                   hierarchies, dendograms, k-means, cluster validity,
+                   algorithms"
+}
+ 
+@InProceedings{bib:Dubuisson-et-al-94,
+  author        = "Marie-Pierre Dubuisson and Anil K. Jain",
+  title         = "2D Matching of 3D Moving Objects in Color Outdoor Scenes",
+  pages         = "887--891",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Edwards-91,
+  author        = "Tim Edwards",
+  title         = "Discrete Wavelet Transforms: Theory and Implementation",
+  institution   = "Stanford University",
+  address       = "Stanford, CA",
+  year          = 1991,
+  month         = sep,
+  url           = "ftp://isl.stanford.edu/pub/godfrey/reports/wavelets/wave_pape
+r/wave_paper.ps",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Edwards-et-al-95,
+  author        = "R. Timothy Edwards and Michael D. Godfrey",
+  title         = "An Analog Wavelet Transform Chip",
+  institution   = "Stanford University",
+  address       = "Stanford, CA",
+  year          = "1995" # needs-check,
+  url           = "ftp://isl.stanford.edu/pub/godfrey/reports/wavelets/wave_icnn
+2.ps",
+  signature     = "HK"
+}
+ 
+@Article{bib:Elfadel-et-al-94,
+  author        = "Ibrahim M. Elfadel and Rosalind W. Picard",
+  title         = "Gibbs Random Fields, Cooccurrences, and Texture
+                   Modeling",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 1,
+  pages         = "24--37",
+  month         = jan
+}
+ 
+@InProceedings{bib:Elfes-92,
+  author        = "Alberto Elfes",
+  title         = "Dynamic Control of Robot Perception Using
+                   Multi-Property Inference Grids",
+  volume        = 3,
+  pages         = "2561--2567",
+  crossref      = "ICRA-92",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Faugeras-et-al-92a,
+  author        = "O. D. Faugeras and Q.-T. Luong and S. J. Maybank",
+  title         = "Camera Self-Calibration: Theory and Experiments",
+  pages         = "321--334",
+  crossref      = "ECCV-92",
+  signature     = "HK"
+}
+ 
+@Article{bib:Faugeras-et-al-92b,
+  author        = "Olivier Faugeras and Joe Mundy and Narenda Ahuja
+                   and Charles Dyer and Alex Pentland and Ramesh Jain
+                   and Katsushi Ikeuchi",
+  title         = "Why Aspect Graphs Are Not (Yet) Practical for
+                   Computer Vision",
+  journal       = cvgip-iu,
+  year          = 1992,
+  volume        = 55,
+  number        = 2,
+  pages         = "212--218",
+  month         = mar,
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Feng-et-al-94,
+  author        = "L. Feng and J. Borenstein and H. R. Everett",
+  title         = "Where am I?",
+  institution   = "University of Michigan",
+  address       = "Ann Arbor, Michigan",
+  year          = 1994,
+  number        = "UM-MEAM-94-21",
+  month         = dec,
+  url           = "ftp://ftp.eecs.umich.edu/~johannb/um*.ps",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Fermueller-93,
+  author        = "Cornelia Ferm{\"u}ller",
+  title         = "Motion constraint patterns",
+  pages         = "128--139",
+  crossref      = "QV-93",
+  signature     = "HK",
+  keywords      = "egomotion estimation"
+}
+ 
+@InProceedings{bib:Fleck-94,
+  author        = "Margaret M. Fleck",
+  title         = "Practical Edge Finding with a Robust Estimator",
+  pages         = "649--653",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@Article{bib:Flynn-94,
+  author        = "Patrick J. Flynn",
+  title         = "3-D Object Recognition With Symmetric Models:
+                   Symmetry Extraction and Encoding",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 8,
+  pages         = "814--818",
+  month         = aug
+}
+@Article{bib:Freeman-et-al-91,
+  author        = "W.T. Freeman and E.H. Adelson",
+  title         = "The Design and Use of Steerable Filters",
+  journal       = ieee-pami,
+  year          = 1991,
+  volume        = 13,
+  number        = 9,
+  pages         = "891--906",
+  month         = unknown
+}
+ 
+@TechReport{bib:Fua-et-al-93,
+  author        = "P. Fua and Y. G. Leclerc",
+  title         = "Registration without Correspondences",
+  institution   = "SRI International",
+  address       = "Stanford, CA",
+  year          = 1993,
+  number        = "TN~537",
+  url           = "ftp://ftp.ai.sri.com/pub/tech-notes/1993/aic-tn-537.ps.gz",
+  signature     = "HK",
+  keywords      = "registration, calibration, surface reconstruction,
+                   stereo, deformable surfaces"
+}
+ 
+@Article{bib:Gagalowicz-81,
+  author        = "Andr{\'e} Gagalowicz",
+  title         = "A New Method for Texture Fields Synthesis:
+                   Some Applications to the Study of Human Vision",
+  journal       = ieee-pami,
+  year          = 1981,
+  volume        = 3,
+  number        = 5,
+  pages         = "520--533",
+  month         = sep,
+  signature     = "HK",
+  keywords      = "second-order statistics,
+                   stochastic process synthesis, texture fields,
+                   vision modelling"
+}
+ 
+@Article{bib:Geman-et-al-84,
+  author        = "Stuart Geman and Donald Geman",
+  title         = "Stochastic Relaxation, Gibbs Distributions, and the
+                   Bayesian Restoration of Images",
+  journal       = ieee-pami,
+  year          = 1984,
+  volume        = 6,
+  number        = 6,
+  pages         = "721--741",
+  month         = nov,
+  signature     = "HK",
+  keywords      = "annealing, gibbs distribution, image restoration,
+                  line process, map estimate, markov random field,
+                  scene modeling, spatial degradation"
+}
+ 
+@InCollection{bib:Gengenbach-et-al-94,
+  author        = "Volker Gengenbach and Michael Palmer and Hermann
+                   Ringshauser",
+  title         = "MiniVISTA -- Ein echtzeif{\"a}higes
+                   Bildauswertungssystem zum Einsatz in autonomen
+                   Fahrzeugen und an Robotern",
+  pages         = "53--60",
+  crossref      = "IITB-94",
+  signature     = "HK"
+}
+ 
+@PhdThesis{bib:Gershon-87,
+  author        = "Ron Gershon",
+  title         = "The Use of Color in Computational Vision",
+  school        = "University of Toronto",
+  year          = 1987,
+  address       = "Toronto, Canada",
+  month         = jun
+}
+ 
+@Manual{bib:Giarratano-93,
+  author        = "Joseph C. Giarratano",
+  organization  = "Johnson Space Center,
+                   Software Technology Branch",
+  title         = "CLIPS User's Guide",
+  number        = "JSC-25013",
+  address       = unknown,
+  year          = 1993,
+  month         = may,
+  url           = "ftp://ftp.cs.cmu.edu/afs/cs/project/ai-repository/ai/areas/ex
+pert/systems/clips/v6_0/unix/clips6.tgz and ftp://eecs.nwu.edu/pub/CLIPS",
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Goad-86,
+  author        = "Chris Goad",
+  title         = "Fast 3D Model-Based Vision",
+  chapter       = 16,
+  pages         = "371--391",
+  crossref      = "bib:Pentland-86",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Goodwin-et-al-93,
+  author        = "Richard Goodwin and Reid Simmons",
+  title         = "Rational Handling of Multiple Goals for Mobile
+                   Robots",
+  institution   = "School of Computer Science, " # cmu,
+  address       = cmu-add,
+  year          = 1993,
+  number        = "CMU-CS-93-204",
+  month         = nov,
+  url           = "ftp://reports.adm.cs.cmu.edu/1993/CMU-CS-93-204.ps.Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Gopinath-et-al-93,
+  author        = "R. A. Gopinath and C. S. Burrus",
+  title         = "A Tutorial Overview of Filter Banks, Wavelets and
+                   Interrrelations",
+  pages         = unknown,
+  crossref      = "ISCAS-93",
+  url           = "ftp://cml.rice.edu/pub/reports/9301.ps.Z",
+  remark        = "PostScript header is incomplete",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Grau-94a,
+  author        = "Oliver Grau",
+  title         = "Bewegungskompensierte Akkumulation
+                   verrauschter Bildsequenzen",
+  institution   = "Institut f{\"u}r Theoretische Nachrichtentechnik
+                   und Informationsverarbeitung,
+                   Universit{\"a}t Hannover",
+  address       = "Hannover",
+  year          = 1994,
+  url           = "ftp://ftp.tnt.uni-hannover.de/pub/papers/1994/DAGM94-OG.ps.Z"
+,
+  signature     = "HK"
+}
+ 
+@Article{bib:Gray-et-al-94,
+  author        = "A. J. Gray and J. W. Kay and D. M. Titterington",
+  title         = "An Empirical Study of the Simulation of Various
+                   Models Used for Images",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 5,
+  pages         = "507--513",
+  month         = may
+}
+ 
+@Article{bib:Grimson-86,
+  author        = "W. Eric L. Grimson",
+  title         = "The Combinatorics of Local Constraints in
+                   Model-Based Recognition and Localization from
+                   Sparse Data",
+  journal       = jacm,
+  year          = 1986,
+  volume        = 33,
+  number        = 4,
+  pages         = "658--686",
+  month         = oct,
+  keywords      = "artificial intelligence,
+                   vision and scene understanding,
+                   perceptual reasoning, combinatorial complexity,
+                   constrained search, constraint propagation,
+                   object recognition, recognition, search",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Grimson-93,
+  author        = "W. Eric L. Grimson",
+  title         = "Why Stereo Vision is Not Always About 3D Reconstruction",
+  institution   = MITAILAB,
+  address       = MIT-ADD,
+  year          = 1993,
+  number        = "AIM-1435",
+  month         = jul,
+  url           = "ftp://publications.ai.mit.edu/ai-publications/1000-1499/AIM-1
+435.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Gross-94,
+  author        = "Ari D. Gross",
+  title         = "Toward Object-Based Heuristics",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 8,
+  pages         = "794--802",
+  month         = aug
+}
+ 
+@TechReport{bib:Grosso-et-al-92,
+  author        = "Enrico Grosso and Dana H. Ballard",
+  title         = "Head-Centered Orientation Strategies in Animate
+                   Vision",
+  institution   = "University of Rochester",
+  address       = "Rochester, NY",
+  year          = 1992,
+  number        = "TR~442",
+  month         = oct,
+  url           = "ftp://ftp.cs.rochester.edu/pub/papers/robotics/92.tr442.head-
+centered_orientation_strategies_in_animate_vision.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Gunziger-et-al-93,
+  author        = "Rahul Sukthankar and Dean Pomerleau and
+                   Charles Thorpe ",
+  title         = "Panacea: An Active Sensor Conrtoller for the ALVINN
+                   Autonomous Driving System",
+  institution   = cmu,
+  address       = cmu-add,
+  year          = 1993,
+  url           = "http://www.cs.cmu.edu/afs/cs/usr/rahuls/www/panacea.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Gurelli-et-al-94,
+  author        = "Mehmet {\.I}zzet G{\"u}relli and Levent Onural",
+  title         = "On a Parameter Estimation Method For Gibbs-Markov
+                   Random Fields",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 4,
+  pages         = "424--430",
+  month         = apr
+}
+ 
+@Article{bib:Haralick-et-al-73,
+  author        = "Robert M. Haralick and K. Shanmugam and
+                   {Its'hak} Dinstein",
+  title         = "Textural Features for Image Classification",
+  journal       = ieee-smc,
+  year          = 1973,
+  volume        = 3,
+  number        = 6,
+  pages         = "610--621",
+  month         = nov,
+  signature     = "HK"
+}
+ 
+@Article{bib:Haralick-79,
+  author        = "Robert M. Haralick",
+  title         = "Statistical and Structural Approaches to Texture",
+  journal       = ieee-proc,
+  year          = 1979,
+  volume        = 67,
+  number        = 5,
+  pages         = "786--804",
+  month         = may,
+  signature     = "HK"
+}
+ 
+@Article{bib:Hartley-94,
+  author        = "Richard I. Hartley",
+  title         = "Projective Reconstruction and Invariants from
+                   Multiple Images",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 10,
+  pages         = "1036--1049",
+  month         = oct,
+  signature     = "HK",
+  keywords      = "fundamental matrix, projective reconstruction,
+                   invariants, structure from motion"
+}
+ 
+@Article{bib:Healey-et-al-94a,
+  author        = "Glenn E. Healey and Raghava Kondepudy",
+  title         = "Radiometric CCD Camera Calibration and Noise Estimation",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 3,
+  pages         = "267--276",
+  month         = mar
+}
+ 
+@InProceedings{bib:Healey-et-al-94b,
+  author        = "Glenn Healey and David Slater",
+  title         = "Using Illumination Invariant Color Histogram
+                   Descriptors for Recognition",
+  pages         = "355--360",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Hebert-92,
+  author        = "M. Hebert",
+  title         = "3-D Landmark Recognition from Range Images",
+  pages         = "360--365",
+  crossref      = "CVPR-92",
+  signature     = "HK"
+}
+ 
+@PhdThesis{bib:Heemskerk-95,
+  author        = "Jan N. H. Heemskerk",
+  title         = "Neurocomputers for Brain-Style Processing.
+                   Design, Implementation and Application",
+  school        = "Unit of Experimental and Theoretical Psychology
+                   Leiden University",
+  year          = 1995,
+  address       = "Leiden, Netherlands",
+  url           = "ftp://ftp.mrc-apu.cam.ac.uk/pub/nn/*",
+  remark        = "Printed only chapter 3 of the PhD thesis:
+                   Overview of neural hardware",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Henkel-94a,
+  author        = "Rolf D. Henkel",
+  title         = "Hierarchical Calculation of 3d-Structure",
+  institution   = "Zentrum f{\"u}r Kognitionswissenschaften",
+  address       = "Universit{\"a}t Bremen",
+  year          = 1994,
+  number        = "5/94",
+  month         = dec,
+  url           = "http://pooh.physik.uni-bremen.de/~henkel/stereo_papers/zkw059
+4.ps.gz",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Henkel-94b,
+  author        = "Rolf D. Henkel",
+  title         = "Segmentation with Synchronizing Neural Oscillators",
+  institution   = "Zentrum f{\"u}r Kognitionswissenschaften",
+  address       = "Universit{\"a}t Bremen",
+  year          = 1994,
+  number        = "4/94",
+  month         = dec,
+  url           = "http://pooh.physik.uni-bremen.de/~henkel/stereo_papers/zkw049
+4.ps.gz",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Henkel-95,
+  author        = "Rolf D. Henkel",
+  title         = "Segmentation in Scale Space",
+  pages         = "41--48",
+  crossref      = "CAIP-95",
+  url           = "http://pooh.physik.uni-bremen.de/~henkel/segmentation_papers/
+caip95.ps.gz",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Henricsson-et-al-94,
+  author        = "O. Henricsson and F. Heitger",
+  title         = "The Role of Key-Points in Finding Countours",
+  institution   = "Communication Technology Laboratory,
+                   Swiss Federal Institute of Technology ETH",
+  address       = "CH-8092 Z{\"u}rich, Switzerland",
+  year          = 1994,
+  url           = "ftp://ftp.vision.ee.ethz.ch/publications/94/postscripts/HenrE
+CCV94.ps.gz",
+  signature     = "HK",
+  keywords      = "edge detection, key-point detection, edge linking,
+                   contour completion"
+}
+% note = "Perhaps " # alsoin # "\cite{ECCV-94}"
+ 
+@TechReport{bib:Higuchi-et-al-93,
+  author        = "Kazunori Higuchi and Martial Hebert and Katsushi
+                   Ikeuchi",
+  title         = "Combining Shape and Color Information for 3D Object
+                   Recognition",
+  institution   = cmu,
+  address       = cmu-add,
+  year          = 1993,
+  number        = "CMU-CS-93-215",
+  month         = dec,
+  url           = "ftp://reports.adm.cs.cmu.edu/1993/CMU-CS-93-215.ps.Z",
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Horn-90,
+  author        = "Berthold K. P. Horn",
+  title         = "Parallel Networks for Machine Vision",
+  pages         = "437--471",
+  crossref      = "bib:Winston-90",
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Huttenlocher-93,
+  author        = "Daniel P. Huttenlocher",
+  title         = "Recognition by Alignment",
+  pages         = "311--326",
+  crossref      = "bib:Jain-et-al-93"
+}
+ 
+@InProceedings{bib:Huttenlocher-et-al-92a,
+  author        = "Daniel P. Huttenlocher and William J. Rucklidge and
+                   Gregory A. Klanderman",
+  title         = "Comparing Images Using the Hausdorff Distance Under
+                   Translation",
+  pages         = "654--656",
+  crossref      = "CVPR-92",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Huttenlocher-et-al-92b,
+  author        = "Daniel P. Huttenlocher and Jae J. Noh and
+                   William J. Rucklidge",
+  title         = "Tracking Non-Rigid Objects in Complex Scenes",
+  institution   = "Cornell University",
+  address       = "Ithaca, NY",
+  year          = 1992,
+  number        = "TR~92-1320",
+  month         = dec,
+  url           = "ftp://ftp.cs.cornell.edu/pub/TECH-RPT/TR92-1320.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Huttenlocher-et-al-92c,
+  author        = "Daniel P. Huttenlocher and William J. Rucklidge",
+  title         = "A Multi-Resolution Technique for Comparing Images
+                   Using the Hausdorff Distance",
+  institution   = "Cornell University",
+  address       = "Ithaca, NY",
+  year          = 1992,
+  number        = "TR~92-1321",
+  url           = "ftp://ftp.cs.cornell.edu/pub/TECH-RPT/TR92-1321.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Huttenlocher-et-al-93,
+  author        = "Daniel P. Huttenlocher and Gregory A. Klanderman
+                   and William J. Rucklidge",
+  title         = "Comparing Images Using the Hausdorff Distance",
+  journal       = ieee-pami,
+  year          = 1993,
+  month         = sep,
+  volume        = 15,
+  number        = 9,
+  pages         = "850--863",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Huttenlocher-et-al-94a,
+  author        = "Daniel P. Huttenlocher and Michael E. Leventon and
+                   William J. Rucklidge",
+  title         = "Visually-Guided Navigation by Comparing
+                   Two-Dimensional Edge Images",
+  institution   = "Cornell University",
+  address       = "Ithaca, NY",
+  year          = 1994,
+  number        = "TR~94-1407",
+  month         = jan,
+  note          = alsoin # "\cite[S.~806--811]{CVPR-94}",
+  signature     = "R27324; HK"
+}
+ 
+@TechReport{bib:Hwang-et-al-93,
+  author        = "Jenq-Neng Hwang and Eric Tsung-Yen Chen",
+  title         = "Textured Image Synthesis and Segmentation via
+                   Neural Network Probabilistic Modeling",
+  institution   = "Dept.\ of Electrical Engineering,
+                   University of Washington",
+  address       = "Seattle, WA",
+  year          = 1993,
+  month         = may,
+  url           = "ftp://archive.cis.ohio-state.edu/pub/neuroprose/hwang.nnmrf.p
+s.Z",
+  signature     = "HK",
+  keywords      = "back-propagation neural network;
+                   estimation of conditional distribution of texture"
+}
+ 
+@InProceedings{bib:Irani-et-al-94,
+  author        = "Michal Irani and Benny Rousso and Shmuel Peleg",
+  title         = "Recovery of Ego-Motion Using Image Stabilization",
+  pages         = "454--460",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@PhdThesis{bib:Jacobs-92,
+  author        = "David W. Jacobs",
+  title         = "Recognizing 3-D Objects Using 2-D Images",
+  school        = MITAILAB,
+  address       = MIT-ADD,
+  year          = 1992,
+  number        = "AITR-1416",
+  month         = sep,
+  url           = "ftp://publications.ai.mit.edu/ai-publications/1000-1499/AITR-
+1416.ps.Z",
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Jarvis-93,
+  author        = "Ray Jarvis",
+  title         = "Range Sensing for Computer Vision",
+  pages         = "17--56",
+  crossref      = "bib:Jain-et-al-93",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Jatko-89,
+  author        = "W. B. Jatko",
+  title         = "A Survey of Camera Error Sources in Maschine Vision
+                   Systems",
+  institution   = "Oak Ridge National Laboratory",
+  address       = "Oak Ridge, Tennessee",
+  year          = 1989,
+  number        = "CONF-890996-{}-5",
+  month         = jul,
+  signature     = "R21799"
+}
+ 
+@TechReport{bib:Jawerth-et-al-93,
+  author        = "Bj{\"o}rn Jawerth and Wim Sweldens",
+  title         = "An Overview of Wavelet Based Multiresolution Analysis",
+  institution   = "Dept.\ of Mathematics, University of South Carolina",
+  address       = "Columbia",
+  year          = 1993,
+  url           = "ftp://ftp.math.scarolina.edu/pub/wavelet/papers/varia/sirev-3
+6-3.ps.gz",
+  signature     = "HK",
+  note          = alsoin # siam-re # " \textbf{36} (3)" # needs-check,
+  keywords      = "wavelet, multiresolution analysis, compression"
+}
+ 
+@InProceedings{bib:Jenkin-et-al-94,
+  author        = "Michael R. M. Jenkin and John K. Tsotsos",
+  title         = "Active stereo vision and cyclotorsion",
+  pages         = "806--811",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@Article{bib:Jolion-92,
+  author        = "J. M. Jolion and A. Montanvert",
+  title         = "The Adaptive Pyramid:
+                   A Framework for 2D Image Analysis",
+  journal       = cvgip-iu,
+  year          = 1992,
+  volume        = 55,
+  number        = 3,
+  pages         = "339--348",
+  month         = may,
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Kaenel-et-al-93,
+  author        = "Peter A. von Kaenel and Christopher M. Brown and
+                   Raymond D. Rimey",
+  title         = "Goal-Oriented Dynamic Vision",
+  institution   = "University of Rochester",
+  address       = "Rochester, NY",
+  year          = 1993,
+  number        = "TR~466",
+  month         = aug,
+  url           = "ftp://ftp.cs.rochester.edu/pub/papers/robotics/tr466.goal_ori
+ented_dynamic_vision.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Karu-et-al-94,
+  author        = "Kalle Karu and Anil K. Jain and Ruud M. Bolle",
+  title         = "Is There Any Texture in the Image?",
+  institution   = "Dept.\ of Computer Science,
+                   Michigan State University",
+  address       = "East Lansing, MI",
+  year          = 1994,
+  url           = "ftp://ftp.cps.msu.edu/pub/prip/karu/istext.ps.gz",
+  signature     = "HK"
+}
+ 
+@Article{bib:Katzir-et-al-94,
+  author        = "Nir Katzir and Michael Lindenbaum and Moshe Porat",
+  title         = "Curve Segmentation Under Partial Occlusion",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 5,
+  pages         = "513--519",
+  month         = may
+}
+ 
+@TechReport{bib:Kelly-94a,
+  author        = "Alonzo Kelly",
+  title         = "Adaptive Perception for Autonomous Vehicles",
+  institution   = "The Robotics Institute, " # cmu,
+  address       = cmu-add,
+  year          = 1994,
+  number        = "CMU-RI-TR-94-18",
+  month         = may,
+  url           = "ftp://reports.adm.cs.cmu.edu/robotics/CMU-RI-TR-94-18.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Kelly-94b,
+  author        = "Alonzo Kelly",
+  title         = "Modern Inertial and Satellite Navigation Systems",
+  institution   = "The Robotics Institute, " # cmu,
+  address       = cmu-add,
+  year          = 1994,
+  number        = "CMU-RI-TR-94-15",
+  month         = may,
+  url           = "ftp://reports.adm.cs.cmu.edu/robotics/CMU-RI-TR-94-15.ps.Z",
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Knick-et-al-94,
+  author        = "Manfred Knick and Christian Schlegel and J{\"o}rg
+                   Illmann",
+  title         = "AMOS: Selbstst{\"a}ndige Generierung bedeutsamer
+                   Wahrnehmungsklassen durch ein autonomes System",
+  pages         = "77--88",
+  crossref      = "bib:Levi-et-al-94"
+}
+ 
+@TechReport{bib:Kohl-et-al-94,
+  author        = "Charles A. Kohl and Richard A. Lerner and
+                   Alfred A. Hough and Cynthia L. Loiselle and
+                   John Dolan and Michael B. Friedman and
+                   Mark Roubentchik",
+  title         = "A Stellar Application of the IUE:
+                   Solar Feature Extraction",
+  institution   = "Amerinex Artificial Intelligence, Inc.",
+  address       = "Amhurst, MA",
+  year          = 1994,
+  url           = "ftp://ftp.aai.com/pub/iue/doc/reports/IUW94.ps.Z",
+  signature     = "HK",
+  keywords      = "image understanding environment"
+}
+ 
+@Manual{bib:Kolb-94,
+  author        = "Craig E. Kolb",
+  title         = "Rayshade User's Guide and Reference Manual",
+  institution   = "Princeton University",
+  address       = "Princeton",
+  year          = 1994,
+  month         = feb,
+  url           = "ftp://princeton.edu/pub/Graphics/rayshade/Doc/Guide/*.tex",
+  signature     = "HK"
+}
+ 
+@PhdThesis{bib:Kories-85,
+  author        = "Ralf R{\"u}diger Kories",
+  title         = "Maschinelles Bewegungssehen in nat{\"u}rlichen
+                   Szenen: Die Auswertung von Bildfolgen gest{\"u}tzt
+                   auf Bildmerkmale",
+  type          = "Dissertation",
+  school        = "Johannes-Gutenberg-Universit{\"a}t",
+  year          = 1985,
+  address       = "Mainz",
+  month         = feb,
+  signature     = "R14937",
+  keywords      = "monotonie-operator"
+}
+ 
+@TechReport{bib:Kovesi-95,
+  author        = "Peter Kovesi",
+  title         = "Image Features From Phase Congruency",
+  institution   = "Robotics and Vision Research Group,
+                   Dept.\ of Computer Science",
+  address       = "University of Western Australia",
+  year          = 1995,
+  number        = "95/4",
+  month         = jun,
+  url           = "ftp://cs.uwa.edu.au/pub/techreports/95/4.ps.gz",
+  keywords      = "computer vision, feature detection,
+                   phase congruency,
+                   gabor wavlets",
+  remark        = "Hint from K.O.\ Ludwig: David Fleet is also working
+                   on phase congruency",
+  signature     = "HK"
+}
+ 
+@Article{bib:Kulkarni-et-al-94,
+  author        = "S. R. Kulkarni and S. K. Mitter and T. J.
+                   Richardson and J. N. Tsitsiklis",
+  title         = "Local Versus Nonlocal Computation of Length of
+                   Digitized Curves",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 7,
+  pages         = "711--718",
+  month         = jul
+}
+ 
+@TechReport{bib:Laine-et-al-93,
+  author        = "Andrew Laine and Jian Fan",
+  title         = "An Adaptive Approach for Texture Segmentation by
+                   Multi-channel Wavelet Frames",
+  institution   = "Center for Computer Vision and Visualization,
+                   University of Florida",
+  address       = "Florida",
+  year          = 1993,
+  number        = "TR-93-025",
+  month         = aug,
+  url           = "ftp://ftp.cis.ufl.edu/cis/tech-reports/tr93/tr93-025.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Lawn-et-al-93,
+  author        = "Jonathan M. Lawn and Roberto Cipolla",
+  title         = "Epipole Estimation Using Affine Motion Parallax",
+  institution   = "Department of Engineering, University of Cambridge",
+  address       = "Cambridge, England",
+  year          = 1993,
+  number        = "CUED/F-INFENG/TR 138",
+  month         = jul,
+  url           = "ftp://svr-ftp.eng.cam.ac.uk/reports/lawn_tr138.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Lawn-et-al-94a,
+  author        = "Jonathan M. Lawn and Roberto Cipolla",
+  title         = "Camera Motion Determination from Dynamic Perceptual
+                   Grouping of Line Segments",
+  institution   = "Department of Engineering, University of Cambridge",
+  address       = "Cambridge, England",
+  year          = 1994,
+  url           = "ftp://svr-ftp.eng.cam.ac.uk/reports/lawn_bmvc94.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Lawn-et-al-94b,
+  author        = "Jonathan M. Lawn and Roberto Cipolla",
+  title         = "Robust Egomotion Estimation from Affine Motion Parallax",
+  institution   = "Department of Engineering, University of Cambridge",
+  address       = "Cambridge, England",
+  year          = 1994,
+  number        = "CUED/F-INFENG/TR~160",
+  month         = jan,
+  url           = "ftp://svr-ftp.eng.cam.ac.uk/reports/lawn_tr160.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Leavers-92,
+  author        = "V. F. Leavers",
+  title         = "The Dynamic Generalized Hough Transform:
+                   Its Relationship to the Probabilistic Hough
+                   Transforms and an Application to the Concurrent
+                   Detection of Circles and Ellipses",
+  journal       = cvgip-iu,
+  year          = 1992,
+  volume        = 56,
+  number        = 3,
+  pages         = "381--398",
+  month         = nov,
+  signature     = "HK"
+}
+ 
+@Article{bib:Leavers-93,
+  author        = "V. F. Leavers",
+  title         = "Survey: Which Hough Transform?",
+  journal       = cvgip-iu,
+  year          = 1993,
+  volume        = 58,
+  number        = 2,
+  pages         = "250--264",
+  month         = sep,
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Lenz-et-al-94,
+  author        = "Reiner Lenz and Mats {\"O}sterberg and
+                   Jouni Hiltunen and Timo Jaaskelainen and
+                   Jussi Parkkinen",
+  title         = "Unsupervised Filtering of Color Spectra",
+  institution   = "Link{\"o}ping University",
+  address       = "Link{\"o}ping, Sweden",
+  year          = 1994,
+  url           = "ftp://archive.cis.ohio-state.edu/pub/neuroprose/lenz.colorpca
+.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Leymarie-et-al-92,
+  author        = "F. Leymarie and M. D. Levine",
+  title         = "Fast Raster Scan Distance Propagation on the
+                   Discrete Rectangular Lattice",
+  journal       = cvgip-iu,
+  year          = 1992,
+  volume        = 55,
+  number        = 1,
+  pages         = "84--94",
+  month         = jan,
+  signature     = "HK"
+}
+ 
+@Article{bib:Li-et-al-95,
+  author        = "Xiaoping Li and Tongwen Chen",
+  title         = "Optimal $L_1$ Approximation of the Gaussian Kernel
+                   With Application to Scale-Space Construction",
+  journal       = ieee-pami,
+  year          = 1995,
+  volume        = 17,
+  number        = 10,
+  pages         = "1015--1019",
+  month         = oct,
+  signature     = "HK",
+  keywords      = "gaussian kernel, scale-space, total positivity,
+                   l1 approximation"
+}
+ 
+@Article{bib:Lindeberg-93,
+  author        = "Tony Lindeberg",
+  title         = "Detecting Salient Blob-Like Image Structures and
+                   Their Scales with a Scale-Space Primal Sketch:
+                   A Method for Focus-of-Attention",
+  journal       = ijcv,
+  year          = 1993,
+  volume        = 11,
+  number        = 3,
+  pages         = "283--318",
+  url           = "ftp://ftp.bion.kth.se/reports/det-sal-blob-structs.ijcv93.ps.
+Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Lindeberg-94a,
+  author        = "Tony Lindeberg",
+  title         = "Junction Detection with Automatic Selection of
+                   Detection Scales and Localisation Scales",
+  pages         = "924--928",
+  crossref      = "ICIP-94",
+  url           = "ftp://ftp.bion.kth.se/reports/junc-det-aut-scsel.icip94.ps.Z"
+,
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Lindeberg-95,
+  author        = "Tony Lindeberg",
+  title         = "Direct estimation of affine image deformations
+                   using visual front-end operations with automatic
+                   scale selection",
+  pages         = "134--141",
+  crossref      = "ICCV-95",
+  url           = "ftp://ftp.bion.kth.se/reports/Lin95-ICCV.ps.Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Lindeberg-et-al-95,
+  author        = "Tony Lindeberg and Meng-Xiang Li",
+  title         = "Segmentation and Classification of Edges Using
+                   Minimum Description Length Approximation and
+                   Complementary Junction Cues",
+  pages         = unknown,
+  crossref      = "SCIA-95",
+  url           = "ftp://ftp.bion.kth.se/reports/LL-95-SCIA-selected.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Lindenbaum-et-al-91,
+  author        = "M. Lindenbaum and J. Koplowitz",
+  title         = "A New Parametrization of Digital Straight Lines",
+  journal       = ieee-pami,
+  year          = 1991,
+  volume        = 13,
+  number        = 8,
+  pages         = "847--852",
+  month         = aug,
+  keywords      = "chain codes, digital straight lines,
+                   discrete geometry, farey series,
+                   line drawings"
+}
+ 
+@Article{bib:Lindenbaum-et-al-93,
+  author        = "M. Lindenbaum and A. Bruckstein",
+  title         = "On Recursive, \emph{O(N)} Partitioning of a
+                   Digitized Curve into Digital Straight Segments",
+  journal       = ieee-pami,
+  year          = 1993,
+  volume        = 15,
+  number        = 9,
+  pages         = "949--953",
+  month         = sep,
+  keywords      = "chain code, digital straight lines,
+                   on-line algorithm, number theory",
+  signature     = "HK"
+}
+ 
+@Article{bib:Liu-et-al-94,
+  author        = "Jianqing Liu and Yee-Hong Yang",
+  title         = "Multiresolution Color Image Segmentation",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 7,
+  pages         = "689--700",
+  month         = jul
+}
+ 
+@InProceedings{bib:Lohmann-94,
+  author        = "Gabriele Lohmann",
+  title         = "Analyse und Synthese von Texturen",
+  pages         = unknown,
+  crossref      = "bib:Englert-et-al-94",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Loomis-et-al-94,
+  author        = "Jack M. Loomis and Reginald G. Golledge and
+                   Roberta L. Klatzky and Jon M. Speigle and
+                   Jerome Tietz",
+  title         = "Personal Guidance System for the Visually Impaired",
+  pages         = unknown,
+  crossref      = "ACMSIGCAPH-94",
+  signature     = "HK"
+}
+ 
+@PhdThesis{bib:Luo-93,
+  author        = "An Luo",
+  title         = "Helligkeitsbasiertes Rechnersehen zur direkten
+                   Ermittlung r{\"a}umlicher Eigenschaften",
+  school        = "Technische Universit{\"a}t Hamburg-Harburg",
+  address       = "Hamburg",
+  year          = 1993,
+  month         = dec,
+  signature     = "HK"
+}
+ 
+@Article{bib:Lutton-et-al-94,
+  author        = "Evelyne Lutton and Henri Ma{\^i}tre and Jaime
+                   Lopez-Krahe",
+  title         = "Contribution to the Determination of Vanishing
+                   Points Using Hough Transform",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 4,
+  pages         = "430--438",
+  month         = apr
+}
+ 
+@Manual{bib:JSC-93,
+  key           = "Johnson Space Center",
+  organization  = "Johnson Space Center,
+                   Software Technology Branch",
+  title         = "CLIPS Reference Manual",
+  number        = "JSC-25012",
+  address       = unknown,
+  year          = 1993,
+  month         = jun,
+  url           = "ftp://ftp.cs.cmu.edu/afs/cs/project/ai-repository/ai/areas/ex
+pert/systems/clips/v6_0/unix/clips6.tgz and ftp://eecs.nwu.edu/pub/CLIPS",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:MacLennan-91,
+  author        = "Bruce MacLennan",
+  title         = "Gabor Representations of Spatiotemporal Visual Images",
+  institution   = "Computer Science Department,
+                   University of Tennesee",
+  address       = "Knoxville, TN",
+  year          = 1991,
+  month         = sep,
+  url           = "ftp://archive.cis.ohio-state.edu/pub/neuroprose/maclennan.gab
+or.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Mallat-89,
+  author        = "Stephane G. Mallat",
+  title         = "A Theory for Multiresolution Signal Decomposition:
+                   The Wavelet Representation",
+  journal       = ieee-pami,
+  year          = 1989,
+  volume        = 11,
+  number        = 7,
+  pages         = "674--693",
+  month         = jul
+}
+ 
+@Article{bib:Man-et-al-94,
+  author        = "Yael Man and Isak Gath",
+  title         = "Detection and Separation of Ring-Shaped Clusters
+                   Using Fuzzy Clustering",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 8,
+  pages         = "855--861",
+  month         = aug
+}
+ 
+@Article{bib:Marr-et-al-80,
+  author        = "D. Marr and E. Hildreth",
+  title         = "Theory of edge detection",
+  journal       = prsl,
+  year          = 1980,
+  volume        = 207,
+  pages         = "187--217",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Marshall-et-al-93,
+  author        = "Jonathan A. Marshall and Richard K. Alley",
+  title         = "A Self-Organizing Neural Network That Learns to
+                   Detect and Represent Visual Depth from Occlusion
+                   Events",
+  institution   = "Dept.\ of Computer Science,
+                   University of North Carolina",
+  address       = "Chapel Hill, NC",
+  year          = 1993,
+  note          = alsoin # "\cite[S.~70--74]{bib:Bowyer-et-al-93}",
+  signature     = "HK",
+  url           = "ftp://archive.cis.ohio-state.edu/pub/neuroprose/marshall.occl
+usion.ps.Z"
+}
+ 
+@InProceedings{bib:Maxwell-et-al-94,
+  author        = "Bruce A. Maxwell and Steven A. Shafer",
+  title         = "A Framework for Segmentation Using Physical Models
+                   of Image Formation",
+  pages         = "361--368",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Melchert-et-al-94,
+  author        = "Wolfgang Melchert and Willi H{\"a}ttich",
+  title         = "Automatische Datenflu{\ss}planung:
+                   Ein Werkzeug zur Umsetzung von Algorithmen zur
+                   Bildauswertung in Programme f{\"u}r
+                   Echtzeit-Bildauswertungsger{\"a}te",
+  pages         = "61--68",
+  crossref      = "IITB-94",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Memin-et-al-94,
+  author        = "E. Me{\'e}min and F. Heitz and F. Charot",
+  title         = "Efficient Parallel Multigrid Relaxation Algorithms
+                   for Markov Random Field-Based Low-Level Vision
+                   Applications",
+  pages         = "644--648",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Mohr-et-al-92,
+  author        = "Roger Mohr and Gunnar Sparr and Olivier Faugeras",
+  title         = "Multiple Image Invariants",
+  pages         = "109--132",
+  crossref      = "bib:Burkhardt-et-al-92a",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Moons-et-al-92,
+  author        = "T. Moons and E. J. Pauwels and L. J. {Van Gool} and
+                   A. Oosterlinck",
+  title         = "Semi-differential invariants:
+                   algebraic-differential hybrids",
+  pages         = "27--44",
+  crossref      = "bib:Burkhardt-et-al-92a",
+  signature     = "HK"
+}
+ 
+@Article{bib:Moore-et-al-91,
+  author        = "Andrew Moore and John Allman and Rodney M. Goodman",
+  title         = "A Real-Time Neural System for Color Constancy",
+  journal       = ieee-nn,
+  year          = 1991,
+  volume        = 2,
+  number        = 2,
+  pages         = "237--247",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Morita-et-al-94,
+  author        = "Toshihiko Morita and Takeo Kanade",
+  title         = "A Sequential Factorization Method for Recovering
+                   Shape and Motion from Image Streams",
+  institution   = "School of Computer Science, " # cmu,
+  address       = cmu-add,
+  year          = 1994,
+  number        = "CMU-CS-94-158",
+  month         = jun,
+  url           = "ftp://reports.adm.cs.cmu.edu/1994/CMU-CS-94-158.ps.Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Mundy-92,
+  author        = "Joseph L. Mundy",
+  title         = "The Application of Geometric Invariants",
+  pages         = "92--108",
+  crossref      = "bib:Burkhardt-et-al-92a",
+  signature     = "HK"
+}
+ 
+@Article{bib:Murray-87,
+  author        = "D. W. Murray",
+  title         = "Model-based recognition using 3d shape alone",
+  journal       = cvgip,
+  year          = 1987,
+  volume        = 40,
+  pages         = "250--266",
+  signature     = "HK",
+  remark        = "My (HK) copy is a preprint"
+}
+ 
+@Article{bib:Narayanan-et-al-92,
+  author        = "P. J. Narayanan and Larry S. Davis",
+  title         = "Replicated Data Algorithms in Image Processing",
+  journal       = cvgip-iu,
+  year          = 1992,
+  volume        = 56,
+  number        = 3,
+  pages         = "351--365",
+  month         = nov,
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Navarro-et-al-94,
+  author        = "Rafael Navarro and Oscar Nestares and
+                   Javier Protilla and Antonio Taberno",
+  title         = "Several Experiments on Texture Analysis, Coding and
+                   Synthesis by Gabor Wavelets",
+  institution   = "Institutio de Optica ``Daza de Vald{\'e}s''",
+  address       = "Madrid",
+  year          = 1994,
+  month         = nov,
+  number        = 52,
+  url           = "ftp://pixar.optica.csic.es/pub/papers/texture_gabor.tar.gz",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Navarro-et-al-95,
+  author        = "Rafael Navarro and Antonio Taberno and
+                   Gabriel Crist{\'o}bal",
+  title         = "Image Representation with Gabor Wavelets and its
+                   Applications",
+  institution   = "Institutio de Optica ``Daza de Vald{\'e}s''",
+  address       = "Madrid",
+  year          = 1995,
+  month         = jul,
+  url           = "ftp://pixar.optica.csic.es/pub/papers/review_garbor/*.gz",
+  note          = toappearin # "\cite{bib:Hawkes-95}",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Nayar-et-al-94,
+  author        = "Shree K. Nayar and Masahiro Watanabe and Minori Noguchi",
+  title         = "Real-Time Focus Range Sensor",
+  institution   = "Department of Computer Science, Columbia University",
+  address       = "New York, NY 10027",
+  year          = 1994,
+  number        = "CUCS-028-94",
+  note          = toappearin # ieee-pami # " " # unknown #
+                  " (" # unknown # ") 1996",
+  url           = "ftp://ftp.cs.columbia.edu/pub/CAVE/papers/nayar/nayar-nabe-no
+guchi-sensor_pami-96.ps.gz",
+  size          = "1.9 MB compressed, 7217 KB uncompressed",
+  signature     = "HK"
+}
+ 
+@Article{bib:Nelson-94,
+  author        = "Randal C. Nelson",
+  title         = "Finding Line Segments by Stick Growing",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 5,
+  pages         = "519--523",
+  month         = may
+}
+ 
+@Article{bib:Neuenschwander-et-al-94,
+  author        = "W. Neuenschwander and P. Fua and G. Sz{\'e}kely and
+                   O. K{\"u}bler",
+  title         = "Initializing Snakes",
+  pages         = "658--663",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Neumann-et-al-95,
+  author        = "B. Neumann and H. Kirschke",
+  title         = "MOVIS -- Anforderungen und Entwurf",
+  institution   = LKI,
+  address       = "Hamburg",
+  year          = 1995,
+  month         = dec,
+  signature     = "HK"
+}
+ 
+@Article{bib:Onural-et-al-94,
+  author        = "Levent Onural and M. Bilge Alp and Mehmet {\.I}zzet
+                   G{\"u}relli",
+  title         = "Gibbs Random Field Model Based Weight Selection For
+                   the 2-D Adaptive Weighted Median Filter",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 8,
+  pages         = "831--837",
+  month         = aug
+}
+ 
+@Article{bib:ORourke-et-al-82,
+  author        = "Joseph O'Rourke and Chi-Bin Chien and
+                   Thomas Olson and David Naddor",
+  title         = "A New Linear Algorithm for Intersecting Convex Polygons",
+  journal       = cgip,
+  year          = 1982,
+  volume        = 19,
+  number        = unknown,
+  pages         = "384--391",
+  month         = unknown,
+  signature     = "HK",
+  remark        = "See \cite[p.~242--253]{bib:ORourke-94}\ for a
+                   newer description of the algorithm."
+}
+ 
+@Article{bib:Paglieroni-92,
+  author        = "David W. Paglieroni",
+  title         = "Distance Transforms:
+                   Properties and Machine Vision Applications",
+  journal       = cvgip,
+  year          = 1992,
+  volume        = 54,
+  number        = 1,
+  pages         = "56--74",
+  month         = jan,
+  signature     = "HK",
+  keywords      = "voronoi diagram"
+}
+ 
+@Article{bib:Paglieroni-et-al-94,
+  author        = "David W. Paglieroni and Gary E. Ford and Eric M.
+                   Tsujimoto",
+  title         = "The Position-Orientation Masking Approach to
+                   Parametric Search for Template Mathing",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 7,
+  pages         = "740--747",
+  month         = jul
+}
+ 
+@InProceedings{bib:Pankanti-et-al-94,
+  author        = "Sharath Pankanti and Anil K. Jain and Mihran
+                   Tuceryan",
+  title         = "On Integration of Vision Modules",
+  pages         = "316--322",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@Article{bib:Pellegretti-et-al-94,
+  author        = "Paolo Pellegretti and Fabio Roli and Sebastiano B.
+                   Serpico and Gianni Vernazza",
+  title         = "Supervised Learning of Descriptions for Image
+                   Recognition Purposes",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 1,
+  pages         = "92--98",
+  month         = jan
+}
+ 
+@Manual{bib:Phillips-94,
+  author        = "Mark Phillips",
+  title         = "Geomview Manual",
+  institution   = "The Geometry Center",
+  address       = "Minneapolis",
+  year          = 1994,
+  month         = oct,
+  url           = "ftp://geom.umn.edu/**/*",
+  signature     = "HK"
+}
+ 
+@Article{bib:Pikaz-et-al-94,
+  author        = "Arie Pikaz and Its'hak Dinstein",
+  title         = "Using Simple Decomposition for Smoothing and
+                   Feature Point Detection of Noisy Digital Curves",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 8,
+  pages         = "808--813",
+  month         = aug
+}
+ 
+@InProceedings{bib:Ponce-et-al-94,
+  author        = "Jean Ponce and Ruzena Bajcsy and Dimitri Metaxas
+                   and Thomas O. Binford and David A. Forsyth and
+                   Martial Hebert and Katsushi Ikeuchi and Avinash
+                   C. Kak and Linda Shapiro and Stan Sclaroff and Alex
+                   Pentland and George C. Stockman",
+  title         = "Object Representation for Object Recognition",
+  pages         = "147--152",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Pope-et-al-93,
+  author        = "Arthur R. Pope and David G. Lowe",
+  title         = "Learning Object Recognition Models from Images",
+  pages         = "296--301",
+  crossref      = "ICCV-93",
+  signature     = "HK"
+}
+ 
+@PhdThesis{bib:Precetti-94,
+  author        = "C.J. Pr{\'e}cetti",
+  title         = "Advanced classification system for
+                   biomaterials",
+  school        = "Purdue University",
+  year          = 1994,
+  address       = "West Lafayette, Illinois",
+  keywords      = "color classification"
+}
+ 
+@Article{bib:Princen-et-al-94,
+  author        = "J. Princen and J. Illingworth and J. Kittler",
+  title         = "Hypothesis Testing: A Framework for Analyzing and
+                   Optimizing Hough Transform Performance",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 4,
+  pages         = "329--341",
+  month         = apr
+}
+ 
+@Article{bib:Rao-et-al-94,
+  author        = "Nageswara S. V. Rao and E. M. Oblow and Charles W.
+                   Glover",
+  title         = "Learning Seperations by Boolean Combinations of
+                   Half-Spaces",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 7,
+  pages         = "765--768",
+  month         = jul
+}
+ 
+@TechReport{bib:Reece-et-al-91,
+  author        = "Douglas A. Reece and Steven Shafer",
+  title         = "Using Active Vision to Simplify Perception for
+                   Robot Driving",
+  institution   = "School of Computer Science, " # cmu,
+  address       = cmu-add,
+  year          = 1991,
+  number        = "CMU-CS-91-199",
+  month         = nov,
+  url           = "ftp://reports.adm.cs.cmu.edu/1991/CMU-CS-91-199.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Reed-et-al-93,
+  author        = "Todd R. Reed and J. M. Hans du Buf",
+  title         = "A Review of Recent Texture Segmentation and
+                   Feature Extraction Techniques",
+  journal       = cvgip-iu,
+  year          = 1993,
+  volume        = 57,
+  number        = 3,
+  pages         = "359--372",
+  month         = may,
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Rimey-93,
+  author        = "Raymond Dean Rimey",
+  title         = "Control of Selective Perception Using Bayes Nets
+                   and Decision Theory",
+  institution   = "University of Rochester",
+  address       = "Rochester, NY",
+  year          = 1993,
+  number        = "TR~468",
+  month         = dec,
+  url           = "ftp://ftp.cs.rochester.edu/pub/papers/robotics/93.tr468.Contr
+ol_of_selective_perception.somefigs.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Ringach-et-al-94,
+  author        = "Dario L. Ringach and Yoram Baram",
+  title         = "A Diffusion Mechanism for Obstacle Detection from
+                   Size-Change Information",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 1,
+  pages         = "76--80",
+  month         = jan
+}
+ 
+@Article{bib:Rosenfeld-et-al-92,
+  author        = "Azriel Rosenfeld and Saibal Banerjee",
+  title         = "Maximum-Likelihood Edge Detection in Digital Signals",
+  journal       = cvgip-iu,
+  year          = 1992,
+  volume        = 55,
+  number        = 1,
+  pages         = "1--13",
+  month         = jan,
+  signature     = "HK"
+}
+ 
+@TechReport{bib:SatoJ-et-al-94a,
+  author        = "Jun Sato and Roberto Cipolla",
+  title         = "Extracting the Affine Transformation from Texture
+                   Moments",
+  institution   = "Department of Engineering, University of Cambridge",
+  address       = "Cambridge, England",
+  year          = 1994,
+  number        = "CUED/F-INFENG/TR~167",
+  month         = feb,
+  url           = "ftp://svr-ftp.eng.cam.ac.uk/reports/sato_tr167.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:SatoJ-et-al-94b,
+  author        = "Jun Sato and Roberto Cipolla",
+  title         = "Image Registration Using Multi-Scale Texture Moments",
+  institution   = "Department of Engineering, University of Cambridge",
+  address       = "Cambridge, England",
+  year          = 1994,
+  number        = "CUED/F-INFENG/TR~177",
+  month         = oct,
+  url           = "ftp://svr-ftp.eng.cam.ac.uk/reports/sato_tr177.ps.Z",
+  signature     = "HK",
+  keywords      = "texture, multi-scale, moments"
+}
+ 
+@TechReport{bib:SatoY-et-al-94,
+  author        = "Yoichi Sato and Katsushi Ikeuchi",
+  title         = "Reflectance Analysis under Solar Illumination",
+  institution   = "School of Computer Science, " # cmu,
+  address       = cmu-add,
+  year          = 1994,
+  number        = "CMU-CS-94-221",
+  month         = dec,
+  url           = "ftp://reports.adm.cs.cmu.edu/1994/CMU-CS-94-221[AB].ps.Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Serrano-94,
+  author        = "T. Serrano-Gotarredona and B. Linares-Barranco and
+                   J. L. Huertas",
+  title         = "A Real Time Clustering CMOS Neural Engine",
+  crossref      = "NIPS-94",
+  url           = "ftp://ftp.cnm.us.es/pub/bernabe/publications/nips94+iscas95.p
+s.Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Serrano-95,
+  author        = "T. Serrano-Gotarredona and B. Linares-Barranco",
+  title         = "Experimental Results of An Analog Current-Mode ART1
+                   Chip",
+  crossref      = "ISCAS-95",
+  url           = "ftp://ftp.cnm.us.es/pub/bernabe/publications/nips94+iscas95.p
+s.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Shang-et-al-94,
+  author        = "Changjing Shang and Keith Brown",
+  title         = "Neural network-based classification system for
+                   texture images with its applications",
+  journal       = iee-ies,
+  year          = 1994,
+  volume        = 3,
+  number        = 1,
+  pages         = "27--36",
+  month         = "Spring",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Shoval-et-al-94,
+  author        = "Shraga Shoval and Johann Borenstein and Yoram Koren",
+  title         = "Mobile Robot Obstacle Avoidance in a Computerized
+                   Travel Aid for the Blind",
+  institution   = "University of Michigan",
+  address       = "Ann Arbor",
+  year          = 1994,
+  note          = alsoin # "\cite{ICRA-94}",
+  url           = "ftp://ftp.eecs.umich.edu/~johannb/paper52.pdf",
+  signature     = "HK"
+}
+ 
+@Article{bib:Sinclair-et-al-94,
+  author        = "D. Sinclair and A. Blake",
+  title         = "Isoperimetric Normalization of Planar Curves",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 8,
+  pages         = "769--777",
+  month         = aug
+}
+ 
+@TechReport{bib:Smith-et-al-94,
+  author        = "John R. Smith and Shih-Fu Chang",
+  title         = "Transform Features for Texture Classification and
+                   Discrimination in Large Image Databases",
+  institution   = "Center for Telecommunications Research and
+                   Electrical Engineering Dept., Columbia University",
+  address       = "New York, NY",
+  year          = 1994,
+  url           = "ftp://ftp.ctr.columbia.edu/CTR-Research/advent/public/papers/
+94/smith94b.ps.gz",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Smith-et-al-95a,
+  author        = "John R. Smith and Shih-Fu Chang",
+  title         = "Automated Image Retrieval Using Color and Texture",
+  institution   = "Center for Telecommunications Research and
+                   Electrical Engineering Dept., Columbia University",
+  address       = "New York, NY",
+  year          = 1995,
+  month         = jul,
+  number        = "TR\#414-95-20",
+  url           = "ftp://ftp.ctr.columbia.edu/CTR-Research/advent/public/papers/
+95/smith95c.ps.gz and http://www.ctr.columbia.edu/~jrsmith/html/pubs/PAMI/pami_f
+inal_1.html",
+  keywords      = "image and video storage and retrieval,
+                   image features, texture, color,
+                   content-based image query,
+                   compressed-domain image retrieval",
+  remark        = "Submitted to " # ieee-pami # " " # nov #
+                  " 1996: Special Issue on Digital Libraries",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Smith-et-al-95b,
+  author        = "John R. Smith and Shih-Fu Chang",
+  title         = "Frequency and Spatially Adaptive Wavelet Packets",
+  institution   = "Center for Telecommunications Research and
+                   Electrical Engineering Dept., Columbia University",
+  address       = "New York, NY",
+  year          = 1995,
+  month         = may,
+  url           = "ftp://ftp.ctr.columbia.edu/CTR-Research/advent/public/papers/
+95/smith95a.ps.gz",
+  note          = toappearin # "\cite{ICASSP-95}",
+  signature     = "HK"
+}
+ 
+@Manual{bib:SNP-24-Prog,
+  author        = "{Data Cell Limited}",
+  title         = "SNAPPER-24 Library Programmer's Manual",
+  edition       = "2.6",
+  organization  = "Data Cell Limited",
+  address       = "Hattori House, Vanwall Business Park,
+                   Maidenhead, Berkshire, SL6 4UW, UK",
+  number        = "SNP-24-LIB-MAN",
+  year          = 1995,
+  month         = jan
+}
+ 
+@TechReport{bib:Sprengel-94a,
+  author        = "Rainer Sprengel",
+  title         = "Konturverfolgungsverfahren zur Segmentierung von
+                   r{\"a}umlichen und zeitlichen Bildfolgen",
+  institution   = FBI,
+  address       = "Hamburg",
+  year          = 1994,
+  month         = feb,
+  keywords      = "snakes"
+}
+ 
+@Misc{bib:Sprengel-94b,
+  author        = "Rainer Sprengel",
+  title         = "Der Ableitungsfilter von Deriche",
+  year          = 1994,
+  month         = sep,
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Stein-et-al-93,
+  author        = "Fridtjof Stein and Ge{\'e}rard Medioni",
+  title         = "Structural Indexing: Efficient Three Dimensional
+                   Object Recognition",
+  pages         = "353--373",
+  crossref      = "bib:Jain-et-al-93"
+}
+ 
+@InCollection{bib:Stevenson-et-al-93,
+  author        = "Robert L. Stevenson and Edward J. Delp",
+  title         = "Three-Dimensional Surface Reconstruction: Theory
+                   and Implementation",
+  pages         = "89--113",
+  crossref      = "bib:Jain-et-al-93"
+}
+ 
+@InProceedings{bib:Stewart-94a,
+  author        = "Charles V. Stewart",
+  title         = "A New Robust Operator for Computer Vision:
+                   Theoretical Analysis",
+  pages         = "1--8",
+  crossref      = "CVPR-94",
+  signature     = "HK",
+  keywords      = "minpran"
+}
+ 
+@InProceedings{bib:Stewart-94b,
+  author        = "Charles V. Stewart",
+  title         = "A New Robust Operator for Computer Vision:
+                   Application to Range Data",
+  pages         = "167--173",
+  crossref      = "CVPR-94",
+  signature     = "HK",
+  keywords      = "minpran"
+}
+ 
+@Article{bib:Strang-89,
+  author        = "Gilbert Strang",
+  title         = "Wavelets and Dilation Equations:
+                   A Brief Introduction.",
+  journal       = siam-re,
+  year          = 1989,
+  volume        = 31,
+  number        = 4,
+  pages         = "614--627",
+  month         = dec,
+  keywords      = "wavelet, dilation, orthogonal basis, recursion",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Sukthankar-et-al-93,
+  author        = "Rahul Sukthankar and Dean Pomerleau and
+                   Charles Thorpe ",
+  title         = "Panacea: An Active Sensor Controller for the ALVINN
+                   Autonomous Driving System",
+  institution   = cmu,
+  address       = cmu-add,
+  year          = 1993,
+  url           = "http://www.cs.cmu.edu/afs/cs/usr/rahuls/www/panacea.ps.Z",
+  signature     = "HK"
+}
+ 
+% sung(at)ai.mit.edu
+@TechReport{bib:Sung-et-al-94,
+  author        = "Kah-Kay Sung and Tomaso Poggio",
+  title         = "Example-based Learning for View-based Human Face
+                   Detection",
+  institution   = MITAILAB,
+  address       = MIT-ADD,
+  year          = 1994,
+  number        = "AIM-1521",
+  month         = dec,
+  url           = "ftp://publications.ai.mit.edu/ai-publications/1500-1999/AIM-1
+521.ps.Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Sung-et-al-95,
+  author        = "Kah-Kay Sung and Tomaso Poggio",
+  title         = "Learning Human Face Detection in Cluttered Scenes",
+  pages         = "432--439",
+  crossref      = "CAIP-95",
+  signature     = "HK"
+}
+ 
+@Article{bib:Swain-et-al-91,
+  author        = "Michael J. Swain and Dana H. Ballard",
+  title         = "Color Indexing",
+  journal       = ijcv,
+  year          = 1994,
+  volume        = 7,
+  number        = 1,
+  pages         = "11--32",
+  month         = nov,
+  signature     = "HK"
+}
+ 
+@Article{bib:Tagare-et-al-90,
+  author        = "Hemant D. Tagare and Rui J. P. deFigueiredo",
+  title         = "On the Localization Performance Measure and Optimal
+                   Edge Detection",
+  journal       = ieee-pami,
+  year          = 1990,
+  volume        = 12,
+  number        = unknown,
+  pages         = "1186--1189",
+  month         = dec
+}
+ 
+@Article{bib:Tagare-et-al-94,
+  author        = "Hemant D. Tagare and Rui J. P. deFigueiredo",
+  title         = "Reply to ``On the Localization Performance Measure
+                   and Optimal Edge Detection''",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 1,
+  pages         = "108--110",
+  month         = jan
+}
+ 
+@Article{bib:Taratorin-et-al-94,
+  author        = "Alexander M. Taratorin and Samuel Sideman",
+  title         = "Constrained Regularized Differentiation",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 1,
+  pages         = "88--92",
+  month         = jan
+}
+ 
+@InProceedings{bib:Theuwissen-94,
+  author        = "A. J. P. Theuwissen",
+  title         = "CCD Imaging",
+  crossref      = "bib:Hainich-94",
+  keywords      = "charge-coupled devices,
+                   frame interline transfer ccd,
+                   frame transfer ccd, interline transfer ccd,
+                   solid-state imaging"
+}
+ 
+@TechReport{bib:Toenjes-et-al-94,
+  author        = "Ralf T{\"o}njes and Oliver Grau and Reinhard Koch",
+  title         = "Analyse durch Synthese
+                   Modellierung von 3D Objekten in Stereobildfolgen",
+  institution   = "Institut f{\"u}r Theoretische Nachrichtentechnik
+                   und Informationsverarbeitung,
+                   Universit{\"a}t Hannover",
+  address       = "Hannover",
+  year          = 1994,
+  url           = "ftp://ftp.tnt.uni-hannover.de/pub/papers/1994/VisualComputing
+94-RTOGRK.ps.Z",
+  signature     = "HK"
+}
+ 
+@InCollection{bib:Tuceryan-et-al-93,
+  author        = "Mihran Tuceryan and Anil K. Jain",
+  title         = "Texture Analysis",
+  chapter       = "2.1",
+  pages         = "235--276",
+  crossref      = "bib:ChenCH-et-al-93",
+  keywords      = "texture, segmentation, classification, shape,
+                   signal processing, fractals, random fields,
+                   gabor filters, wavelet transform,
+                   gray level dependency matrix"
+}
+ 
+@TechReport{bib:Vinther-et-al-93,
+  author        = "Sven Vinther and Roberto Cipolla",
+  title         = "Towards 3D Object Model Acquisition and Recognition
+                   using 3D Affine Invariants",
+  institution   = "Department of Engineering, University of Cambridge",
+  address       = "Cambridge, England",
+  year          = 1993,
+  number        = "CUED/F-INFENG/TR~136",
+  month         = jul,
+  url           = "ftp://svr-ftp.eng.cam.ac.uk/reports/vinther_tr136.ps.Z",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Vosselmann-et-al-93,
+  author        = "George Vosselmann and Wolfgang F{\"o}rster",
+  title         = "The Precision of a Digital Camera",
+  institution   = "Institute for Photogrammetry, University of
+                   Stuttgart",
+  year          = 1993,
+  signature     = "R26139"
+}
+ 
+@InProceedings{bib:Wallack-et-al-94,
+  author        = "Aaron S. Wallack and John F. Canny",
+  title         = "Efficient Indexing Techniques for Model Based Sensing",
+  pages         = "259--266",
+  crossref      = "CVPR-94",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Watanabe-et-al-95a,
+  author        = "Masahiro Watanabe and Shree K. Nayar",
+  title         = "Rational Filters for Passive Depth from Defocus",
+  institution   = "Department of Computer Science, Columbia University",
+  address       = "New York, NY 10027",
+  year          = 1995,
+  url           = "ftp://ftp.cs.columbia.edu/pub/CAVE/papers/watanabe/nabe-nayar
+-rational_tr-95.ps.gz",
+  size          = "2.5 MB compressed, 8528 KB uncompressed",
+  keywords      = "passive depth from defocus, blur function,
+                   scene textures, normalized image ratio,
+                   broadband rational operators, texture invariance,
+                   depth confidence measure, depth estimation,
+                   real-time performance",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Watanabe-et-al-95b,
+  author        = "Masahiro Watanabe and Shree K. Nayar",
+  title         = "Telecentric Optics for Constant-Magnification Imaging",
+  institution   = "Department of Computer Science, Columbia University",
+  address       = "New York, NY 10027",
+  year          = 1995,
+  month         = sep,
+  number        = "CUCS-026-95",
+  url           = "ftp://ftp.cs.columbia.edu/pub/CAVE/papers/watanabe/nabe-nayar
+-tele_tr-95.ps.gz",
+  size          = "3 MB compressed, 7 MB uncompressed",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Webb-et-al-94,
+  author        = "Jon A. Webb and Thomas Warfel and Sing Bing Kang",
+  title         = "A Scalable Video Rate Camera Interface",
+  institution   = cmu,
+  address       = "Pittsburgh, Pennsylvania",
+  year          = 1994,
+  number        = "CMU-CS-94-192",
+  month         = sep,
+  url           = "ftp://reports.adm.cs.cmu.edu/1994/CMU-CS-94-192.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Wei-et-al-94,
+  author        = "Guo-Quing Wei and Song De Ma",
+  title         = "Implicit and Explicit Camera Calibration:
+                   Theory and Experiments",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 5,
+  pages         = "469--480",
+  month         = may,
+  signature     = "HK",
+  keywords      = "projective mapping, back-projection, projection,
+                   implicit distortion compensation,
+                   perspective conditions, projective invariants,
+                   explicit distortion correction"
+}
+ 
+@TechReport{bib:WeissG-94,
+  author        = "Gerhard Wei{\ss}",
+  title         = "Usage of a Vibrating Gyroscope for
+                   Orientation Estimation",
+  institution   = "Fachbereich Informatik, Universit{\"a}t Kaiserslautern",
+  address       = "Kaiserslautern",
+  year          = "1994" # needs-check,
+  url           = "ftp://ag-vp-ftp.informatik.uni-kl.de/Public/Mobile_Robots/Pap
+ers/Weiss.Gyrostate.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:WeissI-94,
+  author        = "Isaac Weiss",
+  title         = "High-Order Differentiation Filters That Work",
+  journal       = ieee-pami,
+  year          = 1994,
+  volume        = 16,
+  number        = 7,
+  pages         = "734--739",
+  month         = jul
+}
+ 
+@Article{bib:Wetering-et-al-96,
+  author        = "H. van de Wetering and K. van Overveld",
+  title         = "Chain Codes and Their Application in Curve Design",
+  journal       = gmip,
+  year          = 1996,
+  volume        = 58,
+  number        = 5,
+  pages         = "464--470",
+  month         = nov # needs-check
+}
+ 
+@InProceedings{bib:Williams-et-al-94,
+  author        = "L.R. Williams and A. R. Hanson",
+  title         = "Percetual Completion of Occluded Surfaces",
+  pages         = "104--112",
+  crossref      = "CVPR-94"
+}
+ 
+@TechReport{bib:Willson-et-al-93,
+  author        = "Reg G. Willson and Steven A. Shafer",
+  title         = "What is the Center of the Image?",
+  institution   = "School of Computer Science, " # cmu,
+  address       = "Pittsburgh, Pennsylvania",
+  year          = 1993,
+  number        = "CMU-CS-93-122",
+  month         = apr,
+  url           = "ftp://reports.adm.cs.cmu.edu/1993/CMU-CS-93-122.ps.Z",
+  signature     = "HK"
+}
+ 
+@PhdThesis{bib:Wixson-94,
+  author        = "Lambert Ernest Wixson",
+  title         = "Gaze Selection for Visual Search",
+  school        = "University of Rochester",
+  year          = 1994,
+  number        = "TR~512",
+  address       = "Rochester, NY",
+  url           = "ftp://ftp.cs.rochester.edu/pub/papers/robotics/94.tr512.Gaze_
+selection_for_visual_search.ps.Z",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Wolfson-92,
+  author        = "Haim J. Wolfson",
+  title         = "Object Recognition by Transformation Invariant
+                   Indexing",
+  pages         = "76--91",
+  crossref      = "bib:Burkhardt-et-al-92a",
+  signature     = "HK"
+}
+ 
+@Article{bib:Wu-et-al-90,
+  author        = "Lide Wu and Zhaohui Xie",
+  title         = "Scaling Theorems for Zero-Crossings",
+  journal       = ieee-pami,
+  year          = 1990,
+  volume        = 12,
+  number        = 1,
+  pages         = "46--54",
+  month         = jan,
+  keywords      = "gaussian filter, multiscaling, scale-space,
+                   scaling theorem, zero-crossing"
+}
+ 
+@PhdThesis{bib:Wuertz-94,
+  author        = "Rolf P. W{\"u}rtz",
+  title         = "Multilayer Dynamic Link Networks for Establishing
+                   Image Point Correspondences and Visual Object
+                   Recognition",
+  school        = "Ruhr-Universit{\"a}t",
+  address       = "Bochum",
+  year          = 1994,
+  month         = dec,
+  url           = "http://www.cs.rug.nl/~rolf/wuertz.thesis.ps.gz",
+  signature     = "HK"
+}
+ 
+@TechReport{bib:Xiong-et-al-93,
+  author        = "Yalin Xiong and Steven A. Shafer",
+  title         = "Depth from Focusing and Defocusing",
+  institution   = "The Robotics Institute, " # cmu,
+  address       = "Pittsburgh, Pennsylvania",
+  year          = 1993,
+  number        = "CMU-RI-TR-93-07",
+  month         = mar,
+  url           = "ftp://reports.adm.cs.cmu.edu/robotics/CMU-RI-TR-93-07.ps.Z",
+  signature     = "HK"
+}
+ 
+@Article{bib:Yuan-et-al-95,
+  author        = "Jianxing Yuan and Ching Y. Suen",
+  title         = "An Optimal \emph{O(n)} Algorithm for Identifying
+                   Line Segments from a Sequence of Chain Codes",
+  journal       = pr,
+  year          = 1995,
+  volume        = 28,
+  number        = 5,
+  pages         = "635--646",
+  signature     = "HK",
+  keywords      = "straight line detection, chain codes,
+                   digital straight lines, line drawings, contours,
+                   polygonal approximation"
+}
+ 
+@Article{bib:Zhu-et-al-91,
+  author        = "Q. M. Zhu and Y. Y. Hung and S. H. Tang and D. H. Shi",
+  title         = "Edge Extraction by active defocusing",
+  journal       = spatial-v,
+  year          = 1991,
+  volume        = 5,
+  number        = 4,
+  pages         = "253--267",
+  signature     = "HK"
+}
+ 
+@InProceedings{bib:Zimmermann-et-al-89,
+  author        = "G. Zimmermann and R. Kories",
+  title         = "Eine Familie von nichtlinearen Operatoren zur
+                   robusten Auswertung von Bildfolgen",
+  pages         = "96--119",
+  crossref      = "bib:Schwerdtmann-89",
+  signature     = "HK",
+  keywords      = "monotonie-operator"
+}
+ 
+@InProceedings{bib:Zimmermann-91,
+  author        = "G. Zimmermann",
+  title         = "Automatic Acquisition of Optical Landmarks from
+                   Image Sequences",
+  pages         = "281--290",
+  crossref      = "bib:Linkwitz-et-al-91",
+  signature     = "HK",
+  keywords      = "monotonie-operator"
+}
+ 
+% ----------------------------------------------------------------------
+%       B o o k s
+% ----------------------------------------------------------------------
+@Book{bib:AMOP,
+  key           = "AMOP",
+  author        = "Gregor Kiczales and Jim des Rivi\`{e}res and
+                   Daniel G. Bobrow",
+  title         = "The Art of the Metaobject Protocol",
+  booktitle     = "The Art of the Metaobject Protocol",
+  publisher     = MITPRESS+,
+  year          = 1991,
+  signature     = "HK"
+}
+ 
+@Book{bib:Ballard-et-al-82,
+  author        = "Dana H. Ballard and Christopher M. Brown",
+  title         = "Computer Vision",
+  booktitle     = "Computer Vision",
+  publisher     = PRENTICE+,
+  year          = 1982,
+  signature     = "HK"
+}
+ 
+@Book{bib:Bronstein-et-al-79,
+  author        = "I. N. Bronstein and K. A. Semendjajew",
+  title         = "Taschenbuch der Mathematik",
+  booktitle     = "Taschenbuch der Mathematik",
+  edition       =  20,
+  publisher     = "Verlag Harri Deutsch",
+  address       = "Thun und Frankfurt/Main",
+  year          = 1979,
+  signature     = "HK"
+}
+ 
+@Book{bib:Burke-96,
+  author        = "Michael W. Burke",
+  title         = "Image Acquisition",
+  booktitle     = "Image Acquisition",
+  volume        = "1: Handbook of Machine Vision Engineerig",
+  publisher     = CHAPMAN+,
+  year          = 1996,
+  signature     = "HK"
+}
+ 
+@Book{bib:Conrac-85,
+  key           = "Conrac",
+  author        = "Conrac Corporation",
+  title         = "Raster Graphics Handbook",
+  booktitle     = "Raster Graphics Handbook",
+  edition       = 2,
+  publisher     = "Van Nostrand Reinhold, New York",
+  year          = 1985,
+  signature     = "HK (only appendix III), A RAS 9871 40234",
+  isbn          = "0-442-21608-4"
+}
+ 
+@Book{bib:ChenCH-et-al-93,
+  editor        = "C. H. Chen and L. F. Pau and P. S. P. Wang",
+  title         = "Handbook of Pattern Recognition {\&} Computer
+                   Vision",
+  booktitle     = "Handbook of Pattern Recognition {\&} Computer
+                   Vision",
+  publisher     = WS,
+  year          = 1993,
+  address       = WS-ADD,
+}
+ 
+@Book{bib:CLtLII,
+  key           = "CLtLII",
+  author        = "Guy L. {Steele Jr.}",
+  title         = "Common LISP the Language",
+  booktitle     = "Common LISP the Language",
+  edition       = 2,
+  publisher     = DIGITALPRESS+,
+  year          = 1990,
+  signature     = "HK"
+}
+ 
+@Book{bib:Crowley-et-al-95,
+  editor        = "J. L. Crowley and H. I. Christensen",
+  title         = "Vision as Process",
+  booktitle     = "Vision as Process",
+  publisher     = SPRINGER+,
+  year          = 1995,
+  signature     = "A VIS 20930"
+}
+ 
+@Book{bib:Duda-et-al-73,
+  author        = "Richard O. Duda and Peter E. Hart",
+  title         = "Pattern Classification and Scene Analysis",
+  booktitle     = "Pattern Classification and Scene Analysis",
+  publisher     = WILEY+,
+  year          = 1973
+}
+ 
+@Book{bib:Faugeras-93,
+  author        = "Olivier Faugeras",
+  title         = "Three-Dimensional Computer Vision:
+                   A Geometric Viewpoint",
+  booktitle     = "Three-Dimensional Computer Vision:
+                   A Geometric Viewpoint",
+  publisher     = MITPRESS+,
+  year          = 1993,
+  signature     = "A FAU 20283"
+}
+ 
+@Book{bib:Fournier-93,
+  editor        = "Alain Fournier",
+  title         = "Wavelets and their Applications in Computer Graphics",
+  publisher     = "University of British Columbia",
+  year          = 1995,
+  note          = "Siggraph '95 Course Notes: \#26 Wavelets, URL
+                  \texttt{http://www.cs.ubc.ca/nest/imager/contributions/bobl/wv
+lt/top.html}",
+  url           = "http://www.cs.ubc.ca/nest/imager/contributions/bobl/wvlt/top.
+html",
+  signature     = "HK"
+}
+ 
+@Book{bib:Gonzalez-et-al-87,
+  editor        = "Rafael C. Gonzalez and Paul Wintz",
+  title         = "Digital Image Processing",
+  booktitle     = "Digital Image Processing",
+  publisher     = ADDISON+,
+  year          = 1987,
+  signature     = "BN"
+}
+ 
+@Book{bib:Graham-et-al-94,
+  author        = "Ronald L. Graham and Donald E. Knuth and
+                   Oren Patashnik",
+  title         = "Concrete Mathematics",
+  booktitle     = "Concrete Mathematics",
+  edition       = 2,
+  publisher     = ADDISON+,
+  year          = 1994,
+  signature     = "HK"
+}
+ 
+@Book{bib:Hanson-et-al-93,
+  editor        = "S. J. Hanson and J. D. Cowan and C. L. Giles",
+  title         = "Advances in Neural Information Processing Systems 5",
+  booktitle     = "Advances in Neural Information Processing Systems 5",
+  publisher     = MORGANKAUFMANN-NEW+,
+  year          = 1993
+}
+ 
+@Book{bib:Hawkes-95,
+  editor        = "Peter W. Hawkes",
+  title         = "Advances in Imaging and Electron Physics",
+  booktitle     = "Advances in Imaging and Electron Physics",
+  publisher     = ACADEMIC+,
+  year          = 1995
+}
+ 
+@Book{bib:Horn-86,
+  author        = "Berthold Klaus Paul Horn",
+  title         = "Robot Vision",
+  booktitle     = "Robot Vision",
+  publisher     = MITPRESS+,
+  year          = 1986,
+  signature     = "HK"
+}
+ 
+@Book{IITB-94,
+  editor        = "Fraunhofer-Institut f{\"u}r Informations- und
+                   Datenverarbeitung",
+  key           = "Fraunhofer",
+  title         = "IITB Mitteilungen 1994",
+  booktitle     = "IITB Mitteilungen 1994",
+  year          = 1994,
+  publisher     = "Fraunhofer-Institut f{\"u}r Informations- und
+                   Datenverarbeitung",
+  signature     = "BN"
+}
+ 
+@Book{bib:Jain-et-al-93,
+  editor        = "Anil K. Jain and Patrick J. Flynn",
+  title         = "Three-Dimensional Object Recognition Systems",
+  booktitle     = "Three-Dimensional Object Recognition Systems",
+  publisher     = "ELSEVIER Science Publishers B.V., Amsterdam",
+  year          = 1993,
+  signature     = "A THR 19216"
+}
+ 
+@Book{bib:Kanatani-90,
+  author        = "K. Kanatani",
+  title         = "Group-Theoretical Methods in Image Understanding",
+  booktitle     = "Group-Theoretical Methods in Image Understanding",
+  publisher     = SPRINGER,
+  year          = 1990,
+  address       = SPRINGER-ADD,
+  remark        = "There is a `technical report' copy of this book
+                   in its 1986 version in our FBI library,
+                   signature R 17190."
+}
+ 
+@Book{bib:Knuth-81,
+  editor        = "Donald E. Knuth",
+  title         = "The Art of Computer Programming",
+  booktitle     = "The Art of Computer Programming",
+  edition       = 2,
+  volume        = "2: Seminumerical Algorithms",
+  publisher     = ADDISON+,
+  year          = 1981,
+  signature     = "HK"
+}
+ 
+@Book{bib:Koch-et-al-95,
+  editor        = "Christof Koch and Hua Li",
+  title         = "Vision Chips:
+                   Implementing Vision Algorithms with Analog VLSI
+                   Circuits",
+  booktitle     = "Vision Chips:
+                   Implementing Vision Algorithms with Analog VLSI
+                   Circuits",
+  publisher     = IEEEPRESS++ # "Los Alamitos, CA",
+  year          = 1995,
+  signature     = "BN"
+}
+ 
+@Book{bib:Kohonen-95,
+  author        = "Teuvo Kohonen",
+  title         = "Self-Organizing Maps",
+  booktitle     = "Self-Organizing Maps",
+  year          = 1995,
+  series        = lnis,
+  volume        = 30,
+  publisher     = SPRINGER+,
+  signature     = "T KOH 22094"
+}
+ 
+@Book{bib:Lindeberg-94b,
+  author        = "Tony Lindeberg",
+  title         = "Scale-Space Theory in Computer Vision",
+  booktitle     = "Scale-Space Theory in Computer Vision",
+  publisher     = KLUWER+,
+  year          = 1994
+}
+ 
+@Book{bib:Mundy-et-al-92,
+  editor        = "Joseph L. Mundy and Andrew Zissermann",
+  title         = "Geometric Invariance in Computer Vision",
+  booktitle     = "Geometric Invariance in Computer Vision",
+  publisher     = MITPRESS+,
+  year          = 1992,
+  signature     = "K APP 19217"
+}
+ 
+@Book{bib:ORourke-94,
+  author        = "Joseph O'Rourke",
+  title         = "Computational Geometry in C",
+  booktitle     = "Computational Geometry in C",
+  publisher     = CAMBRIDGE+,
+  year          = 1994,
+  signature     = "A O'R 20251",
+  remark        = "The copy in our FBI library is the first printing;
+                   it contains a lot of errors. Consult the files in
+                   ftp://grendel.csc.smith.edu/pub/compgeom/ before using
+                   any code published in the book."
+}
+ 
+@Book{bib:Pearl-88,
+  author        = "Judea Pearl",
+  title         = "Probabilistic Reasoning in Intelligent Systems:
+                   Networks of Plausible Inference",
+  booktitle     = "Probabilistic Reasoning in Intelligent Systems:
+                   Networks of Plausible Inference",
+  publisher     = MORGANKAUFMANN-NEW+,
+  year          = 1988,
+  signature     = "A PEA 14995",
+  keywords      = "bayesian net, influence diagram"
+}
+ 
+@Book{bib:Pentland-86,
+  editor        = "Alex P. Pentland",
+  title         = "From Pixels to Predicates",
+  booktitle     = "From Pixels to Predicates",
+  publisher     = ABLEX+,
+  year          = 1986,
+  series        = "Ablex Series in Artificial Intelligence",
+  signature     = "A FRO 13439 / 14920 / LILOG 48840"
+}
+ 
+@Book{bib:Poynton-95,
+  author        = "Charles A. Poynton",
+  title         = "A Technical Introduction to Digital Video",
+  booktitle     = "A Technical Introduction to Digital Video",
+  publisher     = WILEY+,
+  year          = 1995,
+  signature     = "HK",
+  remark        = "There is a draft version of some book chapters
+                   available at http://www.inforamp.net/~poynton/"
+}
+ 
+@Book{bib:Schwerdtmann-89,
+  editor        = "Werner Schwerdtmann",
+  title         = "Ausgew{\"a}hlte Verfahren der Mustererkennung und
+                   Bildverarbeitung",
+  booktitle     = "Ausgew{\"a}hlte Verfahren der Mustererkennung und
+                   Bildverarbeitung",
+  series        = "10: Informatik/Kommunikationstechnik",
+  number        = 114,
+  publisher     = "VDI Verlag",
+  year          = 1989,
+  signature     = "HK"
+}
+ 
+@Book{bib:Sonka-et-al-93,
+  author        = "Milan Sonka and Vaclav Hlavac and Roger Boyle",
+  title         = "Image Processing, Analysis and Machine Vision",
+  booktitle     = "Image Processing, Analysis and Machine Vision",
+  publisher     = CHAPMAN+,
+  year          = 1993,
+  signature     = "HK"
+}
+ 
+@Book{bib:Winston-90,
+  editor        = "P. H. Winston and S. A. Shellard",
+  title         = "Artificial Intelligence at MIT:
+                   Expanding Frontiers",
+  booktitle     = "Artificial Intelligence at MIT:
+                   Expanding Frontiers",
+  publisher     = MITPRESS+ # needs-check,
+  year          = 1990
+}
+ 
+@Book{bib:Wolfram-93,
+  author        = "Stephen Wolfram",
+  title         = "Mathematica:
+                   A system for doing mathematics by computer",
+  booktitle     = "Mathematica:
+                   A system for doing mathematics by computer",
+  edition       = 2,
+  publisher     = ADDISON+,
+  year          = 1993,
+  signature     = "P WOL 20934"
+}
+ 
+% ----------------------------------------------------------------------
+%       P r o c e e d i n g s
+% ----------------------------------------------------------------------
+@Proceedings{ACMSIGCAPH-94,
+  key           = "ACM/SIGCAPH",
+  title         = "Proceedings of the First Annual International
+                   ACM/SIGCAPH Conference on Assistive Technologies",
+  booktitle     = "Proceedings of the First Annual International
+                   ACM/SIGCAPH Conference on Assistive Technologies",
+  month         = oct,
+  year          = 1994,
+  address       = "Marina del Ray, CA",
+  publisher     = unknown
+}
+ 
+@Proceedings{bib:Bowyer-et-al-93,
+  editor        = "K. W. Bowyer and L. Hall",
+  title         = "Proceedings of the AAAI Fall Symposium on Machine
+                   Learning and Computer Vision",
+  booktitle     = "Proceedings of the AAAI Fall Symposium on Machine
+                   Learning and Computer Vision",
+  year          = 1993,
+  month         = oct,
+  address       = "Research Triangle Park, NC"
+}
+ 
+@Proceedings{bib:Burkhardt-et-al-92a,
+  editor        = "Hans Burkhardt and Andrew Zissermann",
+  title         = "Invariants for Recognition",
+  booktitle     = "Invariants for Recognition",
+  month         = may,
+  year          = 1992,
+  address       = "Santa Magherita, Ligure, Italy",
+  publisher     = "Technical University of Hamburg-Harburg" # needs-check,
+  signature     = "R 24754"
+}
+ 
+@Proceedings{CAIP-95,
+  key           = "CAIP",
+  title         = "Computer analysis of images and patterns: 6th
+                   international conference; proceedings / CAIP '95",
+  booktitle     = "Computer analysis of images and patterns: 6th
+                   international conference; proceedings / CAIP '95",
+  year          = 1995,
+  editor        = "V{\'a}clav Hlav{\'a}{\v{c}} and Radim {\v{S}}{\'a}ra",
+  address       = "Prag",
+  month         = sep,
+  series        = lncs,
+  volume        = 970,
+  publisher     = SPRINGER++ # "1995"
+}
+ 
+@Proceedings{CVPR-92,
+  key           = "CVPR",
+  title         = "Proc.\ Conf. on Computer Vision and Pattern
+                   Recognition",
+  booktitle     = "Proc.\ Conf. on Computer Vision and Pattern
+                   Recognition",
+  month         = unknown,
+  year          = 1992,
+  address       = unknown,
+  publisher     = IEEEPRESS++ # "1992",
+}
+ 
+@Proceedings{bib:Englert-et-al-94,
+  editor        = "G. Englert",
+  title         = "1. Workshop zum Thema Visual Computing",
+  booktitle     = "1. Workshop zum Thema Visual Computing",
+  month         = mar,
+  year          = 1994,
+  address       = "Darmstadt",
+  publisher     = SPRINGER++ # "1994" # needs-check
+}
+ 
+@Proceedings{bib:Hainich-94,
+  editor        = "Rolf Hainich",
+  title         = "Proceedings of the Workshop on integrative 3D
+                   visualization",
+  booktitle     = "Proceedings of the Workshop on integrative 3D
+                   visualization",
+  year          = 1994,
+  address       = "Wiesbaden",
+  month         = may,
+  publisher     = VDIVDEIT+,
+  signature     = "R28360"
+}
+ 
+@Proceedings{ICASSP-95,
+  key           = "ICASSP",
+  editor        = unknown,
+  title         = "1995 Intl.\ Conf.\ on Acoustic, Speech, and Signal Processing
+",
+  booktitle     = "1995 Intl.\ Conf.\ on Acoustic, Speech, and Signal Processing
+",
+  month         = may,
+  year          = 1995,
+  address       = "Detroit, MI",
+  publisher     = unknown
+}
+ 
+@Proceedings{ICCV-95,
+  key           = "ICCV",
+  title         = "5th International Conference on Computer Vision
+                   --- ICCV 95",
+  booktitle     = "5th International Conference on Computer Vision
+                   --- ICCV 95",
+  month         = jun,
+  year          = 1995,
+  address       = "Cambridge, MA",
+  editor        = unknown,
+  publisher     = IEEEPRESS++ # "1995"
+}
+ 
+@Proceedings{ICIP-94,
+  key           = "ICIP",
+  editor        = unknown,
+  title         = "Proc.\ 1st Int.\ Conf.\ on Image Processing",
+  booktitle     = "Proc.\ 1st Int.\ Conf.\ on Image Processing",
+  month         = nov,
+  year          = 1994,
+  address       = "Austin, Texas",
+  publisher     = unknown
+}
+ 
+@Proceedings{ICRA-94,
+  key           = "ICRA",
+  title         = "Proceedings of the 1994 IEEE International
+                   Conference on Robotics and Automation",
+  booktitle     = "Proceedings of the 1994 IEEE International
+                   Conference on Robotics and Automation",
+  month         = may,
+  year          = 1994,
+  address       = "San Diego, CA",
+  publisher     = IEEEPRESS++ # "Los Alamitos, CA, 1994"
+}
+ 
+@Proceedings{ISCAS-93,
+  key           = "ISCAS",
+  editor        = unknown,
+  title         = "1993 IEEE International Symposium on Circuits and Systems",
+  booktitle     = "1993 IEEE International Symposium on Circuits and Systems",
+  month         = unknown,
+  year          = 1993,
+  address       = unknown,
+  publisher     = unknown
+}
+ 
+@Proceedings{ISCAS-95,
+  key           = "ISCAS",
+  editor        = unknown,
+  title         = "1995 IEEE International Symposium on Circuits and Systems",
+  booktitle     = "1995 IEEE International Symposium on Circuits and Systems",
+  month         = apr,
+  year          = 1995,
+  address       = "Seattle, Washington",
+  publisher     = unknown
+}
+ 
+@Proceedings{bib:Levi-et-al-94,
+  editor        = "Paul Levi and Thomas Br{\"a}unl",
+  title         = "Autonome Mobile Systeme 1994",
+  booktitle     = "Autonome Mobile Systeme 1994",
+  year          = 1994,
+  address       = "Stuttgart",
+  month         = oct,
+  publisher     = SPRINGER++ # "1994",
+  series        = infakt
+}
+ 
+@Proceedings{bib:Linkwitz-et-al-91,
+  editor        = "K. Linkwitz and U. Hangleiter",
+  title         = "High Precision Navigation 1991",
+  booktitle     = "High Precision Navigation 1991",
+  year          = 1991,
+  address       = "Stuttgart und Freudenstadt",
+  month         = nov,
+  publisher     = "D{\"u}mmler 1991, Bonn"
+}
+ 
+@Proceedings{bib:Mundy-et-al-94,
+  editor        = "Joseph L. Mundy and Andrew Zissermann and D. Forsyth",
+  title         = "Application of Invariance in Computer Vision",
+  booktitle     = "Application of Invariance in Computer Vision",
+  month         = oct,
+  year          = 1993,
+  address       = "Ponta Delgada, Azores, Portugal",
+  publisher     = SPRINGER++ # "1994",
+  signature     = "K APP 20949"
+}
+ 
+@Proceedings{NIPS-94,
+  key           = "NIPS",
+  editor        = unknown,
+  title         = "1994 Conference on Neural Information Processing Systems",
+  booktitle     = "1994 Conference on Neural Information Processing Systems",
+  month         = nov,
+  year          = 1994,
+  address       = "Denver, Colorado",
+  publisher     = unknown
+}
+ 
+% Already in proceedings.bib:
+% Proceedings{QV-93,
+%   title               = "Proceedings IEEE Workshop on Qualitative Vision",
+%   booktitle   = "Proceedings IEEE Workshop on Qualitative Vision",
+%   month               = jun,
+%   year                = 1993,
+%   address     = "New York, NY",
+%   publisher   = IEEEPRESS++ # "Los Alamitos, CA, 1993",
+%   signature   = "K QUA 20027"
+% }
+ 
+@Proceedings{SCIA-95,
+  key           = "SCIA",
+  editor        = unknown,
+  title         = "Theory and Applications of Image Processing II --
+                   Selected papers from the 9th Scandinavian Conference
+                   on Image Analysis",
+  booktitle     = "Theory and Applications of Image Processing II --
+                   Selected papers from the 9th Scandinavian Conference
+                   on Image Analysis",
+  month         = jun,
+  year          = 1995,
+  address       = "Uppsala, Sweden",
+  publisher     = WS+
+}
