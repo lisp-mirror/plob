@@ -1,0 +1,1186 @@
+%
+% This file was generated from the LISP module `lisp-doc' by extracting
+% the LISP documentation strings of the files
+%
+%   ./lisp-doc.lisp
+%
+% as of 1997/09/18 8:09    (year/mm/dd hh:mm)
+% Changes done here will be lost.
+%
+% lisp-doc (C) 1994,1997
+%              Heiko Kirschke, Computer Science Dept., University of Hamburg
+%
+\let\tempa\relax%
+\ifx\flabel\undefined%
+ \let\tempa\endinput%
+ Missing document substyle {\tt `crossref.sty'}; ending input.
+ \message{^^J^^JMissing document substyle `crossref.sty'; ending input.^^J^^J}%
+\fi%
+\ifx\Seealsolabel\undefined%
+ \let\tempa\endinput%
+ Missing document substyle {\tt `lispdoc.sty'}; ending input.
+ \message{^^J^^JMissing document substyle `lispdoc.sty'; ending input.^^J^^J}%
+\fi%
+\tempa\def\tempa{}%
+
+\begindccom[Class Hierarchy]{CLOS Class Hierarchy}
+
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{0\bigskipamount}%
+{\bf lisp-comment}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{lisp-comment}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-class}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-class}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-constant}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-constant}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-documentation}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-documentation}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-function}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-function}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-generic-function}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-generic-function}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-macro}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-macro}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-method}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-method}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-parameter}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-parameter}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-slot}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-slot}}%
+\endgroup\\
+\begingroup\def\fcitepage#1{#1}%
+\hspace*{1\bigskipamount}%
+{\bf comment-variable}\dotfill{\rm\small[{\em Internal CLOS Class}\/]}%
+\hbox to 1.55em{\hfil\rm\small \fpageref{comment-variable}}%
+\endgroup\\
+
+
+
+\endcom
+
+\beginvrcom[Internal]{*all-clos-classes*}
+
+\Initialvaluelabel
+\begin{verbatim}
+nil
+\end{verbatim}
+
+\Purposelabel
+A list containing all scanned \clos\ classes.
+
+
+\endcom
+
+\beginvrcom[Internal]{*all-structure-classes*}
+
+\Initialvaluelabel
+\begin{verbatim}
+nil
+\end{verbatim}
+
+\Purposelabel
+A list containing all scanned structure classes.
+
+
+\endcom
+
+\beginclcom[Internal]{comment-class}
+
+\Purposelabel
+ A class for documenting classes.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform +default-class-midfix+\newline :accessor comment-midfix}
+
+\Defdslot {superclasses-label} {:initarg :superclasses-label\newline :initform +default-superclasses-label+\newline :accessor comment-superclasses-label}
+
+Contains the \TeX\ label to use for slot
+ {\bf superclasses}.
+
+\Defdslot {superclasses} {:initarg :superclasses\newline :initform nil\newline :accessor comment-superclasses}
+
+Contains a list of the direct superclasses of
+ the documented class.
+
+\Defdslot {metaclass-label} {:initarg :metaclass-label\newline :initform +default-metaclass-label+\newline :accessor comment-metaclass-label}
+
+Contains the \TeX\ label to use for slot
+ {\bf metaclass}.
+
+\Defdslot {metaclass} {:initarg :metaclass\newline :initform nil\newline :accessor comment-metaclass}
+
+Contains the metaclass of the documented class.
+
+\Defdslot {slots-label} {:initarg :slots-label\newline :initform +default-slots-label+\newline :accessor comment-slots-label}
+
+Contains the \TeX\ label to use for slot
+ {\bf slots}.
+
+\Defdslot {slots} {:initarg :slots\newline :initform nil\newline :accessor comment-slots}
+
+Contains a list of the direct slots of
+ the documented class.
+
+\Defdslot {class-options-label} {:initarg :class-options-label\newline :initform +default-class-options-label+\newline :accessor comment-class-options-label}
+
+Contains the \TeX\ label to use for slot
+ {\bf class-options}.
+
+\Defdslot {class-options} {:initarg :class-options\newline :initform nil\newline :accessor comment-class-options}
+
+Contains the class options of the documented class.
+
+
+\endcom
+
+\message{^^JGeneric function comment-class-options has no methods.^^J}
+\message{^^JGeneric function (setf comment-class-options) has no methods.^^J}
+\message{^^JGeneric function comment-class-options-label has no methods.^^J}
+\message{^^JGeneric function (setf comment-class-options-label) has no methods.^^J}
+\beginclcom[Internal]{comment-constant}
+
+\Purposelabel
+ A class for documenting constants.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform +default-constant-midfix+\newline :accessor comment-midfix}
+
+
+\endcom
+
+\beginclcom[Internal]{comment-documentation}
+
+\Purposelabel
+ A class for documenting-only items.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform +default-documentation-midfix+\newline :accessor comment-midfix}
+
+
+\endcom
+
+\beginclcom[Internal]{comment-function}
+
+\Purposelabel
+ A class for documenting functions.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform +default-function-midfix+\newline :accessor comment-midfix}
+
+
+\endcom
+
+\beginclcom[Internal]{comment-generic-function}
+
+\Purposelabel
+ A class for documenting generic functions.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform +default-generic-function-midfix+\newline :accessor comment-midfix}
+
+\Defdslot {methods-label} {:initarg :methods-label\newline :initform +default-methods-label+\newline :accessor comment-methods-label}
+
+Contains the \TeX\ label to use for slot
+ {\bf methods}.
+
+\Defdslot {methods} {:initarg :methods\newline :initform nil\newline :accessor comment-methods}
+
+
+ Contains a list of method documentations belonging to the
+ generic function.
+
+
+\endcom
+
+\message{^^JGeneric function comment-key has no methods.^^J}
+\message{^^JGeneric function (setf comment-key) has no methods.^^J}
+\message{^^JGeneric function comment-key-attribute has no methods.^^J}
+\message{^^JGeneric function (setf comment-key-attribute) has no methods.^^J}
+\beginclcom[Internal]{comment-macro}
+
+\Purposelabel
+ A class for documenting macros.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform +default-macro-midfix+\newline :accessor comment-midfix}
+
+
+\endcom
+
+\message{^^JGeneric function comment-metaclass has no methods.^^J}
+\message{^^JGeneric function (setf comment-metaclass) has no methods.^^J}
+\message{^^JGeneric function comment-metaclass-label has no methods.^^J}
+\message{^^JGeneric function (setf comment-metaclass-label) has no methods.^^J}
+\beginclcom[Internal]{comment-method}
+
+\Purposelabel
+ A class for documenting methods.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {metaobject} {:initarg :metaobject\newline :initform nil\newline :accessor method-metaobject}
+
+The method metaobject of the documented method.
+
+\Defdslot {qualifiers} {:initarg :qualifiers\newline :initform nil\newline :accessor method-qualifiers}
+
+\Defdslot {specializers} {:initarg :specializers\newline :initform nil\newline :accessor method-specializers}
+
+\Defdslot {syntax-label} {:initarg :syntax-label\newline :initform nil\newline :accessor comment-syntax-label}
+
+
+ Since methods don't have a {\sc Syntax} label, this slot is always
+ initialized to \lispnil.
+
+
+\endcom
+
+\message{^^JGeneric function comment-methods has no methods.^^J}
+\message{^^JGeneric function (setf comment-methods) has no methods.^^J}
+\message{^^JGeneric function comment-methods-label has no methods.^^J}
+\message{^^JGeneric function (setf comment-methods-label) has no methods.^^J}
+\message{^^JGeneric function comment-midfix has no methods.^^J}
+\message{^^JGeneric function (setf comment-midfix) has no methods.^^J}
+\beginclcom[Internal]{comment-parameter}
+
+\Purposelabel
+ A class for documenting parameters.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform +default-parameter-midfix+\newline :accessor comment-midfix}
+
+
+\endcom
+
+\beginclcom[Internal]{comment-slot}
+
+\Purposelabel
+ A class for documenting slots of classes.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {metaobject} {:initarg :metaobject\newline :initform nil\newline :accessor method-metaobject}
+
+The method metaobject of the documented slot.
+
+\Defdslot {syntax-label} {:initarg :syntax-label\newline :initform nil\newline :accessor comment-syntax-label}
+
+
+\endcom
+
+\message{^^JGeneric function comment-slots has no methods.^^J}
+\message{^^JGeneric function (setf comment-slots) has no methods.^^J}
+\message{^^JGeneric function comment-slots-label has no methods.^^J}
+\message{^^JGeneric function (setf comment-slots-label) has no methods.^^J}
+\message{^^JGeneric function comment-superclasses has no methods.^^J}
+\message{^^JGeneric function (setf comment-superclasses) has no methods.^^J}
+\message{^^JGeneric function comment-superclasses-label has no methods.^^J}
+\message{^^JGeneric function (setf comment-superclasses-label) has no methods.^^J}
+\message{^^JGeneric function comment-syntax has no methods.^^J}
+\message{^^JGeneric function (setf comment-syntax) has no methods.^^J}
+\message{^^JGeneric function comment-syntax-label has no methods.^^J}
+\message{^^JGeneric function (setf comment-syntax-label) has no methods.^^J}
+\message{^^JGeneric function comment-text has no methods.^^J}
+\message{^^JGeneric function (setf comment-text) has no methods.^^J}
+\beginclcom[Internal]{comment-variable}
+
+\Purposelabel
+ A class for documenting variables.
+\Seealsolabel
+ \Fcite{lisp-comment}.
+
+
+\Directsuperclasseslabel
+\Defmethod{}{\tt}{(lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{})}{}
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform +default-variable-midfix+\newline :accessor comment-midfix}
+
+
+\endcom
+
+\begincncom[Internal]{+default-class-midfix+}
+
+\Valuelabel
+\begin{verbatim}
+"cl"
+\end{verbatim}
+
+\Purposelabel
+The text to put into the \verb|\begin..com| command for
+ classes.
+
+
+\endcom
+
+\begincncom[Internal]{+default-class-options-label+}
+
+\Valuelabel
+\begin{verbatim}
+"\\Classoptionslabel"
+\end{verbatim}
+
+\Purposelabel
+The default \TeX\ command string for generating the
+ {\sc Class Options} label.
+
+
+\endcom
+
+\begincncom[Internal]{+default-constant-midfix+}
+
+\Valuelabel
+\begin{verbatim}
+"cn"
+\end{verbatim}
+
+\Purposelabel
+The text to put into the \verb|\begin..com| command for
+ constants.
+
+
+\endcom
+
+\begincncom[Internal]{+default-documentation-midfix+}
+
+\Valuelabel
+\begin{verbatim}
+"dc"
+\end{verbatim}
+
+\Purposelabel
+The text to put into the \verb|\begin..com| command for
+ documented items.
+
+
+\endcom
+
+\begincncom[Internal]{+default-function-midfix+}
+
+\Valuelabel
+\begin{verbatim}
+"fn"
+\end{verbatim}
+
+\Purposelabel
+The text to put into the \verb|\begin..com| command for
+ functions.
+
+
+\endcom
+
+\begincncom[Internal]{+default-generic-function-midfix+}
+
+\Valuelabel
+\begin{verbatim}
+"gf"
+\end{verbatim}
+
+\Purposelabel
+The text to put into the \verb|\begin..com| command for
+ generic functions.
+
+
+\endcom
+
+\begincncom[Internal]{+default-macro-midfix+}
+
+\Valuelabel
+\begin{verbatim}
+"mc"
+\end{verbatim}
+
+\Purposelabel
+The text to put into the \verb|\begin..com| command for
+ macros.
+
+
+\endcom
+
+\begincncom[Internal]{+default-metaclass-label+}
+
+\Valuelabel
+\begin{verbatim}
+"\\Metaclasslabel"
+\end{verbatim}
+
+\Purposelabel
+The default \TeX\ command string for generating the
+ {\sc Metaobject Class} label.
+
+
+\endcom
+
+\begincncom[Internal]{+default-method-text+}
+
+\Valuelabel
+\begin{verbatim}
+"%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function."
+\end{verbatim}
+
+\Purposelabel
+The default text for methods without any documentation.
+
+
+\endcom
+
+\begincncom[Internal]{+default-methods-label+}
+
+\Valuelabel
+\begin{verbatim}
+"\\Methodslabel"
+\end{verbatim}
+
+\Purposelabel
+The default \TeX\ command string for generating the
+ {\it Methods} label.
+
+
+\endcom
+
+\begincncom[Internal]{+default-parameter-midfix+}
+
+\Valuelabel
+\begin{verbatim}
+"pm"
+\end{verbatim}
+
+\Purposelabel
+The text to put into the \verb|\begin..com| command for
+ parameters.
+
+
+\endcom
+
+\begincncom[Internal]{+default-slots-label+}
+
+\Valuelabel
+\begin{verbatim}
+"\\Directslotslabel"
+\end{verbatim}
+
+\Purposelabel
+The default \TeX\ command string for generating the
+ {\sc Direct Slots} label.
+
+
+\endcom
+
+\begincncom[Internal]{+default-superclasses-label+}
+
+\Valuelabel
+\begin{verbatim}
+"\\Directsuperclasseslabel"
+\end{verbatim}
+
+\Purposelabel
+The default \TeX\ command string for generating the
+ {\sc Direct Superclasses} label.
+
+
+\endcom
+
+\begincncom[Internal]{+default-syntax-label+}
+
+\Valuelabel
+\begin{verbatim}
+"\\Syntaxlabel"
+\end{verbatim}
+
+\Purposelabel
+The default \TeX\ command string for generating the
+ {\sc Syntax} label.
+
+
+\endcom
+
+\begincncom[Internal]{+default-syntax-postfix+}
+
+\Valuelabel
+\begin{verbatim}
+""
+\end{verbatim}
+
+\Purposelabel
+The default postfix to append after a syntax text.
+
+
+\endcom
+
+\begincncom[Internal]{+default-variable-midfix+}
+
+\Valuelabel
+\begin{verbatim}
+"vr"
+\end{verbatim}
+
+\Purposelabel
+The text to put into the \verb|\begin..com| command for
+ variables.
+
+
+\endcom
+
+\begincncom[Internal]{+exported-label+}
+
+\Valuelabel
+\begin{verbatim}
+"External"
+\end{verbatim}
+
+\Purposelabel
+The string used as {\it External} label in a document item header.
+
+
+\endcom
+
+\begindccom[Document Items with `free' Text]{free item ...}
+
+This is a document item not bound to a programming construct:
+\begin{lispcode}
+#+lisp-doc
+(:defdoc
+ "free item ..."      ; This could be also a symbol
+ "Document Items with `free' Text"
+ "This is a document item not bound to a programming construct:
+  ...")
+\end{lispcode}
+
+ It is only `seen' by the LISP reader when \lisp{:lisp-doc}\ is on the
+ \lisp{*features*}\ list; this is accomplished by
+ \lisp{lisp-doc}\ during scanning a LISP file.
+
+ This item is sorted accroding to its first sort-key `parameter' behind
+ the \lisp{:defdoc}\ statement.
+
+ You can also use \verb|\fcite{}| on these items by using the sort key
+ as argument, e.g.\ \verb|\fcite{free item ...}| gives
+ `\fcite{free item ...}'.
+
+
+\endcom
+
+\beginvrcom[Internal]{*generic-function-name->comment*}
+
+\Initialvaluelabel
+\begin{verbatim}
+(make-hash-table :test 'equal)
+\end{verbatim}
+
+\Purposelabel
+A hash table mapping a generic function name to its
+ documenting object.
+
+
+\endcom
+
+\beginfncom[Internal]{insert-class}
+
+\Syntaxlabel
+\Defun {insert-class} {\funarg{the-class} \linebreak[3]\ \funarg{class-list}}
+
+Insert \funarg{the-class}\ into \funarg{class-list}.
+
+
+\endcom
+
+\begincncom[Internal]{+internal-label+}
+
+\Valuelabel
+\begin{verbatim}
+"Internal"
+\end{verbatim}
+
+\Purposelabel
+The string used as {\it Internal} label in a document item header.
+
+
+\endcom
+
+\beginclcom[Internal]{lisp-comment}
+
+\Purposelabel
+ A class for representing comments. For each documented item,
+ an instance of {\bf lisp-comment} is created.
+
+
+\Directslotslabel
+
+\Defdslot {com-midfix} {:initarg :midfix\newline :initform nil\newline :accessor comment-midfix}
+
+
+ The text to put into the \verb|\begin..com| command.
+
+\Defdslot {key} {:initarg :key\newline :initform nil\newline :accessor comment-key}
+
+
+ The Keyword of the comment.
+ The documentation is sorted according to this keyword.
+
+\Defdslot {key-attribute} {:initarg :key-attribute\newline :initform nil\newline :accessor comment-key-attribute}
+
+
+ The text attribute for key; normally, this contains either the
+ {\it Internal} or {\it Exported} label.
+
+\Defdslot {syntax-label} {:initarg :syntax-label\newline :initform +default-syntax-label+\newline :accessor comment-syntax-label}
+
+
+ The \TeX\ command string to generate the {\sc Syntax} label for
+ the document item.
+
+\Defdslot {syntax} {:initarg :syntax\newline :initform nil\newline :accessor comment-syntax}
+
+
+ The syntax description for the documented item.
+
+\Defdslot {text} {:initarg :text\newline :initform nil\newline :accessor comment-text}
+
+
+ Contains a textual description of key. This is normally the literal
+ read documentation string.
+
+
+\endcom
+
+\beginfncom[Internal]{make-class-options-comment}
+
+\Syntaxlabel
+\Defun {make-class-options-comment} {\funarg{class-options}}
+
+
+\Argumentslabel
+
+ \isa{\funarg{class-options}}
+      {a list with class-option value pairs}
+\Purposelabel
+ Returns \funarg{class-options}\ transformed into a \TeX\ command
+ sequence.
+
+
+\endcom
+
+\beginfncom[Internal]{make-function-comment}
+
+\Syntaxlabel
+\Defun {make-function-comment} {\funarg{function-name} \linebreak[3]\ \funarg{lambda-list}}
+
+
+\Argumentslabel
+ \isa{\funarg{function-name}}
+      {a symbol}
+ \isa{\funarg{lambda-list}}
+      {a $\lambda$-list}
+\Purposelabel
+ Transform the function named by \funarg{function-name}\ with
+ $\lambda$-list \funarg{lambda-list}\ into a \TeX\ command sequence.
+\Seealsolabel
+ \Fcite{make-lambda-list-comment}.
+
+
+\endcom
+
+\beginfncom[Internal]{make-key-attribute}
+
+\Syntaxlabel
+\Defun {make-key-attribute} {\funarg{name}}
+
+
+\Purposelabel
+ Check if \funarg{name}\ is an external name
+ resp.\ to {\tt *package*}.
+\Seealsolabel
+ \Fcite{+internal-label+};
+ \fcite{+exported-label+}.
+
+
+\endcom
+
+\beginfncom[Internal]{make-lambda-list-comment}
+
+\Syntaxlabel
+\Defun {make-lambda-list-comment} {\funarg{lambda-list}}
+
+
+\Argumentslabel
+ \isa{\funarg{lambda-list}}
+      {a $\lambda$-list}
+\Purposelabel
+ Returns \funarg{lambda-list}\ transformed into a \TeX\ command
+ sequence.
+
+
+\endcom
+
+\begingfcom[Internal]{make-lisp-comment}
+
+\Syntaxlabel
+\Defgen {make-lisp-comment} {\funarg{keyword} \linebreak[3]\ \funarg{expression}}
+
+
+\Argumentslabel
+ \isa{\funarg{keyword}}
+      {a symbol}
+ \isa{\funarg{expression}}
+      {a list}
+\Valueslabel
+ Returns either \lispnil\ or an instance of [a subclass of]
+ \fcite{lisp-comment}\ which contain comment items for
+ \funarg {keyword}.
+\Purposelabel
+ Make a comment from \funarg{keyword}; \funarg{expression}\ contains
+ the expression read from the source file.
+
+
+\Methodslabel
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defclass)\IfFLabelExists{(eql 'defclass)}{{\rm\ \fpageref{(eql 'defclass)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defclass) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defconstant)\IfFLabelExists{(eql 'defconstant)}{{\rm\ \fpageref{(eql 'defconstant)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defconstant) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defgeneric)\IfFLabelExists{(eql 'defgeneric)}{{\rm\ \fpageref{(eql 'defgeneric)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defgeneric) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defmacro)\IfFLabelExists{(eql 'defmacro)}{{\rm\ \fpageref{(eql 'defmacro)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defmacro) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defmethod)\IfFLabelExists{(eql 'defmethod)}{{\rm\ \fpageref{(eql 'defmethod)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defmethod) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defparameter)\IfFLabelExists{(eql 'defparameter)}{{\rm\ \fpageref{(eql 'defparameter)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defparameter) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defstruct)\IfFLabelExists{(eql 'defstruct)}{{\rm\ \fpageref{(eql 'defstruct)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defstruct) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defun)\IfFLabelExists{(eql 'defun)}{{\rm\ \fpageref{(eql 'defun)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defun) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql 'defvar)\IfFLabelExists{(eql 'defvar)}{{\rm\ \fpageref{(eql 'defvar)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql 'defvar) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {(\funarg{keyword}\ (eql :defdoc)\IfFLabelExists{(eql :defdoc)}{{\rm\ \fpageref{(eql :defdoc)}}}{}) \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment ((eql defdoc) t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {make-lisp-comment} {\funarg{keyword} \linebreak[3]\ \funarg{expression}}\flabel{\protect\mtd}{make-lisp-comment (t t)}{}
+Return always \lispnil; this will generate no document text at all.
+
+
+\endcom
+
+\beginfncom[Internal]{make-slot-comment}
+
+\Syntaxlabel
+\Defun {make-slot-comment} {\funarg{class-name} \linebreak[3]\ \funarg{expression} \linebreak[3]\ {\opt} \linebreak[3]\ \funarg{first-option}}
+
+
+\Argumentslabel
+ \isa{\funarg{expression}}
+      {a slot-defining expression}
+\Purposelabel
+ Returns \funarg{expression}\ transformed into an instance of
+ \fcite{comment-slot}.
+
+
+\endcom
+
+\beginfncom[Internal]{make-sort-key}
+
+\Syntaxlabel
+\Defun {make-sort-key} {\funarg{raw-key}}
+
+
+\Argumentslabel
+ \isa{\funarg{raw-key}}
+      {either a symbol or a \lisp{setf}-expression}
+\Purposelabel
+ Transform \funarg{raw-key}\ into a string which is used for sorting
+ the document items.
+\Seealsolabel
+ \Fcite{make-lambda-list-comment}.
+
+
+\endcom
+
+\message{^^JGeneric function method-metaobject has no methods.^^J}
+\message{^^JGeneric function (setf method-metaobject) has no methods.^^J}
+\message{^^JGeneric function method-qualifiers has no methods.^^J}
+\message{^^JGeneric function (setf method-qualifiers) has no methods.^^J}
+\message{^^JGeneric function method-specializers has no methods.^^J}
+\message{^^JGeneric function (setf method-specializers) has no methods.^^J}
+\begingfcom[External]{print-object}
+
+\Syntaxlabel
+\Defgen {print-object} {\funarg{instance} \linebreak[3]\ \funarg{stream}}
+
+
+ See \fcite{print-object}.
+
+
+\Methodslabel
+
+\Defmeth {print-object} {(\funarg{object}\ lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{}) \linebreak[3]\ \funarg{stream}}\flabel{\protect\mtd}{print-object (lisp-comment t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+
+\endcom
+
+\begincncom[Internal]{+qualifier-ordering+}
+
+\Valuelabel
+\begin{verbatim}
+'(:around :before nil :after)
+\end{verbatim}
+
+\Purposelabel
+A list imposing an ordering on method qualifiers for computing
+   the order of methods to be printed.
+
+
+\endcom
+
+\beginfncom[Internal]{quote-tex-characters}
+
+\Syntaxlabel
+\Defun {quote-tex-characters} {\funarg{raw-string}}
+
+
+\Argumentslabel
+ \isa{\funarg{raw-string}}
+      {a string with \TeX\ commands}
+\Purposelabel
+ Put a backslash before all \TeX\ special characters.
+
+
+\endcom
+
+\begincncom[Internal]{+reader-lambda-list+}
+
+\Valuelabel
+\begin{verbatim}
+'(instance)
+\end{verbatim}
+
+\Purposelabel
+The lambda list of a reader generic function.
+
+
+\endcom
+
+\beginfncom[External]{scan-file}
+
+\Syntaxlabel
+\Defun {scan-file} {{\rest} \linebreak[3]\ \funarg{all-args}}
+
+See \fcite{scan-files}.
+
+
+\endcom
+
+\beginfncom[External]{scan-files}
+
+\Syntaxlabel
+\Defun {scan-files} {\funarg{file-list} \linebreak[3]\ {\opt} \linebreak[3]\ \funarg{to-stream}}
+
+
+\Argumentslabel
+ \isa{\funarg{file-list}}
+      {a list with LISP source file names without
+       \lisp{.lisp}\ extension}
+ \isa{\funarg{to-stream}}
+      {either \lispnil\ or a string or a \cl\ output stream}
+\Valueslabel
+ The output stream which was used for creating the \TeX\ file is
+ returned.
+\Purposelabel
+ Scan the LISP source files in \funarg{file-list}\ and write their
+ documentation to \funarg{to-stream}.
+
+
+\endcom
+
+\beginfncom[External]{scan-myself}
+
+\Syntaxlabel
+\Defun {scan-myself} {{\opt} \linebreak[3]\ \funarg{my-path}}
+
+
+\Argumentslabel
+ \isa{\funarg{my-path}}
+      {a path expression}
+\Purposelabel
+ Extract the documentation strings from module \lisp{lisp-doc}.
+ The \funarg{my-path}\ argument contains the path information
+ where the \lisp{lisp-doc}\ file is located.
+\Seealsolabel
+ \Fcite{scan-files}.
+
+
+\endcom
+
+\beginfncom[Internal]{scan-one-file}
+
+\Syntaxlabel
+\Defun {scan-one-file} {\funarg{filename}}
+
+
+\Argumentslabel
+ \isa{\funarg{filename}}
+      {a pathname}
+\Purposelabel
+ Scan file named by \funarg{filename}\ and extract its documentation.
+\Seealsolabel
+ \Fcite{scan-files}.
+
+
+\endcom
+
+\begingfcom[Internal]{ship-out}
+
+\Syntaxlabel
+\Defgen {ship-out} {\funarg{comment} \linebreak[3]\ \funarg{to-stream}}
+
+
+\Argumentslabel
+ \isa{\funarg{comment}}
+      {an instance of [a subclass of] \fcite{lisp-comment}}
+ \isa{\funarg{to-stream}}
+      {a \cl\ output stream}
+\Purposelabel
+ Write \funarg{comment}\ as \TeX\ command sequence to
+ \funarg{to-stream}.
+
+
+\Methodslabel
+
+\Defmetharound {ship-out} {(\funarg{c}\ comment-generic-function\IfFLabelExists{comment-generic-function}{{\rm\ \fpageref{comment-generic-function}}}{}) \linebreak[3]\ \funarg{to-stream}}\flabel{\protect\mtd}{ship-out :around (comment-generic-function t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmethb {ship-out} {\funarg{comment} \linebreak[3]\ \funarg{to-stream}}\flabel{\protect\mtd}{ship-out :before (t t)}{}
+Write out the \verb|\begin..com| command.
+
+\Defmeth {ship-out} {(\funarg{c}\ comment-class\IfFLabelExists{comment-class}{{\rm\ \fpageref{comment-class}}}{}) \linebreak[3]\ \funarg{to-stream}}\flabel{\protect\mtd}{ship-out (comment-class t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {ship-out} {(\funarg{c}\ comment-generic-function\IfFLabelExists{comment-generic-function}{{\rm\ \fpageref{comment-generic-function}}}{}) \linebreak[3]\ \funarg{to-stream}}\flabel{\protect\mtd}{ship-out (comment-generic-function t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmeth {ship-out} {(\funarg{c}\ lisp-comment\IfFLabelExists{lisp-comment}{{\rm\ \fpageref{lisp-comment}}}{}) \linebreak[3]\ \funarg{to-stream}}\flabel{\protect\mtd}{ship-out (lisp-comment t)}{}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\Defmetha {ship-out} {\funarg{comment} \linebreak[3]\ \funarg{to-stream}}\flabel{\protect\mtd}{ship-out :after (t t)}{}
+Write out the \verb|\endcom| command.
+
+
+\endcom
+
+\beginfncom[Internal]{ship-out-class-tree}
+
+\Syntaxlabel
+\Defun {ship-out-class-tree} {\funarg{class-list} \linebreak[3]\ \funarg{name} \linebreak[3]\ \funarg{to-stream}}
+
+Write \funarg{class-list}\ as a class tree to \funarg{to-stream}.
+
+
+\endcom
+
+\beginfncom[Internal]{ship-out-label-and-argument}
+
+\Syntaxlabel
+\Defun {ship-out-label-and-argument} {\funarg{label} \linebreak[3]\ \funarg{argument} \linebreak[3]\ \funarg{to-stream}}
+
+
+\Purposelabel
+ Write \funarg{argument}\ as \TeX\ command sequence following
+ the \funarg{label}\ to \funarg{to-stream}.
+\Seealsolabel
+ \Fcite{ship-out}.
+
+
+\endcom
+
+\begincncom[Internal]{+undocumented-item-prompt+}
+
+\Valuelabel
+\begin{verbatim}
+";; *** Warning: Undocumented ~A ~S~%"
+\end{verbatim}
+
+\Purposelabel
+Prompt for \lisp{undocumented ...}\ warnings.
+
+
+\endcom
+
+\begincncom[Internal]{+unknown-qualifier-continue-prompt+}
+
+\Valuelabel
+\begin{verbatim}
+"Dont't order the methods."
+\end{verbatim}
+
+\Purposelabel
+The continue prompt for unknown method qualifiers.
+
+
+\endcom
+
+\begincncom[Internal]{+unknown-qualifier-error-prompt+}
+
+\Valuelabel
+\begin{verbatim}
+"Found unknown qualifier ~A in method ~A."
+\end{verbatim}
+
+\Purposelabel
+The error prompt for unknown method qualifiers.
+
+
+\endcom
+
+\begincncom[Internal]{+writer-lambda-list+}
+
+\Valuelabel
+\begin{verbatim}
+'(new-value instance)
+\end{verbatim}
+
+\Purposelabel
+The lambda list of a writer generic function.
+
+
+\endcom
+
