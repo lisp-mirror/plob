@@ -1,0 +1,48 @@
+% This is -*-LaTeX-*-
+%
+% dgrtodvi.tex
+% 21.09.1993 Heiko Kirschke, Fachbereich Informatik, Uni Hamburg
+% e-mail: kirschke@informatik.uni-hamburg.de
+%
+% xypic unbedingt VOR german laden, da es sonst Verstaendigungs-
+% schwierigkeiten zwischen xypic und german ueber die Verwendung
+% des " (doppelten Anfuehrungszeichens) gibt.
+%
+% 24.09.93 HK: LEIDER koennen keine PostScript-Fonts fuer die
+% Diagramme verwendet werden, da selbige mit dvips in Encapsulated
+% PostScript umgewandelt werden; dabei fordert dvips die Fonts als
+% .300pk-Dateien an, die ich fuer die PostScript Fonts nicht habe:
+%
+% 28.09.93 HK: Durch das Skript dviteps geht's doch.
+%
+%\def\noextrafonts{}%
+\nofiles%
+\def\tempa{x}%
+\ifx\dgrsize\tempa%
+\def\dgrsize{10pt}%
+\else%
+\def\tempa{xi}%
+\ifx\dgrsize\tempa%
+\def\dgrsize{11pt}%
+\else%
+\def\tempa{xii}%
+\ifx\dgrsize\tempa%
+\def\dgrsize{12pt}%
+\else%
+\def\dgrsize{}%
+\fi\fi\fi%
+\documentclass[\dgrsize]{report}%
+\usepackage[german]{babel}\selectlanguage{german}%
+%%\usepackage{timestt,crossref,dipldefs}%
+\usepackage{times,crossref,dipldefs}%
+%\usepackage[dvips]{xypic}%
+\usepackage[ps]{xypic}\UsePSspecials{}%
+%\usepackage{xypic}%
+\usepackage{epsfig}%
+\LaTeXdiagrams\NoisyDiagrams%
+\begin{document}%
+\pagestyle{empty}%
+\def\class#1{{\tt#1}}%
+\input{\dgrfile}%
+\end{document}%
+%
