@@ -1,0 +1,282 @@
+@PREAMBLE{ "\newcommand{\noopsort}[1]{} " }
+ 
+% ------------------------------------------------------------
+% Constant
+% ------------------------------------------------------------
+@String{pub-ANSI                = "American National Standards Institute"}
+@String{pub-ANSI:adr            = "1430 Broadway, New York, NY 10018, USA"}
+@String{ack-nhfb = "Nelson H. F. Beebe,
+                    Center for Scientific Computing,
+                    University of Utah,
+                    Department of Mathematics, 322 INSCC,
+                    155 S 1400 E RM 233,
+                    Salt Lake City, UT 84112-0090, USA,
+                    Tel: +1 801 581 5254,
+                    FAX: +1 801 585 1640, +1 801 581 4148,
+                    e-mail: \path|beebe@math.utah.edu|,
+                            \path|beebe@acm.org|,
+                            \path|beebe@ieee.org| (Internet),
+                    URL: \path|http://www.math.utah.edu/~beebe/|"}
+
+@string{needs-check     = " ??? (needs to be checked)"}
+@string{unknown         = "???"}
+
+%---- J O U R N A L S --------------------------------------------------------
+ 
+@string{acmtbs	= "ACM Transactions on Database Systems"}
+@string{ai-magazine = "AI Magazine"}
+@string{ai = "Artificial Intelligence"}
+@string{aicom = "AI Communications"}
+@string{air = "Artificial Intelligence Review"}
+@string{awst = "Aviation Week \& Space Technology"}
+@string{bildwiss = "Bild der Wissenschaft"}
+@string{bas  = "Bulletin of the Atomic Scientists"}
+@string{bc = "Biol.\ Cybern."}
+@string{cacm = "Communications of the ACM"}
+@string{cgip = "Computer Graphics and Image Processing"}
+@string{cvgip = "Computer Vision, Graphics, and Image Processing"}
+@string{cvgip-iu = "CVGIP: Image Understanding"}
+@string{fov  = "Focus on Vienna"}
+@string{iavc = "Image and Vision Computing"}
+@string{ieee-ge   = "IEEE Trans.\ on Geoscience and Remote Sensing"}
+@string{ieee-mi   = "IEEE Trans.\ on Medical Imaging"}
+@string{ieee-pami = "IEEE Trans.\ on Pattern Analysis and Machine
+                     Intelligence"}
+@string{ieee-smc  = "IEEE Trans.\ on Systems, Man, and Cybernetics"}
+@string{ieee-se   = "IEEE Trans.\ on Software Engineering"}
+@string{ieee-comp = "IEEE Computer"}
+@string{ieee-spec = "IEEE Spectrum"}
+@string{inf-spek = "Informatik Spektrum"}
+@string{ijcv = "International Journal of Computer Vision"}
+@string{ijrr = "The International Journal of Robotics Research"}
+@string{ijrs   = "International Journal of Remote Sensing"}
+@string{jdw  =  "Jane's Defence Weekly"}
+@string{jmiv = "Journal of Mathematical Imaging and Vision"}
+@string{jss =   "Journal of Strategic Studies"}
+@string{jacm = "Journal of the ACM"}
+@string{ki = "KI"}
+@string{mva = "Machine Vision and Applications"}
+@string{pr = "Pattern Recognition"}
+@string{prl = "Pattern Recognition Letters"}
+@string{scam = "Scientific American"}
+@string{siam-na = "SIAM J. Numer. Anal."}
+@string{spe = "Software -- Practice and Experience"}
+@string{spek = "Spektrum der Wissenschaft"}
+@string{tav  = "Trust and Verify"}
+@string{zpf = "Zeitschrift f{\"u}r Photogrammetrie und Fernerkundung"}
+ 
+%---- S E R I E S -----------------------------------------------------------
+ 
+@string{diski  = "Dissertationen zur K{\"u}nstlichen Intelligenz"}
+@string{esprit = "Research Reports ESPRIT"}
+@string{heita  = "Heidelberger Taschenb{\"u}cher"}
+@string{if     = "Informatik-Fachberichte"}
+@string{infakt = "Informatik aktuell"}
+@string{infxpress = "Informatik Xpress"}
+@string{lnai   = "Lecture Notes in Artificial Intelligence"}
+@string{lncs   = "Lecture Notes in Computer Science"}
+@string{teubstud = "Teubner Studienb{\"u}cher"}
+ 
+%---- P U B L I S H E R ------------------------------------------------------
+ 
+@string{AAAIPRESS = "AAAI-Press/The MIT Press"}
+@string{AAAIPRESS-ADD = "Menlo Park -- Cambridge -- London"}
+@string{AAAIPRESS+  = AAAIPRESS  # ", " # AAAIPRESS-ADD}
+@string{AAAIPRESS++ = AAAIPRESS+ # ", "}
+ 
+@string{ACADEMIC = "Academic Press"}
+@string{ACADEMIC-ADD = "Orlando"}
+@string{ACADEMIC+  = ACADEMIC  # ", " # ACADEMIC-ADD}
+@string{ACADEMIC++ = ACADEMIC+ # ", "}
+ 
+@string{ADDISON = "Addison-Wesley"}
+@string{ADDISON-ADD = "Reading, Mass."}
+@string{ADDISON+  = ADDISON  # ", " # ADDISON-ADD}
+@string{ADDISON++ = ADDISON+ # ", "}
+ 
+@string{AKADVG = "Akademische Verlagsgesellschaft"}
+@string{AKADVG-ADD = "Wiesbaden"}
+@string{AKADVG+  = AKADVG  # ", " # AKADVG-ADD}
+@string{AKADVG++ = AKADVG+ # ", "}
+ 
+@string{AMS = "American Mathematical Society"}
+@string{AMS-ADD = "Providence, Rhode Island"}
+@string{AMS+  = AMS  # ", " # AMS-ADD}
+@string{AMS++ = AMS+ # ", "}
+ 
+@string{BI = "BI Wissenschaftsverlag"}
+@string{BI-ADD = "Mannheim\ --\ Wien\ --\ Z{\"u}rich"}
+@string{BI+  = BI  # ", " # BI-ADD}
+@string{BI++ = BI+ # ", "}
+ 
+@string{BIRKHAEUSER = "Birkh{\"a}user"}
+@string{BIRKHAEUSER-ADD  = "Boston\ --\ Basel\ --\ Berlin"}
+@string{BIRKHAEUSER+  = BIRKHAEUSER  # ", " # BIRKHAEUSER-ADD}
+@string{BIRKHAEUSER++ = BIRKHAEUSER+ # ", "}
+ 
+@string{DIGITALPRESS    = "Digital Press"}
+@string{DIGITALPRESS-ADD = "Bedford, MA"}
+@string{DIGITALPRESS+   = DIGITALPRESS  # ", " # DIGITALPRESS-ADD}
+@string{DIGITALPRESS++  = DIGITALPRESS+ # ", "}
+
+@string{FREEMAN = "Freeman {\&} Co."}
+@string{FREEMAN-ADD = "San Fransisco"}
+@string{FREEMAN+  = FREEMAN  # ", " # FREEMAN-ADD}
+@string{FREEMAN++ = FREEMAN+ # ", "}
+ 
+@string{GORDON = "Gordon {\&} Breach"}
+@string{GORDON-ADD = "New York"}
+@string{GORDON+  = GORDON  # ", " # GORDON-ADD}
+@string{GORDON++ = GORDON+ # ", "}
+ 
+@string{IEEEPRESS = "IEEE Computer Society Press"}
+%string{IEEEPRESS-ADD = "????"}
+%string{IEEEPRESS+  = IEEEPRESS  # ", " # IEEEPRESS-ADD}
+%string{IEEEPRESS++ = IEEEPRESS+ # ", "}
+@string{IEEEPRESS+  = IEEEPRESS}
+@string{IEEEPRESS++ = IEEEPRESS+ # ", "}
+ 
+@string{KLUWER = "Kluwer Academic Publ."}
+@string{KLUWER-ADD = "Boston\ --\ Dortrecht\ --\ Lancaster"}
+@string{KLUWER+  = KLUWER  # ", " # KLUWER-ADD}
+@string{KLUWER++ = KLUWER+ # ", "}
+ 
+@string{MCGRAW = "McGraw-Hill"}
+@string{MCGRAW-ADD = "New York"}
+@string{MCGRAW+  = MCGRAW  # ", " # MCGRAW-ADD}
+@string{MCGRAW++ = MCGRAW+ # ", "}
+ 
+@string{MITPRESS = "The MIT Press"}
+@string{MITPRESS-ADD = "Cambridge, Mass."}
+@string{MITPRESS+  = MITPRESS  # ", " # MITPRESS-ADD}
+@string{MITPRESS++ = MITPRESS+ # ", "}
+ 
+@string{MORGANKAUFMANN = "Morgan Kaufmann Publ.\ Inc."}
+@string{MORGANKAUFMANN-ADD = "Los Altos, CA"}
+@string{MORGANKAUFMANN+  = MORGANKAUFMANN  # ", " # MORGANKAUFMANN-ADD}
+@string{MORGANKAUFMANN++ = MORGANKAUFMANN+ # ", "}
+ 
+@string{MORGANKAUFMANN-NEWADD = "San Mateo, CA"}
+@string{MORGANKAUFMANN-NEW+  = MORGANKAUFMANN  # ", " # MORGANKAUFMANN-NEWADD}
+@string{MORGANKAUFMANN-NEW++ = MORGANKAUFMANN-NEW+ # ", "}
+ 
+@string{MORGANKAUFMANN-NEW2ADD = "San Francicso, CA"}
+@string{MORGANKAUFMANN-NEW2+ = MORGANKAUFMANN # ", " # MORGANKAUFMANN-NEW2ADD}
+@string{MORGANKAUFMANN-NEW2++ = MORGANKAUFMANN-NEW2+ # ", "}
+ 
+@string{NORTHHOLLAND = "North-Holland Publishing Company"}
+@string{NORTHHOLLAND-ADD = "Amsterdam"}
+@string{NORTHHOLLAND+  = NORTHHOLLAND  # ", " # NORTHHOLLAND-ADD}
+@string{NORTHHOLLAND++ = NORTHHOLLAND+ # ", "}
+ 
+@string{OLDENBOURG = "R.\ Oldenbourg Verlag"}
+@string{OLDENBOURG-ADD = "M{\"u}nchen\ --\ Wien"}
+@string{OLDENBOURG+  = OLDENBOURG  # ", " # OLDENBOURG-ADD}
+@string{OLDENBOURG++ = OLDENBOURG+ # ", "}
+ 
+@string{OREILLY = "O'Reilly \& Associates,\ Inc"}
+@string{OREILLY-ADD = "Sebastapol, CA"}
+@string{OREILLY+  = OREILLY  # ", " # OREILLY-ADD}
+@string{OREILLY++ = OREILLY+ # ", "}
+ 
+@string{OXFORD = "Oxford University Press"}
+@string{OXFORD-ADD = "New York"}
+@string{OXFORD+  = OXFORD  # ", " # OXFORD-ADD}
+@string{OXFORD++ = OXFORD+ # ", "}
+ 
+@string{PITMAN = "Pitman Publ."}
+@string{PITMAN-ADD = "London"}
+@string{PITMAN+  = PITMAN  # ", " # PITMAN-ADD}
+@string{PITMAN++ = PITMAN+ # ", "}
+ 
+@string{PLENUM = "Plenum Press"}
+@string{PLENUM-ADD = "New York\ --\ London"}
+@string{PLENUM+  = PLENUM  # ", " # PLENUM-ADD}
+@string{PLENUM++ = PLENUM+ # ", "}
+ 
+@string{PRENTICE = "Prentice-Hall"}
+@string{PRENTICE-ADD = "Englewood Cliffs, New Jersey"}
+@string{PRENTICE+  = PRENTICE  # ", " # PRENTICE-ADD}
+@string{PRENTICE++ = PRENTICE+ # ", "}
+ 
+@string{SPRINGER = "Springer-Verlag"}
+@string{SPRINGER-ADD  = "Berlin\ --\ Heidelberg\ --\ New~York"}
+@string{SPRINGER+  = SPRINGER  # ", " # SPRINGER-ADD}
+@string{SPRINGER++ = SPRINGER+ # ", "}
+ 
+@string{TAYLOR  = "Taylor \& Francis"}
+@string{TAYLOR-ADD  = "London\ --\ Philadelphia"}
+@string{TAYLOR+  = TAYLOR  # ", " # TAYLOR-ADD}
+@string{TAYLOR++ = TAYLOR+ # ", "}
+ 
+@string{TEUBNER = "B.~G.\ Teubner Verlag"}
+@string{TEUBNER-ADD = "Stuttgart"}
+@string{TEUBNER+  = TEUBNER  # ", " # TEUBNER-ADD}
+@string{TEUBNER++ = TEUBNER+ # ", "}
+ 
+@string{VAS = "Verlag f{\"u}r Ausbildung und Studium VAS in der
+               ELEFANTEN PRESS"}
+@string{VAS-ADD = "Berlin"}
+@string{VAS+  = VAS  # ", " # VAS-ADD}
+@string{VAS++ = VAS+ # ", "}
+ 
+@string{VDE = "VDE-Verlag"}
+@string{VDE-ADD = "Berlin\ --\ Offenbach"}
+@string{VDE+  = VDE  # ", " # VDE-ADD}
+@string{VDE++ = VDE+ # ", "}
+ 
+@string{VIEWEG = "Friedr.\ Vieweg {\&} Sohn"}
+@string{VIEWEG-ADD = "Braunschweig\ --\ Wiesbaden"}
+@string{VIEWEG+  = VIEWEG  # ", " # VIEWEG-ADD}
+@string{VIEWEG++ = VIEWEG+ # ", "}
+ 
+@string{WICHMANN = "Herbert Wichmann Verlag GmbH"}
+@string{WICHMANN-ADD = "Karlsruhe"}
+@string{WICHMANN+  = WICHMANN  # ", " # WICHMANN-ADD}
+@string{WICHMANN++ = WICHMANN+ # ", "}
+ 
+@string{WESTVIEW = "Westview Press"}
+@string{WESTVIEW-ADD = "Boulder\ --\ San~Francisco\ --\ Oxford"}
+@string{WESTVIEW+  = WESTVIEW  # ", " # WESTVIEW-ADD}
+@string{WESTVIEW++ = WESTVIEW+ # ", "}
+ 
+@string{WILEY = "John Wiley {\&} Sons"}
+@string{WILEY-ADD = "New York"}
+@string{WILEY+  = WILEY  # ", " # WILEY-ADD}
+@string{WILEY++ = WILEY+ # ", "}
+ 
+%---- I N S T I T U T I O N S ------------------------------------------------
+ 
+@STRING{CENSIS = "Arbeitsgruppe Naturwissenschaft und Internationale
+                  Sicherheit in der Universit{\"a}t Hamburg"}
+@STRING{CENSISe = "Center for Science and International Security"}
+@STRING{CENSIS-ADD = "Luruper Chaussee 149, D-2000 Hamburg 50"}
+@STRING{DARPA = "Defense Advanced Research Projects Agency"}
+@STRING{FAW =   "Forschungsinstitut f{\"u}r anwendungsorientierte
+                 Wissensverarbeitung an der Universit{\"a}t Ulm (FAW)"}
+@STRING{FAW-ADD = "Ulm"}
+@STRING{FBI =   "Fachbereich Informatik, Universit{\"a}t Hamburg"}
+@STRING{FIFF =  "Forum InformatikerInnen f{\"u}r Frieden und gesellschaftliche
+                 Verantwortung e.V.\ (FIFF)"}
+@STRING{FORWISS =  "Bayerisches Forschungszentrum f{\"u}r Wissensbasierte
+                 Systeme (FORWISS)"}
+@STRING{FORWISS-ADD =  "Erlangen, M{\"u}nchen, Passau"}
+@STRING{HSFK =  "Hessische Stiftung Friedens- und Konfliktforschung"}
+@STRING{HSFKe = "Peace Research Institute Frankfurt"}
+@STRING{IPB = "Institut f{\"u}r Photogrammetrie, Universit{\"a}t Bonn"}
+@STRING{IFSH =  "Institut f{\"u}r Friedensforschung und Sicherheitspolitik
+                an der Universit{\"a}t Hamburg"}
+@STRING{IFSHe = "Institute for Peace Research and Security Policy
+                 at the University of Hamburg"}
+@STRING{INRIA = "Institut National de Recherche en Informatique et en
+                 Automatique (INRIA)"}
+@STRING{INRIA-ADD = "Le Chesnay, France"}
+@STRING{IWBS = "Institut f{\"u}r wissensbasierte Systeme, IBM Deutschland"}
+@string{LKI             = "Labor f{\"u}r K{\"u}nstliche Intelligenz,
+                           Fachbereich Informatik,
+                           Universit{\"a}t Hamburg"}
+@STRING{MIT =   "MIT, Cambridge, MA"}
+@STRING{MIT-ADD = "Cambridge, MA"}
+@string{MITAILAB        = "MIT, Artificial Intelligence Laboratory"}
+@STRING{SIPRI = "Stockholm International Peace Research Institute"}
+@STRING{SIPRI-ADD = "Stockholm"}
