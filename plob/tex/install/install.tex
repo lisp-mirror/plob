@@ -1,0 +1,578 @@
+% This is -*-LaTeX-*-
+%
+% install.tex
+% HK 6.7.94
+%
+\def\WideOption{}%
+\def\ClassName{article}
+\def\thistitle{Installation Guide}
+\def\thispartnumber{IG}
+\input{plobhyper}%
+\readaux{\Path/../userg/\NoOfSides/manuadm}{bib:PLOB-UsersGuide}{userg.pdf}
+\readaux{\Path/../userg/\NoOfSides/manudis}{bib:PLOB-UsersGuide}{userg.pdf}
+%
+%
+\addtolength\textwidth      {20mm}%
+\addtolength\evensidemargin {-20mm}%
+\addtolength\textheight     {16.10072mm}%
+\let\CodeSize\small
+%
+\begin{document}
+
+\newcommand{\lb}{\linebreak[0]}                 % Linebreaks in \tt
+\def\osname{\textrm{\textit{\lt{}operating system name\gt}}}
+\def\shortosname{\textrm{\textit{\lt{}opsys\gt}}}
+
+\title{\ifx\avb\undefined\relax\else\avb\fi%
+Persistent LISP Objects\\
+\plob\ \thistitle}
+\author{\thisauthor\\%
+\normalsize Beim Alten Sch\"{u}tzenhof 4 $\bullet$ %
+D 22083 Hamburg}%
+\maketitle
+
+This document describes how to get \plob\ version \thisversion\ as of
+\thisdate\ up and running.  \cite{bib:PLOB-UsersGuide} contains a
+user's guide telling how to use \plob.
+
+\section{Distribution}
+
+See \fcite{WWW and email addresses}\ on how \plob\ is distributed.
+This software is distributed as free software, see \fcite{License
+  Terms}\ for details. The author's email address is
+\url{mailto:\thisemail}
+
+\section{Installation}
+
+\begin{fortune}[0.9\textwidth]
+Congratulations!  You have purchased an extremely fine device that
+would give you thousands of years of trouble-free service, except that
+you undoubtably will destroy it via some typical bonehead consumer
+maneuver.  Which is why we ask you to {\sc please for god's sake read
+this owner's manual carefully before you unpack the device.  You
+already unpacked it, didn't you?  You unpacked it and plugged it in
+and turned it on and fiddled with the knobs, and now your child, the
+same child who once shoved a polish sausage into your videocassette
+recorder and set it on "fast forward", this child also is fiddling
+with he knobs, right?  And you're just now starting to read the
+instructions, right???  We might as well just break these devices
+right at the factory before we ship them out, you know that?}
+\from{Dave Barry: "Read This First!"}
+\end{fortune}%
+
+Since the archive may contain not yet fixed bugs, please consult the
+`Bugfixes' section referenced by
+\url{http://www.lisp.de/software/plob/}\ before starting an
+installation.  This document describes the requirements and all steps
+in detail which are necessary to install \plob. Also, when there are
+errors with getting \plob\ running, look into the user's guide into
+\fcite{Common error messages}.
+
+\subsection{Release notes}
+
+\subsubsection{Version 2.08a}
+
+1998/12/10: 2.08a is a minor release with some bug fixes and performance
+improvements for inserting bulk data into a database.
+
+\subsubsection{Version 2.08}
+
+1998/12/03: Due to changing my job end of 1998, my email address will
+change too.  I can be contacted under
+\url{mailto:kirschke@informatik.uni-hamburg.de}.  From December 21,
+1998 up to begin of January, 1999, I will be at home and therefore not
+be reachable by email.
+
+Between 2.07 and 2.08, \plobwoexcl's internal API between the client
+and server code has changed; for the implications of this changed
+internal API, see the release notes of version 2.06.
+
+\subsubsection{Version 2.07}
+
+Between 2.06 and 2.07, \plobwoexcl's internal API between the client
+and server code has changed; for the implications of this changed
+internal API, see the release notes of version 2.06.
+
+\subsubsection{Version 2.06}
+
+Between 2.05 and 2.06, \plobwoexcl's internal API between the client
+and server code has changed. This means for switching from 2.05 to
+2.06, all layers except the database layer must use the new 2.06 code;
+\plobwoexcl\ might crash when the 2.06 client code is used with a 2.05
+server. So, take care for using the 2.06 LISP code, the 2.06 client
+DLL and the 2.06 server. Doing a 2.06 standard installation will
+overwrite the old 2.05 server binary. The 2.06 components are able
+to work on pre-2.06 databases.
+
+\subsection{Hardware requirements}
+
+This is the hardware which was used for implementing \plob:
+\begin{itemize}
+
+\item SPARCstation~4, 5, 10, 20 or UltraSPARC with at least 32~MB RAM
+  or an equivalent Silicon Graphics workstation running IRIX 6.2 or
+  a Linux workstation or a Windows/NT 4.0 PC.
+
+\item Approximately 80~MB disk space for the \plob\ source files and
+  object codes.  Additional disk space is used for the \postore\ file
+  which contains the persistent objects; this file grows the more
+  objects it holds.
+
+\item Access to Internet \lisp{ftp}\ service\footnote{This should be
+    fulfilled when you read these lines ;-)}.
+
+\end{itemize}
+
+\subsection{Software requirements}
+
+This is the software which was used for implementing \plob\ and which
+is at least necessary to install it:
+
+\begin{itemize}
+
+\item Solaris~2.5, Solaris~2.5.1, Solaris~2.6
+
+\item or Silicon Graphics running IRIX 6.2 or above
+
+\item or Linux kernel version 2.0.0 or above
+
+\item or Windows/NT 4.0. This installation supports a \plob\ server on
+  Windows/NT 4.0 and a client under \lwcl\ 4.0.1.\ for
+  Windows/NT and a \allegrocl\ 5.0 beta client for Windows/NT.
+
+\item Standard \unix\ software development tools, like \lisp{make},
+  \lisp{sed}\ (not needed for the NT installation).
+
+\item \lwcl\ 3.2.2 (Unix) or \lwcl\ 4.0.1\ (Windows/NT)
+
+\item or \allegrocl\ 4.3, 4.3.1, 4.3.2, 5.0
+
+\item \emph{If the sources should be recompiled:}
+  GNU C version 2.7.2, GNU C version 2.8 for Solaris 2.6. \plob\ 
+  exercises the C~preprocessor really heavy w.r.t.\ ANSI
+  compatibility, so using another C~compiler may fail to compile
+  \plob. It will always fail with a non-ANSI C~compiler. SGI's
+  \lisp{cc}\ will be able to compile \plobwoexcl.
+
+\end{itemize}
+
+\subsubsection[Generating the documentation]
+{Software needed for generating the documentation}
+
+This additional software was used for generating the documentation; it
+is only necessary if the documentation should be changed and the
+\ps\ files should be recreated from the changed documentation:
+
+\begin{itemize}
+
+\item \TeX\ version 3.141, \LaTeX\ version~2.09$\epsilon$
+
+\item \TeX\ macro package \lisp{epsfig}\ version~1.6 or higher
+
+\item \TeX\ macro package \lisp{xypic}\ version~3.1
+
+\item \lisp{.dvi}\ to \ps\ converter \lisp{dvips}\ version~5.58
+
+\item \ps\ interpreter Ghostscript version~3.5.3 (\unix\ shell
+command \lisp{gs})
+
+\end{itemize}
+
+\subsection[Installing POSTORE]%
+{Installing \protect\postore}\label{sec:postore}
+
+\plob's server uses \postore\ (\textit{P}ersistent \textit{O}bject
+\textit{Store}) as a low-level persistent memory; it is provided in
+binary form in this distribution with the permission of the University
+of St.\ Andrews.  \postore\ is the low-level persistent memory used by
+the persistent programming language
+\href{http://www-ppg.dcs.st-andrews.ac.uk/Default.html}{Napier88}.
+
+The \postore\ library found with \plob\ has been slightly adapted to
+Solaris, IRIX, Linux and Windows/NT for \plob's needs. The Stable Heap
+administered by the \postore\ library can hold persistent objects
+which sum up to a maximum of 384~MB (1~GB on Windows/NT).
+
+\subsection[Installing PLOB on Unix]%
+{Installing \protect\plob\ on \protect\unix}%
+\label{sec:install}
+
+This section describes how to install \plob\ on a \unix\ system.
+\begin{enumerate}
+
+\item\emph{For Linux:} Check if the portmap daemon is installed on the
+  machine. In a standard Linux installation, the portmap daemon is not
+  installed; it should be found on one of the Linux installation CD
+  ROMs.
+
+\item Unzip and untar the archive file.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td>gunzip plob-\thisversion.tar.gz\\
+\td>tar fx plob-\thisversion.tar
+\end{tt}
+
+\item Change to the \lisp{plob-\thisversion/}\ subdirectory (this is
+  found in the directory where the \lisp{plob-\thisversion.\lb{}tar}\ 
+  archive has been unpacked).\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td>cd plob-\thisversion\\
+\td/plob-\thisversion>
+\end{tt}
+
+\item\label{itm:config}Call \lisp{make config}.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob-\thisversion>make config
+\end{tt}\\[\smallskipamount]
+  This will ask some questions about your local configuration. For
+  many of the questions, default answers are provided. If this script
+  fails to execute properly, see
+  section~\Nameref{sec:ManualInstallation} on what you can do to
+  proceed.
+
+\item \emph{This step is only necessary when client and server will
+    run on different machines.} If \lisp{make}\ succeeded with
+  installing, the \plob\ server should have been built and should now
+  be installed on the database server host. If the directory
+  containing the \plob\ distribution is accessible on the database
+  server host (e.g.\ mounted by NFS), this is quite simple: Login to
+  the database server host, \lisp{cd}\ to the
+  \lisp{plob-\thisversion/}\ subdirectory and call \lisp{make server}\ 
+  from the shell. If the directory containing the \plob\ distribution
+  is \emph{not} directly accessible on the server host, do the
+  following:
+  \begin{itemize}
+  \item Login to the database server host specified by you in
+    step~\ref{itm:config}
+  \item Create the \plob\ database root directory specified by you in
+    step~\ref{itm:config}
+  \item Copy files
+    \lisp{plob-\thisversion/\lb{}bin/\lb\osname/\lb{}plobd[.exe]},
+    \lisp{plob-\thisversion/\lb{}bin/\lb\osname/\lb{}plobdadmin[.exe]},
+    \lisp{plob-\thisversion/\lb{}bin/\lb\osname/\lb{}librpclientplob.[so,dll]}\ 
+    and \lisp{plob-\thisversion/\lb{}bin/\lb{}plobdmon}\ into the
+    database root directory.
+  \item Call program \lisp{plobdadmin}\ now located in the
+    database root directory without any arguments; this will start the
+    program in interactive mode. At the
+    \lisp{tcp://\lb{}localhost/\lb{}database}\ prompt,
+    enter:\\[\smallskipamount]
+    \begin{tt}\CodeSize
+      tcp://localhost/database\gt{}create
+      \textrm{\textit{\lt{}the default database specified in
+          step~\ref{itm:config}\gt}}\\ 
+    \end{tt}\\[\smallskipamount]
+    (Entering \lisp{help}\ at the prompt will show the help text of
+    \lisp{plobdadmin}.)
+  \end{itemize}
+
+\item For using the \lisp{plobdadmin}\ program properly, the PATH and
+  LD\us{}LIBRARY\us{}PATH should be extended to include the database
+  root directory. Put the following startup code into file
+  \lisp{\$\{HOME\}/.plobdrc}\\[\smallskipamount]
+  \begin{tt}\CodeSize
+    root \textrm{\emph{\lt{}database root directory\gt{}}}\\
+    start
+  \end{tt}
+
+\item\label{itm:lisp}For installation under \allegrocl: Change to the
+  \lisp{plob/\lb{}src/\lb{}allegro/}\ subdirectory and start
+  \allegro.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob>cd src/allegro\\
+\td/plob/src/allegro>cl
+\end{tt}
+
+\item For installation under \lwcl: Change to the
+  \lisp{plob/\lb{}src/\lb{}lispworks/}\ subdirectory and start
+  \lw.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob>cd src/lispworks\\
+\td/plob/src/lispworks>lispworks
+\end{tt}
+
+\item\label{itm:compile} Compile and load file
+  \lisp{defsystem-plob.lisp}\ (this file should be in the current
+  directory because of the \lisp{cd}\ done in the previous step).
+  Eventually it is necessary to compile and load
+  \lisp{define-system.lisp}\ from the same directory before this step.
+
+\item Start a listener and evaluate \lisp{(compile-plob)}; this
+  will compile all source modules.  After compiling, evaluate
+  \lisp{(load-plob)}; this will [re]load the out-of-date module[s].
+
+\item Evaluate \lisp{(open-my-session)}; this will open a connection
+  to the server and format its LISP root. Now \plob\ is ready for
+  using.  Try compiling and loading \lisp{plob-example.lisp}
+
+\item\label{itm:last} \emph{This step is only necessary if you've
+    changed any documentation strings and want to update the
+    documentation.} If you want to extract the \TeX\ documentation
+  from the LISP source files anew, find-file
+  \lisp{plob/\lb{}src/\lb{}lisp-doc/\lb{}lisp-doc.\lb{}lisp}\ into a
+  editor window; compile \& load it and evaluate
+  \lisp{(scan-plob-files)}.
+
+\end{enumerate}
+
+\subsection[Installing PLOB on NT]%
+{Installing \protect\plob\ on Windows/NT}%
+\label{sec:installnt}
+
+The binaries for a Windows/NT server and the sources for a \lwcl\ 
+4.0.1 and a \allegrocl\ 5.0 beta client installation are contained in
+this distribution.  For using \plobwoexcl's Windows/NT server with a
+\lwcl\ 4.0.1 or \allegrocl\ 5.0 beta client, do the following.
+%% \sloppy
+\begin{enumerate}
+
+\item Unzip the archive file, for example with WinZip
+(\url{http://www.winzip.com} [the `evaluation version' offered as free
+download will do the job], an ftp'able version is available at
+\url{ftp://ftp.winzip.com/winzip95.exe}).
+
+\item Start a shell and change to the \lisp{plob-\thisversion/}\ 
+  subdirectory (this is found in the directory where the
+  \lisp{plob-\thisversion.\lb{}tar.gz}\ archive has been
+  unpacked).\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td>cd plob-\thisversion\\
+\td/plob-\thisversion>
+\end{tt}
+
+\item\label{itm:ntconfig} Call \lisp{make config}.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob-\thisversion>make config
+\end{tt}\\[\smallskipamount]
+ Follow the instructions given by the script's output.  If this script
+ fails to execute properly, see
+ section~\Nameref{sec:ManualInstallation} on what you can do to
+ proceed.
+
+\item\label{itm:ntcompile} For both \lwcl\ 4.0.1\ and \allegrocl\
+5.0 beta, change into the
+\lisp{\td/plob-\thisversion/\lb{}src/\lb{}allegro}\ subdirectory
+containing the LISP source code and start the LISP
+system.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob-\thisversion>cd src/allegro\\
+\td/plob-\thisversion/src/allegro>c:/opt/Harlequin/LispWorks/lispworks
+\end{tt}\\[\smallskipamount]
+Edit file \lisp{defsystem-plob.lisp}\ and change the constant
+\lisp{+plob-\lb{}dir+}\ to point to the absolute directory containing
+the local \plob\ installation, for the example code shown so far this
+would be:\\[\smallskipamount]
+\begin{tt}\CodeSize
+(defconstant +plob-dir+ "c:/home/kirschke/plob-\thisversion"\\
+\hspace*{2em}\#+:Lisp-Doc "\plob\ installation directory.")
+\end{tt}\\[\smallskipamount]
+Compile and load file \lisp{defsystem-plob.lisp}.
+
+\item Edit file \lisp{plob-\lb{}defaults.\lb{}lisp}. Make sure that
+  \lisp{*default-\lb{}database-\lb{}url*}\ has a value of
+  \lisp{"tcp://\lb{}localhost/\lb{}database"}\\[\smallskipamount]
+\begin{tt}\CodeSize
+(defparameter *default-database-url* "tcp://localhost/database"\\
+\hspace*{2em}\#+:Lisp-Doc "\textrm{\emph{\ldots\ documentation omitted here \ldots}}")
+\end{tt}
+
+\item For using the \lisp{plobdadmin}\ program properly, the PATH
+  should be extended to include the database root directory. Set the
+  \lisp{HOME}\ environment vaiable to point to a home directory, and
+  put the following startup code into file
+  \lisp{\$\{HOME\}/.plobdrc}\\[\smallskipamount]
+  \begin{tt}\CodeSize
+    root \textrm{\emph{\lt{}database root directory\gt{}}}\\
+    start
+  \end{tt}
+
+\item Continue as described in section~\Nameref{sec:install},
+  steps~\ref{itm:compile}--\ref{itm:last}.
+
+\item To use the Windows/NT server, evaluate for example\\[\smallskipamount]
+\begin{tt}\CodeSize
+(open-my-session "//ntserver")
+\end{tt}\\[\smallskipamount]
+with \lisp{ntserver}\ being the name of the Windows/NT host running
+the server.
+
+\item To stop the server, open a task manager and end the
+  \lisp{plobd.exe}\ process. Another way would be to evaluate
+  \lisp{(p-exit)}\ in a LISP listener connected to an open database.
+
+\end{enumerate}
+
+\subsection[Installing PLOB manually]%
+{Installing \protect\plob\ manually}\label{sec:ManualInstallation}
+
+For each offered platform of \plob\ at least one check has been done
+if \plob\ can be installed and run succesfully. But, there might be
+unforeseeable problems, for example because of an unexpected local
+host's shell configuration or file system configuration. The
+installation script tries to cope with these unexpected settings, but
+can have problems in doing a successful installation. To get \plob\
+installed in such a case without using the installation script, the
+following proceeding can be applied as a replacement for the
+installation script called in the UNIX installation,
+step~\ref{itm:config} (p.\ \pageref{itm:config}) resp.\ in the NT
+installation, step~\ref{itm:ntconfig} (p.\
+\pageref{itm:ntconfig}). The instructions assume that the \plob\
+archive has been unpacked already. In the following text,
+\shortosname\ should be one of \lisp{irix}, \lisp{linux},
+\lisp{solaris}\ or \lisp{win32}, whatever matches the opearating
+system \plob\ should be installed at.
+
+\begin{enumerate}
+
+\item Make the directories \lisp{lib/\lb\shortosname},
+  \lisp{bin/\lb\shortosname}, \lisp{src/\lb{}allegro/\lb{}allegro4},
+  \lisp{src/\lb{}allegro/\lb{}allegro5},
+  \lisp{src/\lb{}util/\lb{}allegro4}\ and
+  \lisp{src/\lb{}util/\lb{}allegro5}.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob-\thisversion>mkdir lib/\shortosname\\
+\td/plob-\thisversion>mkdir bin/\shortosname\\
+\td/plob-\thisversion>mkdir src/allegro/allegro4\\
+\td/plob-\thisversion>mkdir src/allegro/allegro5\\
+\td/plob-\thisversion>mkdir src/util/allegro4\\
+\td/plob-\thisversion>mkdir src/util/allegro5
+\end{tt}
+
+\item From \lisp{conf/\lb\shortosname/}, copy all library files to
+\lisp{lib/\lb\shortosname}\\[\smallskipamount]
+\begin{tt}\CodeSize
+  \td/plob-\thisversion>cp conf/\shortosname/*.so
+  lib/\shortosname\hspace*{\fill}\textrm{\emph{(for UNIX)}}\\ 
+  \td/plob-\thisversion>cp conf/\shortosname/*.dll
+  lib/\shortosname\hspace*{\fill}\textrm{\emph{(for NT)}}
+\end{tt}
+
+\item Copy \lisp{conf/\lb\shortosname/plobd[.exe]}\ and
+  \lisp{conf/\lb\shortosname/plobdadmin[.exe]} \ to
+  \lisp{bin/\lb\shortosname}\\[\smallskipamount]
+\begin{tt}\CodeSize
+  \td/plob-\thisversion>cp conf/\shortosname/plobd bin/\shortosname
+  \hspace*{\fill}\textrm{\emph{(for UNIX)}}\\ \td/plob-\thisversion>cp
+  conf/\shortosname/plobdadmin bin/\shortosname
+  \hspace*{\fill}\textrm{\emph{(for UNIX)}}\\ \td/plob-\thisversion>cp
+  conf/\shortosname/plobd.exe bin/\shortosname
+  \hspace*{\fill}\textrm{\emph{(for NT)}}\\ \td/plob-\thisversion>cp
+  conf/\shortosname/plobdadmin.exe bin/\shortosname
+  \hspace*{\fill}\textrm{\emph{(for NT)}}
+\end{tt}
+
+\item Choose a database root directory. In principle, this directory
+  can be placed anywhere, but it should not be placed into
+  \lisp{/tmp}\ or -- for performance reasons -- into a NFS or Novell
+  mounted directory or drive. This text assumes a database root
+  directory at \lisp{/opt/\lb{}data/\lb{}plob/}. Make this directory,
+  and copy the executable daemon, the administration tool and the
+  shared library needed by the administration tool into this
+  directory.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob-\thisversion>mkdir /opt/data/plob\\
+\td/plob-\thisversion>cp conf/\shortosname/plobd /opt/data/plob
+\hspace*{\fill}\textrm{\emph{(for UNIX)}}\\
+\td/plob-\thisversion>cp conf/\shortosname/plobdadmin /opt/data/plob
+\hspace*{\fill}\textrm{\emph{(for UNIX)}}\\
+\td/plob-\thisversion>cp conf/\shortosname/librpclientplob.so /opt/data/plob
+\hspace*{\fill}\textrm{\emph{(for UNIX)}}\\
+\td/plob-\thisversion>cp conf/\shortosname/plobd.exe /opt/data/plob
+\hspace*{\fill}\textrm{\emph{(for NT)}}\\
+\td/plob-\thisversion>cp conf/\shortosname/plobdadmin.exe /opt/data/plob
+\hspace*{\fill}\textrm{\emph{(for NT)}}\\
+\td/plob-\thisversion>cp conf/\shortosname/librpclientplob.dll /opt/data/plob
+\hspace*{\fill}\textrm{\emph{(for NT)}}
+\end{tt}
+
+\item \emph{For NT:} Install the ONC RPC library as described in file
+\href{../oncrpc-1.12/doc/usage.htm}{\lisp{plob-\thisversion/\lb{}oncrpc-\lb{}1.12/\lb{}doc/\lb{}usage.htm}}.
+
+\item Change to the database root directory and call \lisp{plobd}\ in
+that directory. It is important to do a real directory change, and not
+to call \lisp{plobd}\ with a prefixed path to the database root
+directory.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob-\thisversion>cd /opt/data/plob\\
+/opt/data/plob>./plobd
+\end{tt}\\[\smallskipamount]
+Calling \lisp{./plobd}\ with option \lisp{-h}\ will echo a help text
+about the daemon.
+
+\item For both \lwcl\ and \allegrocl, change into the
+  \lisp{\td/plob-\thisversion/\lb{}src/\lb{}allegro}\ subdirectory
+  containing the LISP source code.\\[\smallskipamount]
+\begin{tt}\CodeSize
+  /opt/data/plob>cd \td/plob-\thisversion/src/allegro
+\end{tt}\\[\smallskipamount]
+Edit file \lisp{defsystem-\lb{}plob.\lb{}lisp}\ and change the
+constant \lisp{+plob-\lb{}dir+}\ to point to the absolute directory
+containing the local \plob\ installation. For the example code shown
+so far this would be:\\[\smallskipamount]
+\begin{tt}\CodeSize
+  (defconstant +plob-dir+ "/home/kirschke/plob-\thisversion"\\ 
+  \hspace*{2em}\#+:lisp-doc "\plob\ installation directory.")
+\end{tt}\\[\smallskipamount]
+Compile and load file \lisp{defsystem-\lb{}plob.\lb{}lisp}.
+
+\item Edit file \lisp{plob-\lb{}defaults.\lb{}lisp}.  Make sure that
+  \lisp{*default-database-url*}\ has a value of
+  \lisp{"tcp://\lb{}localhost/\lb{}database"}:\\[\smallskipamount]
+\begin{tt}\CodeSize
+  (defparameter *default-database-url* "tcp://localhost/database"\\ 
+  \hspace*{2em}\#+:lisp-doc "\textrm{\emph{\ldots\ documentation
+      omitted here \ldots}}")
+\end{tt}
+
+\end{enumerate}
+Now, the installation can be completed by continuing with
+step~\ref{itm:compile} (p.\ \pageref{itm:compile}) for UNIX resp.\ 
+step~\ref{itm:ntcompile} (p.\ \pageref{itm:ntcompile}) for NT.
+
+\subsection[Installing a new version]%
+{Installing a new version of \protect\plob}
+
+To install a new version of \plob, stop the server process by calling
+\lisp{plobdadmin -exit}\ (see \cite{bib:PLOB-UsersGuide}\ for details
+on program \lisp{plobdadmin}) and repeat all steps described in
+section~\ref{sec:install}. All configuration data which was given in
+the very first installation is stored within file
+\lisp{plob/\lb{}conf/\lb{}make.\lb{}vars.\lb{}in}; this data will be
+used for default values when installing a new version on top of an old
+version.
+
+\section[Starting PLOB]%
+{Starting \protect\plob}
+
+For starting \plob, both server and client must be started. More
+details on administration can be found in \cite{bib:PLOB-UsersGuide}.
+
+\subsection[Server side]%
+{Starting \protect\plob: Server side}
+
+Normally, the server needs only be started when the machine running
+the server was rebooted, since the server does not terminate itself
+when the last client disconnects.  If a restart is necessary, login to
+the server host (if the server host is not \lisp{localhost}) and
+change to the database root directory. Call program \lisp{plobdadmin
+-start}, this will start the server process.
+
+\subsection[Client side]%
+{Starting \protect\plob: Client side}
+
+\noindent To restart \plob, load file \lisp{defsystem-plob}\ and evaluate
+\lisp{(load-plob)}.\\[\smallskipamount]
+\begin{tt}\CodeSize
+\td/plob/src/allegro>cl\\
+USER(1): (load "defsystem-plob")\\
+; Fast loading ./defsystem-plob.fasl\\
+T\\
+USER(2): (load-plob)\\
+...\\
+USER(3): (open-my-session)\\
+...\\
+\end{tt}
+
+\bibliographystyle{cdnamed}
+\bibliography{bibdefs,bibstrings,plob}
+
+\end{document}
