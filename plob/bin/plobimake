@@ -235,7 +235,7 @@ else
     case "`uname`" in
     *[cC][yY][gG][wW][iI][nN]*)
       fnTrimMakeFile "`basename ${szMakeFile}`" <${szTmpOutfile} >${TMP}/${nPID}_${szScript}.cr
-      dos2unix "${TMP}/${nPID}_${szScript}.cr" "${szMakeFile}";;
+     dos2unix "${TMP}/${nPID}_${szScript}.cr" "${szMakeFile}";;
     *)
       fnTrimMakeFile "`basename ${szMakeFile}`" <${szTmpOutfile} >${szMakeFile}
     esac
