@@ -7,10 +7,6 @@
 |		Also removes the stable heap file; the caller is asked
 |		before removing if this is ok.
 | Description	Global make rules
-| Remark	This file can also be used directly as a make.rules
-|		file in your current directory; this will add the
-|		possibility of calling LaTeX from a make file.
-|		For the usage of make.rules, read the man pages of make.
 |
 | Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
 |		All rights reserved.
@@ -67,9 +63,6 @@ SRCDIR=trim($(RELPLOBDIR) slash src)
 SRCIDIR=trim($(SRCDIR) slash include)
 LISPDOCDIR=trim($(SRCDIR) slash lisp dash doc)
 
-TEXDIR=trim($(RELPLOBDIR) slash tex)
-TEXIDIR=trim($(TEXDIR) slash inputs)
-
 /* ----------------------------------------------------------------------
 | RPC stuff
  ---------------------------------------------------------------------- */
@@ -87,119 +80,119 @@ HASAUTH=trim(HasAuth)
 /* 1998/05/26 HK: Had to split the list of files, since on Solaris the
    postprocessor sed had problems reading very long lines: */
 
-#define MkPlobFiles31(wrapper,prefix,suffix)\
+#define MkPlobFiles31(wrapper,prefix,suffix) \
  wrapper(prefix,plobroot,suffix) spc \
  wrapper(prefix,plobadmin,suffix) spc \
  wrapper(prefix,plob,suffix) spc \
  wrapper(prefix,plobmisc,suffix)
 
-#define MkPlobFiles32(wrapper,prefix,suffix)\
+#define MkPlobFiles32(wrapper,prefix,suffix) \
  wrapper(prefix,plobff,suffix) spc \
  wrapper(prefix,plobsequ,suffix) spc \
  wrapper(prefix,plobstruct,suffix)
 
-#define MkPlobFiles33(wrapper,prefix,suffix)\
+#define MkPlobFiles33(wrapper,prefix,suffix) \
  wrapper(prefix,plobclos,suffix) spc \
  wrapper(prefix,plobtype,suffix) spc \
  wrapper(prefix,plobnumber,suffix)
 
-#define MkPlobFiles34(wrapper,prefix,suffix)\
+#define MkPlobFiles34(wrapper,prefix,suffix) \
  wrapper(prefix,ploblock,suffix) spc \
  wrapper(prefix,plobheap,suffix) spc \
  wrapper(prefix,plobbtree,suffix)
 
-#define MkPlobFiles20(wrapper,prefix,suffix)\
+#define MkPlobFiles20(wrapper,prefix,suffix) \
  MkPlobFiles31(wrapper,prefix,suffix) spc \
  MkPlobFiles32(wrapper,prefix,suffix) spc \
  MkPlobFiles33(wrapper,prefix,suffix) spc \
  MkPlobFiles34(wrapper,prefix,suffix)
 
-#define MkPlobFiles21(wrapper,prefix,suffix)\
+#define MkPlobFiles21(wrapper,prefix,suffix) \
  MkPlobFiles31(wrapper,prefix,suffix)
 
-#define MkPlobFiles22(wrapper,prefix,suffix)\
+#define MkPlobFiles22(wrapper,prefix,suffix) \
  MkPlobFiles32(wrapper,prefix,suffix)
 
-#define MkPlobFiles23(wrapper,prefix,suffix)\
+#define MkPlobFiles23(wrapper,prefix,suffix) \
  MkPlobFiles33(wrapper,prefix,suffix)
 
-#define MkPlobFiles24(wrapper,prefix,suffix)\
+#define MkPlobFiles24(wrapper,prefix,suffix) \
  MkPlobFiles34(wrapper,prefix,suffix)
 
-#define MkPlobFiles(wrapper,prefix,suffix)\
+#define MkPlobFiles(wrapper,prefix,suffix) \
  MkPlobFiles20(wrapper,prefix,suffix)
 
-#define MkPlobFiles1(wrapper,prefix,suffix)\
+#define MkPlobFiles1(wrapper,prefix,suffix) \
  MkPlobFiles21(wrapper,prefix,suffix)
 
-#define MkPlobFiles2(wrapper,prefix,suffix)\
+#define MkPlobFiles2(wrapper,prefix,suffix) \
  MkPlobFiles22(wrapper,prefix,suffix)
 
-#define MkPlobFiles3(wrapper,prefix,suffix)\
+#define MkPlobFiles3(wrapper,prefix,suffix) \
  MkPlobFiles23(wrapper,prefix,suffix)
 
-#define MkPlobFiles4(wrapper,prefix,suffix)\
+#define MkPlobFiles4(wrapper,prefix,suffix) \
  MkPlobFiles24(wrapper,prefix,suffix)
 
 /* ----------------------------------------------------------------------
 | List of common source files:
  ---------------------------------------------------------------------- */
-#define MkCommonFiles31(wrapper,prefix,suffix)\
+#define MkCommonFiles31(wrapper,prefix,suffix) \
  wrapper(prefix,global,suffix) spc \
  wrapper(prefix,trmalloc,suffix) spc \
  wrapper(prefix,hash,suffix) spc \
  wrapper(prefix,generic,suffix)
 
-#define MkCommonFiles32(wrapper,prefix,suffix)\
+#define MkCommonFiles32(wrapper,prefix,suffix) \
  MkPlobFiles1(wrapper,prefix,suffix)
 
-#define MkCommonFiles33(wrapper,prefix,suffix)\
+#define MkCommonFiles33(wrapper,prefix,suffix) \
  MkPlobFiles2(wrapper,prefix,suffix)
 
-#define MkCommonFiles34(wrapper,prefix,suffix)\
+#define MkCommonFiles34(wrapper,prefix,suffix) \
  MkPlobFiles3(wrapper,prefix,suffix)
 
-#define MkCommonFiles35(wrapper,prefix,suffix)\
+#define MkCommonFiles35(wrapper,prefix,suffix) \
  MkPlobFiles4(wrapper,prefix,suffix)
 
-#define MkCommonFiles20(wrapper,prefix,suffix)\
+#define MkCommonFiles20(wrapper,prefix,suffix) \
  MkCommonFiles31(wrapper,prefix,suffix) spc \
  MkCommonFiles32(wrapper,prefix,suffix) spc \
  MkCommonFiles33(wrapper,prefix,suffix) spc \
  MkCommonFiles34(wrapper,prefix,suffix) spc \
  MkCommonFiles35(wrapper,prefix,suffix)
 
-#define MkCommonFiles21(wrapper,prefix,suffix)\
+#define MkCommonFiles21(wrapper,prefix,suffix) \
  MkCommonFiles31(wrapper,prefix,suffix)
 
-#define MkCommonFiles22(wrapper,prefix,suffix)\
+#define MkCommonFiles22(wrapper,prefix,suffix) \
  MkCommonFiles32(wrapper,prefix,suffix)
 
-#define MkCommonFiles23(wrapper,prefix,suffix)\
+#define MkCommonFiles23(wrapper,prefix,suffix) \
  MkCommonFiles33(wrapper,prefix,suffix)
 
-#define MkCommonFiles24(wrapper,prefix,suffix)\
+#define MkCommonFiles24(wrapper,prefix,suffix) \
  MkCommonFiles34(wrapper,prefix,suffix)
 
-#define MkCommonFiles25(wrapper,prefix,suffix)\
+#define MkCommonFiles25(wrapper,prefix,suffix) \
  MkCommonFiles35(wrapper,prefix,suffix)
 
-#define MkCommonFiles(wrapper,prefix,suffix)\
+#define MkCommonFiles(wrapper,prefix,suffix) \
  MkCommonFiles20(wrapper,prefix,suffix)
 
-#define MkCommonFiles1(wrapper,prefix,suffix)\
+#define MkCommonFiles1(wrapper,prefix,suffix) \
  MkCommonFiles21(wrapper,prefix,suffix)
 
-#define MkCommonFiles2(wrapper,prefix,suffix)\
+#define MkCommonFiles2(wrapper,prefix,suffix) \
  MkCommonFiles22(wrapper,prefix,suffix)
 
-#define MkCommonFiles3(wrapper,prefix,suffix)\
+#define MkCommonFiles3(wrapper,prefix,suffix) \
  MkCommonFiles23(wrapper,prefix,suffix)
 
-#define MkCommonFiles4(wrapper,prefix,suffix)\
+#define MkCommonFiles4(wrapper,prefix,suffix) \
  MkCommonFiles24(wrapper,prefix,suffix)
 
-#define MkCommonFiles5(wrapper,prefix,suffix)\
+#define MkCommonFiles5(wrapper,prefix,suffix) \
  MkCommonFiles25(wrapper,prefix,suffix)
 
 /* ----------------------------------------------------------------------
@@ -217,11 +210,11 @@ HASAUTH=trim(HasAuth)
 #define outputOptionDll $(LDSHAREDOPT) paste4(-,out,:,ruleTarget)
 #define outputOptionExe paste4(-,out,:,ruleTarget)
 
-#define MkLibMember3(prefix,filename,suffix)\
+#define MkLibMember3(prefix,filename,suffix) \
 paste3(prefix,filename,suffix)
-#define MkLibMember2(prefix,filename,suffix)\
+#define MkLibMember2(prefix,filename,suffix) \
 MkLibMember3(prefix,filename,suffix)
-#define MkLibMember(prefix,filename,suffix)\
+#define MkLibMember(prefix,filename,suffix) \
 MkLibMember2(prefix,filename,suffix)
 
 AR=lib
@@ -258,14 +251,14 @@ MAKE=$(MAKE_EXE) $(MAKE_F) $(MAKE_FILE)
 #define outputOptionDll $(LDSHAREDOPT) option1(o) ruleTarget
 #define outputOptionExe option1(o) ruleTarget
 
-#define MkLibMember3(prefix,filename,suffixlib,suffix)\
-trim(paste4($(LIBDIR) slash lib,prefix,plob,suffixlib))\
+#define MkLibMember3(prefix,filename,suffixlib,suffix) \
+trim(paste4($(LIBDIR) slash lib,prefix,plob,suffixlib)) \
 trim((trim(paste3(prefix,filename,suffix))))
 
-#define MkLibMember2(prefix,filename,suffixlib,suffix)\
+#define MkLibMember2(prefix,filename,suffixlib,suffix) \
 MkLibMember3(prefix,filename,suffixlib,suffix)
 
-#define MkLibMember(prefix,filename,suffix)\
+#define MkLibMember(prefix,filename,suffix) \
 MkLibMember2(prefix,filename,suffixLib,suffix)
 
 #define percentDepVar $%
@@ -301,13 +294,13 @@ MAKE=$(MAKE_EXE) $(MAKE_F) $(MAKE_FILE)
 /* ----------------------------------------------------------------------
 | Rule-generating cpp macros:
  ---------------------------------------------------------------------- */
-#define MkFilename(prefix,filename,suffix)\
+#define MkFilename(prefix,filename,suffix) \
 paste3(prefix,filename,suffix)
 
-#define PlobFiles(directory,extension)\
+#define PlobFiles(directory,extension) \
 MkPlobFiles(MkFilename,directory,extension)
 
-#define CommonFiles(directory,extension)\
+#define CommonFiles(directory,extension) \
 MkCommonFiles(MkFilename,directory,extension)
 
 #define PlobLibFiles(prefix) \
@@ -372,7 +365,7 @@ MkCommonFiles4(MkCommonSharedObjectRule,$(opsys) slash pic slash,suffixObj)
 #define MkCommonSharedObjects5 \
 MkCommonFiles5(MkCommonSharedObjectRule,$(opsys) slash pic slash,suffixObj)
 
-#define MkPlobObjectRule3(prefix,filename,suffixobj,suffix)\
+#define MkPlobObjectRule3(prefix,filename,suffixobj,suffix) \
 rule ( paste4(prefix,suffix,filename,suffixobj), \
 \
        paste2(suffix,fileC(filename)) spc \
@@ -383,13 +376,13 @@ rule ( paste4(prefix,suffix,filename,suffixobj), \
 \
        $(COMPILEc) $(OUTPUT_OPTION_OBJ) spc paste2(suffix,fileC(filename)) )
 
-#define MkPlobObjectRule2(prefix,filename,suffixobj,suffix)\
+#define MkPlobObjectRule2(prefix,filename,suffixobj,suffix) \
 MkPlobObjectRule3(prefix,filename,suffixobj,suffix)
 
-#define MkPlobObjectRule(prefix,filename,suffix)\
+#define MkPlobObjectRule(prefix,filename,suffix) \
 MkPlobObjectRule2(prefix,filename,suffixObj,suffix)
 
-#define MkPlobSharedObjectRule3(prefix,filename,suffixobj,suffix)\
+#define MkPlobSharedObjectRule3(prefix,filename,suffixobj,suffix) \
 rule ( paste4(prefix,suffix,filename,suffixobj), \
 \
        paste2(suffix,fileC(filename)) spc \
@@ -401,10 +394,10 @@ rule ( paste4(prefix,suffix,filename,suffixobj), \
        $(COMPILEc) $(COPTPIC) $(OUTPUT_OPTION_OBJ) spc \
        paste2(suffix,fileC(filename)) )
 
-#define MkPlobSharedObjectRule2(prefix,filename,suffixobj,suffix)\
+#define MkPlobSharedObjectRule2(prefix,filename,suffixobj,suffix) \
 MkPlobSharedObjectRule3(prefix,filename,suffixobj,suffix)
 
-#define MkPlobSharedObjectRule(prefix,filename,suffix)\
+#define MkPlobSharedObjectRule(prefix,filename,suffix) \
 MkPlobSharedObjectRule2(prefix,filename,suffixObj,suffix)
 
 #define MkPlobObjects(prefix1,prefix2) \
@@ -437,12 +430,12 @@ MkPlobFiles3(MkPlobSharedObjectRule,$(opsys) slash pic slash,prefix)
 #define MkPlobSharedObjects4(prefix) \
 MkPlobFiles4(MkPlobSharedObjectRule,$(opsys) slash pic slash,prefix)
 
-#define MkLinkRule(target,source)\
+#define MkLinkRule(target,source) \
 rule ( target, \
        paste2(source,target), \
        ln option1(s) spc paste2(source,target) spc target )
 
-#define MkCopyRule(target,source,file)\
+#define MkCopyRule(target,source,file) \
 rule ( paste2(target,file), \
        noDependencies, \
        silent if [ option1(r) paste2(source,file) spc ]; then bsnl \
@@ -450,7 +443,7 @@ rule ( paste2(target,file), \
          cp option1(p) spc paste2(source,file) spc paste2(target,file); bsnl \
        fi )
 
-#define MkLispRule(prefix,filename,suffix)\
+#define MkLispRule(prefix,filename,suffix) \
 rule ( paste3(prefix,filename,dot lisp), \
 \
        fileH(filename) $(trim(paste2(filename,Deps))) $(STDINCLUDE), \
@@ -621,9 +614,7 @@ C2LISP=$(BINDIR)/c2lisp option1(CPP) '$(CPP)' option1(I$(BINDIR)) $(C2LISPFLAGS)
  ---------------------------------------------------------------------- */
 
 SUFFIXES=suffixExe spc suffixDll spc suffixLib spc suffixObj spc bsnl
-	 .x .lisp .c .h bsnl
-	 .bbl .aux bsnl
-	 .ps .eps .dvi .dgr .tex
+	 .x .lisp .c .h
 
 /* Defaults from make.vars.in as makefile macros: */
 DEFAULTHOST=trim(DATAHOST)
@@ -683,11 +674,11 @@ ccLocalOptions
 #define	ldLibsAfter
 #endif
 
-#define LinkDll2(files)\
+#define LinkDll2(files) \
 $(LINKc) $(OUTPUT_OPTION_DLL) ldLibsBefore files ldLibsAfter $(LDLIBS)
 #define LinkDll(files) LinkDll2(files)
 
-#define LinkExe2(files)\
+#define LinkExe2(files) \
 $(LINKc) $(OUTPUT_OPTION_EXE) ldLibsBefore files ldLibsAfter $(LDLIBS)
 #define LinkExe(files) LinkExe2(files)
 
@@ -757,127 +748,6 @@ MAKECMD=fnCallMake () { bsnl
   done; bsnl
   return evalVar(status); bsnl
 }; fnCallMake
-
-#if HasLaTeX
-
-/* DGRTODVI enthaelt den Namen der TeX-Datei ohne .tex Extension, die
-   zur Umwandlung einer .dgr- in eine .dvi-Datei verwendet werden
-   soll: */
-/* DGRTODVI=$(HOMEDIR)/tex/inputs/dgrtodvi */
-DGRTODVI=dgrtodvi
-
-/* ----------------------------------------------------------------------
-| Makro		LATEXCMD
-| Argumente	$1		.tex-Datei.
-|		$2..${$#}	Optionale LaTeX-Kommandos; werden VOR
-|				dem Einlesen der .tex-Datei von LaTeX
-|				evaluiert.
-| Beschreibung	Ruft LaTeX auf. Nach Beendigung des LaTex-Laufs wird
-|	die .log-Datei in das Unterverzeichnis log verschoben. Es
-|	wird geprueft, ob sich in den letzten 12 Zeilen der .log-Datei
-|	der Eintrag 'have changed' befindet; wenn ja, wird die
-|	generierte .dvi-Datei als seeehr alt markiert (mit touch). Ein
-|	naechster Aufruf von make fuehrt damit praktischerweise zu
-|	einem erneuten LaTeX-Aufruf.
- ---------------------------------------------------------------------- */
-LATEXCMD=fnCallLaTeX () { bsnl
-  set +e; bsnl
-  trap "rm -f /tmp/*.$$$$" 1 2 15; bsnl
-  TEXINPUTS="$(TEXIDIR):$(LISPDOCDIR):$${TEXINPUTS}"; bsnl
-  export TEXINPUTS; bsnl
-  srcfile="$$1"; bsnl
-  texfile="`echo $${srcfile}|sed 's/\.[^./]*$$//'`"; shift; bsnl
-  jobname="`basename $${texfile}`"; bsnl
-  touch="/usr/5bin/touch"; bsnl
-  if [ option1(n) "$(BATCHMODE)" ]; then bsnl
-    batchmode="\batchmode"; bsnl
-  else bsnl
-    batchmode=""; bsnl
-  fi; bsnl
-  options="$${batchmode}$(TEXOPTS)$$*"; bsnl
-  if [ option1(z) "$${options}" ]; then bsnl
-    cmd="latex '$${texfile}'"; bsnl
-  else bsnl
-    cmd="latex '$${options}\input{$${texfile}}'"; bsnl
-  fi; bsnl
-  echo "$${cmd}"; evalShell(evalVar(cmd)); status="$$?"; bsnl
-  logfile="$${jobname}.log"; bsnl
-  if [ option1(d) "log" ]; then bsnl
-    logpath="log/$${logfile}"; bsnl
-    cmd="mv $${logfile} $${logpath}"; bsnl
-    echo "$${cmd}"; evalVar(cmd); bsnl
-  else bsnl
-    logpath="$${logfile}"; bsnl
-  fi; bsnl
-  auxfile="$${jobname}.aux"; bsnl
-  bblfile="$${jobname}.bbl"; bsnl
-  dvifile="$${jobname}.dvi"; bsnl
-  glofile="$${jobname}.glo"; bsnl
-  if [ "$${status}" option1(eq) 0 ]; then bsnl
-    if [ "$${dvifile}" != "$@" ]; then bsnl
-      cmd="mv $${dvifile} $@"; bsnl
-      echo "$${cmd}"; $${cmd}; bsnl
-    fi; bsnl
-    if [ option1(s) "$${glofile}" option1(a) option1(w) "$${glofile}" ]; then bsnl
-      tmpfile="/tmp/$${jobname}.$$$$"; bsnl
-      cmd="sort -bdfi $${glofile}"; bsnl
-      echo "$${cmd} > $${tmpfile}"; bsnl
-      evalVar(cmd) > $${tmpfile}; bsnl
-      cmd="mv $${tmpfile} $${glofile}"; bsnl
-      echo "$${cmd}"; bsnl
-      evalVar(cmd); bsnl
-    fi; bsnl
-    if tail option1(32) "${logpath}"|grep option1(is) "have changed">/dev/null 1>&2; then bsnl
-      cmd="$${touch} 01010101 $@"; bsnl
-      echo "$${cmd}"; evalVar(cmd); bsnl
-      if [ "$@" = "$${dvifile}" ]; then bsnl
-        unset dvifile; bsnl
-      fi; bsnl
-    fi; bsnl
-    if head option1(32) "$${auxfile}"|grep option1(is) "\\bibstyle">/dev/null 1>&2; then bsnl
-      if grep option1(is) "citation.*undefined" "$${logpath}">/dev/null 1>&2; then bsnl
-        cmd="rm -f $${bblfile}"; bsnl
-        echo "$${cmd}"; evalVar(cmd); bsnl
-      elif [ option1(s) "$${bblfile}" ]; then bsnl
-        cmd="$${touch} $${dvifile} $${auxfile} $${bblfile}"; bsnl
-        echo "$${cmd}"; evalVar(cmd); bsnl
-      fi; bsnl
-    fi; bsnl
-  else bsnl
-    cmd="rm -f $${dvifile} $@ $${glofile}"; bsnl
-    echo "$${cmd}"; evalVar(cmd); bsnl
-    if [ option1(s) "$${bblfile}" ]; then bsnl
-      cmd="$${touch} $${bblfile}"; bsnl
-      echo "$${cmd}"; evalVar(cmd); bsnl
-    fi; bsnl
-  fi; bsnl
-  return evalVar(status); bsnl
-}; fnCallLaTeX
-
-/* ----------------------------------------------------------------------
-| Makro		BIBTEXCMD
-| Argumente	$1		.aux-Datei.
-| Beschreibung	Ruft BiBTeX auf.
- ---------------------------------------------------------------------- */
-BIBTEXCMD=fnCallBiBTeX () { bsnl
-  set +e; bsnl
-  srcfile="$$1"; bsnl
-  bibfile="`echo $${srcfile}|sed 's/\.[^./]*$$//'`"; shift; bsnl
-  jobname="`basename $${bibfile}`"; bsnl
-  cmd="bibtex $${bibfile}"; bsnl
-  echo "$${cmd}"; evalVar(cmd); status="$$?"; bsnl
-  logfile="$${jobname}.blg"; bsnl
-  if [ option1(d) "log" ]; then bsnl
-    logpath="log/$${logfile}"; bsnl
-    cmd="mv $${logfile} $${logpath}"; bsnl
-    echo "$${cmd}"; evalVar(cmd); bsnl
-  else bsnl
-    logpath="$${logfile}"; bsnl
-  fi; bsnl
-  return evalVar(status); bsnl
-}; fnCallBiBTeX
-
-#endif
 
 /* ----------------------------------------------------------------------
 | Macro		LNCMD
@@ -952,52 +822,6 @@ GZIPCMD=fnCallGZip () { bsnl
 }; fnCallGZip
 
 /* ----------------------------------------------------------------------
-| Standard rules
- ---------------------------------------------------------------------- */
-
-#if HasPercentFeature
-#if HasLaTeX
-tenpt/%.dvi:%.dgr
-	silent prefix="`echo $<|sed 's/\.[^ .]*//'`"; bsnl
-	rm option1(f) "$${prefix}.log" "$${prefix}.aux"
-	silent $(LATEXCMD) $(DGRTODVI) "\def\dgrsize{x}\def\dgrfile{$<}"
-	silent rm option1(f) $(DGRTODVI).aux
-twelvept/%.dvi:%.dgr
-	silent prefix=`echo $<|sed 's/\.[^ .]*//'`; bsnl
-	rm option1(f) "$${prefix}.log" "$${prefix}.aux"
-	silent $(LATEXCMD) $(DGRTODVI) "\def\dgrsize{xii}\def\dgrfile{$<}"
-	silent rm option1(f) $(DGRTODVI).aux
-
-/* %.dvi:%.dgr */
-.dgr.dvi:
-	silent prefix="`echo $<|sed 's/\.[^ .]*//'`"; bsnl
-	rm option1(f) "$${prefix}.log" "$${prefix}.aux"
-	silent $(LATEXCMD) $(DGRTODVI) "\def\dgrfile{$<}"
-	silent rm option1(f) $(DGRTODVI).aux
-
-/* Das in dieser Standard-Regel verwendete Kommando dviteps ist ein von
-   mir (HK) selbst gestricktes Skript, zu finden in
-   $(BINDIR)/dviteps; es hat einen eigenen Hilfstext. */
-DVITEPSFLAGS=option1(s) option1(v)
-/* %.eps:%.dvi */
-.dvi.eps:
-	dviteps $(DVITEPSFLAGS) option1(o) ruleTarget option1(F) "$(DVIPSFLAGS)" $<
-/* %.dvi:%.tex */
-.tex.dvi:
-	silent $(LATEXCMD) $<
-/* %.bbl:%.aux */
-.aux.bbl:
-	silent $(BIBTEXCMD) $<
-/* %.bbl: */
-.bbl:
-
-/* %.ps:%.dvi */
-.dvi.ps:
-	dvips option1(o) ruleTarget $(DVIPSFLAGS) $<
-#endif
-#endif
-
-/* ----------------------------------------------------------------------
 | Configuration
  ---------------------------------------------------------------------- */
 
@@ -1051,11 +875,7 @@ rule ( server, \
 /* ----------------------------------------------------------------------
 | Targets checking if directories are installed
  ---------------------------------------------------------------------- */
-rule ( tex dash log dash directory, \
-       log, \
-       noActions )
-
-rule ( bin log $(CONFDIR) slash $(opsys) spc \
+rule ( bin $(CONFDIR) slash $(opsys) spc \
        $(opsys) $(opsys) slash pic, \
        noDependencies, \
        silent if [ ! option1(d) "$@" ]; then bsnl \
@@ -1072,7 +892,7 @@ drule ( default dash all, \
 
 drule ( default dash clean, \
         noDependencies, \
-	tab dash rm option1(f) *~ core a dot out gmon dot out * dot log log slash * )
+	tab dash rm option1(f) *~ core a dot out gmon dot out )
 
 drule ( default dash dist dash clean, \
         clean, \
