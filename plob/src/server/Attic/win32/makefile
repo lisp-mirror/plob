@@ -3,7 +3,7 @@
 # ===== changes done directly to this file will be lost!
 # --------------------------------------------------------------------------
 SHELL=/bin/sh
-PLOBDIR=/home/hkirschk/plob-2.09
+PLOBDIR=c:/home/hkirschk/plob-2.10
 FRANZCL=/opt/acl60
 OPSYS=WIN32
 opsys=win32
