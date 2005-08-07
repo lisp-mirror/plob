@@ -573,6 +573,9 @@ BeginFunction ( FIXNUM,
   int		nSlots;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -633,6 +636,6 @@ BeginFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

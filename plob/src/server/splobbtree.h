@@ -139,6 +139,7 @@ int DLLEXPORT	fnBTreeMap		( OBJID		oHeap,
 					  SHTYPETAG	nTypeTagKeyUpper,
 					  COMPARETAG	eCompareUpper,
 					  BOOL		bDescending,
+					  OBJID		oFilter,
 					  LPFNMAPBTREE	lpfnMapItem,
 					  LPVOID	lpUserData );
 
@@ -154,6 +155,7 @@ int DLLEXPORT	fnBTreeMapByObjId	( OBJID		oHeap,
 					  OBJID		oKeyUpper,
 					  COMPARETAG	eCompareUpper,
 					  BOOL		bDescending,
+					  OBJID		oFilter,
 					  LPFNMAPBTREE	lpfnMapItem,
 					  LPVOID	lpUserData );
 
@@ -165,6 +167,7 @@ FIXNUM DLLEXPORT fnBTreeMapFirstByObjId	( LPOBJID	lpoMapper,
 					  OBJID		oKeyUpper,
 					  COMPARETAG	eCompareUpper,
 					  BOOL		bDescending,
+					  OBJID		oFilter,
 					  FIXNUM	nMap,
 					  LPOBJID	lpoKey,
 					  LPOBJID	lpoData );
@@ -206,7 +209,8 @@ FIXNUM DLLEXPORT fnBTreeMapSearch	( OBJID		oMapper,
 					  LPCVOID	pValueKeyUpper,
 					  SHTYPETAG	nTypeTagKeyUpper,
 					  COMPARETAG	eCompareUpper,
-					  BOOL		bDescending );
+					  BOOL		bDescending,
+					  OBJID		oFilter );
 
 FIXNUM DLLEXPORT fnBTreeMapSeek		( OBJID		oMapper,
 					  FIXNUM	nIncrement,
@@ -224,6 +228,7 @@ FIXNUM DLLEXPORT fnBTreeMapFirst	( LPOBJID	lpoMapper,
 					  SHTYPETAG	nTypeTagKeyUpper,
 					  COMPARETAG	eCompareUpper,
 					  BOOL		bDescending,
+					  OBJID		oFilter,
 					  FIXNUM	nMap,
 					  LPOBJID	lpoKey,
 					  LPOBJID	lpoData );
@@ -250,6 +255,6 @@ LPBTREEITEM DLLEXPORT fnBTreePageItem	( OBJID		oBTreePage,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

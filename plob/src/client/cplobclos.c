@@ -60,6 +60,7 @@
 #include	"cplobclos.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobroot.h"
 #include	"cplobnumber.h"
 
@@ -123,13 +124,15 @@ void			fnDeinitializeCLOSModule	( void )
 void			fnInvalidateCLOSCache		( void )
 {
   CLIENT	*pClient	= (CLIENT *) NULL;
-  BOOL		bMapped;
+  BOOL		bMapped, bFreeObjIds;
   POBJBUFFER	pObjBuffer;
   u_int		j, n;
 
   PROCEDURE	( fnInvalidateCLOSCache );
 
   pClient	= fnClientPlobd ();
+  bFreeObjIds	= ( pClient != NULL && fnClientPlobdFlush ( pClient ) );
+
   for ( bMapped = fnHashFirst ( &PreAllocated, (LPHASHKEY) NULL,
 				(LPVOID *) &pObjBuffer, (size_t *) NULL );
 	bMapped;
@@ -137,7 +140,7 @@ void			fnInvalidateCLOSCache		( void )
 			       (LPVOID *) &pObjBuffer, (size_t *) NULL ) ) {
     ASSERT ( pObjBuffer->nShortObjIds <=
 	     length ( pObjBuffer->ShortObjIds ) );
-    if ( pClient != NULL ) {
+    if ( bFreeObjIds ) {
       for ( j = 0, n = pObjBuffer->nShortObjIds; j < n; j++ ) {
 	ASSERT ( pObjBuffer->ShortObjIds [ j ] != NULLOBJID );
 	ASSERT ( pObjBuffer->ShortObjIdDatas [ j ] != NULLOBJID );
@@ -309,6 +312,6 @@ BeginFunction ( SHLOCK,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

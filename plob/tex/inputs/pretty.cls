@@ -97,12 +97,14 @@
     \let\@old@makeschapterhead\@makeschapterhead%
     \def\@makeschapterhead{%
       \@StoreRep{\contentsname}{chapter}{Contents}{0}%
+      \ifx\pdfbookmark\undefined\else%
+      \pdfbookmark{\contentsname}{\contentsname}\fi%
       \@old@makeschapterhead}%
-    \chapter*{\contentsname
-    % HK 1994/11/09
-    % \@mkboth{\uppercase{\contentsname}}{\uppercase{\contentsname}}%
-    \@mkboth{\contentsname}{\contentsname}%
-        }%
+    \chapter*{\contentsname%
+                % HK 1994/11/09
+                % \@mkboth{\uppercase{\contentsname}}{\uppercase{\contentsname}}%
+                \@mkboth{\contentsname}{\contentsname}%
+              }%
     \let\@makeschapterhead\@old@makeschapterhead%
     \@starttoc{toc}
     \if@restonecol\twocolumn\fi
@@ -117,6 +119,8 @@
     \let\@old@makeschapterhead\@makeschapterhead%
     \def\@makeschapterhead{%
       \@StoreRep{\listfigurename}{chapter}{Figures}{0}%
+      \ifx\pdfbookmark\undefined\else%
+      \pdfbookmark{\listfigurename}{\listfigurename}\fi%
       \@old@makeschapterhead}%
     \chapter*{\listfigurename
       \@mkboth%
@@ -139,6 +143,8 @@
     \let\@old@makeschapterhead\@makeschapterhead%
     \def\@makeschapterhead{%
       \@StoreRep{\listtablename}{chapter}{Tables}{0}%
+      \ifx\pdfbookmark\undefined\else%
+      \pdfbookmark{\listtablename}{\listtablename}\fi%
       \@old@makeschapterhead}%
     \chapter*{\listtablename
       \@mkboth%
@@ -271,7 +277,8 @@ Version \ifx\version\undefined\@hvers.\@lvers\else\version\fi\ / %
     }
 
 \if@titlepage
-  \renewcommand\maketitle{\begin{titlepage}%
+  \renewcommand\maketitle{%
+  \begin{titlepage}%
   \let\footnotesize\small
   \let\footnoterule\relax
   % HK 1994/11/15
@@ -279,6 +286,8 @@ Version \ifx\version\undefined\@hvers.\@lvers\else\version\fi\ / %
   \null\vfil
   % HK 1994/11/09
   %\vskip 60\p@
+  \ifx\pdfbookmark\undefined\else%
+  \pdfbookmark{Title}{Title}\fi%
   \@StoreRep{Title}{chapter}{Title}{0}%
   \vskip 100\p@
   % HK 1994/11/09
@@ -410,30 +419,31 @@ Version \ifx\version\undefined\@hvers.\@lvers\else\version\fi\ / %
 \else\let\@tempa\renewenvironment\fi%
 \@tempa{thebibliography}[1]
      {\ifx\chapter\undefined%
-       \section*{\@StoreRep{\bibname}{section}{Bib}{1}\bibname
+       \section*{\@StoreRep{\bibname}{section}{Bib}{1}\bibname%
          \@mkboth%
          % HK 1994/11/09
          %{\uppercase{\bibname}}{\uppercase{\bibname}}
          {\bibname}{\bibname}%
-         }%
-       % HK 1996/02/08: Added toc-entry:
-       \addcontentsline{toc}{section}%
+         % HK 1996/02/08: Added toc-entry:
+         \addcontentsline{toc}{section}%
          {\protect\numberline{}{\protect\bibname}}%
+       }%
       \else%
        \let\@old@makeschapterhead\@makeschapterhead%
        \def\@makeschapterhead{%
          \@StoreRep{\bibname}{chapter}{Bib}{0}%
          \@old@makeschapterhead}%
-       \chapter*{\bibname
+       \chapter*{
+         \bibname%
          \@mkboth%
          % HK 1994/11/09
          %{\uppercase{\bibname}}{\uppercase{\bibname}}
          {\bibname}{\bibname}%
-         }%
-       \let\@makeschapterhead\@old@makeschapterhead%
+       }%
        % HK 1996/02/08: Added toc-entry:
        \addcontentsline{toc}{chapter}%
-         {\protect\numberline{}{\protect\bibname}}%
+       {\protect\numberline{}{\protect\bibname}}%
+       \let\@makeschapterhead\@old@makeschapterhead%
       \fi
       \list{\@biblabel{\@arabic\c@enumiv}}%
            {\settowidth\labelwidth{\@biblabel{#1}}%

@@ -50,11 +50,11 @@
 #include	"c2c.h"
 #endif
 
-/* Map psints to FIXNUM's: */
+/* Map psint to FIXNUM: */
 MapType ( /* base type: */ FIXNUM, /* type to map: */ psint );
 
 #if ! defined(RPC)
-/* Map BOOLs to FIXNUM: */
+/* Map BOOL to FIXNUM: */
 MapType ( /* base type: */ FIXNUM, /* type to map: */ BOOL );
 #endif
 
@@ -203,57 +203,43 @@ BeginEnum ( SHTYPETAG )
 	       bitwise_or ( hex ( 0100 ), ESHMARKERTAG ),
 	       "Object is a unbound marker." )
   and
-  enumerator ( eshSlotUnboundTag, "+slot-unbound-type-tag+",
-	       bitwise_or ( hex ( 0200 ), ESHMARKERTAG ),
-	       "Object is a slot unbound marker." )
-  and
   enumerator ( eshUnstorableTag, "+unstorable-object-marker+",
-	       bitwise_or ( hex ( 0300 ), ESHMARKERTAG ),
+	       bitwise_or ( hex ( 0200 ), ESHMARKERTAG ),
 	       "A marker which represents unstorable objects." )
   and
   enumerator ( eshEndTag, "+end-tag+",
-	       bitwise_or ( hex ( 0400 ), ESHMARKERTAG ),
+	       bitwise_or ( hex ( 0300 ), ESHMARKERTAG ),
 	       "End-marker." )
   and
   enumerator ( eshMinTag, "+min-tag+",
-	       bitwise_or ( hex ( 0500 ), ESHMARKERTAG ),
+	       bitwise_or ( hex ( 0400 ), ESHMARKERTAG ),
 	       "Marker meaning minimum possible value." )
   and
   enumerator ( eshMaxTag, "+max-tag+",
-	       bitwise_or ( hex ( 0600 ), ESHMARKERTAG ),
+	       bitwise_or ( hex ( 0500 ), ESHMARKERTAG ),
 	       "Marker meaning maximum possible value." )
   and
-  enumerator ( eshTrueTag, "+true-tag+",
-	       bitwise_or ( hex ( 0700 ), ESHMARKERTAG ),
-	       "Marker meaning TRUE." )
-  and
   enumerator ( eshIgnoreSlotTag, "+ignore-slot-tag+",
-	       bitwise_or ( hex ( 0800 ), ESHMARKERTAG ),
+	       bitwise_or ( hex ( 0600 ), ESHMARKERTAG ),
 	       "Marker meaning to ignore a slot." )
   and
-  enumerator ( eshNilTag, "+nil-tag+",
-	       bitwise_or ( hex ( 0900 ), ESHMARKERTAG ),
-	       "Marker meaning NIL." )
-  and
   enumerator ( eshAllowTag, "+allow-tag+",
-	       bitwise_or ( hex ( 0A00 ), ESHMARKERTAG ),
+	       bitwise_or ( hex ( 0700 ), ESHMARKERTAG ),
 	       "Marker meaning :ALLOW." )
   and
   enumerator ( eshDenyTag, "+deny-tag+",
-	       bitwise_or ( hex ( 0B00 ), ESHMARKERTAG ),
+	       bitwise_or ( hex ( 0800 ), ESHMARKERTAG ),
 	       "Marker meaning :DENY." )
   and
-  enumerator ( eshEqTag, "+eq-tag+",
-	       bitwise_or ( hex ( 0C00 ), ESHMARKERTAG ),
-	       "Marker meaning EQ." )
+  enumerator ( eshMatchAnyTag, "+match-any-tag+",
+	       bitwise_or ( hex ( 0900 ), ESHMARKERTAG ),
+	       "Marker meaning match-any. A comparision with this marker\
+ always means that both objects are equal." )
   and
-  enumerator ( eshEqlTag, "+eql-tag+",
-	       bitwise_or ( hex ( 0D00 ), ESHMARKERTAG ),
-	       "Marker meaning EQL." )
-  and
-  enumerator ( eshEqualTag, "+equal-tag+",
-	       bitwise_or ( hex ( 0E00 ), ESHMARKERTAG ),
-	       "Marker meaning EQUAL." )
+  enumerator ( eshMatchNeverTag, "+match-never-tag+",
+	       bitwise_or ( hex ( 0A00 ), ESHMARKERTAG ),
+	       "Marker meaning match-never. A comparision with this marker\
+ always means that both objects are not equal." )
   and
   enumerator ( eshBitmaskTag,
 	       "+bitmask-type-tag+",				hex ( 06 ),
@@ -317,27 +303,34 @@ EndEnum ( SHTYPETAG );
 /* -------------------------------------------------------------------------
 | Error levels
 | These error levels are returned from the server to the client to
-| indicate error conditions:
+| indicate error conditions. Additional values have to be added in
+| global.h, type ERRORLEVEL:
  ------------------------------------------------------------------------- */
 BeginEnum ( ERRLVL )
   enumerator ( errLvl0, "+error-level-0+",		0,
 	       "No error was encountered." )
   and
-  enumerator ( errLvlInfo, "+error-level-info+",	1,
+  enumerator ( errLvlSuspended, "+error-level-suspended+",	1,
+	       "This is no real error, the server is currently suspended.\
+ The client should do the same call once more, after a bit of waiting\
+ (this is already handled in the RPC client layer, so this error level is\
+ never seen in the LISP client layer)." )
+  and
+  enumerator ( errLvlInfo, "+error-level-info+",	2,
 	       "An information message was returned from the server." )
   and
-  enumerator ( errLvlWarn, "+error-level-warn+",	2,
+  enumerator ( errLvlWarn, "+error-level-warn+",	3,
 	       "A warning message was returned from the server." )
   and
-  enumerator ( errLvlCError, "+error-level-cerror+",	3,
+  enumerator ( errLvlCError, "+error-level-cerror+",	4,
 	       "A continuable error occurred on the server (the server\
  continued its operation)." )
   and
-  enumerator ( errLvlError, "+error-level-error+",	4,
+  enumerator ( errLvlError, "+error-level-error+",	5,
 	       "An error occurred on the server (the offending remote\
  procedure called abended its operation)." )
   and
-  enumerator ( errLvlFatal, "+error-level-fatal+",	5,
+  enumerator ( errLvlFatal, "+error-level-fatal+",	6,
 	       "A fatal error was encountered on the server.\
  The client should send a request to restart the server." )
 EndEnum ( ERRLVL );
@@ -552,37 +545,34 @@ typedef SHTYPETAG *	LPSHTYPETAG;
 #endif	/* ! AlignBitsToWords */
      
 #define	allowmarker		((OBJID)eshAllowTag)
-#define	boundp( oObjId )	((oObjId)!=NULLOBJID&&(oObjId)!=unbound)
 #define	denymarker		((OBJID)eshDenyTag)
-#define	doublefloatp( oObjId )	(typetagof(oObjId)==eshDoubleFloatTag)
 #define	endmarker		((OBJID)eshEndTag)
+#define	matchanymarker		((OBJID)eshMatchAnyTag)
+#define	matchnevermarker	((OBJID)eshMatchNeverTag)
+#define	maxmarker		((OBJID)eshMaxTag)
+#define	minmarker		((OBJID)eshMinTag)
+#define	unbound			((OBJID)eshUnboundTag)
+
+#define	boundp( oObjId )	((oObjId)!=NULLOBJID&&(oObjId)!=unbound)
+#define	doublefloatp( oObjId )	(typetagof(oObjId)==eshDoubleFloatTag)
 #define	endmarkerp( oObjId )	((oObjId)==endmarker)
-#define	eqmarker		((OBJID)eshEqTag)
-#define	eqmarkerp( oObjId )	((oObjId)==eqmarker)
-#define	eqlmarker		((OBJID)eshEqlTag)
-#define	eqlmarkerp( oObjId )	((oObjId)==eqlmarker)
-#define	equalmarker		((OBJID)eshEqualTag)
-#define	equalmarkerp( oObjId )	((oObjId)==equalmarker)
 #define	functionp( oObjId )	(typetagof(oObjId)==eshFunctionTag)
 #define	immediatep( oObjId )	(((oObjId)&nTagMask)!=0)
 #define	integerp( oObjId )	(typetagof(oObjId)==eshFixnumTag||\
 				 typetagof(oObjId)==eshBignumTag)
+#define markerp( oObjId )	(((oObjId)&nTagMask)==eshMarkerTag)
+#define	matchanymarkerp( oObjId )	((oObjId)==eshMatchAnyTag)
+#define	matchnevermarkerp( oObjId )	((oObjId)==eshMatchNeverTag)
+#define	maxmarkerp( oObjId )	((oObjId)==maxmarker)
+#define	minmarkerp( oObjId )	((oObjId)==minmarker)
+#define	shortfloatp( oObjId )	(typetagof(oObjId)==eshShortFloatTag)
+#define	singlefloatp( oObjId )	(typetagof(oObjId)==eshSingleFloatTag)
+
 #define	makendmarker( oObjId )	(oObjId=eshEndTag)
 #define	makmaxmarker( oObjId )	(oObjId=eshMaxTag)
 #define	makminmarker( oObjId )	(oObjId=eshMinTag)
 #define	makunbound( oObjId )	(oObjId=unbound)
-#define markerp( oObjId )	(((oObjId)&nTagMask)==eshMarkerTag)
-#define	maxmarker		((OBJID)eshMaxTag)
-#define	maxmarkerp( oObjId )	((oObjId)==maxmarker)
-#define	minmarker		((OBJID)eshMinTag)
-#define	minmarkerp( oObjId )	((oObjId)==minmarker)
-#define	nilmarker		((OBJID)eshNilTag)
-#define	truemarker		((OBJID)eshTrueTag)
-#define	shortfloatp( oObjId )	(typetagof(oObjId)==eshShortFloatTag)
-#define	singlefloatp( oObjId )	(typetagof(oObjId)==eshSingleFloatTag)
-#define	doublefloatp( oObjId )	(typetagof(oObjId)==eshDoubleFloatTag)
 #define	symbolp( oObjId )	(typetagof(oObjId)==eshSymbolTag)
-#define	unbound			((OBJID)eshUnboundTag)
 
 /* -------------------------------------------------------------------------
 | Object structure for persistent PLOB objects.
@@ -802,11 +792,13 @@ DefineFunction ( SHORTOBJID,
 		   argument ( OBJID, value_out, poObjIdMax ) ) );
 #endif	/* ! LISP */
 #if ! defined(RPC)	/* client: */
+DefineFunction ( BOOL,
+		 fnClientDbConnect, "c-sh-connect",
+		 ( argument ( CONST_STRING, vector_in, szURL ) ) );
+
 DefineFunction ( SHORTOBJID,
-		 fnClientDbOpen, "c-sh-short-open",
-		 ( argument ( CONST_STRING, vector_in, szURL )
-		   and
-		   argument ( CONST_STRING, vector_in, szDescription )
+		 fnClientDbOpen, "c-sh-open",
+		 ( argument ( CONST_STRING, vector_in, szDescription )
 		   and
 		   argument ( FIXNUM, value_in, nMinAddrInK ) ) );
 #endif	/* ! RPC */
@@ -1439,6 +1431,6 @@ DefineFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

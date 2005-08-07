@@ -71,6 +71,7 @@
 #include	"sploblock.h"
 #include	"splobheap.h"
 #include	"splobbtree.h"
+#include	"splobregex.h"
 #include	"splobroot.h"
 #include	"splobadmin.h"
 
@@ -79,6 +80,13 @@
 
 /* ----------------------------------------------------------------------- */
 MODULE ( __FILE__ );
+
+/* -------------------------------------------------------------------------
+| Server administration
+ ------------------------------------------------------------------------- */
+DLLEXPORTVAR BOOL	bGlobalSuspended	= FALSE;
+DLLEXPORTVAR OBJID	oGlobalSuspendedBy	= NULLOBJID;
+DLLEXPORTVAR char	szGlobalSuspendedMsg [ 512 ];
 
 /* -------------------------------------------------------------------------
 | Stable Heap administration
@@ -994,6 +1002,9 @@ BeginFunction ( BOOL,
   BOOL		bResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( FALSE );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1022,6 +1033,9 @@ BeginFunction ( voidResult,
   FILE	* pLogFile;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( VOID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1111,7 +1125,11 @@ BeginFunction ( BOOL,
 			     pnKeyAlignment ) ) )
 {
   struct stableheap_configuration	Configuration;
+
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( FALSE );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1334,6 +1352,9 @@ BeginFunction ( SHORTOBJID,
   SHORTOBJID	oCreated;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1370,6 +1391,9 @@ BeginFunction ( FIXNUM,
   OBJID		oCreated;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( nCreated );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1512,6 +1536,9 @@ BeginFunction ( voidResult,
   OBJID		oObjId;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( VOID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1539,6 +1566,9 @@ BeginFunction ( FIXNUM,
   FIXNUM		nSize;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (FIXNUM) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1608,6 +1638,10 @@ BeginFunction ( SHORTOBJID,
   uid_t			nUid = (uid_t) -1;
 
   INITIALIZEPLOB;
+
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
 
   eAdminP	= eaAdminFalse;
   bServer	= (BOOL) ( fnPlobdGetPort () >= nMasterPort );
@@ -1794,6 +1828,9 @@ BeginFunction ( BOOL,
   BOOL		bDone = TRUE;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BOOL) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1833,6 +1870,9 @@ BeginFunction ( SHLOCK,
   SHLOCK		nLockOld;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1910,6 +1950,9 @@ BeginFunction ( FIXNUM,
   int		nSlots, nSlotsClipped, s, nTotalRead = 0;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1984,6 +2027,9 @@ BeginFunction ( SHLOCK,
   OBJID		oObjId;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2042,6 +2088,9 @@ BeginFunction ( FIXNUM,
   int		nSlots, nValues, nTotalRead = 0;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2136,7 +2185,7 @@ static BOOL	fnEnumSessionFlush	( LPVOID	lpUserData,
   PROCEDURE	( fnEnumSessionFlush );
   gfnFlush ( oKey );
   RETURN ( TRUE );
-} /* fnEnumSessionKill */
+} /* fnEnumSessionFlush */
 
 /* ----------------------------------------------------------------------- */
 static void	fnStabilise	( BOOL	bSHstabilise )
@@ -2168,6 +2217,9 @@ BeginFunction ( voidResult,
 		( argument ( SHORTOBJID, value_in, oShortObjIdHeap ) ) )
 {
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( VOID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2206,6 +2258,9 @@ BeginFunction ( BOOL,
   struct stableheap_statistics	Statistics;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( FALSE );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2244,6 +2299,9 @@ BeginFunction ( SHTYPETAG,
   SHTYPETAG	eTypeTag;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+      RETURN ( eshUnboundTag );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2270,6 +2328,9 @@ BeginFunction ( FIXNUM,
   psint	FAR *	lpSHvector;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2298,6 +2359,9 @@ BeginFunction ( FIXNUM,
   FIXNUM	nSize;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2336,6 +2400,9 @@ BeginFunction ( SHLOCK,
   SHTYPETAG	nTypeTagValueNew = nTypeTagValue;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2432,6 +2499,9 @@ BeginFunction ( FIXNUM,
   SHTYPETAG	eTypeTagNew;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2539,6 +2609,9 @@ BeginFunction ( SHLOCK,
   SHLOCK	nLockOld;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2587,6 +2660,9 @@ BeginFunction ( FIXNUM,
   int		nSlots, nValues, nTotalWritten = 0;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2666,6 +2742,6 @@ BeginFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

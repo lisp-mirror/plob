@@ -83,6 +83,7 @@ static LPSTR	mfnPrintBuiltIn	( OBJID oObjId, LPOBJID lpSHvector,
 static LPSTR	mfnPrintCharacter( OBJID oObjId, LPOBJID lpSHvector,
 				  LPCLASSINFO lpClassInfo,
 				  LPSTR lpszBuffer, size_t nBuffer );
+
 /* PLOB type info enumeration callback which calls the LISP callback: */
 static BOOL	fnPLOBenumClassInfoCallback	( int nFirstEnumArgument,
 						  CLASSTAG nClassTag,
@@ -119,19 +120,11 @@ void			fnInitCommonTypeModule		( void )
 			    "type-tag=0x%X" ) },
     { MARKER_TYPE_INFO ( eshMarkerTag, "marker" ) },
     { MARKER_TYPE_INFO ( eshUnboundTag, "unbound-marker" ) },
-    { MARKER_TYPE_INFO ( eshSlotUnboundTag, "slot-unbound-marker" ) },
-    { MARKER_TYPE_INFO ( eshUnstorableTag, "unstorable-object-marker" ) },
-    { MARKER_TYPE_INFO ( eshEndTag, "end-marker" ) },
     { MARKER_TYPE_INFO ( eshMinTag, "min-marker" ) },
     { MARKER_TYPE_INFO ( eshMaxTag, "max-marker" ) },
-    { MARKER_TYPE_INFO ( eshTrueTag, "true-marker" ) },
     { MARKER_TYPE_INFO ( eshIgnoreSlotTag, "ignore-slot-marker" ) },
-    { MARKER_TYPE_INFO ( eshNilTag, "nil-marker" ) },
-    { MARKER_TYPE_INFO ( eshAllowTag, "allow-marker" ) },
-    { MARKER_TYPE_INFO ( eshDenyTag, "deny-marker" ) },
-    { MARKER_TYPE_INFO ( eshEqTag, "eq-marker" ) },
-    { MARKER_TYPE_INFO ( eshEqlTag, "eql-marker" ) },
-    { MARKER_TYPE_INFO ( eshEqualTag, "equal-marker" ) },
+    { MARKER_TYPE_INFO ( eshMatchAnyTag, "match-any-marker" ) },
+    { MARKER_TYPE_INFO ( eshMatchNeverTag, "match-never-marker" ) },
     /* The type with tag eshObjIdTag is to PLOB what the class T is to
        LISP; a PLOB element of type eshObjIdTag can hold any object: */
     { (SHTYPETAG) eshObjIdTag,
@@ -660,6 +653,6 @@ BeginFunction ( BOOL,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

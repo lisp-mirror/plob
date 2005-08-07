@@ -12,12 +12,12 @@ PWD="`pwd`"; export PWD
 
 szConfDir='./conf'
 szConfDefaultFile='make.vars.def'
-szDefLisp='./src/allegro/defsystem-plob.lisp'
-szConfLisp='./src/allegro/plob-defaults.lisp'
+szDefLisp='./src/lisp/defsystem-plob.lisp'
+szConfLisp='./src/lisp/plob-defaults.lisp'
 szEmail='Heiko.Kirschke@acm.org'
 
 szPrompt='PLOB! '
-szCopyright="${szPrompt}(C) 1994--2002 Heiko Kirschke ${szEmail}"
+szCopyright="${szPrompt}(C) 1994--`date +'%Y'` Heiko Kirschke ${szEmail}"
 
 unset bDefaultClient bDefaultServer bClient bServer szUname
 
@@ -130,7 +130,6 @@ fnConfSearchKey ()
   szKey="$2"
   szDefault="$3"
   sed -n "
-s/[^ -~]$//
 /^${szKey}[	 ]*=/ {
   s/^${szKey}[	 ]*=//
   s/['\"]//g
@@ -166,7 +165,6 @@ fnConfSetKey ()
   trap "rm -f ${szTmpFile1} ${szTmpFile2}; return 1" 1 2 15
   rm -f ${szTmpFile1} ${szTmpFile2}
   sed "
-s/[^ -~]$//
 /^${szKey}[	 ]*=[	 ]*['\"]/ {
   s|^\(${szKey}[	 ]*=[	 ]*\)\(.\).*\$|\1\2${szNewValue}\2|
   b copy
@@ -221,7 +219,6 @@ fnLispSetKey ()
   trap "rm -f ${szTmpFile}; return 1" 1 2 15
   rm -f ${szTmpFile}
   sed "
-s/[^ -~]$//
 /^(def.*${szKey}/ {
   s|\(${szKey}\).*$|\1 \"${szNewValue}\"|
 :loop
@@ -722,11 +719,11 @@ Error: Specify non, sys or des.";;
       bFranz='yes'
       szNewFranzDir="${szConfFranzDir}"
     else
-      set -- '' /opt/cl/Franz*CL* /opt/cl/*acl* /opt/*acl* /usr/local/src/*acl* /usr/local/*acl*; shift
+      set -- '' /opt/cl/Franz*CL* /opt/cl/*acl* /opt/*acl* /usr/local/src/*acl* /usr/local/*acl* c:/Program*/*acl*; shift
       bFranz='no'
       unset szNewFranzDir
       while [ "$#" -gt '0' ]; do
-        if [ -d "$1/home" ]; then
+        if [ -d "$1" ]; then
           bFranz='yes'
           szNewFranzDir="$1"
 	  break
@@ -1115,6 +1112,7 @@ fnFindFiles ()
     -name 'patches' -prune -o \
     -name 'ps' -prune -o \
     -name 'pdf' -prune -o \
+    -name 'postore' -prune -o \
     -name 'save' -prune"
   szSuppressFiles="\
     '!' -name 'core' -a \
@@ -1124,6 +1122,7 @@ fnFindFiles ()
     '!' -name '.gdb*' -a \
     '!' -name '.*~' -a \
     '!' -name '#*' -a \
+    '!' -name '.#*' -a \
     '!' -name 'make.*' -a \
     '!' -name 'oobr*' -a \
     '!' -name '*save*' -a \
@@ -1157,7 +1156,7 @@ fnFindFiles ()
     "'('" "'!'" -name 'make.vars.in' -a -name 'make.*.in' -o \
           -name 'make.vars.def' -o \
 	  ${szSuppressFiles} "')'" -print
-  find ./${szPlob} -name makefile -print
+  eval find ./${szPlob} ${szSuppressDirectories} -o -name makefile -print
   if ${bBootstrap}; then :; else
     eval find ./${szPlob}/doc \
       ${szSuppressDirectories} -o \
@@ -1309,17 +1308,12 @@ STDTARGET=copy_back_binaries
 \$(${c}dir)/${f} :
 	\$(EXISTS)
 \$(CONFDIR)/${f} : \$(${c}dir)/${f}
-	\$(CP) -fp \$(${c}dir)/${f} \$@"
+	\$(CP) -fp \$(${c}dir)/${f} \$@ >/dev/null 2>&1"
       done
     done
   done >> ${szTmpFile}
   # cat  ${szTmpFile}
-  # First make: Check if all files are existing
-  make EXISTS='@echo "*** File $@ is missing."' CP='@:' -f ${szTmpFile} 
-  # Second make: Do the actual copying, exit if a file is missing
-  set -e
-  make EXISTS='@echo "*** Exiting because of missing files." && exit 1' CP='cp' -f ${szTmpFile}
-  set +e
+  make EXISTS='@echo "*** File $@ is missing, archive will be incomplete."' CP='-@cp' -f ${szTmpFile} 
   rm -f ${szTmpFile}
   if ${bVerbose}; then
     fnEchoC "${szScript}: Gathering files ..." 1>&2
@@ -1329,7 +1323,7 @@ STDTARGET=copy_back_binaries
     set -- '' ${szAllFiles}; shift
     echo " done, found $# files" 1>&2
   fi
-  chmod 644 ${szAllFiles}
+  chmod 'u=rw,g=r,o=r' ${szAllFiles}
   if ${bVerbose}; then
     fnEchoC "${szScript}: Gathering directories ..." 1>&2
   fi
@@ -1338,10 +1332,15 @@ STDTARGET=copy_back_binaries
     set -- '' ${szAllDirectories}; shift
     echo " done, found $# directories" 1>&2
   fi
-  chmod 755 ${szAllDirectories}
+  chmod 'u=rwx,g=rx,o=rx' ${szAllDirectories}
   for f in ${szPlob}/bin/*; do
     if [ -f "$f" ] && head -1 "$f" | grep '^#!/' > /dev/null 2>&1; then
-      chmod ugo+x $f
+      chmod 'u=rwx,g=rx,o=rx' $f
+    fi
+  done
+  for f in ${szPlob}/oncrpc-1.12/bin/*.exe; do
+    if [ -f "$f" ]; then
+      chmod 'u=rwx,g=rx,o=rx' $f
     fi
   done
   for f in ${szPlob}/conf/*/*; do
@@ -1547,5 +1546,5 @@ case "$1" in
 esac
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

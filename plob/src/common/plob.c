@@ -63,6 +63,7 @@
 #include	"ploblock.h"
 #include	"plobheap.h"
 #include	"plobbtree.h"
+#include	"plobregex.h"
 #include	"plobadmin.h"
 
 /* ----------------------------------------------------------------------- */
@@ -175,10 +176,13 @@ void			fnDeinitializePlob	( void )
   if ( __bDeinitializePlob__ ) {
     RETURN ( VOID );
   }
+
   __bDeinitializePlob__	= TRUE;
-  if ( lpfnDeinitialize )
-    for ( i = 0; i < length ( lpfnDeinitialize ); i++ )
+  if ( lpfnDeinitialize ) {
+    for ( i = 0; i < length ( lpfnDeinitialize ); i++ ) {
       ( * lpfnDeinitialize [ i ] ) ();
+    }
+  }
 
   RETURN ( VOID );
 } /* fnDeinitializePlob */
@@ -314,6 +318,6 @@ LPVOID		fnMakeLispPointer	( LPVOID	pRaw,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

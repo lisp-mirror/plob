@@ -105,13 +105,8 @@ fnTrimRpcFile () {
     return 2
   fi
   sed -n '
-# s/^M//g
-s/[	 ][	 ]*/ /g
-/^[^!-~]*$/ !b nempty
-s/^[^!-~]*$//
-p
 :skip
-/^[^!-~]*$/ {
+/^$/ {
   n
   b skip
 }
@@ -135,13 +130,13 @@ p
  b loopglu
 }
 s/- \([1-9]\)/-\1/g
-s/[^!-~]*$//
+s/[	 ]*$//
 s/=||/#/g
-s/\([,`]\)[^!-~]*/\1/g
+s/\([,`]\)[	 ]*/\1/g
 :loop
 /@n@/ {
   h
-  s/[^!-~]*@n@.*$//
+  s/[	 ]*@n@.*$//
   p
   g
   s/@n@/@newline@/
@@ -226,26 +221,26 @@ szCmdLine="${CPP}"
 if ${bVerbous}; then
   szCmdLine="${szCmdLine} -v"
 fi
-szIncludes="`echo "${szIncludes}"|sed 's/:/ -I/g'`"
+szIncludes="`echo \"'-I${szIncludes}'\"|sed -e \"s/[:]/' -I'/g\"`"
 szCmdLine="${szCmdLine} ${szDefines} -I${szIncludes} ${szTmpCfile}"
 
 if [ -z "${szRpcFile}" ]; then
   if ${bVerbous}; then
     echo "${szCmdLine}" 1>&2
   fi
-  ${szCmdLine}|fnTrimRpcFile 'stdout' "${nProgram}" "${nVersion}"
+  eval ${szCmdLine}|fnTrimRpcFile 'stdout' "${nProgram}" "${nVersion}"
   nExitCode="$?"
 else
   if ${bVerbous}; then
     echo "${szCmdLine} > ${szRpcFile}" 1>&2
   fi
-  ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" > ${szRpcFile}
+  eval ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" > ${szRpcFile}
   case "`uname`" in
   *[cC][yY][gG][wW][iI][nN]*)
-    ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" >${TMP}/${nPID}_${szScript}.cr
+    eval ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" >${TMP}/${nPID}_${szScript}.cr
     dos2unix ${TMP}/${nPID}_${szScript}.cr ${szRpcFile};;
   *)
-    ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" >${szRpcFile}
+    eval ${szCmdLine}|fnTrimRpcFile `basename ${szRpcFile}` "${nProgram}" "${nVersion}" >${szRpcFile}
   esac
   nExitCode="$?"
 fi
@@ -257,5 +252,5 @@ rm -f ${TMP}/${nPID}_${szScript}.* ${szRpcFile}
 exit ${nExitCode}
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

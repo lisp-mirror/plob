@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------
-| Script	make.vars.in
+| Script	make.vars.def
 | Author	Heiko Kirschke
 |		mailto:Heiko.Kirschke@acm.org
 | Date		1997-03-26
@@ -40,11 +40,11 @@
 | Configuration settings
  ---------------------------------------------------------------------- */
 
-PLOBDIR=/home/hkirschk/plob-2.10
+PLOBDIR=/home/heiko/heiko-ws/plob-2.11
 
 #define HasAuth			AUTH_NONE
 #define HasClient		yes
-#define	HasFranzCL		no
+#define	HasFranzCL		yes
 #define	HasGcc			yes
 #define	HasGmake		yes
 #define	HasHarlequinCL		no
@@ -56,7 +56,7 @@ PLOBDIR=/home/hkirschk/plob-2.10
 #define	HasSiginfo		no
 
 /* Directory with Allegro Common LISP: */
-FRANZCL=/opt/acl50
+FRANZCL=
 
 /* Operating system: */
 OPSYS=LINUX
@@ -66,7 +66,7 @@ opsys=linux
 | Compiler settings
  ---------------------------------------------------------------------- */
 /* For usage of another compiler instead of gcc, please read the
-   installation's guide: */
+   section on installation in the user's guide: */
 CC=gcc
 
 /* C compiler flag to generate position independent code for shared
@@ -103,6 +103,6 @@ LDLIBS=
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

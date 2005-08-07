@@ -2,7 +2,7 @@
 % 1998/01/15 HK
 %
 \ifx\NoOfSides\undefined%
-\def\NoOfSides{oneside}%
+\def\NoOfSides{twoside}%
 \fi%
 \ifx\WideOption\undefined%
 \def\WideOption{narrow}%
@@ -28,6 +28,7 @@
 \usepackage{deflist}
 \usepackage{avb}
 \usepackage{longtable}
+\usepackage[T1]{fontenc}
 \ifx\ClassName\PrettyToken%
 \def\usepackagelispdoc{\usepackage{lispdoc}}%
 \else%
@@ -48,23 +49,31 @@
 %
 \def\usepackagetimes{\usepackage{timestt}}%
 %
-\def\usepackagehyperref{\usepackage[breaklinks,draft]{hyperref}}
+\def\usepackagehyperref{\usepackage[breaklinks,%
+%draft,%
+plainpages=false,%
+pdftitle={PLOB \thistitle},%
+pdfauthor={\thisauthor},%
+pdfsubject={\thissubject},%
+pdfkeywords={\thiskeywords}%
+]{hyperref}}
 %
 \let\BetterSloppy\relax
 %
-\else%
+\else% one sided printing
 %
 \def\usepackagetimes{\usepackage{times}}%
 %
 \def\usepackagehyperref{\usepackage[%
-ps2pdf,%
+%ps2pdf,%
 %pdftex,%
 %% breaklinks does not work with ps2pdf:
 %breaklinks,%
+plainpages=false,%
 pdftitle={PLOB \thistitle},%
 pdfauthor={\thisauthor},%
 pdfsubject={\thissubject},%
-pdfkeywords={\thiskeywords}
+pdfkeywords={\thiskeywords}%
 ]{hyperref}}
 %
 \let\BetterSloppy\sloppy

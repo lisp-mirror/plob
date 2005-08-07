@@ -51,7 +51,6 @@
 #include	"lplob.h"
 #include	"lplobintern.h"
 #include	"lplobmisc.h"
-#include	"lplobsequ.h"
 #include	"lplobtype.h"
 #include	"lplobnumber.h"
 #include	"lplobroot.h"
@@ -232,7 +231,9 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   INITIALIZEPLOB;
   UNSTORESESSION ();
@@ -243,12 +244,12 @@ BeginFunction ( FIXNUM,
 				    eCompareLower,
 				    nValueKeyUpper, nTypeTagKeyUpper,
 				    eCompareUpper,
-				    bDescending ) );
+				    bDescending, oShortObjIdFilter ) );
 } EndFunction ( fnClientBtreemapSearch );
 
 /* ----------------------------------------------------------------------- */
 /* 1996/10/29 HK: The following declaration of
-   SH_btree_map_by_float should look like:
+   fnClientBtreemapSearchByFloat should look like:
 BeginFunction ( FIXNUM,
 		fnClientBtreemapSearchByFloat, "c-sh-btree-map-search-by-float",
 		( argument ( SHORTOBJID,
@@ -281,7 +282,9 @@ BeginFunction ( voidResult,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   INITIALIZEPLOB;
   UNSTORESESSION ();
@@ -292,13 +295,13 @@ BeginFunction ( voidResult,
 				    oShortObjIdHeap, oShortObjIdBTree,
 				    fKeyLower, nTypeTagKeyLower, eCompareLower,
 				    fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				    bDescending );
+				    bDescending, oShortObjIdFilter );
   RETURN ( VOID );
 } EndFunction ( fnClientBtreemapSearchByFloat );
 
 /* ----------------------------------------------------------------------- */
 /* 1996/10/29 HK: The following declaration of
-   SH_btree_map_by_double should look like:
+   fnClientBtreemapSearchByDouble should look like:
 BeginFunction ( FIXNUM,
                 SH_btree_map_by_double,
 		"c-sh-btree-map-search-by-double",
@@ -332,7 +335,9 @@ BeginFunction ( voidResult,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   INITIALIZEPLOB;
   UNSTORESESSION ();
@@ -345,7 +350,7 @@ BeginFunction ( voidResult,
 				     eCompareLower,
 				     fKeyUpper, nTypeTagKeyUpper,
 				     eCompareUpper,
-				     bDescending );
+				     bDescending, oShortObjIdFilter );
   RETURN ( VOID );
 } EndFunction ( fnClientBtreemapSearchByDouble );
 
@@ -371,7 +376,9 @@ BeginFunction ( SHORTOBJID,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   INITIALIZEPLOB;
   UNSTORESESSION ();
@@ -381,7 +388,8 @@ BeginFunction ( SHORTOBJID,
 					    szKeyLower, nTypeTagKeyLower,
 					    eCompareLower,
 					    szKeyUpper, nTypeTagKeyUpper,
-					    eCompareUpper, bDescending ) );
+					    eCompareUpper,
+					    bDescending, oShortObjIdFilter ) );
 } EndFunction ( fnClientBtreemapSearchByString );
 
 /* ----------------------------------------------------------------------- */
@@ -462,6 +470,8 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ), vector_out, pnValueKey )
@@ -486,7 +496,7 @@ BeginFunction ( FIXNUM,
 				   eCompareLower,
 				   nValueKeyUpper, nTypeTagKeyUpper,
 				   eCompareUpper,
-				   bDescending, nMap,
+				   bDescending, oShortObjIdFilter, nMap,
 				   pnValueKey, pnTypeTagKey,
 				   pnValueData, pnTypeTagData ) );
 } EndFunction ( fnClientBtreemapFirst );
@@ -527,6 +537,8 @@ BeginFunction ( voidResult,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ), vector_out, pnValueKey )
@@ -551,7 +563,7 @@ BeginFunction ( voidResult,
 				   oShortObjIdHeap, oShortObjIdBTree,
 				   fKeyLower, nTypeTagKeyLower, eCompareLower,
 				   fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				   bDescending, nMap,
+				   bDescending, oShortObjIdFilter, nMap,
 				   pnValueKey, pnTypeTagKey,
 				   pnValueData, pnTypeTagData );
   RETURN ( VOID );
@@ -597,6 +609,8 @@ BeginFunction ( voidResult,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ), vector_out, pnValueKey )
@@ -621,7 +635,7 @@ BeginFunction ( voidResult,
 				    oShortObjIdHeap, oShortObjIdBTree,
 				    fKeyLower, nTypeTagKeyLower, eCompareLower,
 				    fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				    bDescending, nMap,
+				    bDescending, oShortObjIdFilter, nMap,
 				    pnValueKey, pnTypeTagKey,
 				    pnValueData, pnTypeTagData );
   RETURN ( VOID );
@@ -652,6 +666,8 @@ BeginFunction ( SHORTOBJID,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ), vector_out, pnValueKey )
@@ -676,7 +692,8 @@ BeginFunction ( SHORTOBJID,
 				   (FIXNUM) szKeyLower, nTypeTagKeyLower,
 				   eCompareLower,
 				   (FIXNUM) szKeyUpper, nTypeTagKeyUpper,
-				   eCompareUpper, bDescending, nMap,
+				   eCompareUpper,
+				   bDescending, oShortObjIdFilter, nMap,
 				   pnValueKey, pnTypeTagKey,
 				   pnValueData, pnTypeTagData ) );
 } EndFunction ( fnClientBtreemapFirstByString );
@@ -815,6 +832,6 @@ BeginFunction ( BTREERESULT,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

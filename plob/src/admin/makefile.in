@@ -39,7 +39,7 @@
 |
  ---------------------------------------------------------------------- */
 
-#define	ccLocalOptions	paste5(-,D,USEDLL,=,1)
+/* #define	ccLocalOptions	paste5(-,D,USEDLL,=,1) */
 #define	relPlobDir	ddot slash ddot
 #include		"../../conf/make.rules.in"
 
@@ -59,15 +59,7 @@ STDINCLUDE=\
 
 OBJECTS=trim($(opsys) slash fileObj(plobdadmin))
 
-#if HasOpSys == hasWin32
-
-LIBCLIENTPLOB=trim(fileLib(librpclientplobimp))
-
-#else
-
 LIBCLIENTPLOB=trim(fileLib(librpclientplob))
-
-#endif
 
 /* ----------------------------------------------------------------------
 | Main targets
@@ -115,9 +107,9 @@ rule ( $(BINDIR) slash $(opsys) slash fileExe(plobdadmin), \
 #else
 
 rule ( $(BINDIR) slash $(opsys) slash fileExe(plobdadmin), \
-       $(OBJECTS) spc \
-       $(LIBDIR) slash $(LIBCLIENTPLOB), \
-       LinkExe($(OBJECTS) spc option1(L$(LIBDIR)) spc option1(lrpclientplob)))
+       $(OBJECTS) spc $(LIBDIR) slash $(LIBCLIENTPLOB), \
+       LinkExe($(OBJECTS) spc \
+	       $(LIBDIR) slash $(LIBCLIENTPLOB)))
 
 #endif
 
@@ -133,6 +125,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

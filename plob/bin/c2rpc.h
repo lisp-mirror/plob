@@ -90,6 +90,7 @@ MARKER(enum) enum type_name {
 #define	and			, nln
 #define	bitwise_or(x,y)		(OR(x|y))
 #define	hex(number)		(HEX(#number))
+#define	oct(number)		(OCT(#number))
 #define	shift_left(x,n)		(SHIFTLEFT(x<n))
 #define subtract(x,y )		((x)-(y))
 
@@ -210,6 +211,6 @@ DefineType ( string, string_t<> );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

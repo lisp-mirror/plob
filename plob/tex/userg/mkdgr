@@ -1,10 +1,12 @@
 #!/bin/sh
 
 PATH="${PATH}:${HOME}/plob-2.09/bin"; export PATH
+latex=pdflatex
 
 for f in *.dgr; do
-  d=`echo "${f}"|sed 's/[.][^.]*$//'`.dvi
-  latex "\def\dgrfile{${f}}\input{dgrtodvi.tex}"
-  mv dgrtodvi.dvi ${d}
-  dviteps -s ${d}
+  # d=`echo "${f}"|sed 's/[.][^.]*$//'`.dvi
+  d=`echo "${f}"|sed 's/[.][^.]*$//'`.pdf
+  ${latex} "\def\dgrfile{${f}}\input{dgrtodvi.tex}"
+  mv dgrtodvi.pdf ${d}
+  # dviteps -s ${d}
 done

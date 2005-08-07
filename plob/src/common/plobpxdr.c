@@ -68,6 +68,7 @@
 #include	"ploblock.h"
 #include	"plobheap.h"
 #include	"plobbtree.h"
+#include	"plobregex.h"
 #include	"plobadmin.h"
 
 #define		RPCNOTYPES
@@ -796,6 +797,6 @@ bool_t	xdr_fnPatchedServerObjectPoke_args
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

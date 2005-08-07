@@ -372,13 +372,13 @@ above) is typed by a \lisp{:type}\ slot option (like slots
 option should be given with the class the slot is typed to
 (\class{point}\ in this example).
 
-Please note that the \lisp{:dependent}\ flag is placed onto the
-referenced object, and not on the referencing object.  Clever usage of
-this option will result in much faster access to instances of
-\lisp{:dependent}\ marked classes being referenced by other instances,
-since communication overhead is dramatically reduced for such
-instances.  Exhaustive use of this option may result in big, maybe
-redundant data packages transferred from the server to the client.
+The \lisp{:dependent}\ flag is placed onto the referenced object, and
+not on the referencing object.  Clever usage of this option will
+result in much faster access to instances of \lisp{:dependent}\ marked
+classes being referenced by other instances, since communication
+overhead is dramatically reduced for such instances.  Exhaustive use
+of this option may result in big, maybe redundant data packages
+transferred from the server to the client.
 
 A \lisp{:dependent}\ flag can be placed on individual objects, too
 (see \fcite{(setf p-dependent)}).  Consider for example a cons cell
@@ -924,7 +924,8 @@ functions with \lt\emph{fn}\gt\ being one function defined in
 
 Figure~\ref{fig:NumericClasses} %
 \begin{figure}[htbp]
-\centerline{\psfig{figure=\Path/numtax.eps}}
+%% \centerline{\psfig{figure=\Path/numtax.eps}}
+\centerline{\psfig{figure=\Path/numtax.pdf}}
 \caption{Numeric classes}%
 \label{fig:NumericClasses}
 \end{figure}%
@@ -1184,7 +1185,7 @@ works on \emph{references} to persistent objects but not on true
 interface on \clos\ instances in \allegrocl, the functions
 \fcite*{(setf p-slot-value)}, \fcite*{p-slot-value},
 \fcite*{p-slot-boundp}\ and \fcite*{p-slot-makunbound}\ must be used.
-Please note that \emph{this workaround must only be used under these
+\emph{This workaround has only to be used under these
   described circumstances.}
 \begin{RefList}\itemsep0pt
 

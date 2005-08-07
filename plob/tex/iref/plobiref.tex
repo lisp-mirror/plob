@@ -2,56 +2,56 @@
 % This file was generated from the LISP module `lisp-doc' by extracting
 % the LISP documentation strings of the files
 %
-%   PLOB:SOURCE;plob-extra-doc.lisp
-%   PLOB:SOURCE;plob-url.lisp
-%   PLOB:SOURCE;plob-defaults.lisp
-%   PLOB:SOURCE;plob-error.lisp
-%   PLOB:SOURCE;plob-extent.lisp
-%   PLOB:SOURCE;plob-evolution.lisp
-%   PLOB:SOURCE;plob-sysdep.lisp
-%   PLOB:SOURCE;plob-metaclass-1.lisp
-%   PLOB:SOURCE;plob-metaclass-2.lisp
-%   PLOB:SOURCE;plob-metaclass-3.lisp
-%   PLOB:SOURCE;plob-defines.lisp
-%   PLOB:SOURCE;plob-int.lisp
-%   PLOB:SOURCE;plob-low.lisp
-%   PLOB:SOURCE;plob-objid-buffer.lisp
-%   PLOB:SOURCE;plob-writers.lisp
-%   PLOB:SOURCE;plob-heap.lisp
-%   PLOB:SOURCE;plob-btree.lisp
-%   PLOB:SOURCE;plob-btree-mapper.lisp
-%   PLOB:SOURCE;plob-session.lisp
-%   PLOB:SOURCE;plob-machine.lisp
-%   PLOB:SOURCE;plob-misc.lisp
-%   PLOB:SOURCE;plob-cons.lisp
-%   PLOB:SOURCE;plob-symbol.lisp
-%   PLOB:SOURCE;plob-function.lisp
-%   PLOB:SOURCE;plob-vector.lisp
-%   PLOB:SOURCE;plob-array.lisp
-%   PLOB:SOURCE;plob-string.lisp
-%   PLOB:SOURCE;plob-bit-vector.lisp
-%   PLOB:SOURCE;plob-numeric.lisp
-%   PLOB:SOURCE;plob-struct-descr.lisp
-%   PLOB:SOURCE;plob-struct.lisp
-%   PLOB:SOURCE;plob-struct-slot-descr.lisp
-%   PLOB:SOURCE;plob-struct-hash-table.lisp
-%   PLOB:SOURCE;plob-struct-package.lisp
-%   PLOB:SOURCE;plob-struct-root.lisp
-%   PLOB:SOURCE;plob-clos-descr.lisp
-%   PLOB:SOURCE;plob-clos.lisp
-%   PLOB:SOURCE;plob-clos-slot-descr.lisp
-%   PLOB:SOURCE;plob-clos-slot-value.lisp
-%   PLOB:SOURCE;plob-method-descr.lisp
-%   PLOB:SOURCE;plob-database.lisp
-%   PLOB:SOURCE;plob-builtin.lisp
-%   PLOB:SOURCE;plob-inspect.lisp
-%   PLOB:SOURCE;plob-bootstrap.lisp
-%   PLOB:UTIL;plob-sexpr.lisp
+%   PLOB:SOURCE;PLOB-EXTRA-DOC.LISP
+%   PLOB:SOURCE;PLOB-URL.LISP
+%   PLOB:SOURCE;PLOB-DEFAULTS.LISP
+%   PLOB:SOURCE;PLOB-ERROR.LISP
+%   PLOB:SOURCE;PLOB-EXTENT.LISP
+%   PLOB:SOURCE;PLOB-EVOLUTION.LISP
+%   PLOB:SOURCE;PLOB-SYSDEP.LISP
+%   PLOB:SOURCE;PLOB-METACLASS-1.LISP
+%   PLOB:SOURCE;PLOB-METACLASS-2.LISP
+%   PLOB:SOURCE;PLOB-METACLASS-3.LISP
+%   PLOB:SOURCE;PLOB-DEFINES.LISP
+%   PLOB:SOURCE;PLOB-INT.LISP
+%   PLOB:SOURCE;PLOB-LOW.LISP
+%   PLOB:SOURCE;PLOB-OBJID-BUFFER.LISP
+%   PLOB:SOURCE;PLOB-WRITERS.LISP
+%   PLOB:SOURCE;PLOB-HEAP.LISP
+%   PLOB:SOURCE;PLOB-BTREE.LISP
+%   PLOB:SOURCE;PLOB-BTREE-MAPPER.LISP
+%   PLOB:SOURCE;PLOB-SESSION.LISP
+%   PLOB:SOURCE;PLOB-MACHINE.LISP
+%   PLOB:SOURCE;PLOB-MISC.LISP
+%   PLOB:SOURCE;PLOB-CONS.LISP
+%   PLOB:SOURCE;PLOB-SYMBOL.LISP
+%   PLOB:SOURCE;PLOB-FUNCTION.LISP
+%   PLOB:SOURCE;PLOB-VECTOR.LISP
+%   PLOB:SOURCE;PLOB-ARRAY.LISP
+%   PLOB:SOURCE;PLOB-STRING.LISP
+%   PLOB:SOURCE;PLOB-BIT-VECTOR.LISP
+%   PLOB:SOURCE;PLOB-NUMERIC.LISP
+%   PLOB:SOURCE;PLOB-STRUCT-DESCR.LISP
+%   PLOB:SOURCE;PLOB-STRUCT.LISP
+%   PLOB:SOURCE;PLOB-STRUCT-SLOT-DESCR.LISP
+%   PLOB:SOURCE;PLOB-STRUCT-HASH-TABLE.LISP
+%   PLOB:SOURCE;PLOB-STRUCT-PACKAGE.LISP
+%   PLOB:SOURCE;PLOB-STRUCT-ROOT.LISP
+%   PLOB:SOURCE;PLOB-CLOS-DESCR.LISP
+%   PLOB:SOURCE;PLOB-CLOS.LISP
+%   PLOB:SOURCE;PLOB-CLOS-SLOT-DESCR.LISP
+%   PLOB:SOURCE;PLOB-CLOS-SLOT-VALUE.LISP
+%   PLOB:SOURCE;PLOB-METHOD-DESCR.LISP
+%   PLOB:SOURCE;PLOB-DATABASE.LISP
+%   PLOB:SOURCE;PLOB-BUILTIN.LISP
+%   PLOB:SOURCE;PLOB-INSPECT.LISP
+%   PLOB:SOURCE;PLOB-BOOTSTRAP.LISP
+%   PLOB:UTIL;PLOB-SEXPR.LISP
 %
-% as of 1998/12/02 11:04    (year/mm/dd hh:mm)
+% as of 2005/05/24 16:12    (year/mm/dd hh:mm)
 % Changes done here will be lost.
 %
-% lisp-doc (C) 1994,1997 Heiko Kirschke
+% lisp-doc (C) 1994--1998 Heiko Kirschke
 %
 \let\tempa\relax%
 \ifx\flabel\undefined%
@@ -425,7 +425,7 @@
 
 \Valuelabel
 \begin{CompactCode}
-t
+(or nil)
 \end{CompactCode}
 
  \Purposelabel
@@ -443,35 +443,11 @@ t
 
 \Valuelabel
 \begin{CompactCode}
-0
+(or 12 0)
 \end{CompactCode}
 
 \Purposelabel
  Size of \lw\ bignum objects header information in bytes.
-\Remarkslabel
- \sysdep{constant}
-
-
-\endcom
-
-\begincncom[Internal]{+bignum-poi-tag+}
-
-\Valuelabel
-\begin{CompactCode}
-0
-\end{CompactCode}
-
-\Purposelabel
- A mask for adressing a bignum directly from within C code with
- the help of an \lisp{:as-is}\ parameter of the \lw\ foreign language
- interface passed down to a C function.
- This is the bitmask which must be used in C for unmasking a C
- \lisp{:as-is}\ parameter
- before using that \lisp{:as-is}\ parameter in C as a pointer to a
- \lw\ bignum object; the masked-out bits are a type tag
- saying that the de-referenced object is a bignum. If they are
- not masked out, a bus error is raised when de-referencing the
- bignum from within a C function.
 \Remarkslabel
  \sysdep{constant}
 
@@ -786,7 +762,9 @@ t
 
 \Valuelabel
 \begin{CompactCode}
-`((,+seek-set+ . :set) (,+seek-current+ . :current) (,+seek-end+ . :end))
+`((,+seek-set+ ,@:set)
+  (,+seek-current+ ,@:current)
+  (,+seek-end+ ,@:end))
 \end{CompactCode}
 
 \Purposelabel
@@ -803,7 +781,7 @@ t
 \begingfcom[Internal]{btree-mapper-search-internal}
 
 \Syntaxlabel
-\Defgen {btree-mapper-search-internal} {{\funarg{p-mapper-objid}} {\funarg{p-btree-objid}} {\funarg{start-value}} {\funarg{start-type-tag}} {\funarg{compare-start}} {\funarg{end-value}} {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{p-heap}}}
+\Defgen {btree-mapper-search-internal} {{\funarg{p-mapper-objid}} {\funarg{p-btree-objid}} {\funarg{start-value}} {\funarg{start-type-tag}} {\funarg{compare-start}} {\funarg{end-value}} {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{filter}} {\funarg{p-heap}}}
 
 
 \Argumentslabel
@@ -816,20 +794,20 @@ t
 
 \Methodslabel
 
-\flabel{\protect\mtd}{btree-mapper-search-internal (t t float t t float t t t t)}{}
-{\Defmeth {btree-mapper-search-internal} {{\funarg{p-mapper-objid}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{float}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{float}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{p-heap}}}}
+\flabel{\protect\mtd}{btree-mapper-search-internal (t t float t t float t t t t t)}{}
+{\Defmeth {btree-mapper-search-internal} {{\funarg{p-mapper-objid}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{float}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{float}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{filter}} {\funarg{p-heap}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
 
-\flabel{\protect\mtd}{btree-mapper-search-internal (t t integer t t integer t t t t)}{}
-{\Defmeth {btree-mapper-search-internal} {{\funarg{p-mapper-objid}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{integer}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{integer}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{p-heap}}}}
+\flabel{\protect\mtd}{btree-mapper-search-internal (t t integer t t integer t t t t t)}{}
+{\Defmeth {btree-mapper-search-internal} {{\funarg{p-mapper-objid}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{integer}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{integer}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{filter}} {\funarg{p-heap}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
 
-\flabel{\protect\mtd}{btree-mapper-search-internal (t t string t t string t t t t)}{}
-{\Defmeth {btree-mapper-search-internal} {{\funarg{p-mapper-objid}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{string}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{string}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{p-heap}}}}
+\flabel{\protect\mtd}{btree-mapper-search-internal (t t string t t string t t t t t)}{}
+{\Defmeth {btree-mapper-search-internal} {{\funarg{p-mapper-objid}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{string}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{string}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{filter}} {\funarg{p-heap}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
@@ -841,8 +819,12 @@ t
 
 \Valuelabel
 \begin{CompactCode}
-`((,+eq+ excl::bq-comma #'eq) (,+eq+ . eq) (,+eql+ excl::bq-comma #'eql)
-  (,+eql+ . eql) (,+equal+ excl::bq-comma #'equal) (,+equal+ . equal))
+`((,+eq+ ,@#'eq)
+  (,+eq+ . eq)
+  (,+eql+ ,@#'eql)
+  (,+eql+ . eql)
+  (,+equal+ ,@#'equal)
+  (,+equal+ . equal))
 \end{CompactCode}
 
 \Purposelabel
@@ -860,51 +842,11 @@ t
 
 \Valuelabel
 \begin{CompactCode}
-'fixnum
+'(signed-byte 32)
 \end{CompactCode}
 
 \Purposelabel
 LISP type declaration matching a C int.
-
-
-\endcom
-
-\beginfncom[Internal]{c-int-vector}
-
-\Syntaxlabel
-\Defun {c-int-vector} {{\funarg{x}} {\funarg{location}}}
-
-
-\endcom
-
-\beginfncom[Internal]{(setf c-int-vector)}
-
-\Syntaxlabel
-\Defun {(setf c-int-vector)} {{\funarg{new-value}} {\funarg{x}} {\funarg{location}}}
-
-
-\endcom
-
-\beginfncom[Internal]{c-int-vector-fill}
-
-\Syntaxlabel
-\Defun {c-int-vector-fill} {{\funarg{x}} {\funarg{new-value}}}
-
-
-\endcom
-
-\beginfncom[Internal]{c-int-vector-length}
-
-\Syntaxlabel
-\Defun {c-int-vector-length} {{\funarg{x}}}
-
-
-\endcom
-
-\beginfncom[Internal]{(setf c-int-vector-length)}
-
-\Syntaxlabel
-\Defun {(setf c-int-vector-length)} {{\funarg{new-length}} {\funarg{x}}}
 
 
 \endcom
@@ -993,7 +935,7 @@ t
 
 \Directslotslabel
 
-\Defdslot {objid->object-cache} {(make-hash-table :test #'eql :size 100000 :rehash-size 2.0)}
+\Defdslot {objid->object-cache} {(make-hash-table :test (function eql) :size 100000 :rehash-size 2.0)}
 
 
  Cache containing all \cl\ objects seen so far.
@@ -1002,7 +944,7 @@ t
  Should be a hash table with `weak pointers' for both keys and values
  (but \lwcl\ does not offer this).
 
-\Defdslot {object->objid-cache} {(make-hash-table :test #'eq :size 100000 :rehash-size 2.0)}
+\Defdslot {object->objid-cache} {(make-hash-table :test (function eq) :size 100000 :rehash-size 2.0)}
 
 
  This is the inverse for {\bf objid->object-cache}. Should be
@@ -1042,8 +984,52 @@ t
 
 \endcom
 
-\message{^^JGeneric function clos::canonicalize-class-options has no methods.^^J}
-\message{^^JGeneric function clos::canonicalize-defclass-slot has no methods.^^J}
+\begingfcom[Internal]{canonicalize-class-options}
+
+\Syntaxlabel
+\Defgen {canonicalize-class-options} {{\funarg{prototype}} {\funarg{class-options}}}
+
+
+ See \fcite{canonicalize-defclass-options}.
+
+
+\Methodslabel
+
+\flabel{\protect\mtd}{canonicalize-class-options :around (persistent-metaclass t)}{}
+{\Defmetharound {canonicalize-class-options} {(\funarg{prototype}\ \ObjectWithRef{persistent-metaclass}) {\funarg{class-options}}}}
+\lw\ signals an error on unknown class options;
+ so this method removes any extra allowed options
+ before calling the default method and returns the canonicalized extra
+ options concatenated to the result of the default method.
+ The extra allowed options are the value of the
+ \fcite{+extra-class-options+}.
+
+
+\endcom
+
+\begingfcom[Internal]{canonicalize-defclass-slot}
+
+\Syntaxlabel
+\Defgen {canonicalize-defclass-slot} {{\funarg{prototype}} {\funarg{slot}}}
+
+
+ See \fcite{canonicalize-direct-slot}.
+
+
+\Methodslabel
+
+\flabel{\protect\mtd}{canonicalize-defclass-slot :around (persistent-metaclass t)}{}
+{\Defmetharound {canonicalize-defclass-slot} {(\funarg{prototype}\ \ObjectWithRef{persistent-metaclass}) {\funarg{slot}}}}
+\lw\ signals an error on unknown slot options;
+ so this method removes any extra allowed options
+ before calling the default method and returns the canonicalized extra
+ options concatenated to the result of the default method.
+ The extra allowed options are the value of the
+ \fcite{+extra-slot-options+}.
+
+
+\endcom
+
 \beginfncom[Internal]{canonicalize-expecting-class}
 
 \Syntaxlabel
@@ -1179,8 +1165,8 @@ Prompt which is shown in the error message concerning non-setf'able slots.
  \begin{tabular}{|c|l|p{10cm}|}%
  \hline
  \tabularheader{Level}
-        &\tabularheader{Environment}
-                &\tabularheader{Description}\\
+	&\tabularheader{Environment}
+		&\tabularheader{Description}\\
  \hline\hline
  1 
   & LISP
@@ -1495,8 +1481,7 @@ Calls to this method are trapped to the system-generated
 
 \IfFLabelExists{(setf plob::class-description-dependent)}
 {\SeeAt\ \fcite{(setf plob::class-description-dependent)}.}
-{\message{^^JUndocumented generic function (setf
-                                            plob::class-description-dependent).^^J}
+{\message{^^JUndocumented generic function (setf plob::class-description-dependent).^^J}
 \nodefgeneric}
 
 
@@ -1778,14 +1763,6 @@ Trapped to \fcite{clrbtree}.
 
 \endcom
 
-\beginfncom[Internal]{compute-c-int-vector-location}
-
-\Syntaxlabel
-\Defun {compute-c-int-vector-location} {{\funarg{x}} {\funarg{location}}}
-
-
-\endcom
-
 \beginfncom[Internal]{compute-objid-buffer-size}
 
 \Syntaxlabel
@@ -1823,7 +1800,7 @@ Compute an optimal size for an \objid\ buffer.
 \end{CompactCode}
 
 \Purposelabel
-A vriable mapping the data vector of an array to
+A variable mapping the data vector of an array to
  the array (which uses the data vector for holding its elements).
 
 
@@ -2221,6 +2198,21 @@ nil
 
 \endcom
 
+\beginfncom[Internal]{ensure-process-cleanup}
+
+\Syntaxlabel
+\Defun {ensure-process-cleanup} {{\funarg{cleanup-form}} {\opt} {\funarg{process}}}
+
+
+\Purposelabel
+ Ensures that \funarg{cleanup-form}\ is executed when the
+ \funarg{process}\ terminates.
+\Seealsolabel
+ \Fcite{ensure-process-cleanup}
+
+
+\endcom
+
 \beginfncom[Internal]{ensure-structure-description}
 
 \Syntaxlabel
@@ -2267,20 +2259,6 @@ nil
 
 \endcom
 
-\begincncom[Internal]{+error-message-buffer-size+}
-
-\Valuelabel
-\begin{CompactCode}
-2048
-\end{CompactCode}
-
-\Purposelabel
- Size of the error message string buffers used for getting strings from
- the \plob\ low-level functions.
-
-
-\endcom
-
 \beginfncom[Internal]{establish-all-slot-loaders}
 
 \Syntaxlabel
@@ -2316,6 +2294,36 @@ nil
  and \emph{internal} (that means, a name in the transient namespace) names.
 \Seealsolabel
  \Fcite{internal-to-external-name}
+
+
+\endcom
+
+\begincncom[Internal]{+extra-class-options+}
+
+\Valuelabel
+\begin{CompactCode}
+'(:constructor :dependent :extent :schema-evolution)
+\end{CompactCode}
+
+\Purposelabel
+ List of additional allowed \clos\ class options.
+\Seealsolabel
+ \Fcite{canonicalize-class-options :around (persistent-metaclass t)}.
+
+
+\endcom
+
+\begincncom[Internal]{+extra-slot-options+}
+
+\Valuelabel
+\begin{CompactCode}
+'(:extent :deferred :index :location)
+\end{CompactCode}
+
+\Purposelabel
+ List of additional allowed \clos\ slot options.
+\Seealsolabel
+ \Fcite{canonicalize-defclass-slot :around (persistent-metaclass t)}.
 
 
 \endcom
@@ -2772,9 +2780,11 @@ Patch-as-patch-can: Call \fcite{patch-class-metaobject}\ and
 
 \Valuelabel
 \begin{CompactCode}
-`((,+flush-never+ . :never) (,+flush-seldom+ . :seldom)
-  (,+flush-sometimes+ . :sometimes) (,+flush-often+ . :often)
-  (,+flush-always+ . :always))
+`((,+flush-never+ ,@:never)
+  (,+flush-seldom+ ,@:seldom)
+  (,+flush-sometimes+ ,@:sometimes)
+  (,+flush-often+ ,@:often)
+  (,+flush-always+ ,@:always))
 \end{CompactCode}
 
 \Purposelabel
@@ -2797,9 +2807,11 @@ Patch-as-patch-can: Call \fcite{patch-class-metaobject}\ and
 
 
  \Purposelabel
-  Flush the object referenced by \funarg{p-objid}.
+  Flush the object referenced by \funarg{p-object}.
+  If \funarg{p-object}\ is \lispnil, all objects cached for
+  \funarg{p-heap}\ will be flushed.
  \Seealsolabel
-  \Fcite{flush-object}.
+  \Fcite{sh-flush-object}.
 
 
 \endcom
@@ -2810,6 +2822,17 @@ Patch-as-patch-can: Call \fcite{patch-class-metaobject}\ and
 \Defun {flush-objid-buffer} {{\funarg{objid-buffer}}}
 
 Flush an \objid\ buffer if it was modified.
+
+
+\endcom
+
+\beginpmcom[Internal]{+force-read-in-bootstrap+}
+
+\Initialvaluelabel
+\begin{CompactCode}
+t
+\end{CompactCode}
+
 
 
 \endcom
@@ -2901,6 +2924,73 @@ Get the depth parameter for the next recursion level.
  Return the name of \funarg{function}.
 \Remarkslabel
  \sysdep{macro}
+
+
+\endcom
+
+\begingfcom[Internal]{get-inspector-values-for-p-objid}
+
+\Syntaxlabel
+\Defgen {get-inspector-values-for-p-objid} {{\funarg{p-objid}} {\funarg{p-objid-type-tag}} {\funarg{mode}} {\funarg{p-heap}}}
+
+
+\Argumentslabel
+ \isa{\funarg{p-objid}}
+      {either a numeric immediate value or an \objid}
+ \isatypetag{\funarg{p-objid-type-tag}}
+\Valueslabel
+ See \fcite{get-inspector-values}.
+\Purposelabel
+ Return the values needed by the \lw\ inspector to inspect a persistent
+ object.
+
+
+\Methodslabel
+
+\flabel{\protect\mtd}{get-inspector-values-for-p-objid (t (eql +btree-page-tag+) t t)}{}
+{\Defmeth {get-inspector-values-for-p-objid} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +btree-page-tag+)}) {\funarg{mode}} {\funarg{p-heap}}}}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\flabel{\protect\mtd}{get-inspector-values-for-p-objid (t (eql +btree-type-tag+) t t)}{}
+{\Defmeth {get-inspector-values-for-p-objid} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +btree-type-tag+)}) {\funarg{mode}} {\funarg{p-heap}}}}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\flabel{\protect\mtd}{get-inspector-values-for-p-objid (t (eql +cons-type-tag+) t t)}{}
+{\Defmeth {get-inspector-values-for-p-objid} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +cons-type-tag+)}) {\funarg{mode}} {\funarg{p-heap}}}}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\flabel{\protect\mtd}{get-inspector-values-for-p-objid (t (eql +short-objid-tag+) t t)}{}
+{\Defmeth {get-inspector-values-for-p-objid} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +short-objid-tag+)}) {\funarg{mode}} {\funarg{p-heap}}}}
+Get the `real' type of the persistent object referenced by
+ \funarg{p-objid}\ and go on with this \typetag.
+
+\flabel{\protect\mtd}{get-inspector-values-for-p-objid (t (eql +string-type-tag+) t t)}{}
+{\Defmeth {get-inspector-values-for-p-objid} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +string-type-tag+)}) {\funarg{mode}} {\funarg{p-heap}}}}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\flabel{\protect\mtd}{get-inspector-values-for-p-objid (t (eql +symbol-type-tag+) t t)}{}
+{\Defmeth {get-inspector-values-for-p-objid} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +symbol-type-tag+)}) {\funarg{mode}} {\funarg{p-heap}}}}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\flabel{\protect\mtd}{get-inspector-values-for-p-objid (t (eql +vector-type-tag+) t t)}{}
+{\Defmeth {get-inspector-values-for-p-objid} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +vector-type-tag+)}) {\funarg{mode}} {\funarg{p-heap}}}}
+%
+% No behavior is specified for this method beyond that which is specified
+% for the generic function.
+
+\flabel{\protect\mtd}{get-inspector-values-for-p-objid (t t t t)}{}
+{\Defmeth {get-inspector-values-for-p-objid} {{\funarg{p-objid}} {\funarg{p-objid-type-tag}} {\funarg{mode}} {\funarg{p-heap}}}}
+Return the pure-transient top-level representation for inspection.
 
 
 \endcom
@@ -3315,8 +3405,7 @@ Store \funarg{key}\ and continue.
 
 \Methodslabel
 
-\flabel{\protect\mtd}{(setf getbtree-with-data) :around (t persistent-clos-object cached-btree t t t
-                                   t)}{}
+\flabel{\protect\mtd}{(setf getbtree-with-data) :around (t persistent-clos-object cached-btree t t t t)}{}
 {\Defmetharound {(setf getbtree-with-data)} {{\funarg{data}} (\funarg{key}\ \ObjectWithRef{persistent-clos-object}) (\funarg{p-btree}\ \ObjectWithRef{cached-btree}) {\funarg{depth}} {\funarg{p-heap}} {\funarg{data-objid}} {\funarg{data-type-tag}}}}
 Inserts \funarg{data}, \funarg{data-objid},
  \funarg{data-type-tag}\ associated to \funarg{key} into the cache of
@@ -3839,8 +3928,7 @@ nil
 
 \Valuelabel
 \begin{CompactCode}
-`((hash-table excl::bq-comma #'make-hash-table)
-  (btree excl::bq-comma #'make-btree))
+`((hash-table ,@#'make-hash-table) (btree ,@#'make-btree))
 \end{CompactCode}
 
 \Purposelabel
@@ -3869,6 +3957,32 @@ nil
  Insert \funarg{data}, \funarg{data-objid},
  \funarg{data-type-tag}\ associated to \funarg{entry-key}\ into the
  cache of \funarg{p-btree}.
+
+
+\endcom
+
+\begincncom[Internal]{+inspector-btree-page-slot-name-next+}
+
+\Valuelabel
+\begin{CompactCode}
+"  Next of `~A' ->"
+\end{CompactCode}
+
+\Purposelabel
+The slot name to show for a btree page next slot.
+
+
+\endcom
+
+\begincncom[Internal]{+inspector-btree-page-slot-name-parent+}
+
+\Valuelabel
+\begin{CompactCode}
+"  Parent ->"
+\end{CompactCode}
+
+\Purposelabel
+The slot name to show for a btree page parent slot.
 
 
 \endcom
@@ -3980,6 +4094,31 @@ Return \funarg{vector}\ converted into a vector.
 
 \endcom
 
+\beginfncom[Internal]{is-on-idle-sleep-hook}
+
+\Syntaxlabel
+\Defun {is-on-idle-sleep-hook} {{\funarg{function-symbol}}}
+
+
+\Argumentslabel
+ \isa{\funarg{function-symbol}}
+      {the name of a function taking no arguments}
+\Purposelabel
+ Check if \funarg{function-symbol}\ is on the idle sleep hook.
+\Remarkslabel
+ \sysdep{function}
+
+ Hint for portability:
+ Should always return \lispnil\ if the used \cl\ system has no
+ idle sleep hook at all.
+\Seealsolabel
+ \Fcite{push-to-idle-sleep-hook};
+ \fcite{remove-from-idle-sleep-hook};
+ section \fcite{process ...}.
+
+
+\endcom
+
 \beginfncom[Internal]{is-registered-object}
 
 \Syntaxlabel
@@ -4031,15 +4170,16 @@ The largest representable positive persistent fixnum.
 
 \endcom
 
-\begincncom[Internal]{+length-structure-persistent-slots+}
+\begincncom[Internal]{+length-structure-persistent-slot-names+}
 
 \Valuelabel
 \begin{CompactCode}
-(length +structure-persistent-slots+)
+(length +structure-persistent-slot-names+)
 \end{CompactCode}
 
 \Purposelabel
-The length of the list in \fcite{+structure-persistent-slots+}.
+The length of the list in
+ \fcite{+structure-persistent-slot-names+}.
 
 
 \endcom
@@ -4048,7 +4188,7 @@ The length of the list in \fcite{+structure-persistent-slots+}.
 
 \Valuelabel
 \begin{CompactCode}
-:fasl
+:wfasl
 \end{CompactCode}
 
 \Purposelabel
@@ -4071,7 +4211,7 @@ The length of the list in \fcite{+structure-persistent-slots+}.
 
 \Valuelabel
 \begin{CompactCode}
-:allegro5
+(or :lispworks4)
 \end{CompactCode}
 
 \Purposelabel
@@ -4149,12 +4289,45 @@ nil
 
 \Initialvaluelabel
 \begin{CompactCode}
-100
+101
 \end{CompactCode}
 
 \Purposelabel
 Contains the actual version number of the LISP root object. Must be
  a fixnum.
+
+
+\endcom
+
+\begincncom[Internal]{+lispworks-structure-definition-index+}
+
+\Valuelabel
+\begin{CompactCode}
+13
+\end{CompactCode}
+
+\Purposelabel
+ The index into the vector returned by the \lw\ function
+ {\bf structure::get-structure-definition} which contains the
+ structure definition.
+\Remarkslabel
+ \sysdep{constant}
+
+
+\endcom
+
+\begincncom[Internal]{+lispworks-structure-definition-location-constructor+}
+
+\Valuelabel
+\begin{CompactCode}
+13
+\end{CompactCode}
+
+\Purposelabel
+ The index into the \lw\ structure definition which contains the
+ constructor function symbol of the structure.
+\Remarkslabel
+ \sysdep{constant}
 
 
 \endcom
@@ -4184,8 +4357,7 @@ Contains the actual version number of the LISP root object. Must be
 
 \Methodslabel
 
-\flabel{\protect\mtd}{load-instance-for-class ((eql 'persistent-hash-table) structure-description t
-                         t t)}{}
+\flabel{\protect\mtd}{load-instance-for-class ((eql (quote persistent-hash-table)) structure-description t t t)}{}
 {\Defmeth {load-instance-for-class} {(\funarg{t-class-name}\ \ObjectWithRef{(eql 'persistent-hash-table)}) (\funarg{p-class-descr}\ \ObjectWithRef{structure-description}) {\funarg{p-objid}} {\funarg{depth}} {\funarg{p-heap}} {\opt} {\funarg{t-into-object}}}}
 %
 % No behavior is specified for this method beyond that which is specified
@@ -4258,8 +4430,7 @@ Contains the actual version number of the LISP root object. Must be
  \fcite{load-instance-for-class};
  \fcite{(setf schema-evolution)}.
 
-\flabel{\protect\mtd}{load-instance-for-redefined-class (t structure-description
-                                   structure-description t t t)}{}
+\flabel{\protect\mtd}{load-instance-for-redefined-class (t structure-description structure-description t t t)}{}
 {\Defmeth {load-instance-for-redefined-class} {{\funarg{t-class-name}} (\funarg{p-class-descr-old}\ \ObjectWithRef{structure-description}) (\funarg{p-class-descr-new}\ \ObjectWithRef{structure-description}) {\funarg{p-objid}} {\funarg{depth}} {\funarg{p-heap}} {\opt} {\funarg{t-into-object}}}}
 %
 % No behavior is specified for this method beyond that which is specified
@@ -4515,6 +4686,19 @@ effective-slot-description)}.
 
 \endcom
 
+\begincncom[Internal]{+logical-pathname-class+}
+
+\Valuelabel
+\begin{CompactCode}
+(find-class 'logical-pathname)
+\end{CompactCode}
+
+\Purposelabel
+The \clsmo\ of class \class{logical-pathname}.
+
+
+\endcom
+
 \beginfncom[Internal]{make-2-map-keys}
 
 \Syntaxlabel
@@ -4562,19 +4746,6 @@ effective-slot-description)}.
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
-
-
-\endcom
-
-\beginfncom[Internal]{make-c-int-vector}
-
-\Syntaxlabel
-\Defun {make-c-int-vector} {{\funarg{length}}}
-
-\Purposelabel
- Allocate a int-vector.
-\Seealsolabel
- \Fcite{make-int-vector}.
 
 
 \endcom
@@ -4875,6 +5046,14 @@ Return a string describing the Stable Heap to be created.
 
 \endcom
 
+\beginfncom[Internal]{map-comparetag-to-keyword}
+
+\Syntaxlabel
+\Defun {map-comparetag-to-keyword} {{\funarg{comparetag}}}
+
+
+\endcom
+
 \beginfncom[Internal]{map-numeric-loginp}
 
 \Syntaxlabel
@@ -4911,7 +5090,7 @@ Return a string describing the Stable Heap to be created.
 \begingfcom[Internal]{mapbtree-internal}
 
 \Syntaxlabel
-\Defgen {mapbtree-internal} {{\funarg{map-function}} {\funarg{p-btree-objid}} {\funarg{start-value}} {\funarg{start-type-tag}} {\funarg{compare-start}} {\funarg{end-value}} {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{p-heap}}}
+\Defgen {mapbtree-internal} {{\funarg{map-function}} {\funarg{p-btree-objid}} {\funarg{start-value}} {\funarg{start-type-tag}} {\funarg{compare-start}} {\funarg{end-value}} {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{filter}} {\funarg{p-heap}}}
 
 
 \Argumentslabel
@@ -4947,20 +5126,20 @@ Return a string describing the Stable Heap to be created.
 
 \Methodslabel
 
-\flabel{\protect\mtd}{mapbtree-internal (t t float t t float t t t t)}{}
-{\Defmeth {mapbtree-internal} {{\funarg{map-function}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{float}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{float}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{p-heap}}}}
+\flabel{\protect\mtd}{mapbtree-internal (t t float t t float t t t t t)}{}
+{\Defmeth {mapbtree-internal} {{\funarg{map-function}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{float}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{float}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{filter}} {\funarg{p-heap}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
 
-\flabel{\protect\mtd}{mapbtree-internal (t t integer t t integer t t t t)}{}
-{\Defmeth {mapbtree-internal} {{\funarg{map-function}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{integer}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{integer}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{p-heap}}}}
+\flabel{\protect\mtd}{mapbtree-internal (t t integer t t integer t t t t t)}{}
+{\Defmeth {mapbtree-internal} {{\funarg{map-function}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{integer}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{integer}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{filter}} {\funarg{p-heap}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
 
-\flabel{\protect\mtd}{mapbtree-internal (t t string t t string t t t t)}{}
-{\Defmeth {mapbtree-internal} {{\funarg{map-function}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{string}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{string}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{p-heap}}}}
+\flabel{\protect\mtd}{mapbtree-internal (t t string t t string t t t t t)}{}
+{\Defmeth {mapbtree-internal} {{\funarg{map-function}} {\funarg{p-btree-objid}} (\funarg{start-value}\ \ObjectWithRef{string}) {\funarg{start-type-tag}} {\funarg{compare-start}} (\funarg{end-value}\ \ObjectWithRef{string}) {\funarg{end-type-tag}} {\funarg{compare-end}} {\funarg{descending}} {\funarg{filter}} {\funarg{p-heap}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
@@ -5209,32 +5388,10 @@ nil
 \message{^^JGeneric function (setf plob::method-description-qualifiers) has no methods.^^J}
 \message{^^JGeneric function plob::method-description-specializers has no methods.^^J}
 \message{^^JGeneric function (setf plob::method-description-specializers) has no methods.^^J}
-\message{^^JGeneric function clos:method-function has no methods.^^J}
-\message{^^JGeneric function clos:method-lambda-list has no methods.^^J}
+\message{^^JGeneric function method-function has no methods.^^J}
+\message{^^JGeneric function method-lambda-list has no methods.^^J}
 \message{^^JGeneric function method-qualifiers has no methods.^^J}
-\begingfcom[Internal]{method-slot-name}
-
-\Syntaxlabel
-\Defgen {method-slot-name} {{\funarg{method}}}
-
-\IfFLabelExists{plob::method-slot-name}
-{\SeeAt\ \fcite{plob::method-slot-name}.}
-{\message{^^JUndocumented generic function plob::method-slot-name.^^J}
-\nodefgeneric}
-
-
-\Methodslabel
-
-\flabel{\protect\mtd}{method-slot-name (standard-accessor-method)}{}
-{\Defmeth {method-slot-name} {(\funarg{method}\ \ObjectWithRef{standard-accessor-method})}}
-%
-% No behavior is specified for this method beyond that which is specified
-% for the generic function.
-
-
-\endcom
-
-\message{^^JGeneric function clos:method-specializers has no methods.^^J}
+\message{^^JGeneric function method-specializers has no methods.^^J}
 \beginclcom[Internal Structure]{migrate-info}
 
 \Purposelabel
@@ -5368,10 +5525,24 @@ The largest representable positive persistent fixnum.
 
 \endcom
 
-\beginmccom[Internal]{namestring-if}
+\beginfncom[Internal]{namestring-if}
 
 \Syntaxlabel
-\Defmac {namestring-if} {{\funarg{pathname}}}
+\Defun {namestring-if} {{\funarg{pathname}}}
+
+
+\Argumentslabel
+  \isa{\funarg{pathname}}
+       {a [logical] pathname}
+\Valueslabel
+ Returns argument \funarg{pathname}\ converted to a string.
+\Purposelabel
+ Bug-fix for the \lw\ \fcite{namestring}; \lw\ does not return a
+ correct path expression for logical pathnames.
+\Remarkslabel
+ \sysdep{function}
+\Seealsolabel
+ \Fcite{namestring}.
 
 
 \endcom
@@ -5393,7 +5564,7 @@ Prompt which is shown in the error message concerning invalid slot names.
 
 \Valuelabel
 \begin{CompactCode}
-(or excl::*null-stream* nil)
+(or system::*null-stream* nil)
 \end{CompactCode}
 
 \Purposelabel
@@ -5498,7 +5669,65 @@ The max.\ number of \objid{}s and \typetag{}s
 
 \endcom
 
-\message{^^JGeneric function clos::obsolete-instance-trap-internal has no methods.^^J}
+\begingfcom[Internal]{obsolete-instance-trap-internal}
+
+\Syntaxlabel
+\Defgen {obsolete-instance-trap-internal} {{\funarg{class}} {\funarg{old-instance}} {\funarg{old-wrapper}}}
+
+
+
+\Argumentslabel
+
+ \isacls{\funarg{class}}
+ \isa{\funarg{old-instance}}
+      {an obsolete \clos\ instance}
+ \isa{\funarg{old-wrapper}}
+      {the old class wrapper with a minimal class description
+       for \funarg{old-instance}}
+
+\Purposelabel
+
+ This generic function is called by \lw\ when an instance
+ is referenced whose class was marked as having obsolete
+ instances by a call to the \fcite{make-instances-obsolete}.
+
+
+\Methodslabel
+
+\flabel{\protect\mtd}{obsolete-instance-trap-internal (persistent-metaclass t t t)}{}
+{\Defmeth {obsolete-instance-trap-internal} {(\funarg{class}\ \ObjectWithRef{persistent-metaclass}) {\funarg{oinstance}} {\funarg{owrapper}} {\funarg{special-wrapper}}}}
+
+ This is the obsolete-instance-trap-internal for instances of
+ \fcite{persistent-clos-object}; it is called each time
+ \clos\ detects an out-of-date instance.
+ The \lw\ method
+ {\bf obsolete-instance-trap-internal (standard-class t t)}
+ cannot be used because \plob\ modifies a \clsmo\ with persistent
+ instances so that slots with \lisp{:extent :persistent} are
+ not allocated by \clos\ and therefore are also not direct
+ accessible by \clos; the mentioned method uses fairly low-level
+ accessing functions which do not know about the modifications done
+ by \plob\ and will crash \lw\ when called.
+
+ The right solution would be to compute the discarded slots here in
+ this method, re-allocate an \clos\ instance vector, modify the
+ \funarg{oinstance}\ to use the new re-allocated instance vector,
+ fill this new vector from the old one and call
+ \fcite{update-instance-for-redefined-class}. Since some
+ of these steps involve calling low-low-low-level
+ \lw\ \clos\ functions, I ommitted this for now here; only an
+ error is signalled.
+
+ Since there might be old instances in the cache,
+ the cache is cleared too; so this method is perhaps not
+ called any more because the offending instance was only
+ found in the cache.
+\Seealsolabel
+ \Fcite{signal-obsolete-instance-error}.
+
+
+\endcom
+
 \beginfncom[Internal]{open-objid-buffer}
 
 \Syntaxlabel
@@ -5534,9 +5763,9 @@ Open an \objid-buffer.
  \begin{tabular}{|c|p{7cm}|l|l|}
  \hline
  \tabularheader{Words}
-        &\tabularheader{Description}
-                &\tabularheader{Reader}
-                        &\tabularheader{Writer}\\
+	&\tabularheader{Description}
+		&\tabularheader{Reader}
+			&\tabularheader{Writer}\\
  \hline\hline
  $1$
   & Size $m$ of reference field in words
@@ -6620,28 +6849,6 @@ Open an \objid-buffer.
  \funarg{p-objid}\ to \funarg{t-version-number}.
 \Seealsolabel
  Section \fcite{p-class-description- ...}.
-
-
-\endcom
-
-\beginfncom[Internal]{p-destroy}
-
-\Syntaxlabel
-\Defun {p-destroy} {{\funarg{p-objid}} {\opt} {\funarg{p-heap}}}
-
-
-\Argumentslabel
- \isanobjid{\funarg{p-objid}}
-\Purposelabel
- Destroy the persistent object referenced by \funarg{p-objid}.
-\Remarkslabel
- Currently, the object is not really destroyed; it is marked by
- \plob\ as a `zombie' object. This leads to an error message if
- such a `zombie' object is de-referenced later.
-
- The only way to physically destroy a persistent object is to remove
- all references from other persistent objects onto the object to
- destroy and to perform a garbage collection.
 
 
 \endcom
@@ -8088,6 +8295,14 @@ Check if \funarg{type-tag}\ denominates a marker type.
 
 \endcom
 
+\beginfncom[Internal]{p-markerp-fn}
+
+\Syntaxlabel
+\Defun {p-markerp-fn} {{\funarg{type-tag}}}
+
+
+\endcom
+
 \beginfncom[Internal]{p-method-description}
 
 \Syntaxlabel
@@ -8708,14 +8923,16 @@ Returns \funarg{p-objid}\ itself.
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
 
+\flabel{\protect\mtd}{p-objid-to-t-object (t (eql +max-tag+) t t)}{}
+{\Defmeth {p-objid-to-t-object} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +max-tag+)}) {\funarg{depth}} {\funarg{p-heap}}}}
+Returns the \fcite{+plob-max-marker+}.
+
+\flabel{\protect\mtd}{p-objid-to-t-object (t (eql +min-tag+) t t)}{}
+{\Defmeth {p-objid-to-t-object} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +min-tag+)}) {\funarg{depth}} {\funarg{p-heap}}}}
+Returns the \fcite{+plob-min-marker+}.
+
 \flabel{\protect\mtd}{p-objid-to-t-object (t (eql +ratio-type-tag+) t t)}{}
 {\Defmeth {p-objid-to-t-object} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +ratio-type-tag+)}) {\funarg{depth}} {\funarg{p-heap}}}}
-%
-% No behavior is specified for this method beyond that which is specified
-% for the generic function.
-
-\flabel{\protect\mtd}{p-objid-to-t-object (t (eql +short-float-type-tag+) t t)}{}
-{\Defmeth {p-objid-to-t-object} {{\funarg{p-objid}} (\funarg{p-objid-type-tag}\ \ObjectWithRef{(eql +short-float-type-tag+)}) {\funarg{depth}} {\funarg{p-heap}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
@@ -10567,6 +10784,105 @@ nil
 
 \endcom
 
+\beginfncom[Internal]{patch-class-slots}
+
+\Syntaxlabel
+\Defun {patch-class-slots} {{\funarg{the-class}} {\funarg{clos-effective-slots}} {\funarg{plob-effective-slots}}}
+
+
+\Argumentslabel
+ \isacls{\funarg{the-class}}
+ \isa{\funarg{clos-effective-slots}}
+      {a list of \eff\ \sltmo{}s}
+ \isa{\funarg{plob-effective-slots}}
+      {a vector with effective-slot-descriptions}
+\Purposelabel
+ Does some \horrible\ things with the
+ \clsmo\ \funarg{the-class}\ necessary to cope with some
+ missing \mop\ support of \lw\ \clos:
+ \begin{itemize}
+
+ \item The number of transient \clos\ slots is decremented for
+  each slot with an \lisp{:extent :persistent}.
+
+ \item Therefore, the locations of the \clos\ slots must be
+   adjusted to meet non-existent transient \clos\ slots;
+   the class wrapper vectors containing the instance-and
+   class-slot-names must be rebuild also to match the changed
+   locations.
+
+ \end{itemize}
+\Remarkslabel
+ \sysdep{function}
+\Seealsolabel
+ \Fcite{(setf slot-extent)};
+ \fcite{patch-class-metaobject};
+ \fcite{patch-class-methods};
+ \fcite{patch-class-wrapper}.
+
+
+\endcom
+
+\beginfncom[Internal]{patch-class-slots-p}
+
+\Syntaxlabel
+\Defun {patch-class-slots-p} {{\funarg{the-class}}}
+
+
+\Purposelabel
+ Check if \funarg{the-class-descr}\ needs a patch for a correct
+ transient representing for persistent objects. A patch is needed
+ if at least one slot is declared as being \lisp{:persistent}\ and
+ therefore not being represented in transient memory.
+
+
+\endcom
+
+\beginfncom[Internal]{patch-class-wrapper}
+
+\Syntaxlabel
+\Defun {patch-class-wrapper} {{\funarg{the-class}} {\funarg{list-of-instance-slot-names}} {\funarg{list-of-class-slot-names}}}
+
+
+\Argumentslabel
+ \isacls{\funarg{the-class}}
+ \isa{\funarg{list-of-instance-slot-names}}
+      {a list of instance slot name symbols naming the instance
+       slots of \funarg{the-class}}
+ \isa{\funarg{list-of-class-slot-names}}
+      {a list of slot name symbols naming the slots of
+       \funarg{the-class} with \lisp{:allocation :class}}
+\Purposelabel
+ Does some \horrible\ things with the class wrapper
+ of the \clsmo\ \funarg{the-class}\ necessary to cope with
+ some missing \mop\ support of \lw\ \clos.
+
+ The list of instance slot names of the class wrapper of class
+ \funarg{the-class}\ is set to
+ \funarg{list-of-instance-slot-names}.
+ The list of slot names of the class wrapper of class
+ \funarg{the-class}\ with the names of the slots which
+ have an \lisp{:allocation :class}\ is ordered so that its
+ ordering is the same as given by
+ \funarg{list-of-class-slot-names}.
+
+ This is done to keep the \lw\ methods
+ {\bf slot-value-using-class (t t t)} and
+ {\bf (setf slot-value-using-class) (t t t)} working despite
+ the changes done by \plob\ to the \clsmo;
+ they use the ordering established in the list of slot names
+ to do a low-level access to an object slot's value.
+\Remarkslabel
+ \sysdep{function}
+\Seealsolabel
+ \Fcite{(setf slot-extent)};
+ \fcite{patch-class-metaobject};
+ \fcite{patch-class-methods};
+ \fcite{patch-class-slots}.
+
+
+\endcom
+
 \beginclcom[Internal Structure]{persistent-btree}
 
 \Purposelabel
@@ -10642,7 +10958,9 @@ nil
 (let ((the-class (find-class 'persistent-clos-object nil)))
   (if the-class
       the-class
-    (ensure-class 'persistent-clos-object :metaclass 'persistent-metaclass)))
+    (ensure-class 'persistent-clos-object
+                  :metaclass
+                  'persistent-metaclass)))
 \end{CompactCode}
 
 \Purposelabel
@@ -11180,7 +11498,7 @@ The \clsmo\ of \fcite{persistent-structure}.
 \Defun {persistent-structure-slot-p} {{\funarg{slot}}}
 
 Check if \funarg{slot}\ is a member of the slots found in
- \fcite{+structure-persistent-slots+}.
+ \fcite{+structure-persistent-slot-names+}.
 
 
 \endcom
@@ -11402,6 +11720,29 @@ nil
 
 \endcom
 
+\begincncom[Internal]{+poi-tag+}
+
+\Valuelabel
+\begin{CompactCode}
+(or low:tag-and)
+\end{CompactCode}
+
+\Purposelabel
+ A mask for adressing a LISP object directly from within C code with
+ the help of an \lisp{:as-is}\ parameter of the \lw\ foreign language
+ interface passed down to a C function.
+ This is the bitmask which must be used in C for unmasking a C
+ \lisp{:as-is}\ parameter
+ before using that \lisp{:as-is}\ parameter in C as a pointer to a
+ LISP object; the masked-out bits are a type tag. If they are
+ not masked out, a bus error is raised when de-referencing the
+ bignum from within a C function.
+\Remarkslabel
+ \sysdep{constant}
+
+
+\endcom
+
 \begincncom[Internal]{+pprint-buffer-size+}
 
 \Valuelabel
@@ -11459,6 +11800,26 @@ Pretty print a symbol.
  \fcite{process-wait-with-timeout};
  \fcite{push-to-idle-sleep-hook};
  \fcite{remove-from-idle-sleep-hook}.
+
+
+\endcom
+
+\beginfncom[Internal]{process-alive-p}
+
+\Syntaxlabel
+\Defun {process-alive-p} {{\funarg{the-process}}}
+
+
+\Argumentslabel
+ \isa{\funarg{the-process}}
+      {a process object}
+\Purposelabel
+ Test if the lisp-internal session represented by
+ \funarg{the-process}\ is alive.
+\Remarkslabel
+ \sysdep{function}
+\Seealsolabel
+ Section \fcite{process ...}.
 
 
 \endcom
@@ -11576,6 +11937,33 @@ Pretty print a symbol.
  it uses the other end.
 \Seealsolabel
  \Fcite{push-on-end}; \fcite{push}.
+
+
+\endcom
+
+\beginfncom[Internal]{push-to-idle-sleep-hook}
+
+\Syntaxlabel
+\Defun {push-to-idle-sleep-hook} {{\funarg{function-symbol}}}
+
+
+\Argumentslabel
+ \isa{\funarg{function-symbol}}
+      {the name of a function taking no arguments}
+\Purposelabel
+ Pushes \funarg{function-symbol}\ to the idle sleep hook.
+ The symbol-function of \funarg{function-symbol}\ is called
+ each time when the process goes idle.
+\Remarkslabel
+ \sysdep{function}
+
+ Hint for portability:
+ If the \cl\ system has no idle sleep hook, raise an error when this
+ function is called.
+\Seealsolabel
+ \Fcite{remove-from-idle-sleep-hook};
+ \fcite{is-on-idle-sleep-hook};
+ section \fcite{process ...}.
 
 
 \endcom
@@ -11914,6 +12302,27 @@ Trapped to \fcite{rembtree-by-objid}.
 
 \endcom
 
+\beginfncom[Internal]{remove-from-idle-sleep-hook}
+
+\Syntaxlabel
+\Defun {remove-from-idle-sleep-hook} {{\funarg{function-symbol}}}
+
+
+\Argumentslabel
+ \isa{\funarg{function-symbol}}
+      {the name of a function taking no arguments}
+\Purposelabel
+ Remove \funarg{function-symbol}\ from the idle sleep hook.
+\Remarkslabel
+ \sysdep{function}
+\Seealsolabel
+ \Fcite{push-to-idle-sleep-hook};
+ \fcite{is-on-idle-sleep-hook};
+ section \fcite{process ...}.
+
+
+\endcom
+
 \beginfncom[Internal]{remove-metaclass-p}
 
 \Syntaxlabel
@@ -11963,15 +12372,16 @@ Check if \funarg{the-class}\ is a non-standard metaobject class
 
 \endcom
 
-\begincncom[Internal]{+reverse-structure-persistent-slots+}
+\begincncom[Internal]{+reverse-structure-persistent-slot-names+}
 
 \Valuelabel
 \begin{CompactCode}
-(reverse +structure-persistent-slots+)
+(reverse +structure-persistent-slot-names+)
 \end{CompactCode}
 
 \Purposelabel
-The reverse list of the value of \fcite{+structure-persistent-slots+}.
+The reverse list of the value of
+ \fcite{+structure-persistent-slot-names+}.
 
 
 \endcom
@@ -12459,7 +12869,7 @@ A hash table containing all open sessions.
 \beginfncom[Internal]{sh-btree-map}
 
 \Syntaxlabel
-\Defun {sh-btree-map} {{\funarg{p-heap-objid}} {\funarg{p-objid-btree}} {\funarg{map-function}} {\opt} {\funarg{immediate-key-start-value}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-value}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}}}
+\Defun {sh-btree-map} {{\funarg{p-heap-objid}} {\funarg{p-objid-btree}} {\funarg{map-function}} {\opt} {\funarg{immediate-key-start-value}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-value}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}} {\funarg{p-objid-filter}}}
 
 
 \Argumentslabel
@@ -12490,7 +12900,7 @@ A hash table containing all open sessions.
 \beginfncom[Internal]{sh-btree-map-by-double}
 
 \Syntaxlabel
-\Defun {sh-btree-map-by-double} {{\funarg{p-heap-objid}} {\funarg{p-objid-btree}} {\funarg{map-function}} {\opt} {\funarg{immediate-key-start-double-float}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-double-float}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}}}
+\Defun {sh-btree-map-by-double} {{\funarg{p-heap-objid}} {\funarg{p-objid-btree}} {\funarg{map-function}} {\opt} {\funarg{immediate-key-start-double-float}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-double-float}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}} {\funarg{p-objid-filter}}}
 
 
 \Argumentslabel
@@ -12519,7 +12929,7 @@ A hash table containing all open sessions.
 \beginfncom[Internal]{sh-btree-map-by-float}
 
 \Syntaxlabel
-\Defun {sh-btree-map-by-float} {{\funarg{p-heap-objid}} {\funarg{p-objid-btree}} {\funarg{map-function}} {\opt} {\funarg{immediate-key-start-single-float}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-single-float}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}}}
+\Defun {sh-btree-map-by-float} {{\funarg{p-heap-objid}} {\funarg{p-objid-btree}} {\funarg{map-function}} {\opt} {\funarg{immediate-key-start-single-float}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-single-float}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}} {\funarg{p-objid-filter}}}
 
 
 \Argumentslabel
@@ -12548,7 +12958,7 @@ A hash table containing all open sessions.
 \beginfncom[Internal]{sh-btree-map-by-string}
 
 \Syntaxlabel
-\Defun {sh-btree-map-by-string} {{\funarg{p-heap-objid}} {\funarg{p-objid-btree}} {\funarg{map-function}} {\opt} {\funarg{immediate-key-start-vector}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-vector}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}}}
+\Defun {sh-btree-map-by-string} {{\funarg{p-heap-objid}} {\funarg{p-objid-btree}} {\funarg{map-function}} {\opt} {\funarg{immediate-key-start-vector}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-vector}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}} {\funarg{p-objid-filter}}}
 
 
 \Argumentslabel
@@ -12577,7 +12987,7 @@ A hash table containing all open sessions.
 \beginfncom[Internal]{sh-btree-map-search}
 
 \Syntaxlabel
-\Defun {sh-btree-map-search} {{\funarg{p-heap-objid}} {\funarg{p-objid-mapper}} {\funarg{p-objid-btree}} {\opt} {\funarg{immediate-key-start-value}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-value}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}}}
+\Defun {sh-btree-map-search} {{\funarg{p-heap-objid}} {\funarg{p-objid-mapper}} {\funarg{p-objid-btree}} {\opt} {\funarg{immediate-key-start-value}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-value}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}} {\funarg{p-objid-filter}}}
 
 
 \endcom
@@ -12585,7 +12995,7 @@ A hash table containing all open sessions.
 \beginfncom[Internal]{sh-btree-map-search-by-double}
 
 \Syntaxlabel
-\Defun {sh-btree-map-search-by-double} {{\funarg{p-heap-objid}} {\funarg{p-objid-mapper}} {\funarg{p-objid-btree}} {\opt} {\funarg{immediate-key-start-double-float}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-double-float}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}}}
+\Defun {sh-btree-map-search-by-double} {{\funarg{p-heap-objid}} {\funarg{p-objid-mapper}} {\funarg{p-objid-btree}} {\opt} {\funarg{immediate-key-start-double-float}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-double-float}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}} {\funarg{p-objid-filter}}}
 
 
 \endcom
@@ -12593,7 +13003,7 @@ A hash table containing all open sessions.
 \beginfncom[Internal]{sh-btree-map-search-by-float}
 
 \Syntaxlabel
-\Defun {sh-btree-map-search-by-float} {{\funarg{p-heap-objid}} {\funarg{p-objid-mapper}} {\funarg{p-objid-btree}} {\opt} {\funarg{immediate-key-start-single-float}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-single-float}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}}}
+\Defun {sh-btree-map-search-by-float} {{\funarg{p-heap-objid}} {\funarg{p-objid-mapper}} {\funarg{p-objid-btree}} {\opt} {\funarg{immediate-key-start-single-float}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-single-float}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}} {\funarg{p-objid-filter}}}
 
 
 \endcom
@@ -12601,7 +13011,7 @@ A hash table containing all open sessions.
 \beginfncom[Internal]{sh-btree-map-search-by-string}
 
 \Syntaxlabel
-\Defun {sh-btree-map-search-by-string} {{\funarg{p-heap-objid}} {\funarg{p-objid-mapper}} {\funarg{p-objid-btree}} {\opt} {\funarg{immediate-key-start-string}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-string}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}}}
+\Defun {sh-btree-map-search-by-string} {{\funarg{p-heap-objid}} {\funarg{p-objid-mapper}} {\funarg{p-objid-btree}} {\opt} {\funarg{immediate-key-start-string}} {\funarg{immediate-key-start-type-tag}} {\funarg{compare-start-key}} {\funarg{immediate-key-end-string}} {\funarg{immediate-key-end-type-tag}} {\funarg{compare-end-key}} {\funarg{descending}} {\funarg{p-objid-filter}}}
 
 
 \endcom
@@ -12864,6 +13274,22 @@ A hash table containing all open sessions.
 
 \endcom
 
+\beginfncom[Internal]{sh-compare}
+
+\Syntaxlabel
+\Defun {sh-compare} {{\funarg{p-heap-objid}} {\funarg{immediate-value-1}} {\funarg{immediate-type-tag-1}} {\funarg{immediate-value-2}} {\funarg{immediate-type-tag-2}}}
+
+
+\endcom
+
+\beginfncom[Internal]{sh-compile-regex}
+
+\Syntaxlabel
+\Defun {sh-compile-regex} {{\funarg{p-heap-objid}} {\funarg{p-regex-objid}}}
+
+
+\endcom
+
 \beginfncom[Internal]{sh-configuration}
 
 \Syntaxlabel
@@ -12980,12 +13406,17 @@ C interface function for \fcite{p-allocate-structure}.
 \beginfncom[Internal]{sh-error-callback}
 
 \Syntaxlabel
-\Defun {sh-error-callback} {}
+\Defun {sh-error-callback} {{\funarg{error-level}} {\funarg{continue-message}} {\funarg{error-message}}}
 
 
+\Argumentslabel
+ \isa{\funarg{continue-message}\ resp.\ \funarg{error-message}}
+      {a string}
 \Purposelabel
- The \allegrocl\ callback called when a server error occurres in
+ The \lwcl\ callback called when a continuable error occurres in
  the C level of \plob.
+\Seealsolabel
+ \Fcite{sh-signal-cerror}.
 
 
 \endcom
@@ -12993,7 +13424,7 @@ C interface function for \fcite{p-allocate-structure}.
 \beginfncom[Internal]{sh-exit}
 
 \Syntaxlabel
-\Defun {sh-exit} {{\opt} {\funarg{force}} {\funarg{url}}}
+\Defun {sh-exit} {{\funarg{p-heap-objid}} {\opt} {\funarg{force}}}
 
 
 \Purposelabel
@@ -13170,6 +13601,14 @@ Convert \funarg{name}\ into a numeric Internet address.
 \Seealsolabel
  \Fcite{p-make-double-float};
  \fcite{sh-write-double-float}.
+
+
+\endcom
+
+\beginfncom[Internal]{sh-make-regex}
+
+\Syntaxlabel
+\Defun {sh-make-regex} {{\funarg{p-heap-objid}} {\funarg{pattern}} {\funarg{regcomp-flags}} {\funarg{regexec-flags}}}
 
 
 \endcom
@@ -13621,7 +14060,7 @@ See \fcite{p-objid-size}.
 \beginfncom[Internal]{sh-reset}
 
 \Syntaxlabel
-\Defun {sh-reset} {{\opt} {\funarg{force}} {\funarg{url}}}
+\Defun {sh-reset} {{\funarg{p-heap-objid}} {\opt} {\funarg{force}}}
 
 
 \Purposelabel
@@ -13633,11 +14072,23 @@ See \fcite{p-objid-size}.
 \beginfncom[Internal]{sh-restart}
 
 \Syntaxlabel
-\Defun {sh-restart} {{\opt} {\funarg{force}} {\funarg{url}}}
+\Defun {sh-restart} {{\funarg{p-heap-objid}} {\opt} {\funarg{force}}}
 
 
 \Purposelabel
  Restart the \plob\ daemon server process.
+
+
+\endcom
+
+\beginfncom[Internal]{sh-resume}
+
+\Syntaxlabel
+\Defun {sh-resume} {}
+
+
+\Purposelabel
+ Resume the \plob\ daemon server process.
 
 
 \endcom
@@ -13741,6 +14192,18 @@ See \fcite{p-objid-size}.
  \Fcite{stableheap-statistics};
  \fcite{sh-configuration};
  \shcite{function}{SH\us{}statistics}{6}.
+
+
+\endcom
+
+\beginfncom[Internal]{sh-suspend}
+
+\Syntaxlabel
+\Defun {sh-suspend} {{\funarg{p-heap-objid}} {\opt} {\funarg{description}}}
+
+
+\Purposelabel
+ Suspend the \plob\ daemon server process.
 
 
 \endcom
@@ -14136,9 +14599,39 @@ Write \funarg{p-objid-wrapper}\ to the class wrapper slot of
 
 \endcom
 
-\message{^^JGeneric function clos:slot-definition-location has no methods.^^J}
-\message{^^JGeneric function clos:slot-definition-readers has no methods.^^J}
-\message{^^JGeneric function clos:slot-definition-writers has no methods.^^J}
+\beginfncom[Internal]{signal-obsolete-instance-error}
+
+\Syntaxlabel
+\Defun {signal-obsolete-instance-error} {{\funarg{class}}}
+
+
+\Argumentslabel
+ \isacls{\funarg{class}}
+\Purposelabel
+ Signal an obsolete instance error; called always from
+ \fcite{obsolete-instance-trap-internal (persistent-metaclass t t)}.
+\Seealsolabel
+ \Fcite{obsolete-instance-trap-internal (persistent-metaclass t t)}.
+
+
+\endcom
+
+\begincncom[Internal]{+simple-vector-header-size+}
+
+\Valuelabel
+\begin{CompactCode}
+(or 0)
+\end{CompactCode}
+
+\Purposelabel
+The header size of a simple-vector.
+
+
+\endcom
+
+\message{^^JGeneric function slot-definition-location has no methods.^^J}
+\message{^^JGeneric function slot-definition-readers has no methods.^^J}
+\message{^^JGeneric function slot-definition-writers has no methods.^^J}
 \beginvrcom[Internal]{*slot-description*}
 
 \Initialvaluelabel
@@ -14242,15 +14735,13 @@ Calls to this method are trapped to the system-generated
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
 
-\flabel{\protect\mtd}{slot-description-equal-p (effective-slot-description
-                          effective-slot-description)}{}
+\flabel{\protect\mtd}{slot-description-equal-p (effective-slot-description effective-slot-description)}{}
 {\Defmeth {slot-description-equal-p} {(\funarg{t-slot-descr}\ \ObjectWithRef{effective-slot-description}) (\funarg{p-slot-descr}\ \ObjectWithRef{effective-slot-description}) {\opt} {\funarg{verbose}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
 
-\flabel{\protect\mtd}{slot-description-equal-p (structure-slot-description
-                          structure-slot-description)}{}
+\flabel{\protect\mtd}{slot-description-equal-p (structure-slot-description structure-slot-description)}{}
 {\Defmeth {slot-description-equal-p} {(\funarg{t-slot-descr}\ \ObjectWithRef{structure-slot-description}) (\funarg{p-slot-descr}\ \ObjectWithRef{structure-slot-description}) {\opt} {\funarg{verbose}}}}
 %
 % No behavior is specified for this method beyond that which is specified
@@ -14657,11 +15148,22 @@ Check if \funarg{the-class}\ is a standard metaobject class
 \Valuelabel
 \begin{CompactCode}
 (mapcar #'find-class
-        '(t standard-object metaobject class built-in-class standard-class
-          slot-definition standard-slot-definition
-          standard-direct-slot-definition standard-effective-slot-definition
-          method standard-method standard-accessor-method
-          standard-reader-method standard-writer-method method-combination))
+        '(t
+          standard-object
+          metaobject
+          class
+          built-in-class
+          standard-class
+          slot-definition
+          standard-slot-definition
+          standard-direct-slot-definition
+          standard-effective-slot-definition
+          method
+          standard-method
+          standard-accessor-method
+          standard-reader-method
+          standard-writer-method
+          method-combination))
 \end{CompactCode}
 
 \Purposelabel
@@ -15264,6 +15766,27 @@ The \clsmo\ of class \class{structure-class}.
 
 \endcom
 
+\beginfncom[Internal]{structure-constructor-internal}
+
+\Syntaxlabel
+\Defun {structure-constructor-internal} {{\funarg{the-class}}}
+
+
+\Argumentslabel
+ \isastrcls{\funarg{the-class}}
+\Purposelabel
+ Returns the symbol bound to the constructor function of
+ \funarg{the-class}.
+\Remarkslabel
+ \sysdep{function}
+\Seealsolabel
+ \Fcite{class-constructor};
+ section \fcite{structure ...};
+ argument \keyarg{constructor}\ of \fcite{defstruct}.
+
+
+\endcom
+
 \beginclcom[Internal Structure]{structure-description}
 
 \Purposelabel
@@ -15291,7 +15814,7 @@ The \clsmo\ of class \class{structure-class}.
  A schema evolution version number; 100 means version 1.00.
  The number is incremented by 1 for each new version.
 
-\Defdslot {p-time-stamp} {(floor (get-universal-time) 60)\newline :type fixnum}
+\Defdslot {p-time-stamp} {(floor (get-universal-time) 60)\newline :type integer}
 
 
  A time stamp when the structure description was created. The time stamp
@@ -15344,7 +15867,7 @@ The \clsmo\ of class \class{structure-class}.
  \fcite{structure-slot-description}\ for each slot of the
  described structure.
 
-\Defdslot {t-name->slot-cache} {(make-hash-table :test #'eq)}
+\Defdslot {t-name->slot-cache} {(make-hash-table :test (function eq))}
 
 
  A transient slot with a hash table mapping slot names to
@@ -15394,18 +15917,22 @@ nil
 
 \endcom
 
-\begincncom[Internal]{+structure-persistent-slots+}
+\begincncom[Internal]{+structure-persistent-slot-names+}
 
 \Valuelabel
 \begin{CompactCode}
-(class-slots +persistent-structure-class+)
+(loop for slot in (class-slots +persistent-structure-class+)
+      if (symbolp slot)
+        collect slot
+      else
+        collect (slot-definition-name slot))
 \end{CompactCode}
 
 \Purposelabel
  A list with all non-transient,
  i.e.\ persistent slots of \fcite{persistent-structure}.
 \Seealsolabel
- \Fcite{+reverse-structure-persistent-slots+}.
+ \Fcite{+reverse-structure-persistent-slot-names+}.
 
 
 \endcom
@@ -15946,8 +16473,8 @@ Stores \funarg{t-object}\ as an instance of
 Stores \funarg{t-object}\ as an instance of
  \fcite{effective-slot-description}.
 
-\flabel{\protect\mtd}{t-object-to-p-objid-using-class (hash-table t t t)}{}
-{\Defmeth {t-object-to-p-objid-using-class} {(\funarg{t-object}\ \ObjectWithRef{hash-table}) {\funarg{t-class}} {\funarg{depth}} {\funarg{p-heap}}}}
+\flabel{\protect\mtd}{t-object-to-p-objid-using-class (hash-table structure-class t t)}{}
+{\Defmeth {t-object-to-p-objid-using-class} {(\funarg{t-object}\ \ObjectWithRef{hash-table}) (\funarg{t-class}\ \ObjectWithRef{structure-class}) {\funarg{depth}} {\funarg{p-heap}}}}
 %
 % No behavior is specified for this method beyond that which is specified
 % for the generic function.
@@ -15956,12 +16483,6 @@ Stores \funarg{t-object}\ as an instance of
 {\Defmeth {t-object-to-p-objid-using-class} {(\funarg{t-object}\ \ObjectWithRef{method}) (\funarg{t-class}\ \ObjectWithRef{standard-class}) {\funarg{depth}} {\funarg{p-heap}}}}
 Stores \funarg{t-object}\ as an instance of
  \fcite{method-description}.
-
-\flabel{\protect\mtd}{t-object-to-p-objid-using-class (structure-effective-slot-definition
-                                 standard-class t t)}{}
-{\Defmeth {t-object-to-p-objid-using-class} {(\funarg{t-object}\ \ObjectWithRef{structure-effective-slot-definition}) (\funarg{t-class}\ \ObjectWithRef{standard-class}) {\funarg{depth}} {\funarg{p-heap}}}}
-Stores \funarg{t-object}\ as an instance of
- \fcite{structure-slot-description}.
 
 \flabel{\protect\mtd}{t-object-to-p-objid-using-class (metaobject standard-class t t)}{}
 {\Defmeth {t-object-to-p-objid-using-class} {(\funarg{t-object}\ \ObjectWithRef{metaobject}) (\funarg{t-class}\ \ObjectWithRef{standard-class}) {\funarg{depth}} {\funarg{p-heap}}}}
@@ -16482,6 +17003,43 @@ Make an environment for \funarg{body}\ where
 \Seealsolabel
  \Fcite{write-lock};
  \fcite{with-read-lock}.
+
+
+\endcom
+
+\begincncom[Internal]{+wrapper-class-slots-index+}
+
+\Valuelabel
+\begin{CompactCode}
+2
+\end{CompactCode}
+
+\Purposelabel
+ The index into the class wrapper vector which contains the list
+ of the conses used for holding the values of the slots with
+ \lisp{:allocation :class}.
+\Remarkslabel
+ \sysdep{constant}
+\Seealsolabel
+ \Fcite{+wrapper-instance-slots-index+}.
+
+
+\endcom
+
+\begincncom[Internal]{+wrapper-instance-slots-index+}
+
+\Valuelabel
+\begin{CompactCode}
+1
+\end{CompactCode}
+
+\Purposelabel
+ The index into the class wrapper vector which contains the list
+ of instance slot names.
+\Remarkslabel
+ \sysdep{constant}
+\Seealsolabel
+ \Fcite{+wrapper-class-slots-index+}.
 
 
 \endcom

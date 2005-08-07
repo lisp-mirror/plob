@@ -50,10 +50,10 @@ drule ( initial, \
 	noActions )
 
 rule ( allegro dash directories, \
-       allegro4 allegro5 allegro6, \
+       allegro4 allegro5 allegro6 allegro7, \
        noActions )
 
-rule ( allegro4 allegro5 allegro6, \
+rule ( allegro4 allegro5 allegro6 allegro7, \
        noDependencies, \
        mkdir ruleTarget )
 
@@ -66,6 +66,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

@@ -62,6 +62,7 @@
 #include	"cploblock.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobroot.h"
 
 #define		RPCNOTYPES
@@ -131,12 +132,12 @@ enum {
 };
 
 /* ----------------------------------------------------------------------- */
-void		fnHeapCloseAll	( void )
+void	fnHeapCloseAllExcept1	( SHORTOBJID	oNotThis )
 {
   BOOL		bMapped;
   SHORTOBJID	oHeap;
 
-  PROCEDURE	( fnHeapCloseAll );
+  PROCEDURE	( fnHeapCloseAllExcept1 );
   INITIALIZEPLOB;
 
   fnInvalidateAllCaches ();
@@ -146,9 +147,22 @@ void		fnHeapCloseAll	( void )
 	bMapped = fnHashNext ( pClientCacheHeaps, (LPHASHKEY) &oHeap,
 			       (LPVOID *) NULL, (size_t *) NULL ) ) {
     ASSERT ( oHeap != NULLOBJID );
-    fnServerDbClose ( oHeap, TRUE );
+    if ( oHeap != oNotThis ) {
+      fnServerDbClose ( oHeap, TRUE );
+    }
   }
   fnCacheDestroy ( NULLOBJID );
+
+  RETURN ( VOID );
+} /* fnHeapCloseAllExcept1 */
+
+/* ----------------------------------------------------------------------- */
+void		fnHeapCloseAll	( void )
+{
+  PROCEDURE	( fnHeapCloseAll );
+  INITIALIZEPLOB;
+
+  fnHeapCloseAllExcept1 ( NULLOBJID );
 
   RETURN ( VOID );
 } /* fnHeapCloseAll */
@@ -170,8 +184,13 @@ void			fnInitializeHeapModule	( void )
 void			fnDeinitializeHeapModule	( void )
 {
   int		nSessions	= 0;
+  FILE		* pStream	= NULL;
 
   PROCEDURE	( fnDeinitializeHeapModule );
+
+#if !WIN32
+  pStream	 = stdout;
+#endif
 
   nSessions	= ( pClientCacheHeaps != NULL ) ?
     fnHashOccupied ( pClientCacheHeaps ) : 0;
@@ -179,40 +198,51 @@ void			fnDeinitializeHeapModule	( void )
   if ( nSessions > 0 ) {
     PCLIENT	pClient	= (PCLIENT) NULL;
     BOOL	bClosed	= FALSE;
-    putc ( '\n', stdout );
+    if ( pStream != NULL ) {
+      putc ( '\n', stdout );
+    }
     pClient	= fnClientPlobd ();
     if ( pClient != NULL ) {
-#if !WIN32
-      printf ( "%s(%d): %s:\n"
-	       "\tPLOB! is trying to close %d pending session(s),"
-	       " please wait",
-	       __szFile__, __LINE__, __szProc__, nSessions );
-      fflush ( stdout );
-#endif
+      if ( pStream != NULL ) {
+	fprintf ( pStream, "%s(%d): %s:\n"
+		 "\tPLOB! is trying to close %d pending session(s),"
+		 " please wait",
+		 __szFile__, __LINE__, __szProc__, nSessions );
+	fflush ( pStream );
+      }
       if ( fnClientPlobdFlush ( pClient ) ) {
 	fnHeapCloseAll ();
 	fnClientPlobdFlush ( pClient );
 	fnClientDestroy ( pClient );
-#if !WIN32
-	puts ( " ... done!\n" );
-#endif
+	if ( pStream != NULL ) {
+	  fputs ( " ... done!\n\n", pStream );
+	}
 	bClosed	= TRUE;
       } else {
-#if !WIN32
-	puts ( "." );
-#endif
+	/* 2005-04-06 hkirschk: Hmmm, when the DLL gets unloaded by
+	   LispWorks, the fnClientPlobdFlush call from above fails
+	   with RPC_CANTSEND. Looks as if some other ressource has
+	   been freed already ... */
+	if ( pStream != NULL ) {
+	  fputs ( ".\n", pStream );
+	}
       }
     }
-#if !WIN32
     if ( ! bClosed ) {
-      printf ( "%s(%d): %s:"
-	       " PLOB! can't close %d\n"
-	       "\tpending session(s) since the connection"
-	       " to the server is lost.\n\n",
-	       __szFile__, __LINE__, __szProc__, nSessions );
+      /* 2005-04-06 hkirschk: Debug: */
+      LOG (( "Could not close %u pending sessions"
+	     " since the connection to the server is lost.",
+	     nSessions ));
+      if ( pStream != NULL ) {
+	fprintf ( pStream, "%s(%d): %s: PLOB! can't close %d\n"
+		  "\tpending session(s) since the connection"
+		  " to the server is lost.\n\n",
+		  __szFile__, __LINE__, __szProc__, nSessions );
+      }
     }
-    fflush ( stdout );
-#endif
+    if ( pStream != NULL ) {
+      fflush ( pStream );
+    }
   }
 
   if ( pClientCacheHeaps != NULL ) {
@@ -1406,6 +1436,6 @@ BeginFunction ( TRACTID,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

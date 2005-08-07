@@ -86,7 +86,7 @@ DefineFunction ( BOOL,
 #if ! defined(RPC)	/* client: */
 DefineFunction ( BOOL,
 		 fnClientExit, "c-sh-exit",
-		 ( argument ( CONST_STRING, vector_in, szURL )
+		 ( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		   and
 		   argument ( BOOL, value_in, bForceExit ) ) );
 #endif	/* ! RPC */
@@ -101,7 +101,7 @@ DefineFunction ( BOOL,
 #if ! defined(RPC)	/* client: */
 DefineFunction ( BOOL,
 		 fnClientDbReset, "c-sh-reset",
-		 ( argument ( CONST_STRING, vector_in, szURL )
+		 ( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		   and
 		   argument ( BOOL, value_in, bForceReset ) ) );
 #endif	/* ! RPC */
@@ -116,14 +116,35 @@ DefineFunction ( BOOL,
 #if ! defined(RPC)	/* client: */
 DefineFunction ( BOOL,
 		 fnClientRestart, "c-sh-restart",
-		 ( argument ( CONST_STRING, vector_in, szURL )
+		 ( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		   and
 		   argument ( BOOL, value_in, bForceRestart ) ) );
 #endif	/* ! RPC */
 
 #if ! defined(LISP)	/* server: */
+DefineFunction ( SHORTOBJID,
+		 fnServerSuspend, "c-sh-suspend",
+		 ( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
+		   and
+		   argument ( CONST_STRING, vector_in, szReason ) ) );
 #endif	/* ! LISP */
 #if ! defined(RPC)	/* client: */
+DefineFunction ( SHORTOBJID,
+		 fnClientSuspend, "c-sh-suspend",
+		 ( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
+		   and
+		   argument ( CONST_STRING, vector_in, szReason ) ) );
+#endif	/* ! RPC */
+
+#if ! defined(LISP)	/* server: */
+DefineFunction ( SHORTOBJID,
+		 fnServerResume, "c-sh-resume",
+		 ( voidArgument ) );
+#endif	/* ! LISP */
+#if ! defined(RPC)	/* client: */
+DefineFunction ( SHORTOBJID,
+		 fnClientResume, "c-sh-resume",
+		 ( voidArgument ) );
 #endif	/* ! RPC */
 
 #if defined(C2C)
@@ -186,6 +207,6 @@ void			fnDeinitCommonAdminModule	( void );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

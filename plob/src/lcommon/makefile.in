@@ -47,7 +47,10 @@
 ---------------------------------------------------------------------- */
 
 #define	ccLocalOptions	paste5(-,D,BUILDDLL,=,1)
+
 #define	relPlobDir	ddot slash ddot
+
+#include		"filelist.in"
 #include		"../../conf/make.rules.in"
 
 /* ----------------------------------------------------------------------
@@ -63,7 +66,8 @@ CFLAGS=$(COPTDEB) $(COPTOPT)
 STDINCLUDE=\
  $(SRCIDIR) slash fileH(global) spc \
  $(SRCIDIR) slash fileH(hash) spc \
- $(SRCIDIR) slash fileH(generic)
+ $(SRCIDIR) slash fileH(generic) \
+ $(SRCIDIR) slash fileH(plob)
 
 #if HasOpSys == hasWin32
 
@@ -98,7 +102,7 @@ rule ( $(LIBRARY), \
        $(AR) $(ARFLAGS) $(OUTPUT_OPTION_LIB) $(SHAREDOBJECTS) nln \
        tab $(RANLIB) ruleTarget )
 
-/* Build only the `normal' object files, i.e. no object code for the
+/* Build only the "normal" object files, i.e. no object code for the
    shared library: */
 drule ( objects, \
 	$(SHAREDOBJECTS), \
@@ -130,6 +134,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  coding-system-for-write: iso-latin-1-unix
+  file-buffer-coding-system: raw-text-unix
   End:
 */

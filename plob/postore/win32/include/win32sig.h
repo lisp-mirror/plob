@@ -63,6 +63,10 @@ struct sigcontext_struct {
 	unsigned long cr2;
 };
 
+/* Bits in `sa_flags'.  */
+#define SA_SIGINFO    4		 /* Invoke signal-catching function with
+				    three arguments instead of one.  */
+
 #define SA_SHIRQ	0x04000000
 #define SA_STACK	0x08000000
 #define SA_RESTART	0x10000000
@@ -85,8 +89,20 @@ typedef void (*__sighandler_t)(int,struct sigcontext_struct sc );
 
 struct sigaction {
   unsigned int		sa_flags;
-  __sighandler_t	sa_handler;
+  unsigned int		sa_mask;
+  union
+  {
+    /* Used if SA_SIGINFO is not set.  */
+    __sighandler_t sa_handler;
+    /* Used if SA_SIGINFO is set. 2005-04-19 hkirschk: Please note
+       that this is not compatible with Linux. */
+    void (*sa_sigaction) (int, struct sigcontext_struct);
+  } __sigaction_handler;
 };
+
+#define sa_handler	__sigaction_handler.sa_handler
+#define sa_sigaction	__sigaction_handler.sa_sigaction
+#define	sigemptyset(p)	(*(p)=0)
 
 /* The TRY_EXCEPTION ... CATCH_EXCEPTION must enclose all code blocks
    which access objects in the Stable Store directly by using
@@ -110,3 +126,8 @@ int	sigaction	( int			__sig,
 			  struct sigaction *	__oldact );
 
 #endif /* _WIN32SIG_H */
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

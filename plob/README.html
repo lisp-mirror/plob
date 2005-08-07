@@ -9,50 +9,48 @@
 <h1><b>PLOB!</b> - <b>P</b>ersistent <b>L</b>isp
 <b>OB</b>jects<b></b></h1>
 
-&copy; 1994--2002 <a href="mailto:Heiko.Kirschke@acm.org">Heiko
+&copy; 1994--2005 <a href="mailto:Heiko.Kirschke@acm.org">Heiko
 Kirschke</a><br>
 
-This version: 2.10 as of May 1, 2002
-
-$Header$
+This version: 2.11 as of May 28, 2005
 
 <h2>Release notes</h2>
 
 <ul type="disc">
 
-<li> Support for Windows XP, LispWorks Common Lisp 4.2 and Allegro
-Common LISP 6.2 has been added.
+<li> Support for LispWorks Common Lisp 4.4 and Allegro
+Common LISP 7 has been added.
 
-<li> Further support for IRIX will be on request. Contact <a
-href="mailto:Heiko.Kirschke@acm.org">me</a> if you are interested in
-an IRIX port.
+<li> Hot backup possible by server suspending and resume, improved
+<tt>plobdadmin</tt> tool with support for hot backup, addional shell
+escape
 
-<li> The sources are now maintained within CVS. Currently, I try to
-set up a CVS archive at <a
-href="http://www.sourceforge.net/projects/plob">SourceForge</a> and a
-possibility for anonymous ftp.
+<li> Added regular expressions for comparing persistent strings and
+filtering on Btree iterators
+
+<li> Added example code in <tt>plob-dupkeys.lisp</tt> for handling of
+duplicate keys in btrees
+
+<li> <tt>plobdadmin</tt> is now statically linked
+
+<li> The LISP sources are no longer divided by the different LISP
+systems
 
 </ul>
 
-<p>Between 2.09 and 2.10, <b>PLOB</b>'s internal API between the
-client and server code has changed. This means for switching from 2.09
-to 2.10, all layers except the database layer must use the new 2.10
-code; <b>PLOB</b> might crash when the 2.10 client code is used with a 2.09
-server. So, take care for using the 2.10 LISP code, the 2.10 client
-DLL and the 2.10 server. Doing a 2.10 standard installation will
-overwrite the old 2.09 server binary. The 2.10 components are able to
-work on pre-2.10 databases.
+<p>Between 2.10 and 2.11, <b>PLOB</b>'s database layout on Windows has
+changed. This means that pre-2.11 databases on Windows cannot be opened.
+
 
 <h2>Latest bug fixes</h2>
 
-Please consult the bug tracking feature referenced by <b>PLOB</b>'s <a
-href="http://sourceforge.net/projects/plob/"
-target="_popup">SourceForge project page</a>.
+See the <a href="doc/userg.pdf" target="_popup">User's Guide</a>,
+section Release notes.
 
 <h2>Documentation</h2>
 
 Please read the documentation found in the distribution in
-subdirectory <a href="doc/" target="_popup">plob-2.10/doc</a>.
+subdirectory <a href="doc/" target="_popup">plob-2.11/doc</a>.
 
 <blockquote>
 <table border="4" width="80%">
@@ -72,12 +70,10 @@ subdirectory <a href="doc/" target="_popup">plob-2.10/doc</a>.
 </tr>
 
 <tr>
-<td><a href="doc/userg.pdf" target="_popup">userg.pdf</a><br>
-<a href="doc/userg2.pdf" target="_popup">userg2.pdf</a></td>
-<td align="right">88<br>94</td>
+<td><a href="doc/userg.pdf" target="_popup">userg.pdf</a></td>
+<td align="right">94</td>
 <td>english</td>
-<td>User's guide compiled for 1 side printing<br>
-User's guide compiled for 2 side printing</td>
+<td>User's guide</td>
 </tr>
 
 <tr>
@@ -88,21 +84,17 @@ User's guide compiled for 2 side printing</td>
 </tr>
 
 <tr>
-<td><a href="doc/eref.pdf" target="_popup">eref.pdf</a><br>
-<a href="doc/eref2.pdf" target="_popup">eref2.pdf</a></td>
-<td align="right">159<br>157</td>
+<td><a href="doc/eref.pdf" target="_popup">eref.pdf</a></td>
+<td align="right">159</td>
 <td>english</td>
-<td>API Reference Manual compiled for 1 side printing<br>
-API Reference Manual compiled for 2 side printing</td>
+<td>API Reference Manual</td>
 </tr>
 
 <tr>
-<td><a href="doc/iref.pdf" target="_popup">iref.pdf</a><br>
-<a href="doc/iref2.pdf" target="_popup">iref2.pdf</a></td>
-<td align="right">283<br>281</td>
+<td><a href="doc/iref.pdf" target="_popup">iref.pdf</a></td>
+<td align="right">283</td>
 <td>english</td>
-<td>Internal Interface Reference Manual compiled for 1 side printing<br>
-Internal Interface Reference Manual compiled for 2 side printing</td>
+<td>Internal Interface Reference Manual</td>
 </tr>
 
 <tr>
@@ -124,7 +116,7 @@ Internal Interface Reference Manual compiled for 2 side printing</td>
 
 See <a
 href="http://www.adobe.com/prodindex/acrobat/readstep.html" target="getreader">here</a>
-for a reader of PDF files.
+for a reader for PDF files.
 
 <p>The file ldocman.pdf describes a general-purpose LISP documentation
 extraction module used for building the reference manual; this can be
@@ -149,18 +141,11 @@ make config
    questions (most of the questions already have suitable default
    answers).
 
-<p><li> Depending on your LISP target system (LispWorks or Allegro),
-   cd either to
+<p><li> cd to
 
 <blockquote><pre>
-cd plob-2.10/src/lispworks
+cd plob-2.11/src/lisp
 </pre></blockquote>
-   or
-<blockquote><pre>
-cd plob-2.10/src/allegro
-</pre></blockquote>
-
-   <i>For Windows/NT only:</i> cd always to plob-2.10/src/allegro
 
 <p><li> Start LispWorks or Allegro Common LISP.
 
@@ -174,7 +159,7 @@ cd plob-2.10/src/allegro
    to contain an absolute path to the local PLOB! installation, for
    example:
 <blockquote><pre>
-(defconstant &#43;plob-dir&#43; "c:/opt/plob/plob-2.10"
+(defconstant &#43;plob-dir&#43; "c:/opt/plob/plob-2.11"
   #+:lisp-doc "\\plob\\ installation directory.")
 </pre></blockquote>
 
@@ -187,8 +172,8 @@ cd plob-2.10/src/allegro
 </pre></blockquote>
 
 <p><li> That's it. For getting first experiences with <b>PLOB!</b>, compile and
-   load plob-2.10/src/example/plob-example.lisp and
-   plob-2.10/src/example/plob-quick-tour.lisp
+   load plob-2.11/src/example/plob-example.lisp and
+   plob-2.11/src/example/plob-quick-tour.lisp
 
 </ul>
 
@@ -203,7 +188,7 @@ Heiko.Kirschke@acm.org</a></address>
 
 <!-- Created 2001 -->
 <!-- hhmts start -->
-Last modified: Fri Apr 19 14:01:26 CEST 2002
+Last modified: Tue May 24 16:47:14     2005
 <!-- hhmts end -->
 
 </body></html>

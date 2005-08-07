@@ -2619,6 +2619,9 @@ BeginFunction ( FIXNUM,
   FILE		FAR * lpStream;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2654,6 +2657,9 @@ BeginFunction ( SHLOCK,
   OBJID		oLockedByP, oLockedP;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2703,6 +2709,9 @@ BeginFunction ( SHLOCK,
   PPEEKHANDLE	pPeekHandle;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2774,6 +2783,9 @@ BeginFunction ( SHLOCK,
   PPEEKHANDLE	pPeekHandle;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2837,6 +2849,9 @@ BeginFunction ( SHLOCK,
   OBJID		oLockedBy, oToUnlock;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2868,6 +2883,9 @@ BeginFunction ( FIXNUM,
   OBJID		oLockedBy, oToUnlock;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2895,6 +2913,9 @@ BeginFunction ( FIXNUM,
   OBJID		oToUnlock;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -2924,6 +2945,9 @@ BeginFunction ( BOOL,
   OBJID	oSelf;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( FALSE );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3180,6 +3204,6 @@ static void		fnLockDequeue		( OBJID oSumLock,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

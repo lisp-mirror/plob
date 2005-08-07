@@ -27,11 +27,12 @@ system was redesigned into a client/server architecture.
 
 Figure~\ref{sec:PLOBwRPCs} shows 
 \begin{figure}[htbp]
-\centerline{\psfig{figure=\Path/plobrpce.eps}}
+%% \centerline{\psfig{figure=\Path/plobrpce.eps}}
+\centerline{\psfig{figure=\Path/plobrpce.pdf}}
 \caption{\protect\plob\ layers}%
 \label{sec:PLOBwRPCs}
 \end{figure}%
-the layers of \plob\ as implemented in the actual version.
+the layers of \plob\ as actually implemented.
 
 Based upon an evaluation of a few persistent memory systems done by
 \cite{bib:Mueller-91}, it was decided to use the \postore\ library
@@ -91,6 +92,408 @@ this user's guide.
 The application layer uses the functionality offered by the previous
 layer: Persistent packages, persistent symbols, sessions, associative
 access by using persistent btrees.
+
+\section[Porting PLOB]{Porting \protect\plob}
+
+This section describes how to port \plob\ to a new, not-yet-supported
+operating system and to a new, not-yet-supported LISP system.
+
+
+\subsection{New Operating System}
+
+This section assumes that the port of the LISP system itself is
+already done and running stable. The \plob-specific tasks are
+described in the following sections.
+
+\subsubsection{Skills needed}
+
+The port to a new operating system involves mainly a successfull
+compilation of the low-level \postore\ library. This means that the
+tasks to be done have to do more or less almost nothing with LISP
+coding, but with operating-system specific programming in form of
+shell scripts, makefiles, and C system programming.  The following
+skills are needed for a port to a new operating system:
+
+\begin{itemize}
+
+\item Good knowledge of \texttt{make}\ and \texttt{make}\ scripts
+
+\item Good knowledge of shell programming, esp.\ Bourne shell
+
+\item Good knowledge in C, and the specialities of the C preprocessor.
+
+\item Good knowledge about the virtual memory functions
+  (\texttt{mmap}) and signal handling capabilities (\texttt{signal},
+  \texttt{sigaction}) of the target operating system.
+
+\end{itemize}
+
+\subsubsection{Step 1: Check out from CVS}
+
+Check out \plob's sources from
+\begin{quotation}
+\texttt{:pserver:anonymous@cvs..sourceforge.net:/cvsroot/plob}
+\end{quotation}
+This will create a subdirectory \texttt{plob} containing the
+checked-out files.
+
+\subsubsection{Step 2: Select an identifier}
+
+Select an identifier for the operating system, e.g. \texttt{win32}.
+The identifier has to obey the rules for a single C token and has to
+be in lower case, i.e.\ the syntax is:
+\begin{quotation}
+<opsys> ::= [a-z]\{[a-z0-9]\}*
+\end{quotation}
+
+\subsubsection{Step 3: Build the \protect\postore\ library}
+
+In the next step, the \postore\ library will be adapted to the target
+operating system. To do this, a high skill level in system-near
+programming in C in necessary, esp.\ on the virtual memory functions of
+the target operating system.  The sources of the \postore\ library are
+located in directory \texttt{plob/postore}. This library is a 3rd
+party product used as a persistent heap. Only some general rules can
+be given here, since the differences between the operating systems
+might be quite large.
+
+First step in compiling the \postore\ library is to create the
+operating system specific configuration file in
+\texttt{plob/postore/<opsys>\us{}Makefile}. Use one of the exisiting
+\texttt{<opsys>\us{}Makefile}s as base, e.g.\ the Linux file in
+\texttt{plob/postore/i586\us{}Makefile}.
+
+Next step in compiling the \postore\ library is to create the
+compiler specific configuration file in
+\texttt{plob/postore/\$\{CC\}\us{}Makefile}\ with \texttt{CC} being
+set in the operating system specific configuration file. Use one of
+the exisiting \texttt{plob/postore/\$\{CC\}\us{}Makefile}s as base,
+e.g.\ the gcc file in \texttt{plob/postore/gcc\us{}Makefile}.
+
+Now, edit \texttt{plob/postore/sstore/svmstore.c} to meet the target
+operating system. The source code contains a lot of operating-system
+specific code steered by preprocessor defines. The biggest challenge
+is to find a suitable virtual memory mapping function \texttt{mmap} in
+the target system, and to check for the various flags to be passed
+into \texttt{mmap}. Another challenge is to set up the signal handling
+(\texttt{sigaction}, \texttt{signal}) for passing page faults to the
+page fault handling procedure \texttt{page\us{}fault}. Besides
+\texttt{plob/postore/sstore/svmstore.c}, the persistent heap code
+itself is contained in \texttt{plob/postore/sheap/sheap.c}; this
+should need no special adaption for a specific operating system.
+
+The library and its supporting programs can be build by calling
+\texttt{make} in directory \texttt{plob/postore}. When the build is
+successfull, try calling
+\texttt{plob/postore/release/<opsys>bin/sstoreformat}. It takes a
+directory name as argument and tries to initialize that directory as a
+stable store directory. If this work, the \postore\ library port was
+successfull, otherwise some debugging is necessary. An unsuccessull
+compilation is indicated by error messages like `unexpected page
+fault', in this case the \texttt{page\us{}fault} procedure and signal
+handling in \texttt{svmstore.c} needs some more refinement.
+
+\subsubsection{Step 4: Check RPC capabilities}
+
+The target operating system should support standard SUN RPCs (RPC:
+RFC1057, XDR: RFC1014), this is e.g.\ the case for almost all *nix
+variants (this mechanism is also sometimes called ONC). If the
+operating system does not support standard SUN RPCs, subdirectory
+\texttt{plob/oncrpc-1.12} contains an implementation of these RPCs and
+could be adapted accordingly. Standard SUN RPC support can be detected
+by calling \texttt{rpcgen} in a shell. If that program is found, the
+probability of having SUN RPCs on the target machine is quite high.
+
+\subsubsection{Step 5: Adapt plob/conf/make.rules.in}
+
+File \texttt{plob/conf/make.rules.in} contains operating-system
+specific rules for \texttt{make}. For the target operating system, the
+file suffixes should be checked (see comment `File name suffixes:').
+The operating system and compiler specific settings have to be checked
+(see comment `OS/compiler-specific settings:'). Add the <opsys>
+identifier to file \texttt{plob/conf/make.rules.in}\ to the line
+starting with \texttt{ALLOPSYS=}.
+
+\subsubsection{Step 6: Generate Makefiles}
+
+In a shell with current directory \texttt{plob/src}, call \texttt{./mk
+  makefiles}. This will (re-)build all makefiles for the target
+operating system. If this fails, the rules in file
+\texttt{plob/conf/make.rules.in} should be checked. Re-iterate this
+step until the makefiles have been build successfully.
+
+\subsubsection{Step 7: Generate binary directories}
+
+In a shell with current directory \texttt{plob/src}, call \texttt{./mk
+  initial}. This will create all target system specific subdirectories
+for placing binary, target system specific code. It should be
+sufficient to do this call only once for the target system.
+
+Copy in the \postore\ library into the \plob\ binary directory.  This
+has to be done manually by copying
+\texttt{plob/postore/release/<opsys>lib/libpostore.a} to
+\texttt{plob/lib/<opsys>/libpostore.a}.
+
+\subsubsection{Step 8: Building \protect\plob}
+
+In a shell with current directory \texttt{plob/src}, call
+\texttt{./mk}.  This will create all target system specific binaries.
+Some of the source codes contain preprocessor directives for adapting
+the \texttt{\#include}s to the different operating systems, this might
+need some adjustment. File \texttt{splobadmin.c} also contains some
+signal handling code.
+
+\subsubsection{Step 9: Adapt plob/src/lisp/defsystem-plob.lisp}
+
+The last step is to extend \texttt{plob/src/lisp/defsystem-plob.lisp}
+by the new supported operating system, mainly to allow defsystem to
+map to the correct foreign function libraries to be loaded. See the
+comments in \texttt{plob/src/lisp/defsystem-plob.lisp} for further
+details.
+
+\subsubsection{Not supported operating systems}
+
+A port to HP-UX is not possible due to a mismatch between the virtual
+memory functions needed by \plob's low-level \postore\ library and the
+actual implementation of these functions in HP-UX.
+
+\subsection{New LISP System}
+
+This section assumes that the port of the LISP system itself is
+already done and running stable. The \plob-specific tasks are
+described in the following sections. Another assumption is that
+\plob's binaries for layers 3 and below (figure~\ref{sec:PLOBwRPCs})
+have been succesfully build already (maybe for another LISP system).
+The following skills are needed for a port to a new LISP system:
+
+\begin{itemize}
+
+\item Moderate knowledge of \texttt{make}\ and \texttt{make}\ scripts
+
+\item Moderate knowledge of shell programming, esp.\ Bourne shell.
+
+\item Excellent knowledge of the foreign function interface of the
+  target LISP system.
+
+\item Excellent knowledge of the Metaobject Protocol as implemented in
+  the target LISP system.
+
+\item Experience and inspiration on debugging self-reflective system
+  like \clos\ for debugging \plob's MOP binding.
+
+\end{itemize}
+
+\subsubsection{Step 1: Check out from CVS}
+
+Check out \plob's sources from
+\begin{quotation}
+\texttt{:pserver:anonymous@cvs.sourceforge.net:/cvsroot/plob}
+\end{quotation}
+This will create a subdirectory \texttt{plob} containing the
+checked-out files.
+
+\subsubsection{Step 2: Select an identifier}
+
+Select an identifier for the target LISP system, e.g. \texttt{cmucl}.
+This identifier has to be in lower case. It should contain no suffix
+number, since the version number of the LISP system will be added
+afterwards.  The identifier has to obey the rules for a single C
+token, i.e.\ the syntax is:
+\begin{quotation}
+<lispsys> ::= \{[a-z]\{[a-z0-9]\}*\}+[a-z]
+\end{quotation}
+In the following text these conventions are used:
+\begin{description}
+
+\item[<Lispsys>] means <lispsys> with its first letter capitalized
+
+\item[<LISPSYS>] means <lispsys> with all of its letters capitalized
+
+\end{description}
+
+\subsubsection{Step 3: Adapt plob/conf/make.rules.in}
+
+File \texttt{plob/conf/make.rules.in} contains target LISP system
+specific rules for generating the foreign function interface source
+code.  Look at the MkAllegro*Files and MkLispWorks*Files and generate
+the corresponding Mk<Lispsys>*Files macros.
+
+\subsubsection{Step 4: Adapt plob/bin/c2lisp.h}
+
+Towards the end of file \texttt{plob/bin/c2lisp.h}, add the target
+LISP system specific include file as indicated there (in this example,
+for version 3 and 4 of the target LISP system):
+\begin{CompactCode}
+#if defined(LISPWORKS3)
+#include	<c2lispworks3.h>
+#elif defined(LISPWORKS4)
+#include	<c2lispworks4.h>
+#elif defined(ALLEGRO4)
+#include	<c2allegro4.h>
+#elif defined(ALLEGRO5)
+#include	<c2allegro5.h>
+#elif defined(ALLEGRO6)
+#include	<c2allegro6.h>
+#elif defined(ALLEGRO7)
+#include	<c2allegro7.h>
+\emph{#elif defined(<LISPSYS>3)}
+\emph{#include	<c2<lispsys>3.h}
+\emph{#elif defined(<LISPSYS>4)}
+\emph{#include	<c2<lispsys>4.h>}
+#elif defined(another_lisp_system)
+#include	<c2another_lisp_system.h>
+#else
+#error Missing target LISP system.
+#endif
+\end{CompactCode}
+
+\subsubsection{Step 5: Create plob/bin/c2<lispsys>.h}
+
+Create the file containing the foreign function code generator macros;
+base this file on one of the existing \texttt{plob/bin/c2allegro*.h}
+or \texttt{plob/bin/c2lispworks*.h} files.
+
+\subsubsection{Step 6: Adapt plob/src/include/makefile.in}
+
+In \texttt{plob/src/include/makefile.in}, the rules for creating the
+LISP specific directory containing the foreign function interface code
+have to be added.
+
+Extend rule with target \texttt{initial} with a dependency on the
+target LISP system directories; extend the existing rule:
+\begin{CompactCode}
+drule ( initial, \verb|\|
+        allegro dash directories lispworks dash directories \verb|\|
+        \emph{<lispsys> dash directories}, \verb|\|
+        noActions )
+\end{CompactCode}
+
+Add a new rule for creating the version specific target LISP system
+directories (in this example, for version 3 and 4 of the target LISP
+system):
+\begin{CompactCode}
+rule ( <lispsys> dash directories, \verb|\|
+       <lispsys>3 <lispsys>4, \verb|\|
+       noActions )
+\end{CompactCode}
+
+Add the rule for creating the directories:
+\begin{CompactCode}
+rule ( <lispsys>3 <lispsys>4, \verb|\|
+       noDependencies, \verb|\|
+       mkdir ruleTarget )
+\end{CompactCode}
+
+Add a preprocessor macro for the new set of foreign function interface
+source code files, e.g.
+\begin{CompactCode}
+/* ----------------------------------------------------------------------
+| LISP foreign language interface files: <lispsys>
+ ---------------------------------------------------------------------- */
+#define	<Lispsys>CodeTarget <lispsys> dash code
+\end{CompactCode}
+
+Extend the rule with target \texttt{lisp} with a dependency on the
+target LISP foreign function code files; extend the existing rule:
+\begin{CompactCode}
+rule ( lisp, \verb|\|
+       HarlequinCodeTarget AllegroCodeTarget \emph{<Lispsys>CodeTarget}, \verb|\|
+       noActions )
+\end{CompactCode}
+
+Behind that rule, add the file generating macros defined in
+\texttt{plob/conf/make.rules.in} (in this example, for version 3 and 4
+of the target LISP system):
+\begin{CompactCode}
+Mk<Lispsys>3aFiles
+Mk<Lispsys>3bFiles
+Mk<Lispsys>3cFiles
+Mk<Lispsys>3dFiles
+
+Mk<Lispsys>4aFiles
+Mk<Lispsys>4bFiles
+Mk<Lispsys>4cFiles
+Mk<Lispsys>4dFiles
+\end{CompactCode}
+
+Add the rules for building the target LISP system foreign function
+interface source code (in this example, for version 3 and 4 of the
+target LISP system):
+\begin{CompactCode}
+<LISPSYS>3FILES=\verb|\|
+PlobFiles(<lispsys>3 slash,dot lisp)
+<LISPSYS>4FILES=\verb|\|
+PlobFiles(<lispsys>4 slash,dot lisp)
+<LISPSYS>FILES=$(<LISPSYS>3FILES) $(<LISPSYS>4FILES)
+rule ( <lispsys> dash code, \verb|\|
+       $(<LISPSYS>FILES), \verb|\|
+       noActions )
+\end{CompactCode}
+
+\subsubsection{Step 7: (Re-)generate foreign function interface sources}
+
+In a shell with current directory \texttt{plob/src/include}, call
+\texttt{./mk <lispsys>-code}. This will (re-)generate the foreign function
+interface source code for the target LISP systems.
+
+\subsubsection{Step 8: Adapt plob/src/lisp/defsystem-plob.lisp}
+
+Adapt the definitions of parameters
+\texttt{+plob-include-lisp-directory+} and
+\texttt{+plob-target-lisp-directory+} to capture the new target LISP
+system. Load \texttt{defsystem-plob.lisp} and check if the logical
+pathname transformations work as expected (e.g.\ by looking at
+constant \texttt{+plob-members+}).
+
+\subsubsection{Step 9: Extend plob/src/lisp/ff-mapping.lisp}
+
+The challenging task is to extend
+\texttt{plob/src/lisp/ff-mapping.lisp} by the macro definitions suited
+for the target LISP system, namely the macros
+\texttt{define-foreign-function} and \texttt{define-foreign-callable}.
+Macro \texttt{define-foreign-function} has to expand into a definition
+which describes to the target LISP system a foreign function to be
+called by the target LISP system.  Macro
+\texttt{define-foreign-callable} has to expand into a definition which
+describes to the target LISP system a foreign function which will call
+a LISP function of the target LISP system, e.g. for error callbacks.
+
+\subsubsection{Step 10: System specific code}
+
+LISP system specific code is also to be found in
+\texttt{plob-sysdep.lisp} and has to be adapted to the target LISP
+system.
+
+\subsubsection{Step 11: Metaobject Protocol}
+
+\plob\ uses the Metaobject Protocol generally as described in
+\cite{bib:AMOP} and more specifically as implemented in the target
+LISP system (be assured, that \emph{makes} a difference). Both \lwcl\
+and \allegrocl\ are relatively close to the definition given in
+\cite{bib:AMOP}. Most of the problems with the MOP binding stem from
+the non-compatible parts of the implementation (which are often not
+documented), often for performance reasons, and from problems about
+run-time stability of a self-reflective system as \clos\ actually is.
+
+As a consequence, only some rules of thumb can be given to check the
+MOP binding. Assumingly, a new target LISP system might exhibit a
+behavior similar to that of one of the currently supported systems, so
+it makes sense to look for the conditional statements especially in
+files \texttt{plob/src/lisp/plob-clos-slot-value.lisp},
+\texttt{plob/src/lisp/plob-clos-descr.lisp} and
+\texttt{plob/src/lisp/plob-metaclass-*.lisp}, and read the comments
+in these files.
+
+\subsection{New Operating and LISP System}
+
+When considering doing a port both to a new operating system and a new
+LISP system, my recommendation is to start with the port of the LISP
+system running on an operating system currently supported by \plob,
+and do the operating system specific port afterwards. The reason is
+that the operating system specific port involves operating system
+specific low-level functions (esp.\ virtual memory functions); testing
+a new operating system port becomes a lot easier when the tests can be
+done from a running application level.
 
 \clearpage\thispagestyle{plain}\cleardoublepage%
 

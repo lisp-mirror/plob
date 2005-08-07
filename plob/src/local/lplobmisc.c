@@ -48,7 +48,6 @@
 #include	"hash.h"
 #include	"postore.h"
 #include	"lplob.h"
-#include	"lplobff.h"
 #include	"lplobintern.h"
 #include	"lplobnumber.h"
 #include	"lplobmisc.h"
@@ -86,6 +85,6 @@ BOOL		fnLISPmapClassInfoCallback	( SHTYPETAG nTypeTag,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

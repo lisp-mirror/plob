@@ -180,8 +180,12 @@ extern DLLEXPORTVAR LPCSTR	szBool2Verb [ 2 ]	/* = */
 #define sleep( seconds )	Sleep ( (seconds)*1000 )
 #endif
 #define	length( array )		(sizeof(array)/sizeof(array[0]))
+#if !defined(MIN)
 #define	MIN( x, y )		(((x)<(y))?(x):(y))
+#endif
+#if !defined(MAX)
 #define	MAX( x, y )		(((x)>(y))?(x):(y))
+#endif
 #define	ABS( x )		((x)>0?(x):-(x))
 #define SGN( x )		(((x)>0)?1:(((x)<0)?-1:0))
 #define	OFFSET( StructType, StructComponent )	\
@@ -323,18 +327,19 @@ static const char __szProc__ []		= szProc
    here must reflect those of the enum type ERRLVL in plob.h */
 typedef enum {
   errNone,	/* 0: No error was encountered. */
-  errInfo,	/* 1: Information message. */
-  errWarn,	/* 2: Warning message. */
-  errCError,	/* 3: Continuable error. */
-  errError,	/* 4: Error occurred. */
-  errFatal,	/* 5: Fatal error was encountered. */
+  errSuspend,	/* 1: No error, server is suspended */
+  errInfo,	/* 2: Information message. */
+  errWarn,	/* 3: Warning message. */
+  errCError,	/* 4: Continuable error. */
+  errError,	/* 5: Error occurred. */
+  errFatal,	/* 6: Fatal error was encountered. */
   errMin	= errNone,
   errMax	= errFatal,
   errNoE	= errMax - errMin + 1
 } ERRORLEVEL, * PERRORLEVEL;
 
 extern DLLEXPORTVAR LPCSTR	ppszErrorLevel2String [ errNoE ]
-  /* = { "none", "info", "warning",
+  /* = { "none", "suspend", "info", "warning",
          "continuable error", "error", "fatal error" } */;
 
 /* Show an info: */
@@ -514,6 +519,6 @@ void		fnDeinitializeGlobalModule	( void );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

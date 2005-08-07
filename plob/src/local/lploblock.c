@@ -57,7 +57,7 @@
 #include	"lploblock.h"
 #include	"lplobbtree.h"
 #include	"lplobheap.h"
-#include	"lplobsequ.h"
+
 #include	"lplobclos.h"
 
 /* ----------------------------------------------------------------------- */
@@ -163,6 +163,6 @@ BeginFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

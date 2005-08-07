@@ -108,6 +108,7 @@
 #include	"sploblock.h"
 #include	"splobheap.h"
 #include	"splobbtree.h"
+#include	"splobregex.h"
 #include	"splobroot.h"
 #include	"splobadmin.h"
 
@@ -165,23 +166,23 @@ static void	fnRestart	( int	nExitCode )
     if ( nRpcPort > nMasterPort ) {
       sprintf ( szPort, "%d", nRpcPort );
 #if WIN32
-      if ( spawnl ( _P_DETACH, szPlobd, szPlobd,
-		    szOptionPort, szPort,
-		    szOptionRestarted, NULL ) != -1 ) {
+      if ( spawnlp ( _P_DETACH, szPlobd, szPlobd,
+		     szOptionPort, szPort,
+		     szOptionRestarted, NULL ) != -1 ) {
 	exit ( 0 );
       }
 #else
-      execl ( szPlobd, szPlobd, szOptionPort, szPort,
-	      szOptionRestarted, NULL );
+      execlp ( szPlobd, szPlobd, szOptionPort, szPort,
+	       szOptionRestarted, NULL );
 #endif
     } else {
 #if WIN32
-      if ( spawnl ( _P_DETACH, szPlobd, szPlobd, szOptionRestarted,
-		    NULL ) != -1 ) {
+      if ( spawnlp ( _P_DETACH, szPlobd, szPlobd, szOptionRestarted,
+		     NULL ) != -1 ) {
 	exit ( 0 );
       }
 #else
-      execl ( szPlobd, szPlobd, szOptionRestarted, NULL );
+      execlp ( szPlobd, szPlobd, szOptionRestarted, NULL );
 #endif
     }
     LOG (( "Restarting %s failed, exiting.", szPlobd ));
@@ -731,8 +732,86 @@ BeginFunction ( BOOL,
   RETURN ( bDone );
 } EndFunction ( fnServerRestart );
 
+/* ----------------------------------------------------------------------- */
+BeginFunction ( SHORTOBJID,
+		fnServerSuspend, "c-sh-suspend",
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
+		  and
+		  argument ( CONST_STRING, vector_in, szReason ) ) )
+{
+  SHORTOBJID	oSuspendedBy = NULLOBJID;
+
+  INITIALIZEPLOB;
+  if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
+    if ( CATCHERROR ) {
+      UNSTORESESSION ();
+      RETURN ( NULLOBJID );
+    }
+  }
+
+  if ( oShortObjIdHeap != NULLOBJID && ! bGlobalSuspended ) {
+    OBJID	oHeap, oUser, oMachine;
+    time_t	Time;
+    char	szTime [ 64 ];
+ 
+    ASSERT ( StableHeap_is_open );
+    oHeap	= Short2LongObjId ( oShortObjIdHeap );
+    oUser	= fnHeapUser ( oHeap );
+    oMachine	= fnHeapMachine ( oHeap );
+    if ( fnAdminP ( oUser, oMachine ) != eaAdminTrue ) {
+      ERROR (( "Only the admin user may suspend the daemon." ));
+      RETURN ( NULLOBJID );
+    }
+    LOG (( "Suspended by %s.%s%s",
+	   fnPrintObject ( oHeap, (LPSTR) NULL, 0 ),
+	   ( szReason != NULL && szReason [ 0 ] != '\0' ) ? "\n       Reason: " : szEmpty,
+	   ( szReason != NULL && szReason [ 0 ] != '\0' ) ? szReason : szEmpty ));
+    time ( &Time );
+    strftime ( szTime, sizeof ( szTime ), szTimeFormat, localtime ( &Time ) );
+    sprintf ( szGlobalSuspendedMsg, "Suspended by %s at %s.%s%s",
+	      fnPrintObject ( oHeap, (LPSTR) NULL, 0 ), szTime,
+	      ( szReason != NULL && szReason [ 0 ] != '\0' ) ? " Reason: " : szEmpty,
+	      ( szReason != NULL && szReason [ 0 ] != '\0' ) ? szReason : szEmpty );
+    fflush ( NULL );
+    SH_stabilise ();
+    bGlobalSuspended	= TRUE;
+    oGlobalSuspendedBy	= oHeap;
+  }
+  oSuspendedBy	= LONG2SHORTOBJID ( oGlobalSuspendedBy );
+
+  UnstoreSession ();
+  RETURN ( oSuspendedBy );
+} EndFunction ( fnServerSuspend );
+
+/* ----------------------------------------------------------------------- */
+BeginFunction ( SHORTOBJID,
+		fnServerResume, "c-sh-resume",
+		( voidArgument ) )
+{
+  SHORTOBJID	oSuspendedBy;
+
+  INITIALIZEPLOB;
+  if ( StoreSession ( NULLOBJID ) ) {
+    if ( CATCHERROR ) {
+      UNSTORESESSION ();
+      RETURN ( NULLOBJID );
+    }
+  }
+
+  oSuspendedBy			= LONG2SHORTOBJID ( oGlobalSuspendedBy );
+  bGlobalSuspended		= FALSE;
+
+  LOG (( "Resume server suspended by %s",
+	 fnPrintObject ( oGlobalSuspendedBy, (LPSTR) NULL, 0 ) ));
+
+  oGlobalSuspendedBy		= NULLOBJID;
+  szGlobalSuspendedMsg [ 0 ]	= '\0';
+
+  RETURN ( oSuspendedBy );
+} EndFunction ( fnServerResume );
+
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

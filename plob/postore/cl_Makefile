@@ -27,11 +27,11 @@ LD=link
 LDFLAGS=-link -nodefaultlib \
 -debug \
 -libpath:../release/win32lib \
--libpath:$(MSVCPATH)/lib \
+-libpath:"$(MSVCPATH)\Lib" \
 u2win32.lib msvcrt.lib wsock32.lib kernel32.lib
 OUTPUT_OPTION_EXE=-out:$@
 EXE=.exe
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

@@ -14,7 +14,7 @@
 ;;; ---------------------------------------------------------------------------
 ;;; Sample documented function
 ;;; ---------------------------------------------------------------------------
-#+never
+#+:never
 (defun sample ()
   "
 \\Argumentslabel
@@ -43,7 +43,7 @@
 ;;; ---------------------------------------------------------------------------
 ;;; Sample 'free' item
 ;;; ---------------------------------------------------------------------------
-#+lisp-doc
+#+:lisp-doc
 (:defdoc
  "free item ..."	; This could be also a symbol
  "Document Items with `free' Text"
@@ -765,9 +765,11 @@ This is a document item not bound to a programming construct:
 (defun externalp (symbol)
   "Check if \\funarg{symbol}\\ is an external symbol."
   (multiple-value-bind (found external)
-      (intern symbol (symbol-package symbol))
+      (intern #-:lispworks symbol
+              #+:lispworks (symbol-name symbol)
+              (symbol-package symbol))
     (declare (ignore found))
-    (eq external :external)))  
+    (eq external :external)))
   
 ;;; ---------------------------------------------------------------------------
 (defun make-key-attribute (name)

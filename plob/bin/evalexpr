@@ -41,6 +41,15 @@ function HEX( nHex ) {
   }
   return nResult;
 } # HEX
+function OCT( nOct ) {
+  nResult	= 0;
+  while( nOct !~ /^$/ ) {
+    nResult	= nResult * 8 + \
+		  index( "01234567", substr( nOct, 1, 1 ) ) - 1;
+    nOct	= substr( nOct, 2 );
+  }
+  return nResult;
+} # HEX
 function OR( nNumber1, nNumber2 ) {
   nResult	= 0;
   nFactor	= 1;
@@ -86,5 +95,5 @@ fi
 fnEvalExpr "${szAwk}" "$*"
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

@@ -60,6 +60,7 @@
 #include	"cploblock.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobstruct.h"
 #include	"cplobclos.h"
 
@@ -89,19 +90,6 @@ void			fnDeinitializeBTreeModule	( void )
 } /* fnDeinitializeBTreeModule */
 
 /* ----------------------------------------------------------------------- */
-static void	fnFlushObject	( SHORTOBJID	oHeap,
-				  FIXNUM	nValue,
-				  SHTYPETAG	nTypeTag )
-{
-  PROCEDURE	( fnFlushObject );
-
-  if ( ! immediatep ( nTypeTag ) ) {
-    fnCacheFlush ( oHeap, (SHORTOBJID) nValue );
-  }
-  RETURN ( VOID );
-} /* fnFlushObject */
-
-/* ----------------------------------------------------------------------- */
 BeginFunction ( BTREERESULT,
 	        fnClientBtreeDelete, "c-sh-btree-delete",
 	        ( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
@@ -114,7 +102,7 @@ BeginFunction ( BTREERESULT,
 {
   INITIALIZEPLOB;
   if ( bGlobalDoCaching ) {
-    fnFlushObject ( oShortObjIdHeap, nValueKey, nTypeTagKey );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   RETURN ( fnServerBtreeDelete ( oShortObjIdHeap, oShortObjIdBTree,
 				 nValueKey, nTypeTagKey ) );
@@ -179,8 +167,7 @@ BeginFunction ( BTREERESULT,
 {
   INITIALIZEPLOB;
   if ( bGlobalDoCaching ) {
-    fnFlushObject ( oShortObjIdHeap, nValueKey, nTypeTagKey );
-    fnFlushObject ( oShortObjIdHeap, nValueData, nTypeTagData );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   RETURN ( fnServerBtreeInsert ( oShortObjIdHeap, oShortObjIdBTree,
 				 nValueKey, nTypeTagKey,
@@ -262,13 +249,13 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   INITIALIZEPLOB;
   if ( bGlobalDoCaching ) {
-    fnCacheFlush ( oShortObjIdHeap, oShortObjIdMapper );
-    fnFlushObject ( oShortObjIdHeap, nValueKeyLower, nTypeTagKeyLower );
-    fnFlushObject ( oShortObjIdHeap, nValueKeyUpper, nTypeTagKeyUpper );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   RETURN ( fnServerBtreemapSearch ( oShortObjIdMapper, oShortObjIdHeap,
 				    oShortObjIdBTree,
@@ -276,7 +263,7 @@ BeginFunction ( FIXNUM,
 				    eCompareLower,
 				    nValueKeyUpper, nTypeTagKeyUpper,
 				    eCompareUpper,
-				    bDescending ) );
+				    bDescending, oShortObjIdFilter ) );
 } EndFunction ( fnClientBtreemapSearch );
 
 /* ----------------------------------------------------------------------- */
@@ -313,19 +300,21 @@ BeginFunction ( voidResult,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   INITIALIZEPLOB;
   ASSERT ( pnReturnValue != NULL );
   if ( bGlobalDoCaching ) {
-    fnCacheFlush ( oShortObjIdHeap, oShortObjIdMapper );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   *pnReturnValue	=
     fnServerBtreemapSearchByFloat ( oShortObjIdMapper,
 				    oShortObjIdHeap, oShortObjIdBTree,
 				    fKeyLower, nTypeTagKeyLower, eCompareLower,
 				    fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				    bDescending );
+				    bDescending, oShortObjIdFilter );
   RETURN ( VOID );
 } EndFunction ( fnClientBtreemapSearchByFloat );
 
@@ -365,12 +354,14 @@ BeginFunction ( voidResult,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   INITIALIZEPLOB;
   ASSERT ( pnReturnValue != NULL );
   if ( bGlobalDoCaching ) {
-    fnCacheFlush ( oShortObjIdHeap, oShortObjIdMapper );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   *pnReturnValue	=
     fnServerBtreemapSearchByDouble ( oShortObjIdMapper,
@@ -379,7 +370,7 @@ BeginFunction ( voidResult,
 				     eCompareLower,
 				     fKeyUpper, nTypeTagKeyUpper,
 				     eCompareUpper,
-				     bDescending );
+				     bDescending, oShortObjIdFilter );
   RETURN ( VOID );
 } EndFunction ( fnClientBtreemapSearchByDouble );
 
@@ -405,11 +396,13 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   INITIALIZEPLOB;
   if ( bGlobalDoCaching ) {
-    fnCacheFlush ( oShortObjIdHeap, oShortObjIdMapper );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   RETURN ( fnServerBtreemapSearchByString ( oShortObjIdMapper,
 					    oShortObjIdHeap, oShortObjIdBTree,
@@ -417,7 +410,7 @@ BeginFunction ( FIXNUM,
 					    eCompareLower,
 					    szKeyUpper, nTypeTagKeyUpper,
 					    eCompareUpper,
-					    bDescending ) );
+					    bDescending, oShortObjIdFilter ) );
 } EndFunction ( fnClientBtreemapSearchByString );
 
 /* ----------------------------------------------------------------------- */
@@ -441,7 +434,7 @@ BeginFunction ( FIXNUM,
 {
   INITIALIZEPLOB;
   if ( bGlobalDoCaching ) {
-    fnCacheFlush ( oShortObjIdHeap, oShortObjIdMapper );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   RETURN ( fnServerBtreemapSeek ( oShortObjIdHeap, oShortObjIdMapper,
 				  nIncrement, eOrigin,
@@ -466,8 +459,7 @@ BeginFunction ( FIXNUM,
 {
   INITIALIZEPLOB;
   if ( bGlobalDoCaching ) {
-    fnCacheFlush ( oShortObjIdHeap, oShortObjIdMapper );
-    fnFlushObject ( oShortObjIdHeap, nValueData, nTypeTagData );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   RETURN ( fnServerBtreemapSeekSet ( oShortObjIdHeap, oShortObjIdMapper,
 				     nIncrement, eOrigin,
@@ -497,6 +489,8 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ),
@@ -513,8 +507,7 @@ BeginFunction ( FIXNUM,
 {
   INITIALIZEPLOB;
   if ( bGlobalDoCaching ) {
-    fnFlushObject ( oShortObjIdHeap, nValueKeyLower, nTypeTagKeyLower );
-    fnFlushObject ( oShortObjIdHeap, nValueKeyUpper, nTypeTagKeyUpper );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   RETURN ( fnServerBtreemapFirst ( lpoShortObjIdMapper, oShortObjIdHeap,
 				   oShortObjIdBTree,
@@ -522,7 +515,8 @@ BeginFunction ( FIXNUM,
 				   eCompareLower,
 				   nValueKeyUpper, nTypeTagKeyUpper,
 				   eCompareUpper,
-				   bDescending, nMap, pnValueKey, pnTypeTagKey,
+				   bDescending, oShortObjIdFilter,
+				   nMap, pnValueKey, pnTypeTagKey,
 				   pnValueData, pnTypeTagData ) );
 } EndFunction ( fnClientBtreemapFirst );
 
@@ -564,6 +558,8 @@ BeginFunction ( voidResult,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ),
@@ -585,7 +581,7 @@ BeginFunction ( voidResult,
 				   oShortObjIdHeap, oShortObjIdBTree,
 				   fKeyLower, nTypeTagKeyLower, eCompareLower,
 				   fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				   bDescending, nMap,
+				   bDescending, oShortObjIdFilter, nMap,
 				   pnValueKey, pnTypeTagKey,
 				   pnValueData, pnTypeTagData );
   RETURN ( VOID );
@@ -631,6 +627,8 @@ BeginFunction ( voidResult,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ),
@@ -651,7 +649,7 @@ BeginFunction ( voidResult,
 				    oShortObjIdHeap, oShortObjIdBTree,
 				    fKeyLower, nTypeTagKeyLower, eCompareLower,
 				    fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				    bDescending, nMap,
+				    bDescending, oShortObjIdFilter, nMap,
 				    pnValueKey, pnTypeTagKey,
 				    pnValueData, pnTypeTagData );
   RETURN ( VOID );
@@ -682,6 +680,8 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ),
@@ -703,7 +703,7 @@ BeginFunction ( FIXNUM,
 					   eCompareLower,
 					   szKeyUpper, nTypeTagKeyUpper,
 					   eCompareUpper,
-					   bDescending, nMap,
+					   bDescending, oShortObjIdFilter, nMap,
 					   pnValueKey, pnTypeTagKey,
 					   pnValueData, pnTypeTagData ) );
 } EndFunction ( fnClientBtreemapFirstByString );
@@ -731,7 +731,7 @@ BeginFunction ( BTREERESULT,
 {
   INITIALIZEPLOB;
   if ( bGlobalDoCaching ) {
-    fnFlushObject ( oShortObjIdHeap, nValueKey, nTypeTagKey );
+    fnCacheFlush ( oShortObjIdHeap, NULLOBJID );
   }
   RETURN ( fnServerBtreeSearch ( oShortObjIdHeap, oShortObjIdBTree,
 				 nValueKey, nTypeTagKey,
@@ -822,6 +822,6 @@ BeginFunction ( BTREERESULT,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

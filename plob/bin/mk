@@ -65,7 +65,7 @@ if [ ! -d "${szopsys}" ]; then
   mkdir ${szopsys}
 fi
 
-if [ ! -r "${szopsys}/makefile" -a -r "makefile.in" ]; then
+if [ ! -s "${szopsys}/makefile" -a -r "makefile.in" ]; then
   # Try to make the makefile
   szCPP="`sed -n '/^[	 ]*[a-zA-Z_][a-zA-Z_0-9]*[	 ]*=/ p
 $ i\\
@@ -93,5 +93,5 @@ echo "${szCmd}"
 ${szCmd}
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

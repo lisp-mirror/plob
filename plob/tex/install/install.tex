@@ -144,14 +144,14 @@ command \lisp{gs})
 \plob's server uses \postore\ (\textit{P}ersistent \textit{O}bject
 \textit{Store}) as a low-level persistent memory; it is provided in
 binary form in this distribution with the permission of the University
-of St.\ Andrews.  \postore\ is the low-level persistent memory used by
-the persistent programming language
-\href{http://www-ppg.dcs.st-andrews.ac.uk}{Napier88}.
+of St.\ Andrews, so an extra installation is not necessary.  \postore\
+is the low-level persistent memory used by the persistent programming
+language \href{http://www-ppg.dcs.st-and.ac.uk}{Napier88}.
 
 The \postore\ library found with \plob\ has been slightly adapted to
 Solaris, IRIX, Linux and Windows/NT for \plob's needs. The Stable Heap
 administered by the \postore\ library can hold persistent objects
-which sum up to a maximum of 384~MB (1~GB on Windows/NT).
+which sum up to a maximum of 384~MB.
 
 \subsection[Installing PLOB on Unix]%
 {Installing \protect\plob\ on \protect\unix}%
@@ -207,8 +207,7 @@ This section describes how to install \plob\ on a \unix\ system.
     step~\ref{itm:config}
   \item Copy files
     \lisp{plob-\thisversion/\lb{}bin/\lb\osname/\lb{}plobd[.exe]},
-    \lisp{plob-\thisversion/\lb{}bin/\lb\osname/\lb{}plobdadmin[.exe]},
-    \lisp{plob-\thisversion/\lb{}bin/\lb\osname/\lb{}librpclientplob.[so,dll]}\ 
+    \lisp{plob-\thisversion/\lb{}bin/\lb\osname/\lb{}plobdadmin[.exe]}\ 
     and \lisp{plob-\thisversion/\lb{}bin/\lb{}plobdmon}\ into the
     database root directory.
   \item Call program \lisp{plobdadmin}\ now located in the
@@ -341,7 +340,7 @@ Compile and load file \lisp{defsystem-plob.lisp}.
   \lisp{\$\{HOME\}/.plobdrc}\\[\smallskipamount]
   \begin{tt}\CodeSize
     root \textrm{\emph{\lt{}database root directory\gt{}}}\\
-    start
+    connect
   \end{tt}
 
 \item Continue as described in section~\Nameref{sec:install},
@@ -424,8 +423,7 @@ system \plob\ should be installed at.
   \lisp{/tmp}\ or -- for performance reasons -- into a NFS or Novell
   mounted directory or drive. This text assumes a database root
   directory at \lisp{/opt/\lb{}data/\lb{}plob/}. Make this directory,
-  and copy the executable daemon, the administration tool and the
-  shared library needed by the administration tool into this
+  and copy the executable daemon and the administration tool into this
   directory.\\[\smallskipamount]
 \begin{tt}\CodeSize
 \td/plob-\thisversion>mkdir /opt/data/plob\\
@@ -433,13 +431,9 @@ system \plob\ should be installed at.
 \hspace*{\fill}\textrm{\emph{(for UNIX)}}\\
 \td/plob-\thisversion>cp conf/\shortosname/plobdadmin /opt/data/plob
 \hspace*{\fill}\textrm{\emph{(for UNIX)}}\\
-\td/plob-\thisversion>cp conf/\shortosname/librpclientplob.so /opt/data/plob
-\hspace*{\fill}\textrm{\emph{(for UNIX)}}\\
 \td/plob-\thisversion>cp conf/\shortosname/plobd.exe /opt/data/plob
 \hspace*{\fill}\textrm{\emph{(for NT)}}\\
 \td/plob-\thisversion>cp conf/\shortosname/plobdadmin.exe /opt/data/plob
-\hspace*{\fill}\textrm{\emph{(for NT)}}\\
-\td/plob-\thisversion>cp conf/\shortosname/librpclientplob.dll /opt/data/plob
 \hspace*{\fill}\textrm{\emph{(for NT)}}
 \end{tt}
 
@@ -513,7 +507,7 @@ the server was rebooted, since the server does not terminate itself
 when the last client disconnects.  If a restart is necessary, login to
 the server host (if the server host is not \lisp{localhost}) and
 change to the database root directory. Call program \lisp{plobdadmin
--start}, this will start the server process.
+-connect}, this will start the server process.
 
 \subsection[Client side]%
 {Starting \protect\plob: Client side}
@@ -537,7 +531,7 @@ USER(3): (open-my-session)\\
 \end{document}
 
 %%% Local Variables: 
-%%% buffer-file-coding-system: iso-latin-1-unix
+%%% buffer-file-coding-system: raw-text-unix
 %%% mode: latex
 %%% TeX-master: "install"
 %%% End: 

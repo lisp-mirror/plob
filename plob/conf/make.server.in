@@ -54,7 +54,6 @@ rule ( server dash stage dash 0, \
 
 rule ( server dash stage dash 1, \
        $(DEFAULTROOT) spc \
-       $(DEFAULTROOT) slash fileDll(librpclientplob) spc \
        $(DEFAULTROOT) slash fileExe(plobdadmin) spc \
        $(DEFAULTROOT) slash plobdmon spc \
        $(DEFAULTROOT) slash fileExe(plobd) spc \
@@ -79,8 +78,7 @@ rule ( $(DEFAULTROOT), \
 	  fi bsnl \
 	fi )
 
-rule ( $(LIBDIR) slash fileDll(librpclientplob) spc \
-       $(BINDIR) slash $(opsys) slash fileExe(plobdadmin) spc \
+rule ( $(BINDIR) slash $(opsys) slash fileExe(plobdadmin) spc \
        $(BINDIR) slash $(opsys) slash fileExe(plobd) spc \
        $(BINDIR) slash plobdmon, \
        noDependencies, \
@@ -97,10 +95,6 @@ rule ( $(HOME) slash dot plobdrc,
        echo "url $(DEFAULTTRANS)://$(DEFAULTHOST)/$(DEFAULTBASE)" >> ruleTarget; bsnl \
        echo "echo -n url is set to" >> ruleTarget; bsnl \
        echo "url" >> ruleTarget )
-
-MkCopyRule($(DEFAULTROOT) slash, \
-           $(LIBDIR) slash, \
-           fileDll(librpclientplob))
 
 MkCopyRule($(DEFAULTROOT) slash, \
            $(BINDIR) slash $(opsys) slash, \
@@ -129,6 +123,6 @@ rule ( $(DEFAULTROOT) slash fileExe(plobd), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

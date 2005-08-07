@@ -420,10 +420,10 @@ function fnPrintFunction( szDeclaration,
           print "%    pResult->" szArgument "\t=";
           print "%    (string_t) malloc ( " szSize " );";
           print "%    if ( pResult->" szArgument " == NULL ) {";
-          print "%      char\tszError [ 256 ];";
-          print "%      sprintf ( szError, szFormatMallocFailed,";
+	  print "%      char szErrorMsg [ 256 ];";
+          print "%      sprintf ( szErrorMsg, szFormatMallocFailed,";
           print "%                __procedure__, " szSize " );";
-          print "%      RPC_SERVER_ERROR ( szError );";
+          print "%      RPC_SERVER_ERROR ( szErrorMsg );";
           print "%      return (RESULTTYPE) NULL;";
           print "%    }";
           print "%  }";
@@ -444,11 +444,11 @@ function fnPrintFunction( szDeclaration,
 	    "." szAccessor "_val) ) );";
           print "%    if ( pResult->" szArgument "." szAccessor \
 	    "_val == NULL ) {";
-          print "%      char\tszError [ 256 ];";
-          print "%      sprintf ( szError, szFormatMallocFailed,";
+          print "%      char\tszErrorMsg [ 256 ];";
+          print "%      sprintf ( szErrorMsg, szFormatMallocFailed,";
           print "%                __procedure__, " szSize ",";
           print "%                \"" szArgument "\" );";
-          print "%      RPC_SERVER_ERROR ( szError );";
+          print "%      RPC_SERVER_ERROR ( szErrorMsg );";
           print "%      return (RESULTTYPE) NULL;";
           print "%    }";
           print "%  }";
@@ -551,18 +551,20 @@ function fnPrintFunction( szDeclaration,
   print "%{";
   print "%  static const char\t__procedure__[]\t= \"client:" \
     szFunctionName "\";";
-  print "%  static " \
+  print "%  static const " \
     ( ( szRpcType ~ /^void$/ ) ? "char" : szRpcType ) "\tZeroResult;";
   print "%  " szRpcType "\t\t* pResult = NULL;";
-  if( szResultType !~ "^void$" ) {
-    print "%  " szRpcType "\t\tResult = ZeroResult;";
-  } else {
+  if( szResultType ~ "^void$" ) {
     print "%#ifdef MULTITHREAD";
     print "%  char\t\tResult = ZeroResult;";
     print "%#endif";
+  } else {
+    print "%  " szRpcType "\t\tResult = ZeroResult;";
+    print "%  int\tnTries = 0;";
   }
+  print "%  char\tszErrorMsg [ 1024 ];";
   if( nArgumentsIn > 1 ) {
-    print "%  " szFunctionName "_args\tInArguments;";
+    print "%  " szFunctionName "_args\t\tInArguments;";
   }
   print "%";
   print "%  /* Client initialization: */";
@@ -577,9 +579,8 @@ function fnPrintFunction( szDeclaration,
     "RPC_CLIENT_CREATE ( __szHost__, __szTransport__ );";
   print "%    if ( __pClient__ == NULL ) {"
   print "%      /* Error handling for a not connected client: */";
-  print "%      char\tszError [ 256 ];";
-  print "%      sprintf ( szError, szFormatNoServer, __procedure__ );";
-  print "%      RPC_CLIENT_ERROR ( szError );";
+  print "%      sprintf ( szErrorMsg, szFormatNoServer, __procedure__ );";
+  print "%      RPC_CLIENT_ERROR ( szErrorMsg );";
   print "%      " szReturn ";";
   print "%    }";
   print "%  }";
@@ -589,9 +590,8 @@ function fnPrintFunction( szDeclaration,
     "RPC_CLIENT_CREATE ( __szHost__, __szTransport__ );";
   print "%    if ( __pClient__ == NULL ) {"
   print "%      /* Error handling for a not connected client: */";
-  print "%      char\tszError [ 256 ];";
-  print "%      sprintf ( szError, szFormatNoServer, __procedure__ );";
-  print "%      RPC_CLIENT_CERROR ( szContNoServer, szError );";
+  print "%      sprintf ( szErrorMsg, szFormatNoServer, __procedure__ );";
+  print "%      RPC_CLIENT_CERROR ( szContNoServer, szErrorMsg );";
   print "%    }";
   print "%  }";
   print "%#endif\t/* CLIENT_CREATE_BY_USER */";
@@ -609,11 +609,10 @@ function fnPrintFunction( szDeclaration,
           # Code to check if passed pointer is != NULL:
           print "%  if ( " szArgument " == NULL ) {";
 	  print "%    /* Error handling for passing a NULL string pointer: */";
-	  print "%    char\tszError [ 256 ];";
           print "%    InArguments." szArgument "\t= (LPSTR) szEmpty;";
-	  print "%    sprintf ( szError, szFormatNullString,";
+	  print "%    sprintf ( szErrorMsg, szFormatNullString,";
           print "%              __procedure__, \"" szArgument "\" );";
-	  print "%    RPC_CLIENT_CERROR ( szContNullString, szError );";
+	  print "%    RPC_CLIENT_CERROR ( szContNullString, szErrorMsg );";
           print "%  }";
         } else if ( szSize ) {
           print "%  InArguments." szArgument "." szAccessor "_len\t= " \
@@ -625,11 +624,10 @@ function fnPrintFunction( szDeclaration,
 	    "_len != 0 && " szArgument " == NULL ) {";
 	  print "%    /* Error handling for passing a NULL pointer on */";
 	  print "%    /* VECTOR declared in argument: */";
-	  print "%    char\tszError [ 256 ];";
           print "%    InArguments." szArgument "." szAccessor "_len\t= 0;";
-	  print "%    sprintf ( szError, szFormatNullPassed,";
+	  print "%    sprintf ( szErrorMsg, szFormatNullPassed,";
           print "%              __procedure__, \"" szArgument "\" );";
-	  print "%    RPC_CLIENT_CERROR ( szContNullPassed, szError );";
+	  print "%    RPC_CLIENT_CERROR ( szContNullPassed, szErrorMsg );";
           print "%  }";
         } else {
           print "%  InArguments." szArgument "\t= " szArgument ";";
@@ -640,11 +638,10 @@ function fnPrintFunction( szDeclaration,
     print "%";
     print "%  if ( " szArgumentsIn[ 1 ] " == NULL ) {";
     print "%    /* Error handling for passing a NULL string pointer: */";
-    print "%    char\tszError [ 256 ];";
     print "%    " szArgumentsIn[ 1 ] "\t= (LPSTR) szEmpty;";
-    print "%    sprintf ( szError, szFormatNullString,";
+    print "%    sprintf ( szErrorMsg, szFormatNullString,";
     print "%              __procedure__, \"" szArgumentsIn[ 1 ] "\" );";
-    print "%    RPC_CLIENT_CERROR ( szContNullString, szError );";
+    print "%    RPC_CLIENT_CERROR ( szContNullString, szErrorMsg );";
     print "%  }";
   }
   for( i = 1; i <= nArgumentsOut; i++ ) {
@@ -655,13 +652,18 @@ function fnPrintFunction( szDeclaration,
     }
   }
   print "%";
-  print "%  pResult\t=";
+  if( szResultType !~ "^void$" ) {
+    print "%  nTries = 0;";
+    print "%  Result.nErrorLvl = errLvlSuspended;";
+    print "%  while ( Result.nErrorLvl == errLvlSuspended ) {";
+  }
+  print "%    pResult\t=";
   print "%#ifdef MULTITHREAD";
-  print "%    (";
+  print "%      (";
   print "%#else";
-  print "%    (" szRpcType " *)";
+  print "%      (" szRpcType " *)";
   print "%#endif";
-  print "%    fnrpc_" tolower ( szFunctionName ) szFunctionBatch "_" nVersion " (";
+  print "%      fnrpc_" tolower ( szFunctionName ) szFunctionBatch "_" nVersion " (";
   if( nArgumentsIn == 0 ) {
     szClientArgument	= "NULL";
     szClientType	= "void";
@@ -683,22 +685,21 @@ function fnPrintFunction( szDeclaration,
   print "%#endif";
   print "%\t;";
   print "%";
-  print "%  if ( pResult == NULL ) {"
-  print "%    /* Error handling for a failed RPC call, */";
-  print "%    /* i.e. the server did not respond: */";
-  print "%    char\tszError [ 256 ];";
-  print "%    sprintf ( szError, szFormatRpcFailed, __procedure__,";
-  print "%              clnt_sperror ( __pClient__, __szHost__ ) );";
-  print "%    __pClient__\t= RPC_CLIENT_DESTROY ( __pClient__ );";
-  print "%    RPC_CLIENT_CERROR ( szContRpcFailed, szError );";
+  print "%    if ( pResult == NULL ) {"
+  print "%      /* Error handling for a failed RPC call, */";
+  print "%      /* i.e. the server did not respond: */";
+  print "%      sprintf ( szErrorMsg, szFormatRpcFailed, __procedure__,";
+  print "%                clnt_sperror ( __pClient__, __szHost__ ) );";
+  print "%      __pClient__\t= RPC_CLIENT_DESTROY ( __pClient__ );";
+  print "%      RPC_CLIENT_CERROR ( szContRpcFailed, szErrorMsg );";
   if( szResultType !~ "^void$" ) {
-    print "%    Result\t= ZeroResult;";
+    print "%      Result\t= ZeroResult;";
   }
-  print "%    " szReturn ";";
-  print "%  }";
+  print "%      " szReturn ";";
+  print "%    }";
   if( szResultType !~ "^void$" ) {
     print "%#ifndef MULTITHREAD";
-    print "%  Result\t= * pResult;";
+    print "%    Result\t= * pResult;";
     print "%#endif";
   }
   if( ! szFunctionBatch ) {
@@ -708,7 +709,7 @@ function fnPrintFunction( szDeclaration,
       for( i = 1; i <= nArgumentsOut; i++ ) {
         szArgument	= szArgumentsOut[ i ];
         if( fnIn( szArgument, szArguments, nArguments ) ) {
-          print "%  /* Copy out the " szArgument " argument: */";
+          print "%    /* Copy out the " szArgument " argument: */";
           szAccessor	= szAccessorsOut[ i ];
           szSize	= szSizesOut[ i ];
           szType	= szTypesOut[ i ];
@@ -719,63 +720,72 @@ function fnPrintFunction( szDeclaration,
           # is != NULL:
           print "%  if ( ! ( ";
 	  if( szType ~ /^string_t/ ) {
-	    print "%       pResult" ( ( szDeref ) ? "->" szArgument : "" );
-	    print "%       && *(pResult" \
+	    print "%         pResult" ( ( szDeref ) ? "->" szArgument : "" );
+	    print "%         && *(pResult" \
 	      ( ( szDeref ) ? "->" szArgument : "" ) ") &&";
 	  } else if ( szSize ) {
 	    # Generate code to check if the output buffer size is
 	    # big enough:
-            print "%       pResult->" szDeref szAccessor "_len" \
+            print "%         pResult->" szDeref szAccessor "_len" \
 	      " != 0 &&";
 	  }
-          print "%       " szArgument " == NULL ) ) {";
+          print "%         " szArgument " == NULL ) ) {";
 	  if( szType ~ /^string_t/ ) {
-	    print "%    if ( " szArgument " != NULL ) {";
-	    print "%      if ( pResult" \
+	    print "%      if ( " szArgument " != NULL ) {";
+	    print "%        if ( pResult" \
 	      ( ( szDeref ) ? "->" szArgument : "" ) " != NULL ) {";
-	    print "%        strncpy ( " szArgument ", pResult" \
+	    print "%          strncpy ( " szArgument ", pResult" \
 	      ( ( szDeref ) ? "->" szArgument : "" ) ", " szSize " );";
-	    print "%      } else {";
-	    print "%        *" szArgument "\t= (char) 0;";
+	    print "%        } else {";
+	    print "%          *" szArgument "\t= (char) 0;";
+	    print "%        }";
 	    print "%      }";
-	    print "%    }";
 	  } else if ( szSize ) {
 	    # Generate code to check if the output buffer size is
 	    # big enough:
-            print "%    memcpy ( " szArgument ",";
-            print "%             pResult->" szDeref szAccessor "_val,";
-	    print "%             MIN ( pResult->" szDeref szAccessor "_len,";
-	    print "%                   " szSize " ) *";
-	    print "%             SIZEOF ( *(pResult->" \
+            print "%      memcpy ( " szArgument ",";
+            print "%               pResult->" szDeref szAccessor "_val,";
+	    print "%               MIN ( pResult->" szDeref szAccessor "_len,";
+	    print "%                     " szSize " ) *";
+	    print "%               SIZEOF ( *(pResult->" \
 	      szDeref szAccessor "_val) ) );";
 	    # print "%#ifndef MULTITHREAD";
-            # print "%    Result." szDeref szAccessor "_val\t= NULL;";
+            # print "%      Result." szDeref szAccessor "_val\t= NULL;";
 	    # print "%#endif";
           } else if( szDeref ) {
-            print "%    *" szArgument "\t= pResult->" szArgument ";";
+            print "%      *" szArgument "\t= pResult->" szArgument ";";
           } else {
-            print "%    *" szArgument "\t= *pResult;";
+            print "%      *" szArgument "\t= *pResult;";
 	  }
-          print "%  }";
+          print "%    }";
         }
       }
       print "%";
     }
     # Check if an error message was returned:
-    print "%  if ( pResult && pResult->nErrorLvl ) {";
-    print "%    /* Server returned a user error message: */";
-    print "%    char\tszErrorMsg [ 1024 ];";
-    print "%    strncpy ( szErrorMsg,";
-    print "%              ( pResult->pszErrorMsg && " \
+    print "%    if ( pResult && pResult->nErrorLvl ) {";
+    print "%      /* Server returned a user error message: */";
+    print "%      strncpy ( szErrorMsg,";
+    print "%                ( pResult->pszErrorMsg && " \
       "pResult->pszErrorMsg [ 0 ] ) ?";
-    print "%              (LPCSTR) pResult->pszErrorMsg : (LPCSTR) szEmpty,";
-    print "%              sizeof ( szErrorMsg ) );";
-    print "%    szErrorMsg [ sizeof ( szErrorMsg ) - 1 ]\t= (char) 0;";
-    print "%    xdr_free ( (xdrproc_t) xdr_" szRpcType ", (char *) pResult );";
-    print "%    RPC_CLIENT_SERROR ( pResult->nErrorLvl, __procedure__,";
-    print "%                        szErrorMsg );";
-    print "%  } else {";
-    print "%    xdr_free ( (xdrproc_t) xdr_" szRpcType ", (char *) pResult );";
+    print "%                (LPCSTR) pResult->pszErrorMsg : (LPCSTR) szEmpty,";
+    print "%                sizeof ( szErrorMsg ) );";
+    print "%      szErrorMsg [ sizeof ( szErrorMsg ) - 1 ]\t= (char) 0;";
+    print "%      xdr_free ( (xdrproc_t) xdr_" szRpcType ", (char *) pResult );";
+    print "%      if ( pResult->nErrorLvl == errLvlSuspended ) { ";
+    print "%        if ( nTries == 0 ) {";
+    print "%          RPC_CLIENT_SERROR ( errLvlInfo, __procedure__,";
+    print "%                              szErrorMsg );";
+    print "%        }";
+    print "%        nTries++;";
+    print "%        sleep ( nSuspendPollingInterval );";
+    print "%      } else {";
+    print "%        RPC_CLIENT_SERROR ( pResult->nErrorLvl, __procedure__,";
+    print "%                            szErrorMsg );";
+    print "%      }";
+    print "%    } else {";
+    print "%      xdr_free ( (xdrproc_t) xdr_" szRpcType ", (char *) pResult );";
+    print "%    }";
     print "%  }";
     if( nArgumentsOut ) {
       for( i = 1; i <= nArgumentsOut; i++ ) {
@@ -803,10 +813,9 @@ function fnPrintFunction( szDeclaration,
           print "%       " szArgument " == NULL ) {";
           print "%    /* Error handling for passing a NULL pointer on */";
           print "%    /* out argument: */";
-          print "%    char\tszError [ 256 ];";
-          print "%    sprintf ( szError, szFormatNullPassed,";
+          print "%    sprintf ( szErrorMsg, szFormatNullPassed,";
           print "%              __procedure__, \"" szArgument "\" );";
-          print "%    RPC_CLIENT_CERROR ( szContNullOutPassed, szError );";
+          print "%    RPC_CLIENT_CERROR ( szContNullOutPassed, szErrorMsg );";
 	  if( szSize && szType !~ /^string_t/ ) {
 	    # Generate code to check if the output buffer size is
 	    # big enough:
@@ -815,12 +824,11 @@ function fnPrintFunction( szDeclaration,
 	    print "%      /* Error handling for an output buffer overflow, */";
 	    print "%      /* i.e. the buffer size passed is too small: */";
 	    print "%      /* For example, signal a CERROR here ... */";
-	    print "%      char\tszError [ 256 ];";
-	    print "%      sprintf ( szError, szFormatBufferOverflow,";
+	    print "%      sprintf ( szErrorMsg, szFormatBufferOverflow,";
             print "%                __procedure__, \"" szArgument "\", ";
             print "%                " szSize ", "
 	    print "%                pResult->" szDeref szAccessor "_len );";
-            print "%      RPC_CLIENT_CERROR ( szContBufferOverflow, szError );";
+            print "%      RPC_CLIENT_CERROR ( szContBufferOverflow, szErrorMsg );";
           }
           print "%  }";
         }
@@ -1128,6 +1136,8 @@ END {
   print "%static struct timeval\tNullTimeout\t= {  0, 0 };";
   print "%static struct timeval\tDefaultTimeout\t= { 20, 0 };";
   print "%";
+  print "%static int nSuspendPollingInterval\t= 10; /* seconds */";
+  print "%";
   print "%#ifndef\tRPC_CLIENT_CREATE";
   print "%#define\tRPC_CLIENT_CREATE(host,transport)\tfnClient" szCapitalized "Create ( host, transport )";
   print "%#define\tCLIENT_CREATE_BY_USER\t0";
@@ -1320,5 +1330,5 @@ END {
 
 # Local variables:
 # mode: awk
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

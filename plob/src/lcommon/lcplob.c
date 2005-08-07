@@ -55,14 +55,6 @@
 #include	"lcplobmisc.h"
 #include	"lcplobtype.h"
 #include	"lcplobnumber.h"
-#include	"lcplobsequ.h"
-#include	"lcplobstruct.h"
-#include	"lcplobclos.h"
-#include	"lcploblock.h"
-#include	"lcplobheap.h"
-#include	"lcplobbtree.h"
-#include	"lcplobroot.h"
-#include	"lcplobadmin.h"
 
 /* ----------------------------------------------------------------------- */
 MODULE ( __FILE__ );
@@ -73,29 +65,27 @@ BOOL WINAPI DllMain	( HANDLE	hModule,
 			  ULONG		dwReason,
 			  LPVOID	lpReserved )
 {
-  static int	nThreads	= 0;
   BOOL		bDone		= TRUE;
 
   PROCEDURE	( DllMain );
 
   switch ( dwReason ) {
+
   case DLL_PROCESS_ATTACH:
     INITIALIZEPLOB;
     break;
+
   case DLL_THREAD_ATTACH:
-    nThreads++;
     break;
+
   case DLL_THREAD_DETACH:
-    nThreads--;
-    if ( nThreads < 0 ) {
-      fnDeinitializePlob ();
-      fnDeinitializeCommon ();
-    }
     break;
+
   case DLL_PROCESS_DETACH:
     fnDeinitializePlob ();
     fnDeinitializeCommon ();
     break;
+
   default:
     break;
   }
@@ -183,6 +173,6 @@ BeginFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

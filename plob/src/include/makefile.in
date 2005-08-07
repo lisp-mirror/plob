@@ -66,10 +66,10 @@ drule ( initial, \
 	noActions )
 
 rule ( allegro dash directories, \
-       allegro4 allegro5 allegro6, \
+       allegro4 allegro5 allegro6 allegro7, \
        noActions )
 
-rule ( allegro4 allegro5 allegro6, \
+rule ( allegro4 allegro5 allegro6 allegro7, \
        noDependencies, \
        mkdir ruleTarget )
 
@@ -86,8 +86,18 @@ drule ( doc, \
 	noActions )
 
 rule ( ddot slash ddot slash tex slash inputs slash plobversion dot tex,\
-       fileH(plobversion) fileH(c2tex), \
-       $(CPP) option2(o,ruleTarget) paste5(-,D,C2TEX,=,1) fileH(plobversion) )
+       $(BINDIR) slash $(opsys) slash fileExe(plobversion), \
+       $(BINDIR) slash $(opsys) slash fileExe(plobversion) > ruleTarget)
+
+rule ( $(opsys) slash fileObj(plobversion), \
+       fileC(plobversion) fileH(plobversion), \
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) \
+       fileC(plobversion))
+
+rule ( $(BINDIR) slash $(opsys) slash fileExe(plobversion), \
+       $(opsys) slash fileObj(plobversion), \
+       LinkExe($(opsys) slash fileObj(plobversion)))
+
 
 /* ----------------------------------------------------------------------
 | LISP foreign language interface files: Allegro
@@ -128,13 +138,20 @@ MkAllegro6bFiles
 MkAllegro6cFiles
 MkAllegro6dFiles
 
+MkAllegro7aFiles
+MkAllegro7bFiles
+MkAllegro7cFiles
+MkAllegro7dFiles
+
 ALLEGRO4FILES=\
 PlobFiles(allegro4 slash,dot lisp)
 ALLEGRO5FILES=\
 PlobFiles(allegro5 slash,dot lisp)
 ALLEGRO6FILES=\
 PlobFiles(allegro6 slash,dot lisp)
-ALLEGROFILES=$(ALLEGRO4FILES) $(ALLEGRO5FILES) $(ALLEGRO6FILES)
+ALLEGRO7FILES=\
+PlobFiles(allegro7 slash,dot lisp)
+ALLEGROFILES=$(ALLEGRO4FILES) $(ALLEGRO5FILES) $(ALLEGRO6FILES) $(ALLEGRO7FILES)
 rule ( allegro dash code, \
        $(ALLEGROFILES), \
        noActions )
@@ -167,6 +184,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  coding-system-for-write: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

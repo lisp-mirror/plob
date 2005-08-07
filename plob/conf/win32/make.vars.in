@@ -42,7 +42,7 @@
 
 SHELL=/bin/sh
 
-PLOBDIR=c:/home/hkirschk/plob-2.10
+PLOBDIR=e:/home/heiko/plob-2.11
 
 #define HasAuth			AUTH_NON
 #define HasClient		yes
@@ -105,6 +105,6 @@ LDLIBS=
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

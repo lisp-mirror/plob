@@ -42,6 +42,14 @@
 
 typedef void *		caddr_t;
 
+#define	getbaseaddr	fnGetBaseAddr
+/* 2005-03-30 hkirschk: fnGetBaseAddr tries to find an free memory
+   region at least of size __len and returns a pointer to it. The
+   returned memory region can be used for subsequent calls to
+   mmap(). */
+caddr_t fnGetBaseAddr	( caddr_t	__proposal,
+			  size_t	__len );
+
 #define	mmap		fnMmap
 caddr_t	fnMmap		( caddr_t	__addr,
 			  size_t	__len,
@@ -65,3 +73,9 @@ int	fnMunmap	( caddr_t	__addr,
 			  size_t	__len );
 
 #endif /* _SYS_MMAN_H__ */
+
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

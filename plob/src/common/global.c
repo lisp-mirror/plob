@@ -66,7 +66,7 @@ DLLEXPORTVAR const char		szSpace []		= " ";
 DLLEXPORTVAR const char		szStdIn []		= "stdin";
 DLLEXPORTVAR const char		szStdOut []		= "stdout";
 DLLEXPORTVAR const char		szStdErr []		= "stderr";
-DLLEXPORTVAR const char		szTimeFormat []		= "%Y/%m/%d %H:%M:%S";
+DLLEXPORTVAR const char		szTimeFormat []		= "%Y-%m-%d %H:%M:%S";
 
 #if	WIN32
 #define	STREAMBINARY	"b"
@@ -223,7 +223,7 @@ static LPSTR	fnMkErrorPrompt		( LPSTR lpszBuf,
 
 /* ------------------------------------------------------------------------- */
 DLLEXPORTVAR LPCSTR	ppszErrorLevel2String [ errNoE ]	=
-{ "none", "info", "warning", "continuable error", "error", "fatal error" };
+  { "none", "suspend", "info", "warning", "continuable error", "error", "fatal error" };
 
 /* ------------------------------------------------------------------------- */
 int DLLEXPORT	fnGlobalErrorHandler	( ERRORLEVEL	eLevel,
@@ -829,6 +829,6 @@ void		fnDeinitializeGlobalModule	( void )
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

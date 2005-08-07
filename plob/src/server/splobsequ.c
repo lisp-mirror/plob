@@ -59,6 +59,10 @@
 /* ----------------------------------------------------------------------- */
 MODULE ( __FILE__ );
 
+/* ----------------------------------------------------------------------- */
+/* #define LOGGING to show some messages what's happening: */
+#define	LOGGING	0
+
 /* -------------------------------------------------------------------------
 | Extern variables
  ------------------------------------------------------------------------- */
@@ -105,6 +109,9 @@ static LPSTR		mfnStringNameOf		( OBJID oSelf,
 						  LPINT lpnName );
 
 /* Object equal methods: */
+static COMPARETAG	mfnSequenceCompare	( LPVOID	poSelf,
+						  SHTYPETAG	eTypeTagSelf,
+						  OBJID		oCompare );
 static COMPARETAG	mfnStringCompare	( LPVOID	pSelf,
 						  SHTYPETAG	eTypeTagSelf,
 						  OBJID		oCompare );
@@ -190,6 +197,7 @@ void		fnInitializeSequModule		( void )
 		   mfnInitStandard );
   RegisterMethod ( eshConsTag, gfnPrintObjectDetails,
 		   mfnPrintCons );
+  RegisterMethod ( eshConsTag, gfnCompare, mfnSequenceCompare );
 
   RegisterMethod ( eshArrayTag, gfnInitializeInstance,
 		   mfnInitArray );
@@ -218,6 +226,7 @@ void		fnInitializeSequModule		( void )
 		   mfnInitStandard );
   RegisterMethod ( eshVectorTag, gfnPrintObjectDetails,
 		   mfnPrintVector );
+  RegisterMethod ( eshVectorTag, gfnCompare, mfnSequenceCompare );
 
   RegisterMethod ( eshIVectorTag, gfnInitializeInstance,
 		   mfnInitIVector );
@@ -645,6 +654,213 @@ static SHTYPETAG	mfnIVectorValueTypeTag	( OBJID		oSelf,
 /* -------------------------------------------------------------------------
 | Compare methods
  ------------------------------------------------------------------------- */
+
+typedef struct {
+  SHTYPETAG	eTypeTag;
+  union {
+    /* cons: */
+    struct {
+      OBJID	oRest;
+    }	Cons;
+    /* vector: */
+    struct {
+      LPOBJID	poFirst;
+      int	nCurrent;
+      int	nLength;
+    } Vector;
+  }	Current;
+} SEQUITER, * PSEQUITER;
+static const char	szUninitialized []	=
+  "Usage of uninitialized iterator.";
+
+/* ----------------------------------------------------------------------- */
+static  BOOL		fnSequIterCreate	( PSEQUITER	pSelf,
+						  OBJID		oIterate,
+						  SHTYPETAG	eTypeTagIterate )
+{
+  PROCEDURE	( fnSequIterCreate );
+
+  ASSERT ( pSelf != NULL );
+  ASSERT ( eshConsIdxCdr - eshConsIdxCar == 1 );
+
+  switch ( eTypeTagIterate ) {
+
+  case eshConsTag:
+    pSelf->Current.Cons.oRest		= oIterate;
+    break;
+
+  case eshVectorTag:
+    pSelf->Current.Vector.poFirst	=
+      fnObjId2ObjPtr ( oIterate, Cooked2RawIndex ( 0 ), eshVectorTag,
+		       __szFile__, __szProc__, __LINE__ );
+    pSelf->Current.Vector.nCurrent	= 0;
+    pSelf->Current.Vector.nLength	= vector_length ( oIterate );
+    break;
+
+  case eshSymbolTag:
+    find_symbol ( &oGlobalSymNil,
+		  find_package ( &oGlobalPkgCommonLisp, szCOMMONLISP ),
+		  szNIL );
+    if ( oIterate == oGlobalSymNil ) {
+      eTypeTagIterate		= eshConsTag;
+      pSelf->Current.Cons.oRest	= NULLOBJID;
+      break;
+    }
+
+  default:
+    ERROR (( "Cannot iterate on %s\n"
+	     "       since it is neither a cons nor a vector.",
+	     fnPrintObject ( oIterate, NULL, 0 ) ));
+    RETURN ( FALSE );
+    break;
+  }
+
+  pSelf->eTypeTag	= eTypeTagIterate;
+
+  RETURN ( TRUE );
+} /* fnSequIterCreate */
+
+/* ----------------------------------------------------------------------- */
+static BOOL		fnSequIterNextP		( PSEQUITER	pSelf )
+{
+  BOOL	bNext = FALSE;
+
+  PROCEDURE	( fnSequIterNextP );
+
+  ASSERT ( pSelf != NULL );
+
+  switch ( pSelf->eTypeTag ) {
+
+  case eshConsTag:
+    bNext	= ( pSelf->Current.Cons.oRest != NULLOBJID );
+    break;
+
+  case eshVectorTag:
+    bNext	=
+      ( pSelf->Current.Vector.nCurrent < pSelf->Current.Vector.nLength );
+    break;
+
+  default:
+    ERROR (( szUninitialized ));
+    break;
+  }
+
+  RETURN ( bNext );
+}
+
+/* ----------------------------------------------------------------------- */
+static OBJID		fnSequIterNext		( PSEQUITER	pSelf )
+{
+  OBJID		oNext	= NULLOBJID;
+
+  PROCEDURE	( fnSequIterNext );
+
+  ASSERT ( pSelf != NULL );
+
+  switch ( pSelf->eTypeTag ) {
+
+  case eshConsTag:
+    if ( consp ( pSelf->Current.Cons.oRest ) ) {
+      OBJID	oCdr			= NULLOBJID;
+      oNext	= car ( pSelf->Current.Cons.oRest );
+      oCdr	= cdr ( pSelf->Current.Cons.oRest );
+      find_symbol ( &oGlobalSymNil,
+		    find_package ( &oGlobalPkgCommonLisp, szCOMMONLISP ),
+		    szNIL );
+      pSelf->Current.Cons.oRest	= ( oCdr == oGlobalSymNil ) ?
+	NULLOBJID : oCdr;
+    } else {
+      oNext			= pSelf->Current.Cons.oRest;
+      pSelf->Current.Cons.oRest	= NULLOBJID;
+    }
+    break;
+
+  case eshVectorTag:
+    if ( pSelf->Current.Vector.nCurrent < pSelf->Current.Vector.nLength ) {
+      oNext	= pSelf->Current.Vector.poFirst [ pSelf->Current.Vector.nCurrent++ ];
+    }
+    break;
+
+  default:
+    ERROR (( szUninitialized ));
+    break;
+  }
+
+  RETURN ( oNext );
+} /* fnSequIterNext */
+
+/* ----------------------------------------------------------------------- */
+static COMPARETAG	mfnSequenceCompare	( LPVOID	poSelf,
+						  SHTYPETAG	eTypeTagSelf,
+						  OBJID		oCompare )
+{
+  SHTYPETAG	eTypeTagCompare;
+  SEQUITER	Iter1, Iter2;
+
+  PROCEDURE	( mfnSequenceCompare );
+
+  if ( markerp ( oCompare ) ) {
+    if ( maxmarkerp ( oCompare ) ) {
+      RETURN ( eshLess );
+    } else if ( minmarkerp ( oCompare ) ) {
+      RETURN ( eshGreater );
+    } else if ( matchanymarkerp ( oCompare ) ) {
+      RETURN ( eshEqual );
+    } else if ( matchnevermarkerp ( oCompare ) ) {
+      RETURN ( eshNotEqual );
+    }
+    RETURN ( eshNotEq );
+  }
+
+  fnSequIterCreate ( &Iter1, * (LPOBJID) poSelf, eTypeTagSelf );
+
+  eTypeTagCompare	= typetagof ( oCompare );
+  fnSequIterCreate ( &Iter2, oCompare, eTypeTagCompare );
+
+  while ( fnSequIterNextP ( &Iter1 ) && fnSequIterNextP ( &Iter2 ) ) {
+    OBJID	oNext1, oNext2;
+    SHTYPETAG	eTypeTagNext1;
+    COMPARETAG	eCompare;
+    oNext1		= fnSequIterNext ( &Iter1 );
+    oNext2		= fnSequIterNext ( &Iter2 );
+    eTypeTagNext1	= typetagof ( oNext1 );
+    eCompare		= gfnCompare ( (LPVOID) &oNext1, eTypeTagNext1, oNext2 );
+#if (LOGGING+0)
+    {
+      char	szNext1 [ 256 ], szNext2 [ 256 ];
+      LOG (( "Comparing %s\n"
+	     "       with %s\n"
+	     "       gives %d",
+	     fnPrintObject ( oNext1, szNext1, sizeof ( szNext1 ) ),
+	     fnPrintObject ( oNext2, szNext2, sizeof ( szNext2 ) ),
+	     eCompare ));
+    }
+#endif
+    switch ( eCompare ) {
+    case eshNotEqual:
+    case eshNotEql:
+    case eshNotEq:
+    case eshLessEqual:
+    case eshLess:
+    case eshGreater:
+    case eshGreaterEqual:
+      RETURN ( eCompare );
+      break;
+    }
+  }
+
+  if ( fnSequIterNextP ( &Iter1 ) ) {
+    RETURN ( eshGreater );
+  }
+
+  if ( fnSequIterNextP ( &Iter2 ) ) {
+    RETURN ( eshLess );
+  }
+
+  RETURN ( eshEqual );
+} /* mfnSequenceCompare */
+
+/* ----------------------------------------------------------------------- */
 static COMPARETAG	mfnStringCompare	( LPVOID	poSelf,
 						  SHTYPETAG	eTypeTagSelf,
 						  OBJID		oCompare )
@@ -726,6 +942,9 @@ BeginFunction ( SHORTOBJID,
   SHORTOBJID	oShortVector;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -817,6 +1036,9 @@ BeginFunction ( SHORTOBJID,
   SHORTOBJID	oShortString;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -831,6 +1053,6 @@ BeginFunction ( SHORTOBJID,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

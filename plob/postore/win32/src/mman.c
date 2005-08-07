@@ -22,8 +22,12 @@
 /* #define	DEBUG 0 */
 /* #define	DEBUG 1 */
 
-/* #define FFLUSH(stream)	fflush(stream) */
-#define FFLUSH(stream)
+#if (DEBUG+0) > 0
+
+/* ----------------------------------------------------------------------- */
+MODULE ( __FILE__ );
+
+#endif
 
 /* ------------------------------------------------------------ */
 static const char __file__ []	= __FILE__;
@@ -190,6 +194,56 @@ static void	fnInitializeMmanModule	()
 }
 
 /* ------------------------------------------------------------ */
+caddr_t	fnGetBaseAddr		( caddr_t	__proposal,
+				  size_t	__len )
+{
+  LPVOID			pFound = NULL;
+  LPVOID			p = NULL;
+  MEMORY_BASIC_INFORMATION	m;
+  size_t			maxSize = 0;
+  LPVOID			maxP = NULL;
+
+#if (DEBUG+0) > 0
+
+  PROCEDURE ( fnGetBaseAddr );
+#endif
+
+  INITIALIZE_MODULE ();
+
+  INFO (( " ( proposal 0x%p (%d), len 0x%X (%lu, %lu m) )",
+	  __proposal, __proposal, __len, __len, __len/1024/1024 ));
+
+  while ( pFound == NULL && ( (DWORD) p ) < 0x80000000 ) {
+    VirtualQuery ( p, &m, sizeof ( m ) );
+    if ( m.State == MEM_FREE ) {
+#if (DEBUG+0) > 0
+      INFO (( "Found free memory at 0x%p size 0x%X (%lu, %lu m)",
+	      m.BaseAddress, m.RegionSize, m.RegionSize,
+	      m.RegionSize / 1024 / 1024 ));
+#endif
+      if ( maxSize < m.RegionSize ) {
+	maxSize	= m.RegionSize;
+	maxP	= m.BaseAddress;
+      }
+      p = (LPVOID) ( ( (char *) p ) + m.RegionSize );
+    } else if ( m.RegionSize > dwGlobalPageGranularity ) {
+	p = (LPVOID) ( ( (char *) p ) + m.RegionSize );
+    } else {
+	p = (LPVOID) ( ( (char *) p ) + dwGlobalPageGranularity );
+    }
+  }
+
+  pFound	= ( maxSize >= __len ) ? maxP : NULL;
+
+#if (DEBUG+0) > 0
+  INFO (( "__len - maxSize = 0x%X (%ld), maxP 0x%p, returns 0x%p",
+	  __len - maxSize, __len - maxSize, maxP, pFound ));
+#endif
+
+  return (caddr_t) pFound;
+} /* fnGetBaseAddr */
+
+/* ------------------------------------------------------------ */
 caddr_t	fnMmap		( caddr_t	__addr,
 			  size_t	__len,
 			  int		__prot,
@@ -197,8 +251,6 @@ caddr_t	fnMmap		( caddr_t	__addr,
 			  int		__fd,
 			  off_t		__off )
 {
-  static const char __proc__ []		= "mmap";
-
   caddr_t	pMapped			= (caddr_t) -1;
   HANDLE	hFile			= INVALID_HANDLE_VALUE;
   HANDLE	hMapping		= INVALID_HANDLE_VALUE;
@@ -211,15 +263,17 @@ caddr_t	fnMmap		( caddr_t	__addr,
   DWORD		firstPage = 0, pages = 0, page;
   BITVECTOR	myMappings;
 
+#if (DEBUG+0) > 0
+  PROCEDURE ( fnMmap );
+#endif
+
   INITIALIZE_MODULE ();
   errno		= 0;
 
   hFile		= fnFdToFileHandle ( __fd );
   if ( hFile == INVALID_HANDLE_VALUE ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Invalid file handle\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO ((  "Invalid file handle %d.", __fd ));
 #endif
     errno	= EBADF;
     return pMapped;
@@ -227,8 +281,9 @@ caddr_t	fnMmap		( caddr_t	__addr,
 
 #if (DEBUG+0) > 0
   {
-    /* 1998/02/20 HK: Debug: */
     const char	* pszProtect, * pszAccess;
+
+     /* 1998/02/20 HK: Debug: */
     switch ( flProtect ) {
     case PAGE_READONLY:
       pszProtect	= "PAGE_READONLY";
@@ -260,20 +315,14 @@ caddr_t	fnMmap		( caddr_t	__addr,
       pszAccess		= "???";
       break;
     }
-    printf ( "%s(%d): %s ( base 0x%X (%d), len 0x%X (%d),\n"
-	     "                    prot %s, access %s )\n",
-	     __file__, __LINE__, __proc__,
-	     __addr, __addr, __len, __len,
-	     pszProtect, pszAccess );
-    FFLUSH ( stdout );
+    INFO (( " ( base 0x%p (%d), len 0x%X (%d), prot %s, access %s )",
+	    __addr, __addr, __len, __len, pszProtect, pszAccess ));
   }
 #endif
 
   if ( ( ( (DWORD) lpBaseAddress ) % dwGlobalPageGranularity ) != 0 ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Mismatched base\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "Mismatched base" ));
 #endif
     errno	= EINVAL;
     return pMapped;
@@ -281,9 +330,7 @@ caddr_t	fnMmap		( caddr_t	__addr,
 
   if ( ( dwNumberOfBytesToMap % dwGlobalLengthGranularity ) != 0 ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Mismatched len\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "Mismatched len" ));
 #endif
     errno	= EINVAL;
     return pMapped;
@@ -296,9 +343,7 @@ caddr_t	fnMmap		( caddr_t	__addr,
   hMapping = CreateFileMapping ( hFile, NULL, flProtect, 0, 0, NULL );
   if ( hMapping == NULL || hMapping == INVALID_HANDLE_VALUE ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Invalid hMapping\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "CreateFileMapping failed, GetLastError() %d", GetLastError () ));
 #endif
     hMapping	= INVALID_HANDLE_VALUE;
     errno	= EBADF;
@@ -324,11 +369,9 @@ caddr_t	fnMmap		( caddr_t	__addr,
 #if (DEBUG+0) > 0
     /* 1998/02/25 HK: Debug: */
     if ( bMapIt ) {
-      printf ( "%s(%d): %s (): Mapped 0x%X, len 0x%X (%d) to 0x%X\n",
-	       __file__, __LINE__, __proc__,
-	       pPage, dwGlobalLengthGranularity,
-	       dwGlobalLengthGranularity, pMap );
-      FFLUSH ( stdout );
+      INFO (( "Mapped 0x%p, len 0x%X (%d) to 0x%p, GetLastError () %d",
+	      pPage, dwGlobalLengthGranularity,
+	      dwGlobalLengthGranularity, pMap, GetLastError () ));
     }
 #endif
     if ( pMap == NULL ) {
@@ -369,17 +412,13 @@ caddr_t	fnMmap		( caddr_t	__addr,
     int	nErrNo;
     nErrNo	= fnGetLastErrno ( GetLastError (), EINVAL );
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s () returns 0x%X, errno %d\n",
-	     __file__, __LINE__, __proc__, pMapped, nErrNo );
-    FFLUSH ( stdout );
+    INFO (( "returns 0x%p, errno %d", pMapped, nErrNo ));
 #endif
     errno	= nErrNo;
   }
 #if (DEBUG+0) > 0
   else {
-    printf ( "%s(%d): %s () returns 0x%X (ok)\n",
-	     __file__, __LINE__, __proc__, pMapped );
-    FFLUSH ( stdout );
+    INFO (( "returns 0x%p (ok)", pMapped ));
   }
 #endif
 
@@ -395,8 +434,6 @@ int	fnMprotect	( const caddr_t	__addr,
 			  size_t	__len,
 			  int		__prot )
 {
-  static const char __proc__ []		= "mprotect";
-
   int		nReturnCode	= -1;
   LPVOID	lpBaseAddress	= __addr;
   DWORD		dwSize		= __len;
@@ -405,6 +442,10 @@ int	fnMprotect	( const caddr_t	__addr,
   LPVOID	pPage		= NULL;
   DWORD		firstPage = 0, pages = 0, page;
   BITVECTOR	myProtects;
+
+#if (DEBUG+0) > 0
+  PROCEDURE ( fnMprotect );
+#endif
 
   INITIALIZE_MODULE ();
   errno		= 0;
@@ -436,19 +477,14 @@ int	fnMprotect	( const caddr_t	__addr,
       pszProtect	= "???";
       break;
     }
-    printf ( "%s(%d): %s ( base 0x%X (%d), len 0x%X (%d),\n"
-	     "                        prot %s )\n",
-	     __file__, __LINE__, __proc__,
-	     __addr, __addr, __len, __len, pszProtect );
-    FFLUSH ( stdout );
+    INFO (( " ( base 0x%p (%d), len 0x%X (%d), prot %s )",
+	    __addr, __addr, __len, __len, pszProtect ));
   }
 #endif
 
   if ( ( ( (DWORD) lpBaseAddress ) % dwGlobalPageGranularity ) != 0 ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Mismatched base\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "Mismatched base" ));
 #endif
     errno	= EINVAL;
     return nReturnCode;
@@ -456,9 +492,7 @@ int	fnMprotect	( const caddr_t	__addr,
 
   if ( ( dwSize % dwGlobalLengthGranularity ) != 0 ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Mismatched len\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "Mismatched len" ));
 #endif
     errno	= EINVAL;
     return nReturnCode;
@@ -485,10 +519,8 @@ int	fnMprotect	( const caddr_t	__addr,
 	/* Rollback all protections done here: */
 	DWORD	p, flOldProtect;
 #if (DEBUG+0) > 0
-	printf ( "%s(%d): %s ():"
-		 " VirtualProtect failed for page no. %lu at 0x%X\n",
-		 __file__, __LINE__, __proc__, page, pPage );
-	FFLUSH ( stdout );
+	INFO (( "VirtualProtect failed for page no. %lu at 0x%p, GetLastError () %d",
+		page, pPage, GetLastError () ));
 #endif
 	for ( p = 0, pPage = lpBaseAddress; p < page;
 	      p++, pPage = (LPVOID)
@@ -512,17 +544,13 @@ int	fnMprotect	( const caddr_t	__addr,
     int	nErrNo;
     nErrNo	= fnGetLastErrno ( GetLastError (), EINVAL );
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s () returns %d, errno %d\n",
-	     __file__, __LINE__, __proc__, nReturnCode, nErrNo );
-    FFLUSH ( stdout );
+    INFO (( "returns %d, errno %d", nReturnCode, nErrNo ));
 #endif
     errno	= nErrNo;
   }
 #if (DEBUG+0) > 0
   else {
-    printf ( "%s(%d): %s () returns %d (ok)\n",
-	     __file__, __LINE__, __proc__, nReturnCode );
-    FFLUSH ( stdout );
+    INFO (( "returns %d (ok)", nReturnCode ));
   }
 #endif
 
@@ -534,30 +562,27 @@ int	fnMsync		( caddr_t	__addr,
 			  size_t	__len,
 			  int		__flags )
 {
-  static const char __proc__ []		= "msync";
-
   int		nReturnCode		= -1;
   LPVOID	lpBaseAddress		= __addr;
   DWORD		dwNumberOfBytesToFlush	= __len;
   LPVOID	pPage			= NULL;
   DWORD		firstPage = 0, pages = 0, page;
 
+#if (DEBUG+0) > 0
+  PROCEDURE ( fnMsync );
+#endif
+
   INITIALIZE_MODULE ();
   errno		= 0;
 
 #if (DEBUG+0) > 0
   /* 1998/02/20 HK: Debug: */
-  printf ( "%s(%d): %s ( base 0x%X (%d), len 0x%X (%d) )\n",
-	   __file__, __LINE__, __proc__,
-	   __addr, __addr, __len, __len );
-  FFLUSH ( stdout );
+  INFO (( " ( base 0x%p (%d), len 0x%X (%d) )", __addr, __addr, __len, __len ));
 #endif
 
   if ( ( ( (DWORD) lpBaseAddress ) % dwGlobalPageGranularity ) != 0 ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Mismatched base\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "Mismatched base" ));
 #endif
     errno	= EINVAL;
     return nReturnCode;
@@ -565,9 +590,7 @@ int	fnMsync		( caddr_t	__addr,
 
   if ( ( dwNumberOfBytesToFlush % dwGlobalLengthGranularity ) != 0 ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Mismatched len\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "Mismatched len" ));
 #endif
     errno	= EINVAL;
     return nReturnCode;
@@ -586,6 +609,10 @@ int	fnMsync		( caddr_t	__addr,
       fnBitVectorGet ( &GlobalMmapEntries, firstPage + page );
     if ( bFlushIt ) {
       if ( ! FlushViewOfFile ( lpBaseAddress, dwGlobalLengthGranularity ) ) {
+#if (DEBUG+0) > 0
+	INFO (( "FlushViewOfFile failed at base 0x%p, len %lu, GetLastError() %d",
+		lpBaseAddress, dwGlobalLengthGranularity, GetLastError () ));
+#endif
 	nReturnCode	= -1;
 	break;
       }
@@ -596,17 +623,13 @@ int	fnMsync		( caddr_t	__addr,
     int	nErrNo;
     nErrNo	= fnGetLastErrno ( GetLastError (), EINVAL );
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s () returns %d, errno %d\n",
-	     __file__, __LINE__, __proc__, nReturnCode, nErrNo );
-    FFLUSH ( stdout );
+    INFO (( "returns %d, errno %d", nReturnCode, nErrNo ));
 #endif
     errno	= nErrNo;
   }
 #if (DEBUG+0) > 0
   else {
-    printf ( "%s(%d): %s () returns %d (ok)\n",
-	     __file__, __LINE__, __proc__, nReturnCode );
-    FFLUSH ( stdout );
+    INFO (( "returns %d (ok)", nReturnCode ));
   }
 #endif
 
@@ -617,30 +640,27 @@ int	fnMsync		( caddr_t	__addr,
 int	fnMunmap	( caddr_t	__addr,
 			  size_t	__len )
 {
-  static const char __proc__ []		= "munmap";
-
   int		nReturnCode		= -1;
   LPVOID	lpBaseAddress		= __addr;
   DWORD		dwNumberOfBytesToUnmap	= __len;
   LPVOID	pPage			= NULL;
   DWORD		firstPage = 0, pages = 0, page;
 
+#if (DEBUG+0) > 0
+  PROCEDURE ( fnMunmap );
+#endif
+
   INITIALIZE_MODULE ();
   errno		= 0;
 
 #if (DEBUG+0) > 0
   /* 1998/02/20 HK: Debug: */
-  printf ( "%s(%d): %s ( base 0x%X (%d), len 0x%X (%d) )\n",
-	   __file__, __LINE__, __proc__,
-	   __addr, __addr, __len, __len );
-  FFLUSH ( stdout );
+  INFO (( " ( base 0x%p (%d), len 0x%X (%d) )", __addr, __addr, __len, __len ));
 #endif
 
   if ( ( ( (DWORD) lpBaseAddress ) % dwGlobalPageGranularity ) != 0 ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Mismatched base\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "Mismatched base" ));
 #endif
     errno	= EINVAL;
     return nReturnCode;
@@ -648,9 +668,7 @@ int	fnMunmap	( caddr_t	__addr,
 
   if ( ( dwNumberOfBytesToUnmap % dwGlobalLengthGranularity ) != 0 ) {
 #if (DEBUG+0) > 0
-    printf ( "%s(%d): %s (): Mismatched len\n",
-	     __file__, __LINE__, __proc__ );
-    FFLUSH ( stdout );
+    INFO (( "Mismatched len" ));
 #endif
     errno	= EINVAL;
     return nReturnCode;
@@ -670,22 +688,23 @@ int	fnMunmap	( caddr_t	__addr,
     if ( bUnmapIt ) {
 #if (DEBUG+0) > 0
       /* 1998/02/25 HK: Debug: */
-      printf ( "%s(%d): %s (): Unmapping 0x%X\n",
-	       __file__, __LINE__, __proc__, pPage );
-      FFLUSH ( stdout );
+      INFO (( "Unmapping 0x%p", pPage ));
 #endif
       if ( UnmapViewOfFile ( pPage ) ) {
 	fnBitVectorSet ( &GlobalMmapEntries, firstPage + page, FALSE );
       } else {
+#if (DEBUG+0) > 0
+      /* 1998/02/25 HK: Debug: */
+      INFO (( "UnmapViewOfFile failed at page 0x%p, GetLastError %d",
+	      pPage, GetLastError () ));
+#endif
 	nReturnCode	= -1;
       }
     }
   }
 
 #if (DEBUG+0) > 0
-  printf ( "%s(%d): %s () returns %d\n",
-	   __file__, __LINE__, __proc__, nReturnCode );
-  FFLUSH ( stdout );
+  INFO (( "returns %d", nReturnCode ));
 #endif
 
   return nReturnCode;
@@ -693,6 +712,6 @@ int	fnMunmap	( caddr_t	__addr,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

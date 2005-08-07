@@ -5,6 +5,16 @@
 #include	<errno.h>
 
 /* ------------------------------------------------------------ */
+/* 2005-03-29 hkirschk: Quick and dirty debug support: */
+#if (DEBUG+0) > 0
+
+#include	"../../../src/include/global.h"
+
+#else
+
+#define	INFO( format )
+
+/* ------------------------------------------------------------ */
 #ifdef FALSE
 #undef FALSE
 #endif
@@ -13,17 +23,22 @@
 #endif
 typedef enum { FALSE, TRUE } BOOL;
 
-/* ------------------------------------------------------------ */
-typedef struct {
-  HANDLE	hFile;
-}	FDHANDLE, * PFDHANDLE;
-enum { nFirstFdHandle	= 3 };
 
 /* ------------------------------------------------------------ */
 /**
  * Get the length of an array.
  */
 #define	length( array )		(sizeof(array)/sizeof((array)[0]))
+
+#endif
+
+
+/* ------------------------------------------------------------ */
+typedef struct {
+  HANDLE	hFile;
+}	FDHANDLE, * PFDHANDLE;
+enum { nFirstFdHandle	= 3 };
+
 
 /* ------------------------------------------------------------ */
 /**
@@ -46,6 +61,6 @@ int		fnGetLastErrno		 ( DWORD	dwLastError,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

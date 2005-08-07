@@ -114,6 +114,7 @@ typedef struct {
   OBJID		onIndex;	/* Current index the mapper works on */
   OBJID		oKey;		/* Current key the mapper works on */
   OBJID		oData;		/* Current data the mapper works on */
+  OBJID		oFilter;	/* Filter for returned elements */
   /* --- Persistent values: ---------------------------------------------- */
   time_t	timeMapper;	/* Time the mapper was started */
   LPVOID	pValueKeyLower;	/* Pointer to transient state of oKeyLower */
@@ -180,9 +181,9 @@ BeginEnum ( SHBTREEIDX )
  should be cached." )
   and
   enumerator ( eshBTreeIdxTimeStamp,
-	       "+btree-location-duplicate-keys-p+", 4,
-	       "Index of plob btree field with flag if duplicate\
- keys are allowed." )
+	       "+btree-location-time-stamp+", 4,
+	       "Index of plob btree field with time stamp of last\
+ change." )
 EndEnum ( SHBTREEIDX );
 
 DefineFunction ( BTREERESULT,
@@ -410,7 +411,9 @@ DefineFunction ( FIXNUM,
 		   and
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
-		   argument ( BOOL, value_in, bDescending ) ) );
+		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) );
 #endif	/* ! LISP */
 #if ! defined(RPC)	/* client: */
 DefineFunction ( FIXNUM,
@@ -433,7 +436,9 @@ DefineFunction ( FIXNUM,
 		   and
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
-		   argument ( BOOL, value_in, bDescending ) ) );
+		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) );
 #endif	/* ! RPC */
 
 #if ! defined(LISP)	/* server: */
@@ -458,7 +463,9 @@ DefineFunction ( FIXNUM,
 		   and
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
-		   argument ( BOOL, value_in, bDescending ) ) );
+		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) );
 #endif	/* ! LISP */
 #if ! defined(RPC)	/* client: */
 /* 1996/10/29 HK: The following declaration of
@@ -496,7 +503,9 @@ DefineFunction ( voidResult,
 		   and
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
-		   argument ( BOOL, value_in, bDescending ) ) );
+		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) );
 #endif	/* ! RPC */
 
 #if ! defined(LISP)	/* server: */
@@ -521,7 +530,9 @@ DefineFunction ( FIXNUM,
 		   and
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
-		   argument ( BOOL, value_in, bDescending ) ) );
+		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) );
 #endif	/* ! LISP */
 #if ! defined(RPC)	/* client: */
 /* 1996/10/29 HK: The following declaration of
@@ -559,7 +570,9 @@ DefineFunction ( voidResult,
 		   and
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
-		   argument ( BOOL, value_in, bDescending ) ) );
+		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) );
 #endif	/* ! RPC */
 
 #if ! defined(LISP)	/* server: */
@@ -584,7 +597,9 @@ DefineFunction ( FIXNUM,
 		   and
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
-		   argument ( BOOL, value_in, bDescending ) ) );
+		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) );
 #endif	/* ! LISP */
 #if ! defined(RPC)	/* client: */
 DefineFunction ( FIXNUM,
@@ -608,7 +623,9 @@ DefineFunction ( FIXNUM,
 		   and
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
-		   argument ( BOOL, value_in, bDescending ) ) );
+		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) );
 #endif	/* ! RPC */
 
 BeginEnum ( SEEK )
@@ -715,6 +732,8 @@ DefineFunction ( FIXNUM,
 		   and
 		   argument ( BOOL, value_in, bDescending )
 		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		   and
 		   argument ( FIXNUM, value_in, nMap )
 		   and	/* ouput arguments: */
 		   argument ( VECTOR ( int, nMap ),
@@ -751,6 +770,8 @@ DefineFunction ( FIXNUM,
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
 		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter )
 		   and
 		   argument ( FIXNUM, value_in, nMap )
 		   and	/* ouput arguments: */
@@ -789,6 +810,8 @@ DefineFunction ( FIXNUM,
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
 		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter )
 		   and
 		   argument ( FIXNUM, value_in, nMap )
 		   and	/* ouput arguments: */
@@ -841,6 +864,8 @@ DefineFunction ( voidResult,
 		   and
 		   argument ( BOOL, value_in, bDescending )
 		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		   and
 		   argument ( FIXNUM, value_in, nMap )
 		   and	/* ouput arguments: */
 		   argument ( VECTOR ( int, nMap ),
@@ -879,6 +904,8 @@ DefineFunction ( FIXNUM,
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
 		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter )
 		   and
 		   argument ( FIXNUM, value_in, nMap )
 		   and	/* ouput arguments: */
@@ -933,6 +960,8 @@ DefineFunction ( voidResult,
 		   and
 		   argument ( BOOL, value_in, bDescending )
 		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		   and
 		   argument ( FIXNUM, value_in, nMap )
 		   and	/* ouput arguments: */
 		   argument ( VECTOR ( int, nMap ),
@@ -972,6 +1001,8 @@ DefineFunction ( FIXNUM,
 		   and
 		   argument ( BOOL, value_in, bDescending )
 		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		   and
 		   argument ( FIXNUM, value_in, nMap )
 		   and	/* ouput arguments: */
 		   argument ( VECTOR ( int, nMap ),
@@ -1009,6 +1040,8 @@ DefineFunction ( FIXNUM,
 		   argument ( COMPARETAG, value_in, eCompareUpper )
 		   and
 		   argument ( BOOL, value_in, bDescending )
+		   and
+		   argument ( SHORTOBJID, value_in, oShortObjIdFilter )
 		   and
 		   argument ( FIXNUM, value_in, nMap )
 		   and	/* ouput arguments: */
@@ -1288,6 +1321,6 @@ DefineFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

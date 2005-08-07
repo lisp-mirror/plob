@@ -30,6 +30,12 @@
 
 #endif
 
+#if defined(Arch_cygwin)	/* 2005-03-21 hkirschk */
+
+#include	<lockf.h>
+
+#endif
+
 #if ! defined(F_ULOCK)
 #define   F_ULOCK   0   /* Unlock a previously locked section */
 #endif
@@ -174,6 +180,6 @@ void main( int argc,char ** argv )
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

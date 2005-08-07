@@ -49,6 +49,9 @@ for cc = 64 step 1 until  95: chartowards(cc,(79-cc)/16,        1); endfor;
 for cc = 96 step 1 until 127: chartowards(cc,        -1,(111-cc)/16); endfor;
 %
 % $Log$
+% Revision 1.3  2005/08/07 20:06:49  hkirschk
+% Update to Plob 2.11.
+%
 % Revision 1.2  2001/02/14 10:57:05  hkirschk
 % Plob 2.10 beta 1 checkin
 %

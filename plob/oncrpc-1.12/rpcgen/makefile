@@ -1,6 +1,10 @@
 # Nmake macros for building Windows 32-Bit apps
 !include <ntwin32.mak>
 
+# hkirschk 2005-03-20
+cc="$(MSVCPATH)/Bin/cl.exe"
+link="$(MSVCPATH)/Bin/link.exe"
+
 # If the rpc include directory is not included in the standard path
 # you have to give the path to it here.
 RPCINCLUDEPATH = ..

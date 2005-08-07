@@ -51,64 +51,75 @@ If you submit a bug, please supply the following informations:
 This section explains the structure of the directories delivered with
 \plobwoexcl.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/bin/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/bin/}}
 
 Find here the server process \lisp{plobd}\ and some shell scripts used
 for compiling, generating documentation etc.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/conf/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/conf/}}
 
 \unix\ \lisp{make}\ configuration and rule files.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/database/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/database/}}
 
 This conatains an empty database file \lisp{stablestore.empty}\ used
 by the \plob\ server for storing the persistent objects.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/lib/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/lib/}}
 
 C libraries: The library \lisp{libplob.a}\ with object code common to
 the server and client, the server library \lisp{libsplob.a}, the
 client library \lisp{libcplob.a}\ and the \postore\ library
 \lisp{libpostore.a}.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/mail/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/mail/}}
 
 Some mailings done to different sites.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/ps/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/ps/}}
 
 The \ps\ files with the documentation.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/server/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/src/server/}}
 
 The C code for the \plob\ server.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/client/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/src/client/}}
 
 The C code for the \plob\ client.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/allegro/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/src/lisp/}}
 
-The LISP code for the \plob\ \allegrocl\ client.
+The LISP code for the \plob\ client.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/lispworks/}}
-
-The LISP code for the \plob\ \lwcl\ client.
-
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/common/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/src/common/}}
 
 The C code used by both the \plob\ server and client.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/include/}} C header files.
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/src/include/}}
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/include/allegro/}, 
-\lisp{plob-\protect\thisversion/src/include/lispworks/}}
+C header files.
+
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/src/include/allegro/},
+  \lisp{plob-\protect\thisversion/src/include/lispworks/}}
 
 The LISP files generated from C header files for the foreign function
 interface.
 
-\subsection*{Subdirectory \protect\lisp{plob-\protect\thisversion/src/lisp-doc/}}
+\subsection*{Subdirectory
+  \protect\lisp{plob-\protect\thisversion/src/lisp-doc/}}
 
 The LISP module and %
 \tracingmacros2
@@ -124,8 +135,9 @@ the LISP sources.
 Some early experiments about the memory representation of transient
 objects in \lw.
 
-\subsection*{Subdirectories \protect\lisp{plob-\protect\thisversion/tex/inputs/},
- \protect\lisp{plob-\protect\thisversion/tex/manual/}}
+\subsection*{Subdirectories
+  \protect\lisp{plob-\protect\thisversion/tex/inputs/},
+  \protect\lisp{plob-\protect\thisversion/tex/manual/}}
 
 The documentation style and \TeX\ source files.
 
@@ -207,11 +219,11 @@ EXPRESSLY DISCLAIMED, WHETHER ARISING IN CONTRACT, TORT (INCLUDING
 NEGLIGENCE) OR STRICT LIABILITY, EVEN IF \THISAUTHOR\ IS
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-Please note that these license terms adhere only to the code of \plob\ 
-itself. \plob\ uses \postore\ (\textit{P}ersistent \textit{O}bject
-\textit{Store}) as a low-level persistent memory; it is provided in
-binary form within \plob\ with the permission of the
-\href{http://www-ppg.dcs.st-andrews.ac.uk}{University of St.\ 
+These license terms adhere only to the code of \plob\ itself. \plob\
+uses \postore\ (\textit{P}ersistent \textit{O}bject \textit{Store}) as
+a low-level persistent memory; it is provided in binary form within
+\plob\ with the permission of the
+\href{http://www-ppg.dcs.st-andrews.ac.uk}{University of St.\
   Andrews}. Contact the University of St.\ Andrews for getting their
 license terms on \postore.
 
@@ -232,7 +244,7 @@ containing the \plob\ distribution.
 \end{fortune}
 
 %%% Local Variables: 
-%%% buffer-file-coding-system: iso-latin-1-unix
+%%% buffer-file-coding-system: raw-text-unix
 %%% mode: latex
 %%% TeX-master: "userg"
 %%% End: 

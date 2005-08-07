@@ -50,6 +50,7 @@
 
 #define	ccLocalOptions	paste5(-,D,BUILDDLL,=,1)
 #define	relPlobDir	ddot slash ddot
+#include		"filelist.in"
 #include		"../../conf/make.rules.in"
 
 /* ----------------------------------------------------------------------
@@ -65,7 +66,8 @@ CFLAGS=$(COPTDEB) $(COPTOPT)
 STDINCLUDE=\
  $(SRCIDIR) slash fileH(global) spc \
  $(SRCIDIR) slash fileH(hash) spc \
- $(SRCIDIR) slash fileH(generic)
+ $(SRCIDIR) slash fileH(generic) \
+ $(SRCIDIR) slash fileH(plob)
 
 plobrootDeps=$(SRCIDIR) slash fileH(plobversion)
 
@@ -91,13 +93,21 @@ PICDIR=$(opsys) slash pic
 
 #endif
 
-COMMONOBJECTS=trim(CommonFiles($(opsys) slash,suffixObj))
+COMMONOBJECTS=trim(CommonFiles($(opsys) slash,suffixObj)) spc \
+ $(opsys) slash fileObj(regcomp) spc \
+ $(opsys) slash fileObj(regerror) spc \
+ $(opsys) slash fileObj(regexec) spc \
+ $(opsys) slash fileObj(regfree)
 
 OBJECTS=$(COMMONOBJECTS) spc \
  $(opsys) slash fileObj(plobdxdr) spc \
  $(opsys) slash fileObj(plobpxdr)
 
-COMMONSHAREDOBJECTS=trim(CommonFiles($(PICDIR) slash,suffixObj))
+COMMONSHAREDOBJECTS=trim(CommonFiles($(PICDIR) slash,suffixObj)) spc \
+ $(PICDIR) slash fileObj(regcomp) spc \
+ $(PICDIR) slash fileObj(regerror) spc \
+ $(PICDIR) slash fileObj(regexec) spc \
+ $(PICDIR) slash fileObj(regfree)
 
 SHAREDOBJECTS=\
  $(COMMONSHAREDOBJECTS) spc \
@@ -162,12 +172,36 @@ rule ( ddot slash server slash plobd dot x, \
        cd spc server spc && spc \
        $(MAKE) plobd dot x )
 
+rule ( $(opsys) slash fileObj(regcomp), \
+       fileC(regcomp) spc \
+       $(SRCIDIR) slash fileH(plobregex) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) fileC(regcomp) )
+
+rule ( $(opsys) slash fileObj(regerror), \
+       fileC(regerror) spc \
+       $(SRCIDIR) slash fileH(plobregex) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) fileC(regerror) )
+
+rule ( $(opsys) slash fileObj(regexec), \
+       fileC(regexec) spc fileC(engine) spc \
+       $(SRCIDIR) slash fileH(plobregex) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) fileC(regexec) )
+
+rule ( $(opsys) slash fileObj(regfree), \
+       fileC(regfree) spc \
+       $(SRCIDIR) slash fileH(plobregex) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(OUTPUT_OPTION_OBJ) fileC(regfree) )
+
 rule ( $(opsys) slash fileObj(plobdxdr), \
-       $(opsys) slash fileC(plobdxdr) $(opsys) slash fileH(plobd), \
+       $(opsys) slash fileC(plobdxdr) spc $(opsys) slash fileH(plobd), \
        $(COMPILEc) $(OUTPUT_OPTION_OBJ) $(opsys) slash fileC(plobdxdr) )
 
 rule ( $(opsys) slash fileObj(plobpxdr), \
-       fileC(plobpxdr) $(opsys) slash fileH(plobd), \
+       fileC(plobpxdr) spc $(opsys) slash fileH(plobd), \
        $(COMPILEc) $(OUTPUT_OPTION_OBJ) fileC(plobpxdr) )
 
 MkCommonSharedObjects1
@@ -177,6 +211,30 @@ MkCommonSharedObjects4
 MkCommonSharedObjects5
 
 #if HasOpSys != hasWin32
+
+rule ( $(PICDIR) slash fileObj(regcomp), \
+       fileC(regcomp) spc \
+       $(SRCIDIR) slash fileH(plobregex) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(COPTPIC) $(OUTPUT_OPTION_OBJ) fileC(regcomp) )
+
+rule ( $(PICDIR) slash fileObj(regerror), \
+       fileC(regerror) spc \
+       $(SRCIDIR) slash fileH(plobregex) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(COPTPIC) $(OUTPUT_OPTION_OBJ) fileC(regerror) )
+
+rule ( $(PICDIR) slash fileObj(regexec), \
+       fileC(regexec) spc \
+       $(SRCIDIR) slash fileH(plobregex) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(COPTPIC) $(OUTPUT_OPTION_OBJ) fileC(regexec) )
+
+rule ( $(PICDIR) slash fileObj(regfree), \
+       fileC(regfree) spc \
+       $(SRCIDIR) slash fileH(plobregex) spc \
+       $(STDINCLUDE), \
+       $(COMPILEc) $(COPTPIC) $(OUTPUT_OPTION_OBJ) fileC(regfree) )
 
 rule ( $(PICDIR) slash fileObj(plobdxdr), \
        $(opsys) slash fileC(plobdxdr) $(opsys) slash fileH(plobd), \
@@ -215,6 +273,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

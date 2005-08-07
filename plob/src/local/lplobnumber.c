@@ -55,7 +55,6 @@
 #include	"lplobmisc.h"
 #include	"lplobtype.h"
 #include	"lplobnumber.h"
-#include	"lplobsequ.h"
 #include	"lplobstruct.h"
 #include	"lplobclos.h"
 #include	"lploblock.h"
@@ -343,6 +342,6 @@ BeginFunction ( SHLOCK,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

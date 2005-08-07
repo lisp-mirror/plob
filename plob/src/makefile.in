@@ -46,7 +46,7 @@
 /* ----------------------------------------------------------------------
 | Standard settings
  ---------------------------------------------------------------------- */
-SUBDIRS=include common lcommon server client local lispworks allegro util admin
+SUBDIRS=include common lcommon server client local lisp util admin
 
 /* ----------------------------------------------------------------------
 | Main targets
@@ -59,6 +59,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

@@ -6,7 +6,7 @@ CFLAGSOPT=-O2
 # CFLAGSOPT=-g2
 CFLAGSDEB=-g2
 CFLAGSPRO=-pg
-CFLAGS=-fPIC -DArch_$(ARCH) -I$(POSTOREDIR)/sstore
+CFLAGS=-fPIC -DArch_$(ARCH) $(CINCLUDES) -I$(POSTOREDIR)/sstore
 OUTPUT_OPTION_OBJ=-c -o $@
 OBJ=o
 
@@ -19,10 +19,10 @@ OUTPUT_OPTION_LIB=$@
 LIB=a
 
 LD=gcc
-LDFLAGS=-lc
+LDFLAGS=-lc $(CLIBS)
 OUTPUT_OPTION_EXE=-o $@
 EXE=
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

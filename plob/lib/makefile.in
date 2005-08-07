@@ -45,7 +45,12 @@
 /* ----------------------------------------------------------------------
 | Main targets
  ---------------------------------------------------------------------- */
-all		::
+drule ( all, \
+	noDependencies, \
+	noActions )
+drule ( $(STDTARGETS), \
+	noDependencies, \
+	$(MAKE) default dash ruleTarget )
 
 /* ----------------------------------------------------------------------
 | Standard targets
@@ -57,14 +62,6 @@ LIBPOSTORE=trim(fileLib(libpostore))
 
 MkCopyRule($(opsys) slash,$(CONFDIR) slash $(opsys) slash,$(LIBPOSTORE))
 
-/* 1998/09/22 HK: Do not include the static libs into the
-   distribution any more. */
-#if 1 /* HasOpSys == hasWin32 */
-
-#define UnixClientLibs
-
-#else
-
 LIBRPCPLOBLIB=trim(fileLib(librpclientplob))
 LIBLOCPLOBLIB=trim(fileLib(libloclientplob))
 
@@ -72,8 +69,6 @@ LIBLOCPLOBLIB=trim(fileLib(libloclientplob))
 
 MkCopyRule($(opsys) slash,$(CONFDIR) slash $(opsys) slash,$(LIBRPCPLOBLIB))
 MkCopyRule($(opsys) slash,$(CONFDIR) slash $(opsys) slash,$(LIBLOCPLOBLIB))
-
-#endif
 
 LIBRPCPLOBDLL=trim(fileDll(librpclientplob))
 LIBLOCPLOBDLL=trim(fileDll(libloclientplob))
@@ -103,6 +98,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

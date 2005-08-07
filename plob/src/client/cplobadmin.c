@@ -71,6 +71,7 @@
 #include	"cploblock.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobroot.h"
 #include	"cplobadmin.h"
 
@@ -144,55 +145,6 @@ void			fnDeinitializeAdminModule	( void )
 
   RETURN ( VOID );
 } /* fnDeinitializeAdminModule */
-
-/* ----------------------------------------------------------------------- */
-typedef BOOL ( * PFNACTION ) ( LPCSTR, SHORTOBJID, BOOL );
-static BOOL	fnRemoteCommand	( LPCSTR	pszURL,
-				  GETACTION	eAction,
-				  PFNACTION	pfnAction,
-				  LPCSTR	pszAction,
-				  BOOL		bForce )
-{
-  PCLIENT	pClient = (PCLIENT) NULL;
-  SHORTOBJID	oHeap;
-  char		szDescription [ 256 ];
-  char		szHost [ MAX_FNAME ];
-  int		nAuth = -1;
-  AUTH		* pAuth = (AUTH *) NULL;
-  BOOL		bDone	= FALSE;
-
-  PROCEDURE	( fnRemoteCommand );
-  ASSERT ( pszURL != (LPCSTR) NULL );
-  ASSERT ( pszAction != (LPCSTR) NULL );
-
-  strcpy ( szDescription, pszAction );
-  oHeap		= fnOpen ( pszURL, eAction, szDescription );
-  if ( oHeap != NULLOBJID ) {
-    pClient	= fnClientPlobd ();
-    if ( pClient != NULL ) {
-      fnSplitURL ( pszURL, szHost, (LPSTR) NULL, (LPSTR) NULL );
-      pAuth	= fnCreateAuth ( szHost, &nAuth );
-      if ( pAuth != NULL ) {
-	auth_destroy ( pClient->cl_auth );
-	pClient->cl_auth	= pAuth;
-      }
-      bDone		= ( pfnAction != NULL ) ?
-	( *pfnAction ) ( pszURL, oHeap, bForce ) : TRUE;
-      if ( nAuth != AUTH_NONE ) {
-	pAuth		= authnone_create ();
-	auth_destroy ( pClient->cl_auth );
-	pClient->cl_auth	= pAuth;
-      }
-      fnClientDbClose ( oHeap, FALSE );
-    } else {
-      char	szContinue [ 128 ];
-      sprintf ( szContinue, "Ignore %s request to PLOB! server.",
-		pszAction );
-      CERROR (( szContinue, szNoConnection ));
-    }
-  }
-  RETURN ( bDone );
-} /* fnRemoteCommand */
 
 /* ----------------------------------------------------------------------- */
 AUTH *	fnCreateAuth	( LPCSTR	pszServer,
@@ -269,90 +221,83 @@ BeginFunction ( BOOL,
 		fnClientCreateDatabase, "c-sh-create-database",
 		( argument ( CONST_STRING, vector_in, szURL ) ) )
 {
+  BOOL	bDone = FALSE;
+
   INITIALIZEPLOB;
 
-  RETURN ( fnRemoteCommand ( szURL, (GETACTION)
-			     ( (unsigned int) eGetPortActive |
-			       (unsigned int) eCreateDatabase |
-			       (unsigned int) eStartServer ),
-			     (PFNACTION) NULL,
-			     "create database", FALSE ) );
-} EndFunction ( fnClientCreateDatabase );
+  bDone = ( fnStartRemoteServer ( szURL, (GETACTION)
+				  ( (unsigned int) eGetPortActive |
+				    (unsigned int) eCreateDatabase |
+				    (unsigned int) eStartServer ) ) >= 0 );
 
-/* ----------------------------------------------------------------------- */
-static BOOL	fnClientServerExit	( LPCSTR	pszURL,
-					  SHORTOBJID	oHeap,
-					  BOOL		bForce )
-{
-  RETURN ( fnServerExit ( oHeap, bForce ) );
-} /* fnClientServerExit */
+  RETURN ( bDone );
+} EndFunction ( fnClientCreateDatabase );
 
 /* ----------------------------------------------------------------------- */
 BeginFunction ( BOOL,
 		fnClientExit, "c-sh-exit",
-		( argument ( CONST_STRING, vector_in, szURL )
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		  and
 		  argument ( BOOL, value_in, bForceExit ) ) )
 {
+  BOOL	bDone	= FALSE;
+
   INITIALIZEPLOB;
 
-  RETURN ( fnRemoteCommand ( szURL, eGetPortActive,
-			     fnClientServerExit,
-			     "exit", bForceExit ) );
-} EndFunction ( fnClientExit );
+  fnHeapCloseAllExcept1 ( oShortObjIdHeap );
+  bDone	= fnServerExit ( oShortObjIdHeap, bForceExit );
+  fnClientDestroy ( NULL );
 
-/* ----------------------------------------------------------------------- */
-static BOOL	fnClientServerReset	( LPCSTR	pszURL,
-					  SHORTOBJID	oHeap,
-					  BOOL		bForce )
-{
-  RETURN ( fnServerDbReset ( oHeap, bForce ) );
-} /* fnClientServerReset */
+  RETURN ( bDone );
+
+} EndFunction ( fnClientExit );
 
 /* ----------------------------------------------------------------------- */
 BeginFunction ( BOOL,
 		fnClientDbReset, "c-sh-reset",
-		( argument ( CONST_STRING, vector_in, szURL )
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		  and
 		  argument ( BOOL, value_in, bForceReset ) ) )
 {
   INITIALIZEPLOB;
 
-  RETURN ( fnRemoteCommand ( szURL, eGetPortActive, fnClientServerReset,
-			     "reset", bForceReset ) );
+  RETURN ( fnServerDbReset ( oShortObjIdHeap, bForceReset ) );
+
 } EndFunction ( fnClientDbReset );
 
 /* ----------------------------------------------------------------------- */
-static BOOL	fnClientServerRestart	( LPCSTR	pszURL,
-					  SHORTOBJID	oHeap,
-					  BOOL		bForce )
+BeginFunction ( BOOL,
+		fnClientRestart, "c-sh-restart",
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
+		  and
+		  argument ( BOOL, value_in, bForceRestart ) ) )
 {
   BOOL	bRestarted	= FALSE;
   int	nRpcPortCurr	= -1;
 
+  INITIALIZEPLOB;
+
   nRpcPortCurr	= (int) fnPlobdGetPort ();
-  bRestarted	= fnServerRestart ( oHeap, bForce );
+  fnHeapCloseAllExcept1 ( oShortObjIdHeap );
+  bRestarted	= fnServerRestart ( oShortObjIdHeap, bForceRestart );
+  fnClientDestroy ( NULL );
   if ( bRestarted ) {
     /* Wait until the connection is re-established: */
-    char		szHost [ MAX_FNAME ];
-    char		szProtocol [ MAX_FNAME ];
-    char		szDirectory [ MAX_FNAME ];
     PCLIENT		pClient	= NULL;
     struct timeval	Timeout;
     int			i;
     BOOL		bPing;
 
-    fnSplitURL ( pszURL, szHost, szProtocol, szDirectory );
     memset ( &Timeout, 0, sizeof ( Timeout ) );
     Timeout.tv_sec	= 4;
     sleep ( 2 );
     for ( i = 0, bPing = TRUE; i < 10 && bPing;
 	  sleep ( ( i < 5 ) ? 2 : 4 ), i++ ) {
       if ( pClient == NULL ) {
-	pClient	= clnt_create ( (char *) szHost,
+	pClient	= clnt_create ( fnClientPlobdHost (),
 				fnPlobdGetPortOffset () + nRpcPortCurr,
 				fnPlobdGetVersion (),
-				(char *) szProtocol );
+				fnClientPlobdTransport () );
       }
       if ( pClient != NULL ) {
 	bPing	= ( clnt_call ( pClient, NULLPROC,
@@ -372,23 +317,40 @@ static BOOL	fnClientServerRestart	( LPCSTR	pszURL,
   }
 
   RETURN ( bRestarted );
-} /* fnClientServerRestart */
+} EndFunction ( fnClientRestart );
 
 /* ----------------------------------------------------------------------- */
-BeginFunction ( BOOL,
-		fnClientRestart, "c-sh-restart",
-		( argument ( CONST_STRING, vector_in, szURL )
+BeginFunction ( SHORTOBJID,
+		fnClientSuspend, "c-sh-suspend",
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		  and
-		  argument ( BOOL, value_in, bForceRestart ) ) )
+		  argument ( CONST_STRING, vector_in, szReason ) ) )
 {
+  SHORTOBJID	oSuspendedBy;
+
   INITIALIZEPLOB;
 
-  RETURN ( fnRemoteCommand ( szURL, eGetPortActive, fnClientServerRestart,
-			     "restart", bForceRestart ) );
-} EndFunction ( fnClientRestart );
+  oSuspendedBy	= fnServerSuspend ( oShortObjIdHeap, szReason );
+
+  RETURN ( oSuspendedBy );
+} EndFunction ( fnClientSuspend );
+
+/* ----------------------------------------------------------------------- */
+BeginFunction ( SHORTOBJID,
+		fnClientResume, "c-sh-resume",
+		( voidArgument ) )
+{
+  SHORTOBJID	oSuspendedBy;
+
+  INITIALIZEPLOB;
+
+  oSuspendedBy	= fnServerResume ();
+
+  RETURN ( oSuspendedBy );
+} EndFunction ( fnClientResume );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

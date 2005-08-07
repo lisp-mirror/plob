@@ -10,6 +10,7 @@
 
 # Konstanten:
 CPP='gcc -E -P'
+dos2unix='dos2unix'
 szDefaultDefines='-D LISPWORKS=1'
 szDefaultIncludes="`pwd`:${PATH}"
 szScript='c2lisp'; export szScript
@@ -42,6 +43,7 @@ fnUsage () {
   echo "\
 Usage: ${szScript} [-CPP <ANSI C preprocessor>]
        ${szSpaces} [-D <define>] [-I <include dir>{:<more include dirs>}]
+       ${szSpaces} [-d2u <dos2unix executable>]
        ${szSpaces} [-h] [-o <.lisp file>|-|--] [-v] [{<.h files>}]
 Description:
     Generates a .lisp file from <.h files>.
@@ -63,20 +65,16 @@ Options:
 # ----------------------------------------------------------------------
 fnTrimLispFile () {
   sed -n '
-/^[^!-~]*$/ !b nempty
-s/^[^!-~]*$//
-p
 :skip
-/^[^!-~]*$/ {
+/^$/ {
   n
   b skip
 }
 :nempty
-s/[^!-~]*$//
-s/\([,`]\)[^!-~]*/\1/g
+s/\([,`]\)[	 ]*/\1/g
 /[,`]$/ {
   N
-  s/\([,`]\)[^!-~]*/\1/g
+  s/\([,`]\)[	 ]*/\1/g
 }
 :rmblank
 /@[	 ][	 ]*\([bghstn]\)[	 ]*@/ {
@@ -97,9 +95,8 @@ s/\([,`]\)[^!-~]*/\1/g
  b loopglu
 }
 s/\([-:]\)[	 ][	 ]*\([0-9a-z]\)/\1\2/g
-s/[^!-~]*$//
 s/@h@/ #/g
-s/\([,`]\)[^!-~]*/\1/g
+s/\([,`]\)[	 ]*/\1/g
 :loopspc
 /@s@/ {
  s/@s@/ /g
@@ -108,7 +105,7 @@ s/\([,`]\)[^!-~]*/\1/g
 :loopnln
 /@n@/ {
   h
-  s/[^!-~]*@n@.*$//
+  s/[	 ]*@n@.*$//
   p
   g
   s/@n@/@newline@/
@@ -135,6 +132,7 @@ szIncludes="${szDefaultIncludes}"
 while [ $# -gt 0 ]; do
   case "$1" in
   '-CPP')	CPP="$2"; shift;;
+  '-d2u')	dos2unix="$2"; shift;;
   '-D')		szDefines="${szDefines} $1$2"; shift;;
   '-D'*)	szDefines="${szDefines} $1";;
   '-I')		szIncludes="$2:${szIncludes}"; shift;;
@@ -195,7 +193,7 @@ else
   case "`uname`" in
   *[cC][yY][gG][wW][iI][nN]*)
     eval ${szCmdLine}|fnTrimLispFile >${TMP}/${nPID}_${szScript}.cr
-    dos2unix "${TMP}/${nPID}_${szScript}.cr" "${szLispFile}";;
+    ${dos2unix} "${TMP}/${nPID}_${szScript}.cr" "${szLispFile}";;
   *)
     eval ${szCmdLine}|fnTrimLispFile >${szLispFile}
   esac
@@ -205,9 +203,9 @@ fi
 if [ ${nExitCode} -eq 0 ]; then
   unset szLispFile
 fi
-rm -f ${TMP}/${nPID}_${szScript}.* ${szLispFile}
+# rm -f ${TMP}/${nPID}_${szScript}.* ${szLispFile}
 exit ${nExitCode}
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

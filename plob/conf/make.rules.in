@@ -63,6 +63,8 @@ SRCDIR=trim($(RELPLOBDIR) slash src)
 SRCIDIR=trim($(SRCDIR) slash include)
 LISPDOCDIR=trim($(SRCDIR) slash lisp dash doc)
 
+ONCBINDIR=trim($(RELPLOBDIR) slash oncrpc dash 1 dot 12 slash bin)
+
 /* ----------------------------------------------------------------------
 | RPC stuff
  ---------------------------------------------------------------------- */
@@ -80,26 +82,35 @@ HASAUTH=trim(HasAuth)
 /* 1998/05/26 HK: Had to split the list of files, since on Solaris the
    postprocessor sed had problems reading very long lines: */
 
+#if ! defined(MkPlobFiles31)
 #define MkPlobFiles31(wrapper,prefix,suffix) \
  wrapper(prefix,plobroot,suffix) spc \
  wrapper(prefix,plobadmin,suffix) spc \
  wrapper(prefix,plob,suffix) spc \
  wrapper(prefix,plobmisc,suffix)
+#endif
 
+#if ! defined(MkPlobFiles32)
 #define MkPlobFiles32(wrapper,prefix,suffix) \
  wrapper(prefix,plobff,suffix) spc \
  wrapper(prefix,plobsequ,suffix) spc \
- wrapper(prefix,plobstruct,suffix)
+ wrapper(prefix,plobstruct,suffix) spc \
+ wrapper(prefix,plobregex,suffix)
+#endif
 
+#if ! defined(MkPlobFiles33)
 #define MkPlobFiles33(wrapper,prefix,suffix) \
  wrapper(prefix,plobclos,suffix) spc \
  wrapper(prefix,plobtype,suffix) spc \
  wrapper(prefix,plobnumber,suffix)
+#endif
 
+#if ! defined(MkPlobFiles34)
 #define MkPlobFiles34(wrapper,prefix,suffix) \
  wrapper(prefix,ploblock,suffix) spc \
  wrapper(prefix,plobheap,suffix) spc \
  wrapper(prefix,plobbtree,suffix)
+#endif
 
 #define MkPlobFiles20(wrapper,prefix,suffix) \
  MkPlobFiles31(wrapper,prefix,suffix) spc \
@@ -220,7 +231,11 @@ MkLibMember2(prefix,filename,suffix)
 AR=lib
 ARFLAGS=
 
-LINK=link
+/* 2005-03-29 hkirschk: Make sure that Microsofts's linker is used.
+   Put the path to the local Visual C installation into MSVCPATH,
+   using forward slashes and 8.1 DOS filenames (i.e., without blanks,
+   because otherwise    Microsoft's nmake runs into trouble): */
+LINK=trim($(MSVCPATH) slash bin slash link)
 LINKc=$(LINK) $(LDFLAGS)
 
 /* 1999-08-17 HK: Use make of CYGWIN distribution: */
@@ -443,6 +458,12 @@ rule ( paste2(target,file), \
          cp option1(p) spc paste2(source,file) spc paste2(target,file); bsnl \
        fi )
 
+#if HasOpSys == hasWin32
+#define	DOS2UNIX	       option2(d2u,$(BINDIR) slash $(opsys) slash dos2unix) spc
+#else
+#define	DOS2UNIX
+#endif
+
 #define MkLispRule(prefix,filename,suffix) \
 rule ( paste3(prefix,filename,dot lisp), \
 \
@@ -450,6 +471,7 @@ rule ( paste3(prefix,filename,dot lisp), \
 \
        $(C2LISP) spc paste5(-,D,suffix,=,1) spc \
        paste6(-,D,PACKAGE,=,:,plob) \
+       DOS2UNIX \
        option2(o,ruleTarget) spc fileH(filename) )
 
 #define MkAllegro4aFiles \
@@ -478,6 +500,15 @@ MkPlobFiles32(MkLispRule,allegro6 slash,ALLEGRO6)
 MkPlobFiles33(MkLispRule,allegro6 slash,ALLEGRO6)
 #define MkAllegro6dFiles \
 MkPlobFiles34(MkLispRule,allegro6 slash,ALLEGRO6)
+
+#define MkAllegro7aFiles \
+MkPlobFiles31(MkLispRule,allegro7 slash,ALLEGRO7)
+#define MkAllegro7bFiles \
+MkPlobFiles32(MkLispRule,allegro7 slash,ALLEGRO7)
+#define MkAllegro7cFiles \
+MkPlobFiles33(MkLispRule,allegro7 slash,ALLEGRO7)
+#define MkAllegro7dFiles \
+MkPlobFiles34(MkLispRule,allegro7 slash,ALLEGRO7)
 
 #define MkLispWorks3aFiles \
 MkPlobFiles31(MkLispRule,lispworks3 slash,LISPWORKS3)
@@ -682,10 +713,14 @@ $(LINKc) $(OUTPUT_OPTION_DLL) ldLibsBefore files ldLibsAfter $(LDLIBS)
 $(LINKc) $(OUTPUT_OPTION_EXE) ldLibsBefore files ldLibsAfter $(LDLIBS)
 #define LinkExe(files) LinkExe2(files)
 
-RPCGEN=rpcgen
 #if HasOpSys == hasWin32
+/* 2005-03-29 hkirschk: Make sure that oncrpc rpcgen is used, since
+   the one delivered with cygwin does not know anything about
+   generating MULTITHREAD ing code: */
+RPCGEN=trim($(ONCBINDIR) slash rpcgen)
 RPCGENFLAGS=
 #else
+RPCGEN=rpcgen
 RPCGENFLAGS=paste5(-,D,$(OPSYS),=,1)
 #endif
 
@@ -895,9 +930,13 @@ drule ( default dash clean, \
 	tab dash rm option1(f) *~ core a dot out gmon dot out )
 
 drule ( default dash dist dash clean, \
-        clean, \
-	tab dash rm option1(f) fileLib(*) fileObj(*) spc \
-        fileDll(*) * dot fsl * dot fasl * dot wfasl )
+        noDependencies, \
+	tab dash rm option1(f) *~ core a dot out gmon dot out spc \
+	$(opsys) slash fileLib(lib*plob*) $(opsys) slash fileObj(*) spc \
+        $(opsys) slash fileDll(*) spc \
+	* slash * dot fsl spc \
+	* slash * dot fasl spc \
+	* slash * dot wfasl )
 
 drule ( default dash initial, \
         $(opsys), \
@@ -947,7 +986,9 @@ drule ( makefile default dash makefiles, \
         option2(o,"$(opsys)/makefile") spc \
 	"makefile.in" )
 
-ALLOPSYS=irix linux solaris win32
+/* 2005-04-26 hkirschk: removed irix */
+/* ALLOPSYS=irix linux solaris win32 */
+ALLOPSYS=linux solaris win32
 
 rule ( echo dash allopsys, \
        noDependencies, \
@@ -982,6 +1023,6 @@ rule ( all dash makefiles, \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

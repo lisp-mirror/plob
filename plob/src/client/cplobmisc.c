@@ -269,6 +269,6 @@ BeginFunction ( voidResult,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

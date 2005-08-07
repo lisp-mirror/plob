@@ -66,6 +66,9 @@ fnMalloc ( (nSize), __szFile__, __szProc__, __LINE__ )
 #define	ReAlloc( lpAllocated, nSize )	\
 fnReAlloc ( (lpAllocated), (nSize), __szFile__, __szProc__, __LINE__ )
 
+#define	ReAllocF( lpAllocated, nSize )	\
+fnReAllocF ( (lpAllocated), (nSize), __szFile__, __szProc__, __LINE__ )
+
 #define	Free( lpAllocated )		\
 fnFree ( (lpAllocated), __szFile__, __szProc__, __LINE__ )
 
@@ -94,6 +97,18 @@ LPVOID DLLEXPORT	fnMalloc( size_t	nSize,
 | Description	Reallocate memory
  ------------------------------------------------------------------------- */
 LPVOID DLLEXPORT	fnReAlloc( LPVOID	lpAllocated,
+				  size_t	nNewSize,
+				  LPCSTR	pszModule,
+				  LPCSTR	pszProcedure,
+				  int		nLine );
+
+/* -------------------------------------------------------------------------
+| Function	fnReAllocF
+| Arguments	see reallocf()
+| Return	Reallocated memory
+| Description	Reallocate memory
+ ------------------------------------------------------------------------- */
+LPVOID DLLEXPORT	fnReAllocF( LPVOID	lpAllocated,
 				  size_t	nNewSize,
 				  LPCSTR	pszModule,
 				  LPCSTR	pszProcedure,
@@ -144,6 +159,6 @@ void		fnDeinitializeMallocModule	( void );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

@@ -390,6 +390,27 @@ LPVOID DLLEXPORT	fnReAlloc( LPVOID	lpAllocated,
 } /* fnReAlloc */
 
 /* ----------------------------------------------------------------------- */
+LPVOID DLLEXPORT	fnReAllocF( LPVOID	lpAllocated,
+				  size_t	nNewSize,
+				  LPCSTR	pszModule,
+				  LPCSTR	pszProcedure,
+				  int		nLine )
+{
+  LPVOID	lpReallocated = NULL;
+
+  PROCEDURE	( fnReAllocF );
+
+  INITIALIZECOMMON;
+
+  lpReallocated	= fnReAlloc ( lpAllocated, nNewSize, pszModule, pszProcedure, nLine );
+  if ( lpReallocated == NULL && lpAllocated != NULL ) {
+    fnFree ( lpAllocated, pszModule, pszProcedure, nLine );
+  }
+
+  RETURN ( lpReallocated );  
+} /* fnReAllocF */
+
+/* ----------------------------------------------------------------------- */
 LPVOID DLLEXPORT	fnFree	( LPVOID	lpAllocated,
 				  LPCSTR	pszModule,
 				  LPCSTR	pszProcedure,
@@ -513,6 +534,6 @@ void		fnDeinitializeMallocModule	( void )
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

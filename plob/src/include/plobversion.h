@@ -36,13 +36,17 @@
 |
  ------------------------------------------------------------------------- */
 
-#ifdef C2TEX
-% This file was generated from plobversion.h;
-% changes done here will be lost!
-#endif
-
 /* Current version of PLOB: */
 
+#define	PLOBVERSIONMAJOR	2
+#define	PLOBVERSIONMINOR	11
+
+#define	PLOBVERSIONDAY		28
+#define	PLOBVERSIONMONTH	May
+#define	PLOBVERSIONYEAR		2005
+
+/* Older version of PLOB: */
+/*
 #define	PLOBVERSIONMAJOR	2
 #define	PLOBVERSIONMINOR	10
 
@@ -50,8 +54,6 @@
 #define	PLOBVERSIONMONTH	May
 #define	PLOBVERSIONYEAR		2002
 
-/* Older version of PLOB: */
-/*
 #define	PLOBVERSIONMAJOR	2
 #define	PLOBVERSIONMINOR	09
 
@@ -103,12 +105,6 @@
 #define	PASTE2( token1, token2 ) PASTE22(token1,token2)
 #endif
 
-#if ! defined(PASTE3)
-#define	PASTE33( token1, token2, token3 ) token1##token2##token3
-#define	PASTE32( token1, token2, token3 ) PASTE33(token1,token2,token3)
-#define	PASTE3( token1, token2, token3 ) PASTE32(token1,token2,token3)
-#endif
-
 #define	PLOBVERSION PASTE2(PLOBVERSIONMAJOR,PLOBVERSIONMINOR)
 
 #if ! defined(STRINGINIZE)
@@ -132,12 +128,8 @@
 #define	STRINGLIST STRINGINIZE(PLOBLIST)
 #define	STRINGLISTREQ STRINGINIZE(PLOBLISTREQ)
 
-#ifdef C2TEX
-#include	"c2tex.h"
-#endif
-
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

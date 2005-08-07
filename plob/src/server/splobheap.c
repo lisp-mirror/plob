@@ -62,6 +62,7 @@
 #include	"splobtype.h"
 #include	"splobnumber.h"
 #include	"splobbtree.h"
+#include	"splobregex.h"
 #include	"splobroot.h"
 #include	"sploblock.h"
 #include	"splobheap.h"
@@ -78,9 +79,12 @@
 MODULE ( __FILE__ );
 
 /* ----------------------------------------------------------------------- */
-/* #define LOGGING to show on stderr some messages what's happening: */
+/* #define LOGGING to show on stderr some messages what's happening:
+   0 (no), 1 (rollback handling) */
 #if 0
-#define	LOGGING
+#define	LOGGING	(0x01)
+#else
+#define	LOGGING	0x00
 #endif
 
 /* -------------------------------------------------------------------------
@@ -195,11 +199,13 @@ static LPHASHTABLE	fnRestoreIdxTable	( LPPLOBHEAP lpHeap,
 						  BOOL bIgnoreError );
 static LPPLOBHEAP	fnGetPlobHeap		( OBJID oSelf,
 						  BOOL bIgnoreError );
-static int		fnRead			( LPVOID lpItem,
+static int		fnRead			( LPPLOBHEAP lpHeap,
+						  LPVOID lpItem,
 						  size_t nSizeOfItem,
 						  size_t nNumberOfItems,
 						  LPFILEPOS lpFilePos );
-static size_t		fnWrite			( LPVOID lpItem,
+static size_t		fnWrite			( LPPLOBHEAP lpHeap,
+						  LPVOID lpItem,
 						  size_t nSizeOfItem,
 						  size_t nNumberOfItems,
 						  LPFILEPOS lpFilePos );
@@ -506,7 +512,7 @@ static LPHASHTABLE	fnRestoreIdxTable	( LPPLOBHEAP lpHeap,
 		 FGETPOS ( &lpHeap->Idx ) / sizeof ( TractIdx ) );
   fnSeek ( &lpHeap->Idx, 0, SEEK_SET );
 
-  while ( fnRead ( &TractIdx, sizeof ( TractIdx ), 1, &lpHeap->Idx ) == 1 &&
+  while ( fnRead ( lpHeap, &TractIdx, sizeof ( TractIdx ), 1, &lpHeap->Idx ) == 1 &&
 	  TractIdx.nTractId == nTractId ) {
     fnHashInsert ( &lpHeap->TractIdxTable, TractIdx.oFix, &TractIdx );
   }
@@ -566,14 +572,24 @@ static LPPLOBHEAP	fnGetPlobHeap		( OBJID oSelf,
 /* -------------------------------------------------------------------------
 | FilePos I/O
  ------------------------------------------------------------------------- */
-static void		fnAllocateBuffer	( LPFILEPOS	pFilePos )
+static void		fnAllocateBuffer	( LPPLOBHEAP	lpHeap,
+						  LPFILEPOS	pFilePos )
 {
   PROCEDURE	( fnAllocateBuffer );
 
-  if ( pFilePos->pBuffer == NULL ) {
-    /* Allocate & set the stream buffer: */
-    pFilePos->pBuffer	= Malloc ( nTransactionLogBlockSize );
-    ASSERT ( pFilePos->pBuffer != NULL );
+
+  if ( GetFlushMode ( lpHeap->oSelf ) >= flushAlways ) {
+    if ( pFilePos->pBuffer != NULL ) {
+      /* Deallocate the stream buffer: */
+      pFilePos->pBuffer	= Free ( pFilePos->pBuffer );
+    }
+    setvbuf ( pFilePos->lpFile, NULL, _IONBF, 0 );
+  } else {
+    if ( pFilePos->pBuffer == NULL ) {
+      /* Allocate & set the stream buffer: */
+      pFilePos->pBuffer	= Malloc ( nTransactionLogBlockSize );
+      ASSERT ( pFilePos->pBuffer != NULL );
+    }
     setvbuf ( pFilePos->lpFile, pFilePos->pBuffer, _IOFBF,
 	      nTransactionLogBlockSize );
   }
@@ -582,7 +598,8 @@ static void		fnAllocateBuffer	( LPFILEPOS	pFilePos )
 } /* fnAllocateBuffer */
 
 /* ----------------------------------------------------------------------- */
-static int		fnRead			( LPVOID lpItem,
+static int		fnRead			( LPPLOBHEAP lpHeap,
+						  LPVOID lpItem,
 						  size_t nSizeOfItem,
 						  size_t nNumberOfItems,
 						  LPFILEPOS lpFilePos )
@@ -596,7 +613,7 @@ static int		fnRead			( LPVOID lpItem,
   ASSERT ( lpFilePos->lpFile != NULL );
 
   if ( lpFilePos->pBuffer == NULL ) {
-    fnAllocateBuffer ( lpFilePos );
+    fnAllocateBuffer ( lpHeap, lpFilePos );
   }
   nRead		= fread ( lpItem, nSizeOfItem, nNumberOfItems,
 			  lpFilePos->lpFile );
@@ -610,7 +627,8 @@ static int		fnRead			( LPVOID lpItem,
 } /* fnRead */
 
 /* ----------------------------------------------------------------------- */
-static size_t		fnWrite			( LPVOID lpItem,
+static size_t		fnWrite			( LPPLOBHEAP lpHeap,
+						  LPVOID lpItem,
 						  size_t nSizeOfItem,
 						  size_t nNumberOfItems,
 						  LPFILEPOS lpFilePos )
@@ -630,7 +648,7 @@ static size_t		fnWrite			( LPVOID lpItem,
   ASSERT ( lpFilePos->lpFile != NULL );
 
   if ( lpFilePos->pBuffer == NULL ) {
-    fnAllocateBuffer ( lpFilePos );
+    fnAllocateBuffer ( lpHeap, lpFilePos );
   }
 
   if ( FGETPOS ( lpFilePos ) + nSizeInBytes >= lpFilePos->nMaxPos ) {
@@ -669,9 +687,7 @@ static size_t		fnWrite			( LPVOID lpItem,
 	if ( fwrite ( pBuffer, nGrowInBytes, 1, lpFilePos->lpFile ) != 1 ) {
 	  int	nErrNo	= errno;
 	  pBuffer	= Free ( pBuffer );
-	  if ( nGrowOffsetInBytes > 0 ) {
-	    fseek ( lpFilePos->lpFile, FGETPOS ( lpFilePos ), SEEK_SET );
-	  }
+	  fseek ( lpFilePos->lpFile, FGETPOS ( lpFilePos ), SEEK_SET );
 	  ERROR (( "Could not grow transaction file by %lu bytes, errno %d.",
 		   nGrowInBytes, nErrNo ));
 	  RETURN ( nWrote );
@@ -680,14 +696,12 @@ static size_t		fnWrite			( LPVOID lpItem,
       if ( pBuffer != NULL ) {
 	pBuffer	= Free ( pBuffer );
       }
-      if ( nGrowOffsetInBytes > 0 ) {
-	/* Position back to previous position: */
-	if ( fseek ( lpFilePos->lpFile, FGETPOS ( lpFilePos ),
-		     SEEK_SET ) != 0 ) {
-	  int	nErrNo	= errno;
-	  ERROR (( szFseekFailed, FGETPOS ( lpFilePos ), nErrNo ));
-	  RETURN ( nWrote );
-	}
+      /* Position back to previous position: */
+      if ( fseek ( lpFilePos->lpFile, FGETPOS ( lpFilePos ),
+		   SEEK_SET ) != 0 ) {
+	int	nErrNo	= errno;
+	ERROR (( szFseekFailed, FGETPOS ( lpFilePos ), nErrNo ));
+	RETURN ( nWrote );
       }
       lpFilePos->nMaxPos	+= nGrowInBytes;
       ASSERT ( lpFilePos->nMaxPos % nTransactionLogBlockSize == 0 );
@@ -940,7 +954,7 @@ static LPTRACTIDX	fnSaveTractIdx		( LPPLOBHEAP lpHeap,
       RETURN ( (LPTRACTIDX) NULL );
     }
     lpTractIdx->nPosIndex	= nPosEnd;
-    if ( fnWrite ( lpTractIdx, sizeof ( *lpTractIdx ), 1,
+    if ( fnWrite ( lpHeap, lpTractIdx, sizeof ( *lpTractIdx ), 1,
 		   &lpHeap->Idx ) != 1 ) {
       int	nErrNo;
       nErrNo	= errno;
@@ -965,7 +979,7 @@ static LPTRACTIDX	fnSaveTractIdx		( LPPLOBHEAP lpHeap,
 	       fnPrintObject ( lpHeap->oSelf, (LPSTR) NULL, 0 ), nErrNo ));
       RETURN ( (LPTRACTIDX) NULL );
     }
-    if ( fnWrite ( lpTractIdx, sizeof ( *lpTractIdx ), 1,
+    if ( fnWrite ( lpHeap, lpTractIdx, sizeof ( *lpTractIdx ), 1,
 		   &lpHeap->Idx ) != 1 ) {
       int	nErrNo;
       nErrNo	= errno;
@@ -1206,8 +1220,17 @@ static BOOL		fnSaveObject		( LPPLOBHEAP lpHeap,
 
   nPosHeap	= FGETPOS ( &lpHeap->Log );
 
+#if (LOGGING+0) & 0x01
+  LOG (( "Saving object state of %s, fix objid %d, objids %d, size %d to file position %d, tell %d.",
+	 fnPrintObject ( oToSave, (LPSTR) NULL, 0 ),
+	 Var2FixObjId ( oToSave ),
+	 lpSHvector [ eshSHvectorIdxObjIds ],
+	 lpSHvector [ eshSHvectorIdxSize ],
+	 nPosHeap, ftell ( lpHeap->Log.lpFile ) ));
+#endif /* #if (LOGGING+0) & 0x01 */
+
   /* Write the object 'header': */
-  if ( fnWrite ( lpSHvector, sizeof ( psint ), nHeaderSize,
+  if ( fnWrite ( lpHeap, lpSHvector, sizeof ( psint ), nHeaderSize,
 		 &lpHeap->Log ) != nHeaderSize ) {
     char	szHeap [ 128 ];
     int		nErrNo;
@@ -1226,7 +1249,7 @@ static BOOL		fnSaveObject		( LPPLOBHEAP lpHeap,
   n	= lpSHvector [ eshSHvectorIdxObjIds ];
   for ( i = 0; i < n; i++ ) {
     oFix	= Var2FixObjId ( lpSHvector [ eshSHvectorIdxFirstObjId + i ] );
-    if ( fnWrite ( &oFix, sizeof ( oFix ), 1, &lpHeap->Log ) != 1 ) {
+    if ( fnWrite ( lpHeap, &oFix, sizeof ( oFix ), 1, &lpHeap->Log ) != 1 ) {
       char	szHeap [ 128 ];
       int	nErrNo;
       nErrNo	= errno;
@@ -1247,7 +1270,7 @@ static BOOL		fnSaveObject		( LPPLOBHEAP lpHeap,
   /* Write the object's values: */
   i	= lpSHvector [ eshSHvectorIdxSize ] - n - eshSHvectorIdxFirstObjId;
   if ( i > 0 ) {
-    if ( fnWrite ( & lpSHvector [ n + eshSHvectorIdxFirstObjId ],
+    if ( fnWrite ( lpHeap, & lpSHvector [ n + eshSHvectorIdxFirstObjId ],
 		   sizeof ( psint ), i, &lpHeap->Log ) != i ) {
       char	szHeap [ 128 ];
       int	nErrNo;
@@ -1266,6 +1289,7 @@ static BOOL		fnSaveObject		( LPPLOBHEAP lpHeap,
   }
 
   if ( GetFlushMode ( lpHeap->oSelf ) >= flushAlways ) {
+    /* 2005-04-29 hkirschk: Debug: */
     fflush ( lpHeap->Log.lpFile );
   }
 
@@ -1276,6 +1300,53 @@ static BOOL		fnSaveObject		( LPPLOBHEAP lpHeap,
 
   RETURN ( bSaved );
 } /* fnSaveObject */
+
+
+
+/* ----------------------------------------------------------------------- */
+
+#if (LOGGING+0) & 0x01
+/* ----------------------------------------------------------------------- */
+BOOL		fnPrintCallback			( LPVOID lpUserData,
+						  OBJID oBTree,
+						  OBJID oKey,
+						  OBJID oData,
+						  OBJID oBTreePage,
+						  int nIndex )
+{
+  char szKey [ 512 ], szData [ 512 ];
+  
+  fnPrintObject ( oKey, szKey, sizeof ( szKey ) );
+  fnPrintObject ( oData, szData, sizeof ( szData ) );
+
+  LOG (( "key=%s, data=%s", szKey, szData ));
+
+  RETURN ( TRUE );
+}
+
+/* ----------------------------------------------------------------------- */
+static void		fnPrintBTree		( OBJID	oHeap,
+						  OBJID	oBTree )
+{
+  COMPARETAG		eCompareLower = eshGreaterEqual,
+    eCompareUpper = eshLessEqual;
+  FIXNUM		nKey, nKeyTo;
+  SHTYPETAG		nTypeTag, nTypeTagTo;
+  int			nPrinted;
+
+  nKey		= 0;
+  nTypeTag	= eshMinTag;
+  nKeyTo	= 0;
+  nTypeTagTo	= eshMaxTag;
+
+  nPrinted	= fnBTreeMap ( oHeap, oBTree,
+			       &nKey, nTypeTag, eCompareLower,
+			       &nKeyTo, nTypeTagTo, eCompareUpper,
+			       FALSE, fnPrintCallback, NULL );
+
+}
+#endif /* #if (LOGGING+0) & 0x01 */
+
 
 /* ----------------------------------------------------------------------- */
 static BOOL		fnTractRollback		( LPPLOBHEAP lpHeap,
@@ -1305,6 +1376,12 @@ static BOOL		fnTractRollback		( LPPLOBHEAP lpHeap,
     RETURN ( (BOOL) FALSE );
   }
 
+
+#if (LOGGING+0) & 0x01
+  LOG (( "Transaction rollback start on %s",
+	 fnPrintObject ( lpHeap->oSelf, (LPSTR) NULL, 0 ) ));
+#endif /* #if (LOGGING+0) & 0x01 */
+
   nWritten	= ObjId2Fixnum ( lpHeap->oIdxWritten );
 
   if ( fnTractOpen ( lpHeap, indexFile, szStreamReadWrite ) == NULL ) {
@@ -1325,13 +1402,24 @@ static BOOL		fnTractRollback		( LPPLOBHEAP lpHeap,
 
   while ( TRUE ) {
 
-    int	nReadTractId	=
-      fnRead ( &TractIdx, sizeof ( TractIdx ), 1, &lpHeap->Idx );
+    int		nErrors		= 0;
+    int		nReadTractId	=
+      fnRead ( lpHeap, &TractIdx, sizeof ( TractIdx ), 1, &lpHeap->Idx );
+    psint	nObjIds;
+    psint	nSize;
 
     if ( nReadTractId != 1 ) {
+#if (LOGGING+0) & 0x01
+  LOG (( "Bailing out (1) at read position %d",
+	 nRead ));
+#endif /* #if (LOGGING+0) & 0x01 */
       break;
     }
     if ( TractIdx.nTractId != nTractId ) {
+#if (LOGGING+0) & 0x01
+  LOG (( "Bailing out (2) at read position %d",
+	 nRead ));
+#endif /* #if (LOGGING+0) & 0x01 */
       break;
     }
 
@@ -1339,6 +1427,8 @@ static BOOL		fnTractRollback		( LPPLOBHEAP lpHeap,
       HashGet ( &lpHeap->TractIdxTable, TractIdx.oFix );
     oRead	= Fix2VarObjId ( TractIdx.oFix );
     lpSHvector	= AtomicLock ( oRead, lpHeap->oSelf );
+    nObjIds	= lpSHvector [ eshSHvectorIdxObjIds ];
+    nSize	= lpSHvector [ eshSHvectorIdxSize ];
 
     if ( ( TractIdx.nLock & ( eshLockModeWrite | eshLockModeWriteIntent ) ) &&
 	 TractIdx.nPosHeap != nPosNotSavedTag ) {
@@ -1347,14 +1437,17 @@ static BOOL		fnTractRollback		( LPPLOBHEAP lpHeap,
 	if ( fnTractOpen ( lpHeap, heapFile, szStreamReadWrite ) == NULL ) {
 	  int		nErrNo;
 	  nErrNo	= errno;
-	  fnTractClose ( lpHeap, (BOOL) TRUE );
-	  fnFlush ( lpHeap );
-	  fnTractUnlink ( lpHeap );
-	  WARN (( "Opening transaction heap file\n"
-		  "       of %s\n"
-		  "       failed. errno is %d.",
-		  fnPrintObject ( lpHeap->oSelf, (LPSTR) NULL, 0 ),
-		  nErrNo ));
+	  if ( ! nErrors++ ) {
+	    AtomicUnlock ( oRead, lpHeap->oSelf );
+	    fnTractClose ( lpHeap, (BOOL) TRUE );
+	    fnFlush ( lpHeap );
+	    fnTractUnlink ( lpHeap );
+	  }
+	  ERROR (( "Opening transaction heap file\n"
+		   "       of %s\n"
+		   "       failed, read position %d. errno is %d.",
+		   fnPrintObject ( lpHeap->oSelf, (LPSTR) NULL, 0 ),
+		   nRead, nErrNo ));
 	  RETURN ( (BOOL) FALSE );
 	}
       }
@@ -1363,93 +1456,128 @@ static BOOL		fnTractRollback		( LPPLOBHEAP lpHeap,
 	char	szHeap [ 128 ];
 	int	nErrNo;
 	nErrNo	= errno;
-	fnTractClose ( lpHeap, (BOOL) TRUE );
-	fnFlush ( lpHeap );
-	fnTractUnlink ( lpHeap );
+	if ( ! nErrors++ ) {
+	  AtomicUnlock ( oRead, lpHeap->oSelf );
+	  fnTractClose ( lpHeap, (BOOL) TRUE );
+	  fnFlush ( lpHeap );
+	  fnTractUnlink ( lpHeap );
+	}
 	ERROR (( "Positioning to %d of transaction heap file\n"
 		 "       of %s\n"
 		 "       for object %s\n"
-		 "       failed. errno is %d.",
+		 "       failed, read position %d. errno is %d.",
 		 TractIdx.nPosHeap,
 		 PrintObject ( lpHeap->oSelf, szHeap ),
-		 fnPrintObject ( oRead, (LPSTR) NULL, 0 ), nErrNo ));
+		 fnPrintObject ( oRead, (LPSTR) NULL, 0 ),
+		 nRead, nErrNo ));
 	RETURN ( (BOOL) FALSE );
       }
-      if ( fnRead ( Header, sizeof ( psint ), nHeaderSize,
+
+#if (LOGGING+0) & 0x01
+  LOG (( "Reading fix objid %d, obj objids %d, obj size %d from file position %d, tell %d.",
+	 TractIdx.oFix, nObjIds, nSize,
+	 TractIdx.nPosHeap,
+	 ftell ( lpHeap->Log.lpFile ) ));
+#endif /* #if (LOGGING+0) & 0x01 */
+
+      if ( fnRead ( lpHeap, Header, sizeof ( psint ), nHeaderSize,
 		    &lpHeap->Log ) != nHeaderSize ) {
 	char	szHeap [ 128 ];
 	int	nErrNo;
 	nErrNo	= errno;
-	fnTractClose ( lpHeap, (BOOL) TRUE );
-	fnFlush ( lpHeap );
-	fnTractUnlink ( lpHeap );
+	if ( ! nErrors++ ) {
+	  AtomicUnlock ( oRead, lpHeap->oSelf );
+	  fnTractClose ( lpHeap, (BOOL) TRUE );
+	  fnFlush ( lpHeap );
+	  fnTractUnlink ( lpHeap );
+	}
 	ERROR (( "Reading object header for\n"
 		 "       object %s\n"
 		 "       from transaction heap file\n"
 		 "       of %s\n"
-		 "       failed. errno is %d.",
+		 "       failed, read position %d. errno is %d.",
 		 fnPrintObject ( oRead, (LPSTR) NULL, 0 ),
 		 PrintObject ( lpHeap->oSelf, szHeap ),
-		 nErrNo ));
-	RETURN ( (BOOL) FALSE );
+		 nRead, nErrNo ));
       }
 
-      if ( lpSHvector [ eshSHvectorIdxObjIds ] !=
-	   Header [ eshSHvectorIdxObjIds ] ) {
+
+#if (LOGGING+0) & 0x01
+  LOG (( "Reading fix objid %d, obj objids %d, obj size %d, read objids %d, read size %d.",
+	 TractIdx.oFix, nObjIds, nSize,
+	 Header [ eshSHvectorIdxObjIds ],
+	 Header [ eshSHvectorIdxSize ] ));
+#endif /* #if (LOGGING+0) & 0x01 */
+
+
+      if ( nObjIds != Header [ eshSHvectorIdxObjIds ] ) {
 	char	szHeap [ 128 ];
-	AtomicUnlock ( oRead, lpHeap->oSelf );
-	fnTractClose ( lpHeap, (BOOL) TRUE );
-	fnFlush ( lpHeap );
-	fnTractUnlink ( lpHeap );
-	WARN (( "Unexpected change in size of objid field of\n"
-		"       object %s\n"
-		"       from %d to %d at scanning transaction heap file\n"
-		"       of %s.",
-		fnPrintObject ( oRead, (LPSTR) NULL, 0 ),
-		Header [ eshSHvectorIdxObjIds ],
-		lpSHvector [ eshSHvectorIdxObjIds ],
-		PrintObject ( lpHeap->oSelf, szHeap ) ));
-	RETURN ( (BOOL) FALSE );
+	if ( ! nErrors++ ) {
+	  AtomicUnlock ( oRead, lpHeap->oSelf );
+	  fnTractClose ( lpHeap, (BOOL) TRUE );
+	  fnFlush ( lpHeap );
+	  fnTractUnlink ( lpHeap );
+	}
+	ERROR (( "Unexpected change in size of objid field of\n"
+		 "       object %s\n"
+		 "       from %d to %d at scanning transaction heap file\n"
+		 "       of %s, read position %d.",
+		 fnPrintObject ( oRead, (LPSTR) NULL, 0 ),
+		 Header [ eshSHvectorIdxObjIds ],
+		 nObjIds, PrintObject ( lpHeap->oSelf, szHeap ),
+		 nRead ));
+#if (LOGGING+0) & 0x01
+	if ( btreep ( oRead ) ) {
+	  fnPrintBTree ( lpHeap->oSelf, oRead );
+	}
+#endif /* #if (LOGGING+0) & 0x01 */
       }
 
-      if ( lpSHvector [ eshSHvectorIdxSize ] !=
-	   Header [ eshSHvectorIdxSize ] ) {
+      if ( nSize != Header [ eshSHvectorIdxSize ] ) {
 	char	szHeap [ 128 ];
-	AtomicUnlock ( oRead, lpHeap->oSelf );
-	fnTractClose ( lpHeap, (BOOL) TRUE );
-	fnFlush ( lpHeap );
-	fnTractUnlink ( lpHeap );
-	WARN (( "Unexpected change in total size of\n"
-		"       object %s\n"
-		"       from %d to %d at scanning transaction heap file\n"
-		"       of %s.",
-		fnPrintObject ( oRead, (LPSTR) NULL, 0 ),
-		Header [ eshSHvectorIdxSize ],
-		lpSHvector [ eshSHvectorIdxSize ],
-		PrintObject ( lpHeap->oSelf, szHeap ) ));
+	if ( ! nErrors++ ) {
+	  AtomicUnlock ( oRead, lpHeap->oSelf );
+	  fnTractClose ( lpHeap, (BOOL) TRUE );
+	  fnFlush ( lpHeap );
+	  fnTractUnlink ( lpHeap );
+	}
+	ERROR (( "Unexpected change in total size of\n"
+		 "       object %s\n"
+		 "       from %d to %d at scanning transaction heap file\n"
+		 "       of %s, read position %d.",
+		 fnPrintObject ( oRead, (LPSTR) NULL, 0 ),
+		 Header [ eshSHvectorIdxSize ],
+		 nSize,
+		 PrintObject ( lpHeap->oSelf, szHeap ),
+		 nRead ));
+      }
+
+      if ( nErrors > 0 ) {
 	RETURN ( (BOOL) FALSE );
       }
 
       oLockedBy	= lpSHvector [ eshSHvectorIdxLockedBy ];
       n		= Header [ eshSHvectorIdxObjIds ];
-      if ( fnRead ( & lpSHvector [ eshSHvectorIdxFirstObjId ],
+      if ( fnRead ( lpHeap, & lpSHvector [ eshSHvectorIdxFirstObjId ],
 		    sizeof ( psint ), n, &lpHeap->Log ) != n ) {
 	char	szHeap [ 128 ];
 	int	nErrNo;
 	nErrNo	= errno;
-	lpSHvector [ eshSHvectorIdxLockedBy ]	= oLockedBy;
-	AtomicUnlock ( oRead, lpHeap->oSelf );
-	fnTractClose ( lpHeap, (BOOL) TRUE );
-	fnFlush ( lpHeap );
-	fnTractUnlink ( lpHeap );
+	if ( ! nErrors++ ) {
+	  lpSHvector [ eshSHvectorIdxLockedBy ]	= oLockedBy;
+	  AtomicUnlock ( oRead, lpHeap->oSelf );
+	  fnTractClose ( lpHeap, (BOOL) TRUE );
+	  fnFlush ( lpHeap );
+	  fnTractUnlink ( lpHeap );
+	}
 	ERROR (( "Reading object objids for\n"
 		 "       object %s\n"
 		 "       from transaction heap file\n"
 		 "       of %s\n"
-		 "       failed. errno is %d.",
+		 "       failed, read position %d. errno is %d.",
 		 fnPrintObject ( oRead, (LPSTR) NULL, 0 ),
 		 PrintObject ( lpHeap->oSelf, szHeap ),
-		 nErrNo ));
+		 nRead, nErrNo ));
 	RETURN ( (BOOL) FALSE );
       }
 
@@ -1466,23 +1594,25 @@ static BOOL		fnTractRollback		( LPPLOBHEAP lpHeap,
       i	=
 	lpSHvector [ eshSHvectorIdxSize ] - n - eshSHvectorIdxFirstObjId;
       if ( i > 0 ) {
-	if ( fnRead ( & lpSHvector [ n + eshSHvectorIdxFirstObjId ],
+	if ( fnRead ( lpHeap, & lpSHvector [ n + eshSHvectorIdxFirstObjId ],
 		      sizeof ( psint ), i, &lpHeap->Log ) != i ) {
 	  char		szHeap [ 128 ];
 	  int		nErrNo;
 	  nErrNo	= errno;
-	  AtomicUnlock ( oRead, lpHeap->oSelf );
-	  fnTractClose ( lpHeap, (BOOL) TRUE );
-	  fnFlush ( lpHeap );
-	  fnTractUnlink ( lpHeap );
+	  if ( ! nErrors++ ) {
+	    AtomicUnlock ( oRead, lpHeap->oSelf );
+	    fnTractClose ( lpHeap, (BOOL) TRUE );
+	    fnFlush ( lpHeap );
+	    fnTractUnlink ( lpHeap );
+	  }
 	  ERROR (( "Reading object values for\n"
 		   "       object %s\n"
 		   "       from transaction heap file\n"
 		   "       of %s\n"
-		   "       failed. errno is %d.",
+		   "       failed, read position %d. errno is %d.",
 		   fnPrintObject ( oRead, (LPSTR) NULL, 0 ),
 		   PrintObject ( lpHeap->oSelf, szHeap ),
-		   nErrNo ));
+		   nRead, nErrNo ));
 	  RETURN ( (BOOL) FALSE );
 	}
       }
@@ -1519,6 +1649,11 @@ static BOOL		fnTractRollback		( LPPLOBHEAP lpHeap,
   fnTractClose ( lpHeap, (BOOL) TRUE );
   fnFlush ( lpHeap );
   fnTractUnlink ( lpHeap );
+
+#if (LOGGING+0) & 0x01
+  LOG (( "Transaction rollback stop on %s",
+	 fnPrintObject ( lpHeap->oSelf, (LPSTR) NULL, 0 ) ));
+#endif /* #if (LOGGING+0) & 0x01 */
 
   RETURN ( (BOOL) TRUE );
 } /* fnTractRollback */
@@ -1682,6 +1817,9 @@ BeginFunction ( TRACTID,
   OBJID		oHeap;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLTRACTID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1739,6 +1877,9 @@ BeginFunction ( TRACTID,
   OBJID		oHeap;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLTRACTID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1798,6 +1939,9 @@ BeginFunction ( TRACTID,
   OBJID		oHeap;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLTRACTID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1822,6 +1966,9 @@ BeginFunction ( voidResult,
   LPPLOBHEAP	lpHeap;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( VOID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1849,6 +1996,9 @@ BeginFunction ( TRACTID,
   LPPLOBHEAP	lpHeap;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLTRACTID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1874,6 +2024,6 @@ BeginFunction ( TRACTID,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

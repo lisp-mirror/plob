@@ -68,6 +68,8 @@ MODULE ( __FILE__ );
 DLLEXPORTVAR const char	szALLEGRO []		= "ALLEGRO"; 
 DLLEXPORTVAR const char	szALLEGRO4 []		= "ALLEGRO4"; 
 DLLEXPORTVAR const char	szALLEGRO5 []		= "ALLEGRO5"; 
+DLLEXPORTVAR const char	szALLEGRO6 []		= "ALLEGRO6"; 
+DLLEXPORTVAR const char	szALLEGRO7 []		= "ALLEGRO7"; 
 DLLEXPORTVAR const char	szLISPWORKS []		= "LISPWORKS";
 DLLEXPORTVAR const char	szLISPWORKS3 []		= "LISPWORKS3";
 DLLEXPORTVAR const char	szLISPWORKS4 []		= "LISPWORKS4";
@@ -75,6 +77,8 @@ DLLEXPORTVAR const char	szLISPWORKS4 []		= "LISPWORKS4";
 DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro	= NULLOBJID;
 DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro4	= NULLOBJID;
 DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro5	= NULLOBJID;
+DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro6	= NULLOBJID;
+DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro7	= NULLOBJID;
 DLLEXPORTVAR OBJID	oGlobalSymKeywordLispworks	= NULLOBJID;
 DLLEXPORTVAR OBJID	oGlobalSymKeywordLispworks3	= NULLOBJID;
 DLLEXPORTVAR OBJID	oGlobalSymKeywordLispworks4	= NULLOBJID;
@@ -220,6 +224,12 @@ static void	fnLocateSymbols ( void )
   find_symbol ( &oGlobalSymKeywordAllegro5,
 		find_package ( &oGlobalPkgKeyword, szKEYWORD ),
 		szALLEGRO5 );
+  find_symbol ( &oGlobalSymKeywordAllegro6,
+		find_package ( &oGlobalPkgKeyword, szKEYWORD ),
+		szALLEGRO6 );
+  find_symbol ( &oGlobalSymKeywordAllegro7,
+		find_package ( &oGlobalPkgKeyword, szKEYWORD ),
+		szALLEGRO7 );
 
   find_symbol ( &oGlobalSymKeywordLispworks,
 		find_package ( &oGlobalPkgKeyword, szKEYWORD ),
@@ -398,7 +408,10 @@ static LPSTR	mfnPrintBignum	( OBJID oObjId, LPOBJID lpSHvector,
 	}
       }
     }
-  } else if ( oFormat == oGlobalSymKeywordAllegro5 ) {
+  } else if ( oFormat == oGlobalSymKeywordAllegro5 ||
+	      /* 2005-05-10 hkirschk: Not yet tested for Allegro 6 & 7: */
+	      oFormat == oGlobalSymKeywordAllegro6 ||
+	      oFormat == oGlobalSymKeywordAllegro7 ) {
     /* Print an Allegro 5.x bignum: */
     bLeading0	= TRUE;
     strcpy ( lpszBuffer, "#x" );
@@ -691,6 +704,19 @@ COMPARETAG		mfnNumberCompare	( LPVOID	pSelf,
 
   PROCEDURE	( mfnNumberCompare );
 
+  if ( markerp ( oCompare ) ) {
+    if ( maxmarkerp ( oCompare ) ) {
+      RETURN ( eshLess );
+    } else if ( minmarkerp ( oCompare ) ) {
+      RETURN ( eshGreater );
+    } else if ( matchanymarkerp ( oCompare ) ) {
+      RETURN ( eshEqual );
+    } else if ( matchnevermarkerp ( oCompare ) ) {
+      RETURN ( eshNotEqual );
+    }
+    RETURN ( eshNotEq );
+  }
+
   bSelfIntP	= (BOOL)
     ( eTypeTagSelf == eshFixnumTag || eTypeTagSelf == eshBignumTag );
   if ( ! bSelfIntP || ! integerp ( oCompare ) ) {
@@ -788,6 +814,9 @@ BeginFunction ( SHORTOBJID,
   int		nSize, nWritten;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -828,6 +857,9 @@ BeginFunction ( SHORTOBJID,
   SHORTOBJID	oShortFloat;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -852,6 +884,9 @@ BeginFunction ( SHORTOBJID,
   SHORTOBJID	oShortFloat;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -891,6 +926,9 @@ BeginFunction ( SHLOCK,
   FIXNUM	e;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -947,6 +985,9 @@ BeginFunction ( SHLOCK,
   FIXNUM	e;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -985,6 +1026,9 @@ BeginFunction ( SHLOCK,
   OBJID		oObjId;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1023,6 +1067,9 @@ BeginFunction ( SHLOCK,
   FIXNUM	e;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1064,6 +1111,9 @@ BeginFunction ( SHLOCK,
   psint		*pnBignumWrite;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1116,6 +1166,9 @@ BeginFunction ( SHLOCK,
   SHLOCK	nLockOld;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1152,6 +1205,9 @@ BeginFunction ( SHLOCK,
   SHLOCK	nLockOld;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1182,6 +1238,9 @@ BeginFunction ( SHLOCK,
   SHLOCK	nLockOld;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -1202,6 +1261,6 @@ BeginFunction ( SHLOCK,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

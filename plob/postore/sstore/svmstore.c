@@ -26,6 +26,7 @@
 /* mod     16/09/96    HK - Added Arch_sun5 (Solaris)   */
 /* mod     14/06/97    HK - Added Arch_i586 (Linux)     */
 /* mod     18/02/98    HK - Added Arch_win32 (Win/NT)   */
+/* mod     2005-03-22  hkirschk - Added Arch_cygwin     */
 /********************************************************/
 
 #include	<stdio.h>
@@ -67,6 +68,10 @@ static char	SigStack [ SIGSTKSZ ];
 #include	<direct.h>
 #include	<win32sig.h>
 
+#elif defined(Arch_cygwin)	/* 2005-03-21 hkirschk */
+
+#include	<lockf.h>
+
 #endif
 
 #if defined(Arch_hpux)
@@ -90,12 +95,13 @@ static char	SigStack [ SIGSTKSZ ];
 #if ! defined(F_TLOCK)
 #define   F_TLOCK   2   /* Test and lock a section for exclusive use */
 #endif
-#if ! defined(F_TEST)
-#define   F_TEST    3   /* Test section for other processes locks */      
-#endif
 
 #if ! defined(MAX)
 #define MAX(x,y) (((x)>(y))?(x):(y))
+#endif
+
+#if ! defined(SA_ONESHOT)
+#define	SA_ONESHOT	SA_RESETHAND
 #endif
 
 /******************************************************/
@@ -212,9 +218,11 @@ static reorderStore( const char *dirname )
   pstorefd = open( storefname,O_RDWR ) ;
   if ( pstorefd < 0 ) {
     /* 1996/10/23 HK: extended the error message: */
-    char	szMsg [ 256 ];
-    sprintf ( szMsg, "cannot open the store `%s'", storefname );
-    error(  szMsg );
+    char	szMessage [ 256 ];
+    int	nErrNo	= errno;
+    sprintf ( szMessage, "cannot open the store `%s'", storefname );
+    errno	= nErrNo;
+    error(  szMessage );
   }
 
   file_flags = fcntl( pstorefd,F_GETFL,0 ) ;	/* remember the status flags */
@@ -281,7 +289,11 @@ static void open_disk( const char *dirname)
 	  }
     }
 #else	/* 1996/09/11 HK */
-  if ( lockf ( lockfd, F_TLOCK, 0L ) )
+  if ( lockf ( lockfd, F_TLOCK, 0L )
+#if defined(Arch_cygwin)
+       && errno != 0
+#endif
+       )
     {
       if ( errno == EAGAIN )
 	{
@@ -413,30 +425,49 @@ static void get_suitable_va( caddr_t min_addr )
       error( "failed to map root pages into virtual memory" ) ;
     }
 #elif defined(Arch_sun4)||defined(Arch_sun5)
-#if defined(Arch_hpux)
-  disk_vaddr = (caddr_t) MAX ( 0xC8000000, (unsigned long) min_addr );
-#else
   /* 128M in, leaves 384M of mappable address space */
   disk_vaddr = (caddr_t) MAX ( 0x8000000, (unsigned long) min_addr );
-#endif
   /* Now map in the two root pages */
   if ( mmap( disk_vaddr,
 	     ROOTPAGES << PAGEPWROF2,
 	     PROT_READ | PROT_WRITE | PROT_EXEC,
-	     MAP_SHARED | MAP_FIXED,
-	     pstorefd,( off_t ) 0 ) != disk_vaddr )
-    {
+	     MAP_SHARED | MAP_FIXED | MAP_FILE,
+	     pstorefd,( off_t ) 0 ) != disk_vaddr ) {
       error( "failed to map root pages into virtual memory" ) ;
-    }
-#elif defined(Arch_win32)||defined(Arch_hpux)
+  }
+#elif defined(Arch_win32)||defined(Arch_cygwin)||defined(Arch_hpux)
+#if defined(Arch_win32)||defined(Arch_cygwin)
+  min_addr	= getbaseaddr ( min_addr, VASPACESIZE );
+  if (min_addr==NULL) {
+    /* 2005-03-29 hkirschk: Extended error message: */
+    char	szMsg [ 256 ];
+    close_disk();
+    sprintf ( szMsg, "could not get continous memory of size %u mb.",
+	      VASPACESIZE );
+    error( szMsg );
+  }
+#endif
   /* Now map in the two root pages */
   disk_vaddr	= (caddr_t) mmap( min_addr, ROOTPAGES << PAGEPWROF2,
 				  PROT_READ | PROT_WRITE | PROT_EXEC,
+#if defined(Arch_cygwin)
+				  MAP_SHARED,
+#else
 				  MAP_SHARED | MAP_FIXED,
+#endif
 				  pstorefd, (off_t) 0 );
   if ( disk_vaddr == (caddr_t) -1 ) {
-    error( "failed to map root pages into virtual memory" ) ;
-  } else {
+    /* 2005-03-29 hkirschk: Extended error message: */
+    char	szMsg [ 256 ];
+    int	nErrNo	= errno;
+    close_disk();
+    sprintf ( szMsg, "failed to map root pages into virtual memory; min_addr=%p",
+	      min_addr );
+    errno	= nErrNo;
+    error( szMsg );
+  }
+#if !defined(Arch_win32)&&!defined(Arch_cygwin)
+  else {
     munmap ( disk_vaddr, ROOTPAGES << PAGEPWROF2 );
     if ( min_addr == (caddr_t) NULL ) {
     /* 1998/02/24 HK: mmap() and malloc() share the same address
@@ -456,11 +487,24 @@ static void get_suitable_va( caddr_t min_addr )
     /* Now map in the two root pages */
     if ( mmap( disk_vaddr, ROOTPAGES << PAGEPWROF2,
 	       PROT_READ | PROT_WRITE | PROT_EXEC,
-	       MAP_SHARED | MAP_FIXED, pstorefd, (off_t) 0 ) !=
+#if defined(Arch_cygwin)
+	       MAP_SHARED,
+#else
+	       MAP_SHARED | MAP_FIXED,
+#endif
+	       pstorefd, (off_t) 0 ) !=
 	 disk_vaddr ) {
-      error( "failed to map root pages into virtual memory" ) ;
+      /* 2005-03-29 hkirschk: Extended error message: */
+      char	szMsg [ 256 ];
+      int	nErrNo	= errno;
+      close_disk();
+      sprintf ( szMsg, "failed to map root pages into virtual memory; disk_vaddr=%p",
+		disk_vaddr );
+      errno	= nErrNo;
+      error( szMsg );
     }
   }
+#endif
 #else
   ( void ) strcpy( tmpname,"/tmp/sstore.XXXXXX" ) ;
   f = mkstemp( tmpname );
@@ -520,10 +564,20 @@ static void get_suitable_va( caddr_t min_addr )
 #else
 	     PROT_READ | PROT_EXEC,
 #endif
+#if defined(Arch_cygwin)
+	     MAP_SHARED,
+#else
 	     MAP_SHARED | MAP_FIXED,
+#endif
 	     pstorefd, (off_t) 0 ) != disk_vaddr )
     {
-      error( "failed to map root pages into virtual memory" ) ;
+      /* 2005-03-29 hkirschk: Extended error message: */
+      char	szMsg [ 256 ];
+      int	nErrNo	= errno;
+      sprintf ( szMsg, "failed to map root pages into virtual memory; disk_vaddr=%p",
+		disk_vaddr );
+      errno	= nErrNo;
+      error( szMsg );
     }
 #endif
 }
@@ -820,13 +874,17 @@ static void remmap_page( psint target,psint source,psint protection )
   /* we dont really care if this works or not.... */
   munmap( start, BPAGESIZE ) ;
   mm_res = (caddr_t) mmap( start,BPAGESIZE,( int ) protection,
-			   MAP_SHARED|MAP_FIXED|MAP_FILE,
+#if defined(Arch_cygwin)
+			   MAP_SHARED,
+#else
+			   MAP_SHARED | MAP_FIXED | MAP_FILE,
+#endif
 			   pstorefd,( off_t ) source ) ;
   if ( mm_res != start ) {
     char	szMessage [ 256 ];
     int	nErrNo	= errno;
     sprintf ( szMessage, "failed to re-mmap the shadow copied page.\n"
-	      "       Expected addr 0x%X, received addr 0x%X, offset 0x%X",
+	      "       Expected addr %p, received addr %p, offset 0x%X",
 	      (unsigned int) start, (unsigned int) mm_res,
 	      (unsigned int) source );
     /* 1998/07/09 HK: Debug: */
@@ -1127,14 +1185,19 @@ static void remmap_page_restore( psint target,psint source,
   /* we dont really care if this works or not.... */
   munmap( start, length ) ;
   mm_res = (caddr_t) mmap( start,length,( int ) protection,
-			   MAP_SHARED|MAP_FIXED|MAP_FILE,
+#if defined(Arch_cygwin)
+			   MAP_SHARED,
+#else
+			   MAP_SHARED | MAP_FIXED | MAP_FILE,
+#endif
+
 			   pstorefd,( off_t ) source );
   if ( mm_res != start ) {
     char	szMessage [ 256 ];
     int	nErrNo	= errno;
     sprintf ( szMessage, "failed to re-mmap the shadow copied page(s).\n"
-	      "       Expected addr 0x%X, received addr 0x%X",
-	      (unsigned int) start, (unsigned int) mm_res );
+	      "       Expected addr %p, received addr %p",
+	      start, mm_res );
     errno	= nErrNo;
     error( szMessage ) ;
   }
@@ -1298,41 +1361,38 @@ static void sync_pages()
   }
 }
 
-#if defined(Arch_sun5)||defined(Arch_hpux)	/* 1996/09/11 HK */
-static void page_fault( int sig, siginfo_t * sip,void *uap )
-#elif defined(Arch_i586)||defined(Arch_win32)
-     /* 1997/06/14 HK: Added Linux
-        1998/02/17 HK: Added Windows/NT */
+#if defined(Arch_sun5)||defined(Arch_hpux)||defined(Arch_cygwin)||defined(Arch_i586)
+/* 1996/09/11 HK
+/* 1997/06/14 HK: Added Linux
+   2005-03-22 hkirschk: Added cygwin  */
+static void page_fault( int sig,
+			siginfo_t * sip,
+			void *uap )
+#elif defined(Arch_win32)
+/* 1998/02/17 HK: Added Windows/NT */
 static void page_fault(int sig, struct sigcontext_struct sc)
-#else
+#else /* Arch_mips */
 static void page_fault( int sig, int code,struct sigcontext *scp,char *addr )
 #endif
 {
   register psint svmaddr,cde;
-#if defined(Arch_sun5)||defined(Arch_hpux)		/* 1996/09/11 HK */
-  register psint		code;
+#if defined(Arch_sun5)||defined(Arch_hpux)||defined(Arch_cygwin)||defined(Arch_i586)
+  /* 1996/09/11 HK
+     1997/06/14 HK: Added Linux
+     2005-03-22 hkirschk: Added cygwin */
+  register psint		code = 0;
   register char			*addr = (char *) sip->si_addr;
-  register psint		errn;
-  register struct sigaction	*pSigAction;
-#elif defined(Arch_i586)||defined(Arch_win32)
-  /* 1997/06/14 HK: Added Linux
-     1998/02/17 HK: Added Windows/NT */
+  register psint		errn = 0;
+#elif defined(Arch_win32)
+  /* 1998/02/17 HK: Added Windows/NT */
   register psint		code = 0;
   register char			*addr = (char *) sc.cr2;
 #endif
 
-#if defined(Arch_i586)||defined(Arch_win32)	/* 1998/02/17 HK */
-  { /* ignore the offending signal for now */
-    struct sigaction	SigAction;
-
-    memset ( &SigAction, 0, sizeof ( SigAction ) );
-    SigAction.sa_handler	= SIG_IGN;
-    sigaction ( sig, &SigAction, NULL );
-  }
-#elif !defined(Arch_sun5)&&!defined(Arch_hpux)	/* 1996/09/11 HK */
-  signal( sig,SIG_IGN );	/* ignore the offending signal for now */
-#endif
 #if defined(Arch_mips)
+  /* 1996/09/11 HK
+     2005-03-22 hkirschk: Added cygwin */
+  signal( sig,SIG_IGN );	/* ignore the offending signal for now */
   addr = (char *)( scp->sc_badvaddr ) ;
   svmaddr = ( psint )( addr - ( char * ) disk_vaddr ) ;
   if ( svmaddr >= USERPAGESTART &&
@@ -1357,7 +1417,9 @@ static void page_fault( int sig, int code,struct sigcontext *scp,char *addr )
   }
 #else
   svmaddr = ( psint )( addr - ( char * ) disk_vaddr ) ;
-#if defined(Arch_sun5)||defined(Arch_hpux)	/* 1996/09/11 HK */
+#if defined(Arch_sun5)||defined(Arch_hpux)||defined(Arch_cygwin)||defined(Arch_i586)
+  /* 1996/09/11 HK
+     2005-03-22 hkirschk: Added cygwin */
   code = sip->si_code;
   errn = sip->si_errno;
   if ( ( code == SEGV_MAPERR || code == SEGV_ACCERR ) &&
@@ -1369,14 +1431,15 @@ static void page_fault( int sig, int code,struct sigcontext *scp,char *addr )
   } else {
     user_page_fault( sig,code,sig,addr ) ;
   }
-#elif defined(Arch_i586)||defined(Arch_win32)
+#elif defined(Arch_win32)
   /* 1997/06/14 HK: Added Linux */
   /* 1998/02/17 HK: Added Windows NT */
+  /* 2005-03-21 hkirschk: Added cygwin */
   if ( ( (unsigned long) addr >= (unsigned long) disk_vaddr ) &&
        svmaddr >= USERPAGESTART && svmaddr < VASPACESIZE &&
        getPteFlags( pteIndex( svmaddr ) ) == PROTECT ) {
       /* user must fix things up - we get a loop if not.... */
-      user_write_fault( svmaddr,( psint * ) sig ) ;
+    user_write_fault( svmaddr,( psint * ) sig ) ;
   } else {
     user_page_fault( sig,code,sig,addr ) ;
   }
@@ -1390,24 +1453,29 @@ static void page_fault( int sig, int code,struct sigcontext *scp,char *addr )
     /* user must fix things up - we get a loop if not.... */
     user_write_fault( svmaddr,( psint * ) sig ) ;
   } else {
-      user_page_fault( sig,code,sig,addr ) ;
+    user_page_fault( sig,code,sig,addr ) ;
   }
 #endif	/*Arch_sun5*/		/* 1996/09/16 HK */
 #endif	/*Arch_mips*/
-#if defined(Arch_i586)||defined(Arch_win32)	/* 1998/02/17 HK */
+
+#if defined(Arch_mips)
+  /* 1996/09/11 HK */
+  /* reenable the offending signal */
+  signal( sig,page_fault ) ;	
+#else
+  /* 1998/02/17 HK */
   { /* reenable the offending signal */
     struct sigaction	SigAction;
 
     memset ( &SigAction, 0, sizeof ( SigAction ) );
-    SigAction.sa_handler	= page_fault;
-    SigAction.sa_flags		= SA_ONESHOT;
+    sigemptyset( &SigAction.sa_mask );
+    SigAction.sa_sigaction	= page_fault;
+    SigAction.sa_flags		= SA_ONESHOT|SA_SIGINFO;
     sigaction ( sig, &SigAction, NULL );
   }
-#elif !defined(Arch_sun5)&&!defined(Arch_hpux)	/* 1996/09/11 HK */
-  /* reenable the offending signal */
-  signal( sig,page_fault ) ;	
 #endif
-}
+
+} /* page_fault */
 
 static void setup_root_pages()
 {
@@ -2320,7 +2388,11 @@ psint	SS_create_database	( const char	* pszDatabase,
     return bDone;
   }
 #else
-  if ( lockf ( lfd, F_TLOCK, 0L ) ) {
+  if ( lockf ( lfd, F_TLOCK, 0L ) 
+#if defined(Arch_cygwin)
+       && errno != 0
+#endif
+       ) {
     fnError ( __LINE__, errno, "cannot lock the store", pfnError ) ;
     return bDone;
   }
@@ -2408,36 +2480,46 @@ void	SS_set_signal_handler()
 {
   if ( disk_vaddr != (caddr_t) -1 ) {
 
-#if defined(Arch_sun5)||defined(Arch_hpux)	/* 1996/09/16 HK */
-    struct sigaction	SigAction;
-    stack_t		Stack;
-
-    memset ( &SigAction, 0, sizeof ( SigAction ) );
-    memset ( &Stack, 0, sizeof ( Stack ) );
-    Stack.ss_sp			= SigStack;
-    Stack.ss_size		= sizeof ( SigStack );
-    Stack.ss_flags		= 0;
-    sigaltstack ( &Stack, NULL );
-    SigAction.sa_sigaction	= page_fault;
-    SigAction.sa_flags		= SA_SIGINFO;
-    sigaction ( SIGSEGV, &SigAction, NULL );
-    sigaction ( SIGBUS,  &SigAction, NULL );
-
-#elif defined(Arch_i586)||defined(Arch_win32)	/* 1998/02/17 HK */
-
-    struct sigaction	SigAction;
-
-    memset ( &SigAction, 0, sizeof ( SigAction ) );
-    SigAction.sa_handler	= page_fault;
-    SigAction.sa_flags		= SA_ONESHOT;
-    sigaction ( SIGSEGV, &SigAction, NULL );
-
-#else
+#if defined(Arch_mips)
 
     /* enable the page_fault handler */
     (void) signal( SIGSEGV,page_fault );
     /* enable the page_fault handler - to cope with a pre4.1.2 bug */
     (void) signal( SIGBUS,page_fault );
+
+#else
+
+    /* 1996/09/16 HK
+       2005-03-22 hkirschk: Added cygwin  */
+    struct sigaction	SigAction;
+
+#if defined(Arch_sun5)||defined(Arch_hpux)
+    {
+      stack_t		Stack;
+
+      memset ( &Stack, 0, sizeof ( Stack ) );
+      Stack.ss_sp		= SigStack;
+      Stack.ss_size		= sizeof ( SigStack );
+      Stack.ss_flags		= 0;
+      sigaltstack ( &Stack, NULL );
+    }
+#endif
+
+    memset ( &SigAction, 0, sizeof ( SigAction ) );
+    sigemptyset( &SigAction.sa_mask );
+    SigAction.sa_sigaction	= page_fault;
+    /* 2005-03-22 hkirschk: SA_SIGINFO not yet supported by cygwin. */
+    SigAction.sa_flags		= SA_ONESHOT|SA_SIGINFO;
+
+    if ( sigaction ( SIGSEGV, &SigAction, NULL ) == -1 ) {
+      error ( "installing SIGSEGV exception handler failed" );
+    }
+
+#if defined(SIGBUS)
+    if ( sigaction ( SIGBUS,  &SigAction, NULL ) == -1 ) {
+      error ( "installing SIGBUS exception handler failed" );
+    }
+#endif
 
 #endif
   }
@@ -2445,6 +2527,6 @@ void	SS_set_signal_handler()
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

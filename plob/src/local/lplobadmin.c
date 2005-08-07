@@ -52,12 +52,13 @@
 #include	"lplobmisc.h"
 #include	"lplobtype.h"
 #include	"lplobnumber.h"
-#include	"lplobsequ.h"
+#include	"plobsequ.h"
 #include	"lplobstruct.h"
 #include	"lplobclos.h"
 #include	"lploblock.h"
 #include	"lplobheap.h"
 #include	"lplobbtree.h"
+#include	"plobregex.h"
 #include	"lplobroot.h"
 #include	"lplobadmin.h"
 
@@ -129,7 +130,7 @@ BeginFunction ( BOOL,
 /* ----------------------------------------------------------------------- */
 BeginFunction ( BOOL,
 		fnClientExit, "c-sh-exit",
-		( argument ( CONST_STRING, vector_in, szURL )
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		  and
 		  argument ( BOOL, value_in, bForceExit ) ) )
 {
@@ -143,7 +144,7 @@ BeginFunction ( BOOL,
 /* ----------------------------------------------------------------------- */
 BeginFunction ( BOOL,
 		fnClientDbReset, "c-sh-reset",
-		( argument ( CONST_STRING, vector_in, szURL )
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		  and
 		  argument ( BOOL, value_in, bForceReset ) ) )
 {
@@ -156,7 +157,7 @@ BeginFunction ( BOOL,
 /* ----------------------------------------------------------------------- */
 BeginFunction ( BOOL,
 		fnClientRestart, "c-sh-restart",
-		( argument ( CONST_STRING, vector_in, szURL )
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
 		  and
 		  argument ( BOOL, value_in, bForceRestart ) ) )
 {
@@ -167,8 +168,33 @@ BeginFunction ( BOOL,
   RETURN ( TRUE );
 } EndFunction ( fnClientRestart );
 
+/* ----------------------------------------------------------------------- */
+BeginFunction ( SHORTOBJID,
+		fnClientSuspend, "c-sh-suspend",
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
+		  and
+		  argument ( CONST_STRING, vector_in, szReason ) ) )
+{
+  INITIALIZEPLOB;
+  UNSTORESESSION ();
+
+  RETURN ( fnServerSuspend ( oShortObjIdHeap, szReason ) );
+} EndFunction ( fnClientSuspend );
+
+/* ----------------------------------------------------------------------- */
+BeginFunction ( SHORTOBJID,
+		fnClientResume, "c-sh-resume",
+		( voidArgument ) )
+{
+  INITIALIZEPLOB;
+  UNSTORESESSION ();
+
+  RETURN ( fnServerResume () );
+
+} EndFunction ( fnClientResume );
+
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

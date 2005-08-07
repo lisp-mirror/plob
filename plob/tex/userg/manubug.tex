@@ -1,42 +1,146 @@
 
-\chapter{Bug fixes and changes}
+\chapter{Release Notes}
 
-This section describes bug fixes, known bugs and the changes which
-have been done to \plob\ compared to the description as found in
-\cite{bib:Kirschke-94a}.
+This section contains the release notes and describes the known bugs
+of \plob. Further features can be found in \cite{bib:Kirschke-94a}.
 
-\section{Bug fixes}%
-\label{sec:BugFixes}
+\section{Release Notes}%
+\label{sec:ReleaseNotes}
 
-\subsection[Example code]{Example code in file
-  \protect\lisp{plob-example.lisp}}
-
-Fixed 1997-09: The example showing usage of transactions did not work,
-since the \lisp{:extent}\ of the example \fcite{person}\ was changed
-from \lisp{:persistent}\ to \lisp{:cached-write-through}; so, an
-object reload is necessary after a transaction's abort.
-
-\subsection{Initialization of transient slots}
-
-Fixed 1997-11: Slots declared \lisp{:transient}\ are now initialized
-to their \lisp{:initform}.
-
-\subsection{Structure accessors}
-
-Fixed 1997-12-01: In \allegrocl, the structure constructors and
-structure slot readers are now retrieved correctly from \allegro's
-internal structure descriptions.
-
-\subsection{Read-only lock conflict}
-
-Fixed 1997-12-15: Added missing conflict between write-intent and
-read-only locks.
-
-\section{Changes}%
-\label{sec:Changes}
-
-This section describes the changes done between (nearly) each release
+This section describes the changes done between the different releases
 of \plob
+
+\subsection{Release 2.11}
+
+Released May 1, 2005.
+
+\begin{itemize}
+  
+\item Support for  \lwcl\ 4.4 and \allegrocl\ 7 has been
+  added.
+
+\item Hot backup possible by server suspending and resume, improved
+  \texttt{plobdadmin}\ tool with support for hot backup, additional
+  shell escape command
+
+\item Added regular expressions for comparing persistent strings and
+  filtering on Btree iterators
+
+\item Added example code in \texttt{plob-dupkeys.lisp}\ for handling
+  of duplicate keys in btrees
+
+\item \texttt{plobdadmin} is now statically linked
+
+\item The LISP sources are no longer divided by the different LISP
+  systems
+
+\item \lwcl\ fasl files are now written to an extra directory
+
+\end{itemize}
+
+\subsubsection{Improved compare functionality}
+
+The compare functionality used e.g.\ for searching in Btrees has been
+improved. Now, keys composed of lists and vectors can be used as long
+as their structure is equal.
+
+\subsubsection{Bugfix on transaction rollback}
+
+The transaction log files have been written to wrong when exceeding
+the internally used block size of 64K, this has been fixed. All
+operating system versions are affected by this bug and its fix.
+
+\subsubsection{Shutdown handling for DLLs on Windows}
+
+The client DLLs on Windows suffered from an incorrect shutdown
+handling which resulted in \plob's state being logically terminated
+although still being in use. This has been fixed.
+
+\subsubsection{\protect\allegrocl\ 7, \protect\lwcl\ 4.4}
+
+The latest LISP versions are now supported.
+
+\subsubsection{Virtual memory management on Windows}
+
+Although the memory management functions of Unix and Windows are quite
+similar, there are subtle differences between these. One difference
+leading to an instable behavior of \plob\ on Windows is about what is
+considered as free memory by the operating system. To my
+understanding, Unix uses a continuous memory region between a minimum
+and a maximum address per process.  All memory above the maximum
+address is considered as free memory. On Unix, this free memory is
+used by \plob\ to map the database file into memory. On Windows, there
+is no free memory in this sense, i.e. there is no designated maximum
+address. Instead, all memory is administered in blocks, which can be
+free or allocated. Before version 2.11, \plob\ used the first of these
+free blocks returned by the file mapping call to Windows; especially,
+this could be a rather small block spanning only a very small memory
+region. This means that when the memory needed became larger, the
+block might be used up. In this case, \plob\ signalled errors of the
+kind `cannot mmap memory'. In version 2.11, \plob\ now looks for a
+free memory block spanning at least 384 MB and uses this block.
+
+This bug and the fix adheres only to the Windows version of \plob, the
+other versions are not affected by this behavior.
+
+As a consequence, the overall database size of \plob\ has been reduced
+from 1~GB to 384~MB, since the possibility of finding a free 1~GB
+memory region on Windows is quite low. Unfortunately, older versions
+of Windows databases cannot be opened by version 2.11 any more.
+
+\subsubsection{Testing}
+
+This release of \plob\ was tested on the following platforms.
+
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+\textbf{OS}
+        & \textbf{LISP version}
+                & \textbf{Date}
+                        & \textbf{Tester}
+                                & \textbf{Remarks}\\
+\hline\hline
+Windows
+        & \allegrocl\ 7
+                & 2005-04
+                        & Kirschke
+                                & plob-example\\
+\hline
+Windows
+        & \lwcl\ 4.3
+                & 2005-04
+                        & Kirschke
+                                & plob-example\\
+\hline
+Windows
+        & \lwcl\ 4.4
+                & 2005-05
+                        & Kirschke
+                                & plob-example\\
+Linux
+        & \allegrocl\ 7
+                & 2005-04
+                        & Kirschke
+                                & plob-example\\
+\hline
+Linux
+        & \lwcl\ 4.4
+                & 2005-05
+                        & Kirschke
+                                & plob-example\\
+\hline
+Solaris
+        & \allegrocl\ 7
+                & 2005-05
+                        & Kirschke
+                                & plob-example\\
+\hline
+\end{tabular}
+
+\subsubsection{Known bugs}
+
+Multithreading access from a single \lwcl\ process on Windows does not
+work, it raises runtime exceptions.
 
 \subsection{Release 2.10}
 
@@ -248,12 +352,36 @@ it is found in the cache.
 \fcite{*default-depth*}\ is now used as default depth for both storing
 and loading of objects.
 
+\subsubsection[Example code]{Example code in file
+  \protect\lisp{plob-example.lisp}}
+
+Fixed 1997-09: The example showing usage of transactions did not work,
+since the \lisp{:extent}\ of the example \fcite{person}\ was changed
+from \lisp{:persistent}\ to \lisp{:cached-write-through}; so, an
+object reload is necessary after a transaction's abort.
+
+\subsubsection{Initialization of transient slots}
+
+Fixed 1997-11: Slots declared \lisp{:transient}\ are now initialized
+to their \lisp{:initform}.
+
+\subsubsection{Structure accessors}
+
+Fixed 1997-12-01: In \allegrocl, the structure constructors and
+structure slot readers are now retrieved correctly from \allegro's
+internal structure descriptions.
+
+\subsubsection{Read-only lock conflict}
+
+Fixed 1997-12-15: Added missing conflict between write-intent and
+read-only locks.
+
 \section{Known bugs and limitations}
 
 This section contains known bugs still left to be fixed for the next
 release. When one of the following bugs has been fixed in a next
 release, it will either be removed completely or be moved to section
-\Nameref{sec:BugFixes} or \Nameref{sec:Changes}.
+\Nameref{sec:ReleaseNotes}.
 
 \subsection{Crash on transfer of large persistent vectors}
 
@@ -423,7 +551,7 @@ patches should be downloaded from Franz' ftp site.
 
 This section contains things still left to be done for the next
 release. When one of the following topics has been implemented in a
-next release, it will be moved to section \Nameref{sec:Changes}.
+next release, it will be moved to section \Nameref{sec:ReleaseNotes}.
 
 \subsection{Views onto persistent objects}%
 \label{sec:Views}
@@ -481,7 +609,7 @@ not represented at all) and transactions (these are represented as
 transaction ids embedded into a session).
 
 %%% Local Variables: 
-%%% buffer-file-coding-system: iso-latin-1-unix
+%%% buffer-file-coding-system: raw-text-unix
 %%% mode: latex
 %%% TeX-master: "userg"
 %%% End: 

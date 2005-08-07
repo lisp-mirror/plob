@@ -139,6 +139,7 @@ enum {
   fnInitCommonHeapModule,	\
   fnInitCommonRootModule,	\
   fnInitCommonBTreeModule,	\
+  fnInitCommonRegExModule,	\
   fnInitCommonAdminModule,	\
   fnInitializeMiscModule,	\
   fnInitializeFfModule,		\
@@ -152,6 +153,7 @@ enum {
   fnInitializeHeapModule,	\
   fnInitializeRootModule,	\
   fnInitializeBTreeModule,	\
+  fnInitializeRegExModule,	\
   fnInitializeAdminModule }
 
 #define	Offset_matches_Index( StructType, StructComponent, nRawIndex ) \
@@ -159,6 +161,7 @@ enum {
 
 #define	DEINITIALIZE_FUNCTIONS	\
 { fnDeinitializeAdminModule,	\
+  fnDeinitializeRegExModule,	\
   fnDeinitializeBTreeModule,	\
   fnDeinitializeRootModule,	\
   fnDeinitializeHeapModule,	\
@@ -172,6 +175,7 @@ enum {
   fnDeinitializeFfModule,	\
   fnDeinitializeMiscModule,	\
   fnDeinitCommonAdminModule,	\
+  fnDeinitCommonRegExModule,	\
   fnDeinitCommonBTreeModule,	\
   fnDeinitCommonRootModule,	\
   fnDeinitCommonHeapModule,	\
@@ -215,6 +219,6 @@ void DLLEXPORT		fnInvalidateAllCaches	( void );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

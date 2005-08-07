@@ -171,6 +171,8 @@ _EVAL(_defconstant(C2L_##to_type,\
 #if 1
 
 /* C enums with doc strings in a hash table: */
+#if 0
+
 #define	DOCBEGINENUM(type_name)\
 NLN \
 BO eval DASH when BO keyword_compile_toplevel keyword_load_toplevel \
@@ -181,6 +183,20 @@ BO eval DASH when BO keyword_compile_toplevel keyword_load_toplevel \
 	    "Variable defined by C macro BeginEnum.") NLI \
     _clrhash(PASTE3(*,##type_name##,*)) NLI \
     BO let BO BO last_enum_hash_table PASTE3(*,##type_name##,*) BC BC
+
+#endif
+
+#define	DOCBEGINENUM(type_name)\
+NLN \
+BO eval DASH when BO keyword_compile_toplevel keyword_load_toplevel \
+                     keyword_execute BC NLI \
+  BO progn NLI \
+    _defvar(PASTE3(*,type_name,*),\
+            make_hash_table(keyword_test _quote(equal)),\
+	    "Variable defined by C macro BeginEnum.") NLI \
+    _clrhash(PASTE3(*,type_name,*)) NLI \
+    BO let BO BO last_enum_hash_table PASTE3(*,type_name,*) BC BC
+
 #define	DOCENDENUM(type_name) \
 BC BC BC NLN
 #define	DOCENUMERATOR(const_value,const_desc) \
@@ -210,6 +226,7 @@ DefineConstant(c_const_name,lisp_const_name,const_value,const_desc)
 #define mul(x,y)		BR(* x y)
 #define	bitwise_or(x,y)		BR(logior x y)
 #define	hex(number)		parse_integer(#number keyword_radix 16)
+#define	oct(number)		parse_integer(#number keyword_radix 8)
 #define	shift_left(x,n)		BR(ash x n)
 #define subtract(x,y)		BR(- x y)
 
@@ -265,6 +282,8 @@ define_foreign_callable(READ_TIME_EVAL(C2L_##result_type),\
 #include	<c2allegro5.h>
 #elif defined(ALLEGRO6)
 #include	<c2allegro6.h>
+#elif defined(ALLEGRO7)
+#include	<c2allegro7.h>
 #elif defined(another_lisp_system)
 #include	<c2another_lisp_system.h>
 #else
@@ -279,6 +298,6 @@ in_package(PACKAGE)
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

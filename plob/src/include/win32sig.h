@@ -9,7 +9,7 @@
 |		is used in Windows/NT too, all the sigaction stuff
 |		belonging into signal.h has been implemented here.
 |
-| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2005 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -167,6 +167,6 @@ int	sigaction	( int			__sig,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

@@ -54,7 +54,8 @@ BeginEnum ( COMPARETAG )
 	       "Compare like LISP eql." )
   and
   enumerator ( eshEq, "+eq+", 3,
-	       "Compare like LISP eq." )
+	       "Compare like LISP eq. If this value is used as a compare result,\
+ it means that the compared objects are not comparable." )
   and
   enumerator ( eshNotEqual, "+not-equal+", 9,
 	       "Compare result: element 1 not equal element 2." )
@@ -98,7 +99,7 @@ BeginEnum ( TYPEFLAGS )
 	       "Type with variable sized objid field." )
   and
   enumerator ( typeVarSizeValueP, "+type-var-size-value-p+",	hex(10),
-	       "Type with an attached value field." )
+	       "Type with an attached variable sized value field." )
   and
   enumerator ( typeRecycleP, "+type-recycle-p+",		hex(20),
 	       "Destroyed objects are recycled for create." )
@@ -166,6 +167,29 @@ DefineFunction ( FIXNUM,
 			      vector_out, lpszBuffer )
 		   and
 		   argument ( FIXNUM, value_in, nBuffer ) ) );
+#endif	/* ! RPC */
+
+#if ! defined(LISP)	/* server: */
+DefineFunction ( COMPARETAG,
+		 fnServerObjectCompare, "c-sh-compare",
+		 ( argument ( OBJID, value_in, oHeap )
+		   and
+		   argument ( OBJID, value_in, oFirst )
+		   and
+		   argument ( OBJID, value_in, oSecond ) ) );
+#endif	/* ! LISP */
+#if ! defined(RPC)	/* client: */
+DefineFunction ( COMPARETAG,
+		 fnClientObjectCompare, "c-sh-compare",
+		 ( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
+		   and
+		   argument ( FIXNUM, value_in, nValueFirst )
+		   and
+		   argument ( SHTYPETAG, value_in, nTypeTagFirst )
+		   and
+		   argument ( FIXNUM, value_in, nValueSecond )
+		   and
+		   argument ( SHTYPETAG, value_in, nTypeTagSecond ) ) );
 #endif	/* ! RPC */
 
 DefineFunction ( FIXNUM,
@@ -418,6 +442,6 @@ void			fnDeinitCommonTypeModule	( void );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

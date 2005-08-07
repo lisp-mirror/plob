@@ -14,16 +14,21 @@
 #include	<windows.h>
 #endif
 
-#define	WORDSIZE	( ( psint ) 4 )			/* the size of a WORD -> psint, in bytes */
-#define	WORDPWROF2	( ( psint ) 2 )			/* the size of a WORD as a power of 2 */
+/* 2005-04-19 hkirschk: Already defined in sstore.h: */
+/* #define	WORDSIZE	( ( psint ) 4 ) */		/* the size of a WORD -> psint, in bytes */
+#define	WORDPWROF2	( ( psint ) 2 )				/* the size of a WORD as a power of 2 */
 
-#define	PSTRUE		( ( psint ) 1 )
-#define	PSFALSE		( ( psint ) 0 )
+/* 2005-04-19 hkirschk: Already defined in sstore.h: */
+/* #define	PSTRUE		( ( psint ) 1 ) */
+/* 2005-04-19 hkirschk: Already defined in sstore.h: */
+/* #define	PSFALSE		( ( psint ) 0 ) */
 
 /* Bit Masks */
 
-#define BIT_31		( ( psint ) 020000000000 )	/* bit 31 */
-#define	LOWER24		( ( psint ) 0x00FFFFFF )	/* low 24 bits */
+/* 2005-04-19 hkirschk: Already defined in sstore.h: */
+/* #define BIT_31		( ( psint ) 020000000000 ) */	/* bit 31 */
+/* 2005-04-19 hkirschk: Already defined in sstore.h: */
+/* #define	LOWER24		( ( psint ) 0x00FFFFFF ) */	/* low 24 bits */
 
 /* version number for the stable heap implementation - should change if heap layout changes */
 #define	SHEAPMAGIC	( ( psint ) 0x5 )
@@ -68,6 +73,6 @@
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

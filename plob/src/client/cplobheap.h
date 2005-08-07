@@ -130,7 +130,8 @@ extern const char	szFormatNotOpened []	/* = */
  ------------------------------------------------------------------------- */
 
 /* Close all heaps opened by the client: */
-void		fnHeapCloseAll	( void );
+void		fnHeapCloseAll		( void );
+void		fnHeapCloseAllExcept1	( SHORTOBJID	oNotThis );
 
 /* Allocate a cache for the heap: */
 PHEAPCACHE	fnCacheCreate	( SHORTOBJID	oShortObjIdHeap );
@@ -201,6 +202,6 @@ SHLOCK		fnCacheInsertLock( SHORTOBJID	oShortObjIdLockBy,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

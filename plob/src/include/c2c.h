@@ -162,6 +162,7 @@ DefineFunction ( result_type, c_function_name, 			\
 #define	and			,
 #define	bitwise_or( x, y )	((x)|(y))
 #define	hex( number )		0x##number
+#define	oct( number )		0##number
 #define	shift_left( x, n )	((x)<<(n))
 #define subtract( x, y )	((x)-(y))
 
@@ -179,6 +180,6 @@ typedef const char *		CONST_STRING;
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

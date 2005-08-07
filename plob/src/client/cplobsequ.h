@@ -6,7 +6,7 @@
 | Description	PLOB client header file:
 |		Macros and functions for usage by the PLOB client
 |
-| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2005 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -61,6 +61,6 @@ LPSTR		fnStringPtr		( OBJID oObjId,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

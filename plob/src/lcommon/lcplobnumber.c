@@ -56,13 +56,6 @@
 #include	"lcplobmisc.h"
 #include	"lcplobtype.h"
 #include	"lcplobnumber.h"
-#include	"lcplobsequ.h"
-#include	"lcplobstruct.h"
-#include	"lcplobclos.h"
-#include	"lcploblock.h"
-#include	"lcplobheap.h"
-#include	"lcplobbtree.h"
-#include	"lcplobroot.h"
 
 /* ----------------------------------------------------------------------- */
 MODULE ( __FILE__ );
@@ -79,6 +72,6 @@ BeginFunction ( DOUBLE_FLOAT,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

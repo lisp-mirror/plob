@@ -416,6 +416,8 @@ extern DLLEXPORTVAR const char	szLISPWORKS4 []		/* = "LISPWORKS4" */;
 extern DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro/* = NULLOBJID */;
 extern DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro4/* = NULLOBJID */;
 extern DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro5/* = NULLOBJID */;
+extern DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro6/* = NULLOBJID */;
+extern DLLEXPORTVAR OBJID	oGlobalSymKeywordAllegro7/* = NULLOBJID */;
 extern DLLEXPORTVAR OBJID	oGlobalSymKeywordLispworks/* = NULLOBJID */;
 extern DLLEXPORTVAR OBJID	oGlobalSymKeywordLispworks3/* = NULLOBJID */;
 extern DLLEXPORTVAR OBJID	oGlobalSymKeywordLispworks4/* = NULLOBJID */;
@@ -515,6 +517,6 @@ void		fnDeinitCommonNumberModule	( void );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

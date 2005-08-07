@@ -69,7 +69,6 @@ Options:
 fnTrimMakeFile () {
   szOutputFile="$1";
   sed -n '
-s/[^ -~]$//
 s/=||/#/g
 s/\([^ ]\) *\((\) *\([^ ]\)/\1\2\3/g
 s/\([^ ]\) *\()\)/\1\2/g
@@ -90,7 +89,7 @@ s/$/@n@/
 :loopnln
 /@n@/ {
   h
-  s/[^!-~]*@n@.*$//
+  s/[	 ]*@n@.*$//
   b expand
 :print
   /^[	 ]*$/ !p
@@ -244,7 +243,7 @@ else
     case "`uname`" in
     *[cC][yY][gG][wW][iI][nN]*)
       fnTrimMakeFile "`basename ${szMakeFile}`" <${szTmpOutfile} >${TMP}/${nPID}_${szScript}.cr
-      dos2unix "${TMP}/${nPID}_${szScript}.cr" "${szMakeFile}";;
+      dos2unix < "${TMP}/${nPID}_${szScript}.cr" > "${szMakeFile}";;
     *)
       fnTrimMakeFile "`basename ${szMakeFile}`" <${szTmpOutfile} >${szMakeFile}
     esac
@@ -256,5 +255,5 @@ rm -f ${TMP}/${nPID}_${szScript}.*
 exit ${nExitCode}
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

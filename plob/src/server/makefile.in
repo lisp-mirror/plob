@@ -50,6 +50,7 @@
 
 #define	ccLocalOptions	paste5(-,D,BUILDDLL,=,1)
 #define	relPlobDir	ddot slash ddot
+#include		"filelist.in"
 #include		"../../conf/make.rules.in"
 
 /* ----------------------------------------------------------------------
@@ -68,6 +69,7 @@ STDINCLUDE=\
  $(SRCIDIR) slash fileH(generic) spc \
  $(SRCIDIR) slash fileH(plobconst) spc \
  $(SRCIDIR) slash fileH(plobintern) spc \
+ $(SRCIDIR) slash fileH(plob) \
  fileH(splob)
 
 HEADERS=trim(PlobFiles($(SRCIDIR) slash,suffixH))
@@ -105,11 +107,14 @@ SERVEROBJECTS=\
 trim($(opsys) slash fileObj(splobcallb) spc \
      $(opsys) slash fileObj(plobdsvc) )
 
+/* 2005-05-10 hkirschk: Strange, when linking against libserverplob.a,
+   I get linkage errrors on undefined symbols ... */
 SERVERFILES=$(SERVEROBJECTS) spc \
  ddot slash common slash $(opsys) slash fileObj(plobdxdr) spc \
  ddot slash common slash $(opsys) slash fileObj(plobpxdr) spc \
+ $(OBJECTS) spc \
  $(LIBDIR) slash $(LIBCOMMONPLOB) spc \
- $(LIBRARY) spc \
+ /*$(LIBRARY)*/ spc \
  $(LIBDIR) slash $(LIBPOSTORE)
 
 /* ----------------------------------------------------------------------
@@ -262,6 +267,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

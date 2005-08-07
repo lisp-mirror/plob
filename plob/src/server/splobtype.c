@@ -101,7 +101,10 @@ static LPSTR		mfnSymbolNameOf		( OBJID oSelf,
 static LPSTR		mfnFunctionNameOf	( OBJID oSelf,
 						  LPINT lpnName );
 
-/* Object equal methods: */
+/* Object compare methods: */
+static COMPARETAG	mfnMarkerCompare	( LPVOID	poSelf,
+						  SHTYPETAG	eTypeTagSelf,
+						  OBJID		oCompare );
 static COMPARETAG	mfnSymbolCompare	( LPVOID	poSelf,
 						  SHTYPETAG	eTypeTagSelf,
 						  OBJID		oCompare );
@@ -117,6 +120,11 @@ void			fnInitializeTypeModule		( void )
   PROCEDURE	( fnInitializeTypeModule );
 
   /* Register methods: */
+  RegisterMethod ( eshMinTag, gfnCompare, mfnMarkerCompare );
+  RegisterMethod ( eshMaxTag, gfnCompare, mfnMarkerCompare );
+  RegisterMethod ( eshMatchAnyTag, gfnCompare, mfnMarkerCompare );
+  RegisterMethod ( eshMatchNeverTag, gfnCompare, mfnMarkerCompare );
+
   RegisterMethod ( eshSymbolTag, gfnInitializeInstance,
 		   mfnInitStandard );
   RegisterMethod ( eshSymbolTag, gfnPrintObjectDetails,
@@ -362,6 +370,19 @@ COMPARETAG DLLEXPORT	fnNameCompare	( LPCSTR	lpsSelf,
 
   PROCEDURE	( fnNameCompare );
 
+  if ( markerp ( oCompare ) ) {
+    if ( maxmarkerp ( oCompare ) ) {
+      RETURN ( eshLess );
+    } else if ( minmarkerp ( oCompare ) ) {
+      RETURN ( eshGreater );
+    } else if ( matchanymarkerp ( oCompare ) ) {
+      RETURN ( eshEqual );
+    } else if ( matchnevermarkerp ( oCompare ) ) {
+      RETURN ( eshNotEqual );
+    }
+    RETURN ( eshNotEq );
+  }
+
   lpsCompare	= gfnNameOf ( oCompare, &nCompare );
   if ( lpsSelf == NULL || lpsCompare == NULL ) {
     RETURN ( ( lpsSelf == lpsCompare ) ? eshEq : eshNotEqual );
@@ -385,6 +406,34 @@ COMPARETAG DLLEXPORT	fnNameCompare	( LPCSTR	lpsSelf,
 /* -------------------------------------------------------------------------
 | Compare methods
  ------------------------------------------------------------------------- */
+static COMPARETAG	mfnMarkerCompare	( LPVOID	poSelf,
+						  SHTYPETAG	eTypeTagSelf,
+						  OBJID		oCompare )
+{
+  PROCEDURE	( mfnMarkerCompare );
+
+  if ( minmarkerp ( * (LPOBJID) poSelf ) || maxmarkerp ( oCompare ) ) {
+    RETURN ( eshLess );
+  }
+
+  if ( maxmarkerp ( * (LPOBJID) poSelf ) || minmarkerp ( oCompare ) ) {
+    RETURN ( eshGreater );
+  }
+
+  if ( matchanymarkerp ( * (LPOBJID) poSelf ) ||
+       matchanymarkerp ( oCompare ) ) {
+    RETURN ( eshEqual );
+  }
+
+  if ( matchnevermarkerp ( * (LPOBJID) poSelf ) ||
+       matchnevermarkerp ( oCompare ) ) {
+    RETURN ( eshNotEqual );
+  }
+
+  RETURN ( eshNotEq );
+} /* mfnMarkerCompare */
+
+/* ----------------------------------------------------------------------- */
 static COMPARETAG	mfnSymbolCompare	( LPVOID	poSelf,
 						  SHTYPETAG	eTypeTagSelf,
 						  OBJID		oCompare )
@@ -395,6 +444,11 @@ static COMPARETAG	mfnSymbolCompare	( LPVOID	poSelf,
   PROCEDURE	( mfnSymbolCompare );
 
   psName	= mfnSymbolNameOf ( * (LPOBJID) poSelf, &nName );
+
+  if ( strncmp ( psName, szNIL, nName ) == 0 && consp ( oCompare ) ) {
+    /* NIL (i.e., the empty list) is compared to another non-empty list: */
+    RETURN ( eshLess );
+  }
 
   RETURN ( fnNameCompare ( psName, nName, oCompare, FALSE ) );
 } /* mfnSymbolCompare */
@@ -417,6 +471,9 @@ BeginFunction ( CONST_STRING,
   CONST_STRING	pszTypename;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( szEmpty );
+  }
   if ( oGlobalSession == NULLOBJID ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -447,6 +504,12 @@ BeginFunction ( FIXNUM,
   OBJID		oObjId;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    if ( lpszBuffer && nBuffer > 0 ) {
+      *lpszBuffer	= '\0';
+    }
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       if ( lpszBuffer && nBuffer > 0 ) {
@@ -468,6 +531,36 @@ BeginFunction ( FIXNUM,
 } EndFunction ( fnServerObjectPrettyPrint );
 
 /* ----------------------------------------------------------------------- */
+BeginFunction ( COMPARETAG,
+		fnServerObjectCompare, "c-sh-compare",
+		( argument ( OBJID, value_in, oHeap )
+		  and
+		  argument ( OBJID, value_in, oFirst )
+		  and
+		  argument ( OBJID, value_in, oSecond ) ) )
+{
+  COMPARETAG	eCompared = eshNotEq;
+
+  INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( eshNotEq );
+  }
+  if ( StoreSession ( oHeap ) ) {
+    if ( CATCHERROR ) {
+      UNSTORESESSION ();
+      RETURN ( eshNotEq );
+    }
+  }
+  ASSERT ( StableHeap_is_open );
+
+  eCompared	= gfnCompare ( &oFirst, typetagof ( oFirst ), oSecond );
+
+  UnstoreSession ();
+
+  RETURN ( eCompared );
+} EndFunction ( fnServerObjectCompare );
+
+/* ----------------------------------------------------------------------- */
 BeginFunction ( FIXNUM,
 	        fnShortPrintSymbol, "c-sh-pprint-symbol",
 	        ( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
@@ -482,6 +575,9 @@ BeginFunction ( FIXNUM,
   FIXNUM	nLength;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       if ( lpszBuffer && nBuffer > 0 ) {
@@ -547,7 +643,7 @@ LPSTR DLLEXPORT	fnPrintObject		( OBJID oSelf,
   /* Print non-immediate object: */
   lpSHvector	= (LPOBJID) NULL;
   lpszBlank	= szEmpty;
-  if ( StableHeap_is_open && ObjId_is_valid ( oSelf ) ) {
+  if ( ! bGlobalSuspended && StableHeap_is_open && ObjId_is_valid ( oSelf ) ) {
     lpSHvector	= SH_key_to_address ( oSelf );
   }
 
@@ -605,7 +701,7 @@ int		fnTypeAddBuiltInClasses	( OBJID	oHeap )
 	    fnBTreeMapFirstByObjId ( &oMapper, NULLOBJID, oClasses,
 				     minmarker, eshGreaterEqual,
 				     maxmarker, eshLessEqual,
-				     FALSE, 1, &oKey, &oData );
+				     FALSE, NULLOBJID, 1, &oKey, &oData );
 	  nMapped > 0;
 	  nMapped = fnBTreeMapNext ( oMapper, 1, &oKey, &oData ) ) {
       if ( typetagp ( oData ) ) {
@@ -868,7 +964,7 @@ LPSTR DLLEXPORT	gfnPrintObjectDetails	( OBJID oSelf,
     lpfnMethod	= (LPFNPMETHOD) FindMethod ( lpClassInfo->nTypeTag );
     if ( lpfnMethod != NULL ) {
       lpSHvector	= (LPOBJID) SH_key_to_address ( oSelf );
-      ASSERT ( lpSHvector );
+      ASSERT ( lpSHvector != NULL );
       lpszDetails	= (LPSTR)
 	( *lpfnMethod ) ( oSelf, lpSHvector, lpClassInfo,
 			  lpszBuffer, nBuffer );
@@ -956,8 +1052,10 @@ BOOL DLLEXPORT		gfnEqual	( OBJID oSelf,
     switch ( gfnCompare ( &oSelf, selfTypeTag, oCompare ) ) {
     case eshEqual: case eshEql: case eshEq:
       isEqual	= TRUE;
+      break;
     default:
       isEqual	= FALSE;
+      break;
     }
   } else {
     isEqual	= (BOOL) ( *pfnMethod ) ( oSelf, oCompare );
@@ -1051,6 +1149,6 @@ BOOL DLLEXPORT		gfnObjectStateChanged	( OBJID oSelf,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

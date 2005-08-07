@@ -17,7 +17,7 @@
 |		LISP foreign language interface files
 |		Consult the manual for more information.
 |
-| Copyright	PLOB! Copyright 1994--1998 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2005 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -49,6 +49,7 @@
  ---------------------------------------------------------------------- */
 
 #define	ccLocalOptions	paste5(-,D,BUILDDLL,=,1) spc paste3(-,I,ddot slash server slash $(opsys))
+
 #define	relPlobDir	ddot slash ddot
 #include		"../../conf/make.rules.in"
 
@@ -66,6 +67,7 @@ STDINCLUDE=\
  $(SRCIDIR) slash fileH(global) spc \
  $(SRCIDIR) slash fileH(hash) spc \
  $(SRCIDIR) slash fileH(generic) spc \
+ $(SRCIDIR) slash fileH(plob) \
  fileH(lplob) spc \
  ddot slash include slash fileH(plobconst) spc \
  ddot slash include slash fileH(plobintern)
@@ -74,12 +76,31 @@ LIBPOSTORE=trim(fileLib(libpostore))
 
 lplobrootDeps=$(SRCIDIR) slash fileH(plobversion)
 
+#include		"../common/filelist.in"
+
+COMMONOBJECTS=\
+ trim(CommonFiles(ddot slash common slash $(PICDIR) slash,suffixObj)) spc \
+ ddot slash common slash $(PICDIR) slash fileObj(regcomp) spc \
+ ddot slash common slash $(PICDIR) slash fileObj(regerror) spc \
+ ddot slash common slash $(PICDIR) slash fileObj(regexec) spc \
+ ddot slash common slash $(PICDIR) slash fileObj(regfree)
+
+#include		"../lcommon/filelist.in"
+
+LCOMMONOBJECTS=\
+ trim(PlobFiles(ddot slash lcommon slash $(PICDIR) slash lc,suffixObj))
+
+#include		"../server/filelist.in"
+
+SERVEROBJECTS=\
+ trim(PlobFiles(ddot slash server slash $(PICDIR) slash s,suffixObj))
+
+#include		"filelist.in"
+
 #if HasOpSys == hasWin32
 
 /* No position-independent code for Windows/NT: */
 PICDIR=$(opsys)
-/* No static library for Windows/NT: */
-#define LibraryTarget
 /* DLL resource file: */
 #define	ResourceTarget $(opsys) slash libloclientplob dot res
 /* Option and name of import library for DLL: */
@@ -89,14 +110,16 @@ paste4(-,implib,:,$(LIBDIR) slash trim(fileLib(libloclientplobimp))) spc
 #else
 
 PICDIR=$(opsys) slash pic
-#define LibraryTarget $(LIBRARY)
 #define	ResourceTarget
 #define ImplibOption
 
 #endif
 
+#define LibraryTarget $(LIBRARY)
+
 LIBLOCCLIENTPLOBLIB=trim(fileLib(libloclientplob))
 LIBRARY=$(LIBDIR) slash $(LIBLOCCLIENTPLOBLIB)
+
 
 SHAREDOBJECTS=\
 trim(PlobFiles($(PICDIR) slash l,suffixObj))
@@ -104,15 +127,6 @@ trim(PlobFiles($(PICDIR) slash l,suffixObj))
 LIBLOCLIENTPLOBDLL=trim(fileDll(libloclientplob))
 
 SHAREDLIBRARY=$(LIBDIR) slash $(LIBLOCLIENTPLOBDLL)
-
-COMMONOBJECTS=\
- trim(CommonFiles(ddot slash common slash $(PICDIR) slash,suffixObj))
-
-LCOMMONOBJECTS=\
- trim(PlobFiles(ddot slash lcommon slash $(PICDIR) slash lc,suffixObj))
-
-SERVEROBJECTS=\
- trim(PlobFiles(ddot slash server slash $(PICDIR) slash s,suffixObj))
 
 SHAREDLIBFILES=\
  $(SHAREDOBJECTS) spc \
@@ -134,7 +148,7 @@ rule ( dll, \
        $(SHAREDLIBRARY), \
        noActions )
 
-/* Build only the `normal' object files, i.e. no object code for the
+/* Build only the "normal" object files, i.e. no object code for the
    shared library: */
 rule ( objects, \
        $(SHAREDOBJECTS), \
@@ -230,6 +244,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

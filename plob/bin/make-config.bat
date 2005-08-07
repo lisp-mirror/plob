@@ -123,7 +123,7 @@ if not exist %SystemRoot%\system32 goto missys32
 if '%szPlobRoot%' == '' set szPlobRoot=%szDefaultplobRoot%
 if '%szPlobRoot%' == '' goto misplb
 if not exist %szPlobRoot% goto misplb
-if not exist %szPlobRoot%\src\allegro goto misplb
+if not exist %szPlobRoot%\src\lisp goto misplb
 
 rem ------------------------------------------------------------
 rem Mainline processing
@@ -150,8 +150,12 @@ rem Create directories
 if not exist %szPlobRoot%\lib\%szSystemVers% call %szSelf% -goto domkdir %szPlobRoot%\lib\%szSystemVers%
 
 if not exist %szPlobRoot%\src\allegro\allegro5 call %szSelf% -goto domkdir %szPlobRoot%\src\allegro\allegro5
+if not exist %szPlobRoot%\src\allegro\allegro6 call %szSelf% -goto domkdir %szPlobRoot%\src\allegro\allegro6
+if not exist %szPlobRoot%\src\allegro\allegro7 call %szSelf% -goto domkdir %szPlobRoot%\src\allegro\allegro7
 
 if not exist %szPlobRoot%\src\util\allegro5 call %szSelf% -goto domkdir %szPlobRoot%\src\util\allegro5
+if not exist %szPlobRoot%\src\util\allegro6 call %szSelf% -goto domkdir %szPlobRoot%\src\util\allegro6
+if not exist %szPlobRoot%\src\util\allegro7 call %szSelf% -goto domkdir %szPlobRoot%\src\util\allegro7
 
 if not exist %szDataRootDrv%:%szDataRootDir% call %szSelf% -goto domkdir %szDataRootDrv%:%szDataRootDir%
 
@@ -270,7 +274,7 @@ if not '%bPlobRunning%' == '' goto fi10
 rem Some final messages
 
 echo %szScript%: Info: To finish the Plob installation, please edit file
-echo %szSpaces%        src\allegro\defsystem-plob.lisp and change
+echo %szSpaces%        src\lisp\defsystem-plob.lisp and change
 echo %szSpaces%        the definition of constant +plob-dir+ to
 echo %szSpaces%        point to the actual Plob installation directory at
 if '%szPlobRoot%' == '.' goto else08
@@ -376,5 +380,5 @@ rem ------------------------------------------------------------
 :return
 
 rem Local variables:
-rem buffer-file-coding-system: iso-latin-1-unix
+rem buffer-file-coding-system: raw-text-unix
 rem End:

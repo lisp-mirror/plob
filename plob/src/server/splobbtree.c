@@ -292,6 +292,7 @@ static MAPMODE		fnMap			( OBJID		oHeap,
 						  LPCVOID	pValueKeyUpper,
 						  COMPARETAG	eCompareUpper,
 						  BOOL		bDescending,
+						  OBJID		oFilter,
 						  LPFNMAPBTREE	pfnMapItem,
 						  LPVOID	pUserData );
 
@@ -310,6 +311,7 @@ static BOOL		fnSearchBTreePage	( OBJID		oHeap,
 						  SHTYPETAG nTypeTagKeyUpper,
 						  COMPARETAG	eCompareUpper,
 						  BOOL		bDescending,
+						  OBJID		oFilter,
 						  LPBTREEMAPPER	lpMapper );
 
 static void	fnBTreeMapStoreKey	( LPCVOID	pValueKey,
@@ -389,15 +391,16 @@ static BOOL		mfnInitBTree		( OBJID oObjId,
   PROCEDURE	( mfnInitBTree );
 
   mfnInitStandard ( oObjId, lpSHvector, lpClassInfo );
+
   ((LPPLOBBTREE)lpSHvector)->oSelf		= oObjId;
   ((LPPLOBBTREE)lpSHvector)->oCompare		= Fixnum2ObjId ( eshEqual );
   ((LPPLOBBTREE)lpSHvector)->onCount		= o0;
   ((LPPLOBBTREE)lpSHvector)->onTimeStamp	= o1;
   ((LPPLOBBTREE)lpSHvector)->onPages		= o0;
-  ((LPPLOBBTREE)lpSHvector)->onGCcounter	=
-    Fixnum2ObjId ( GetGCcounter () );
+  ((LPPLOBBTREE)lpSHvector)->onGCcounter	= Fixnum2ObjId ( GetGCcounter () );
   ((LPPLOBBTREE)lpSHvector)->onPageSize		=
     Fixnum2ObjId ( nBtreeDefaultPageSize );
+
   RETURN ( (BOOL) TRUE );
 } /* mfnInitBTree */
 
@@ -718,7 +721,7 @@ static LPPLOBBTREE	fnGetBTree		( OBJID oHeap,
   PROCEDURE	( fnGetBTree );
 
   lpBTree	= (LPPLOBBTREE) SH_key_to_address ( oObjId );
-  ASSERT ( lpBTree );
+  ASSERT ( lpBTree != NULL );
   if ( ! ASSERT_TYPE ( oObjId, lpBTree, eshBTreeTag ) ) {
     RETURN ( (LPPLOBBTREE) NULL );
   }
@@ -943,8 +946,7 @@ static LPBTREEMAPPER	fnGetBTreeMapper	( OBJID oHeap,
       lpMapper->pValueKeyLower	= NULL;
       lpMapper->pValueKeyUpper	= NULL;
       CERROR (( "Destroy the mapper object.",
-		"Cannot access\n"
-		"       %s\n"
+		"Cannot access %s\n"
 		"       because it contained transient pointers of a\n"
 		"       previous session, which are lost now.",
 		fnPrintObject ( oObjId, (LPSTR) NULL, 0 ) ));
@@ -1060,79 +1062,8 @@ static COMPARETAG	fnCompare		( COMPARETAG nCompare,
     break;
   }
 
-  if ( nCompare == eshEq || nCompare == eshEql ) {
-    /* The objects can't be eq or eql: */
-    RETURN ( nNotEqual );
-  }
-
   if ( nCompare == eshEqual ) {
-    lpfnMethod	= _FindMethod ( nTypeTag1, gfnCompare );
-    if ( lpfnMethod != NULL ) {
-      RETURN ( (COMPARETAG) ( * lpfnMethod ) ( pValue1, nTypeTag1, oObj2 ) );
-    }
-    if ( nTypeTag1 != nTypeTag2 ) {
-      RETURN ( nNotEqual );
-    }
-    oObj1	= * (LPOBJID) pValue1;
-    if ( immediatep ( nTypeTag1 ) ) {
-      /* Compare two immediate values: */
-      nValue1	= fnObjId2Immediate ( oObj1, nTypeTag1 );
-      nValue2	= fnObjId2Immediate ( oObj2, nTypeTag2 );
-      if ( nValue1 < nValue2 ) {
-	RETURN ( eshLess );
-      }
-      RETURN ( eshGreater );
-    }
-    ASSERT_ObjId_is_valid ( oObj1 );
-    /* Compare both objects element for element; if a not-equal element
-       is found, terminate with the found result. */
-    lpSHvector1	= SH_key_to_address ( oObj1 );
-    ASSERT ( lpSHvector1 != NULL );
-    n1		= lpSHvector1 [ eshSHvectorIdxObjIds ];
-    lpSHvector2	= SH_key_to_address ( oObj2 );
-    ASSERT ( lpSHvector2 != NULL );
-    n2		= lpSHvector2 [ eshSHvectorIdxObjIds ];
-    n		= eshSHvectorIdxFirstObjId + MIN ( n1, n2 );
-    /* Compare the references: */
-    for ( i = eshSHvectorIdxFirstData; i < n; i++ ) {
-      nTypeTag	= typetagof ( lpSHvector1 [ i ] );
-      nCompared	= fnCompare ( nCompare, & lpSHvector1 [ i ], nTypeTag,
-			      lpSHvector2 [ i ] );
-      if ( nCompared != eshEqual )
-	RETURN ( nCompared );
-    }
-    /* Objects are equal in all references ... */
-    if ( n1 != n2 ) {
-      /* ... but the number of references differ; decide by length: */
-      RETURN ( ( n1 < n2 ) ? eshLess : eshGreater );
-    }
-    /* Now decide by value field: */
-    n1	= lpSHvector1 [ eshSHvectorIdxSize ] -
-      lpSHvector1 [ eshSHvectorIdxObjIds ];
-    n2	= lpSHvector2 [ eshSHvectorIdxSize ] -
-      lpSHvector2 [ eshSHvectorIdxObjIds ];
-    n	= MIN ( n1, n2 ) - eshSHvectorIdxFirstObjId;
-    if ( n > 0 ) {
-      nCompared	= (COMPARETAG)
-	memcmp ( & lpSHvector1 [ eshSHvectorIdxFirstObjId +
-			       lpSHvector1 [ eshSHvectorIdxObjIds ] ],
-		 & lpSHvector2 [ eshSHvectorIdxFirstObjId +
-			       lpSHvector2 [ eshSHvectorIdxObjIds ] ],
-		 n * sizeof ( psint ) );
-      if ( (int) nCompared == 0 ) {
-	RETURN ( nEqual );
-      }
-      if ( (int) nCompared < 0 ) {
-	RETURN ( eshLess );
-      }
-      RETURN ( eshGreater );
-    }
-    /* The values are also equal; decide by length: */
-    if ( n1 == n2 )
-      RETURN ( nEqual );
-    if  ( n1 < n2 )
-      RETURN ( eshLess );
-    RETURN ( eshGreater );
+    RETURN ( gfnCompare ( pValue1, nTypeTag1, oObj2 ) );
   }
 
   RETURN ( nNotEqual );
@@ -1864,7 +1795,8 @@ fnServerBtreemapSearchByPtr	( SHORTOBJID	oShortObjIdMapper,
 				  LPCVOID	pValueKeyUpper,
 				  SHTYPETAG	nTypeTagKeyUpper,
 				  COMPARETAG	eCompareUpper,
-				  BOOL		bDescending )
+				  BOOL		bDescending,
+				  OBJID		oFilter )
 {
   FIXNUM	nMapped;
   OBJID		oHeap, oBTree, oMapper;
@@ -1880,7 +1812,7 @@ fnServerBtreemapSearchByPtr	( SHORTOBJID	oShortObjIdMapper,
 				     pValueKeyLower, nTypeTagKeyLower,
 				     eCompareLower,
 				     pValueKeyUpper, nTypeTagKeyUpper,
-				     eCompareUpper, bDescending );
+				     eCompareUpper, bDescending, oFilter );
 
   RETURN ( nMapped );
 } /* fnServerBtreemapSearchByPtr */
@@ -1897,6 +1829,7 @@ fnServerBtreemapFirstByPtr	( SHORTOBJID	*lpoShortObjIdMapper,
 				  SHTYPETAG	nTypeTagKeyUpper,
 				  COMPARETAG	eCompareUpper,
 				  BOOL		bDescending,
+				  OBJID		oFilter,
 				  FIXNUM	nMap,
 				  LPOBJID	*ppoKey,
 				  LPOBJID	*ppoData,
@@ -1930,7 +1863,7 @@ fnServerBtreemapFirstByPtr	( SHORTOBJID	*lpoShortObjIdMapper,
 				    pValueKeyLower, nTypeTagKeyLower,
 				    eCompareLower,
 				    pValueKeyUpper, nTypeTagKeyUpper,
-				    eCompareUpper, bDescending, nMap,
+				    eCompareUpper, bDescending, oFilter, nMap,
 				    *ppoKey, *ppoData );
 
   if ( nMapped > 0 ) {
@@ -2023,6 +1956,7 @@ static MAPMODE		fnMap			( OBJID		oHeap,
 						  LPCVOID	pValueKeyUpper,
 						  COMPARETAG	eCompareUpper,
 						  BOOL		bDescending,
+						  OBJID		oFilter,
 						  LPFNMAPBTREE	pfnMapItem,
 						  LPVOID	pUserData )
 {
@@ -2092,7 +2026,7 @@ static MAPMODE		fnMap			( OBJID		oHeap,
 			  pValueKeyLower, eCompareLower,
 			  poKeyUpper, pnTypeTagKeyUpper,
 			  pValueKeyUpper, eCompareUpper,
-			  bDescending, pfnMapItem, pUserData );
+			  bDescending, oFilter, pfnMapItem, pUserData );
       if ( nMapMode != mapmodeContinue ) {
 	RETURN ( nMapMode );
       }
@@ -2107,7 +2041,7 @@ static MAPMODE		fnMap			( OBJID		oHeap,
 				  pValueKeyLower, eCompareLower,
 				  poKeyUpper, pnTypeTagKeyUpper,
 				  pValueKeyUpper, eCompareUpper,
-				  bDescending, pfnMapItem, pUserData );
+				  bDescending, oFilter, pfnMapItem, pUserData );
 	if ( nMapMode != mapmodeContinue ) {
 	  RETURN ( nMapMode );
 	}
@@ -2158,7 +2092,7 @@ static MAPMODE		fnMap			( OBJID		oHeap,
 				  pValueKeyLower, eCompareLower,
 				  poKeyUpper, pnTypeTagKeyUpper,
 				  pValueKeyUpper, eCompareUpper,
-				  bDescending, pfnMapItem, pUserData );
+				  bDescending, oFilter, pfnMapItem, pUserData );
 	if ( nMapMode != mapmodeContinue ) {
 	  RETURN ( nMapMode );
 	}
@@ -2196,6 +2130,7 @@ static BOOL		fnSearchBTreePage	( OBJID		oHeap,
 						  SHTYPETAG nTypeTagKeyUpper,
 						  COMPARETAG	eCompareUpper,
 						  BOOL		bDescending,
+						  OBJID		oFilter,
 						  LPBTREEMAPPER	lpMapper )
 {
   int		nKeys		= 0;
@@ -2207,7 +2142,7 @@ static BOOL		fnSearchBTreePage	( OBJID		oHeap,
   fnMap ( oHeap, lpBTree, lpPage, &nKeys,
 	  NULL, &nTypeTagKeyLower, pValueKeyLower, eCompareLower,
 	  NULL, &nTypeTagKeyUpper, pValueKeyUpper, eCompareUpper,
-	  bDescending, fnEchoBTreePage, lpMapper );
+	  bDescending, oFilter, fnEchoBTreePage, lpMapper );
 
   RETURN ( (BOOL) ( nKeys == 1 ) );
 } /* fnSearchBTreePage */
@@ -2451,6 +2386,7 @@ int DLLEXPORT	fnBTreeMap		( OBJID		oHeap,
 					  SHTYPETAG	nTypeTagKeyUpper,
 					  COMPARETAG	eCompareUpper,
 					  BOOL		bDescending,
+					  OBJID		oFilter,
 					  LPFNMAPBTREE	lpfnMapItem,
 					  LPVOID	lpUserData )
 {
@@ -2537,7 +2473,7 @@ int DLLEXPORT	fnBTreeMap		( OBJID		oHeap,
 			    pKeyLower, eCompareLower,
 			    &oKeyUpper, &nTypeTagKeyUpper,
 			    pKeyUpper, eCompareUpper,
-			    bDescending, lpfnMapItem,
+			    bDescending, oFilter, lpfnMapItem,
 			    lpUserData ) == mapmodeRestart ) {
 #if defined(LOGGING)
     {
@@ -2579,7 +2515,7 @@ int DLLEXPORT	fnBTreeMapAll		( OBJID		oHeap,
   RETURN ( fnBTreeMap ( oHeap, oBTree,
 			&oMin, eshMinTag, eshGreaterEqual,
 			&oMax, eshMaxTag, eshLessEqual,
-			FALSE, pfnMapItem, pUserData ) );
+			FALSE, NULLOBJID, pfnMapItem, pUserData ) );
 } /* fnBTreeMapAll */
 
 /* ----------------------------------------------------------------------- */
@@ -2590,6 +2526,7 @@ int DLLEXPORT	fnBTreeMapByObjId	( OBJID		oHeap,
 					  OBJID		oKeyUpper,
 					  COMPARETAG	eCompareUpper,
 					  BOOL		bDescending,
+					  OBJID		oFilter,
 					  LPFNMAPBTREE	lpfnMapItem,
 					  LPVOID	lpUserData )
 {
@@ -2597,7 +2534,7 @@ int DLLEXPORT	fnBTreeMapByObjId	( OBJID		oHeap,
   RETURN ( fnBTreeMap ( oHeap, oBTree,
 			&oKeyLower, typetagof ( oKeyLower ), eCompareLower,
 			&oKeyUpper, typetagof ( oKeyUpper ), eCompareUpper,
-			bDescending, lpfnMapItem, lpUserData ) );
+			bDescending, oFilter, lpfnMapItem, lpUserData ) );
 } /* fnBTreeMapByObjId */
 
 /* ----------------------------------------------------------------------- */
@@ -2609,6 +2546,7 @@ FIXNUM DLLEXPORT fnBTreeMapFirstByObjId	( LPOBJID	lpoMapper,
 					  OBJID		oKeyUpper,
 					  COMPARETAG	eCompareUpper,
 					  BOOL		bDescending,
+					  OBJID		oFilter,
 					  FIXNUM	nMap,
 					  LPOBJID	lpoKey,
 					  LPOBJID	lpoData )
@@ -2625,7 +2563,7 @@ FIXNUM DLLEXPORT fnBTreeMapFirstByObjId	( LPOBJID	lpoMapper,
   RETURN ( fnBTreeMapFirst ( lpoMapper, oHeap, oBTree,
 			     &oKeyLower, nTypeTagKeyLower, eCompareLower,
 			     &oKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-			     bDescending, nMap, lpoKey, lpoData ) );
+			     bDescending, oFilter, nMap, lpoKey, lpoData ) );
 } /* fnBTreeMapFirstByObjId */
 
 /* ----------------------------------------------------------------------- */
@@ -2860,7 +2798,7 @@ static MAPPERLOCATE	fnBTreeMapLocate	( LPBTREEMAPPER	pMapper,
     fnSearchBTreePage ( pMapper->oHeap, pBTree,
 			pValueKeyLower, nTypeTagKeyLower, eCompareLower,
 			pValueKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-			(BOOL) ( nIncrement < 0 ), &Mapper );
+			(BOOL) ( nIncrement < 0 ), NULLOBJID, &Mapper );
   if ( (int) bFound < 0 ) {
     RETURN ( (MAPPERLOCATE) bFound );
   }
@@ -3156,7 +3094,7 @@ static BOOL	fnBTreeMapSeekSetOrEnd	( LPBTREEMAPPER	pMapper,
     fnSearchBTreePage ( pMapper->oHeap, pBTree,
 			pValueKeyLower, nTypeTagKeyLower, eCompareLower,
 			pValueKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-			bSeekEnd, &Mapper );
+			bSeekEnd, NULLOBJID, &Mapper );
   if ( (int) bDone < 0 ) {
     RETURN ( bDone );
   }
@@ -3189,7 +3127,8 @@ FIXNUM DLLEXPORT fnBTreeMapSearch	( OBJID		oMapper,
 					  LPCVOID	pValueKeyUpper,
 					  SHTYPETAG	nTypeTagKeyUpper,
 					  COMPARETAG	eCompareUpper,
-					  BOOL		bDescending )
+					  BOOL		bDescending,
+					  OBJID		oFilter )
 {
   LPBTREEMAPPER	pMapper = NULL;
   SHLOCK	nLockOld;
@@ -3256,6 +3195,7 @@ FIXNUM DLLEXPORT fnBTreeMapSearch	( OBJID		oMapper,
   pMapper->onCompareUpper	= Fixnum2ObjId ( eCompareUpper );
 
   pMapper->onIncrement		= ( bDescending ) ? oM1 : o1;
+  pMapper->oFilter		= oFilter;
 
   makunbound ( pMapper->oBTreePage );
   makunbound ( pMapper->onIndex );
@@ -3384,6 +3324,31 @@ FIXNUM DLLEXPORT fnBTreeMapSeekSet	( OBJID		oMapper,
 } /* fnBTreeMapSeekSet */
 
 /* ----------------------------------------------------------------------- */
+static FIXNUM	fnApplyFilter		( OBJID		oFilter,
+					  OBJID		oKey,
+					  OBJID		oData,
+					  FIXNUM	nMapped,
+					  LPOBJID	lpoKey,
+					  LPOBJID	lpoData )
+{
+  PROCEDURE	( fnApplyFilter );
+
+  if ( oFilter != NULLOBJID ) {
+    switch ( gfnCompare ( &oFilter, typetagof ( oFilter ), oKey ) ) {
+    case eshEqual: case eshEql: case eshEq:
+      lpoKey [ nMapped ]	= oKey;
+      lpoData [ nMapped++ ]	= oData;
+    default:
+      break;
+    }
+  } else {
+    lpoKey [ nMapped ]		= oKey;
+    lpoData [ nMapped++ ]	= oData;
+  }
+  RETURN ( nMapped );
+} /* fnApplyFilter */
+
+/* ----------------------------------------------------------------------- */
 FIXNUM DLLEXPORT fnBTreeMapFirst	( LPOBJID	lpoMapper,
 					  OBJID		oHeap,
 					  OBJID		oBTree,
@@ -3394,11 +3359,12 @@ FIXNUM DLLEXPORT fnBTreeMapFirst	( LPOBJID	lpoMapper,
 					  SHTYPETAG	nTypeTagKeyUpper,
 					  COMPARETAG	eCompareUpper,
 					  BOOL		bDescending,
+					  OBJID		oFilter,
 					  FIXNUM	nMap,
 					  LPOBJID	lpoKey,
 					  LPOBJID	lpoData )
 {
-  FIXNUM	nMapped = 0;
+  FIXNUM	nMapped = 0, nMappedNext = 0;
   OBJID		oMapper = NULLOBJID;
   LPBTREEMAPPER	pMapper;
   SHLOCK	nLockOld;
@@ -3425,7 +3391,7 @@ FIXNUM DLLEXPORT fnBTreeMapFirst	( LPOBJID	lpoMapper,
     fnBTreeMapSearch ( oMapper, oHeap, oBTree,
 		       pValueKeyLower, nTypeTagKeyLower, eCompareLower,
 		       pValueKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-		       bDescending );
+		       bDescending, oFilter );
   if ( nMapped < 0 ) {
     RETURN ( nMapped );
   }
@@ -3435,24 +3401,19 @@ FIXNUM DLLEXPORT fnBTreeMapFirst	( LPOBJID	lpoMapper,
   ASSERT ( lpoData != NULL );
   nIncrement	= ( bDescending ) ? -1 : 1;
   nMapped	= fnBTreeMapIncrement ( pMapper, nIncrement, 0 );
-  if ( nMapped >= 0 ) {
-    if ( nMapped > 0 ) {
-      nMapped			= 0;
-      lpoKey [ nMapped ]	= pMapper->oKey;
-      lpoData [ nMapped++ ]	= pMapper->oData;
-      if ( nMapped < nMap ) {
-	nMapped			= fnBTreeMapNext ( oMapper, nMap - 1,
-						   & lpoKey [ 1 ],
-						   & lpoData [ 1 ] );
-	if ( nMapped < 0 ) {
-	  oMapper		= fnBTreeMapLast ( oMapper );
-	  RETURN ( nMapped );
-	}
-	nMapped++;
+  if ( nMapped > 0 ) {
+    nMapped	= fnApplyFilter ( oFilter, pMapper->oKey, pMapper->oData,
+				  0, lpoKey, lpoData );
+    if ( nMapped < nMap ) {
+      nMappedNext		= fnBTreeMapNext ( oMapper, nMap - nMapped,
+						   & lpoKey [ nMapped ],
+						   & lpoData [ nMapped ] );
+      if ( nMappedNext < 0 ) {
+	/* error code */
+	oMapper		= fnBTreeMapLast ( oMapper );
+	RETURN ( nMappedNext );
       }
-    } else {
-      oMapper		= fnBTreeMapLast ( oMapper );
-      RETURN ( nMapped );
+      nMapped	+= nMappedNext;
     }
   } else {
     oMapper	= fnBTreeMapLast ( oMapper );
@@ -3474,6 +3435,7 @@ FIXNUM DLLEXPORT fnBTreeMapNext		( OBJID oMapper,
   int		nIncrement;
   FIXNUM	bDone, nMapped = 0;
   LPBTREEMAPPER	pMapper;
+  OBJID		oFilter;
 
   PROCEDURE	( fnBTreeMapNext );
 
@@ -3494,6 +3456,7 @@ FIXNUM DLLEXPORT fnBTreeMapNext		( OBJID oMapper,
   ASSERT ( pMapper != NULL );
   
   nIncrement	= ObjId2Fixnum ( pMapper->onIncrement );
+  oFilter	= pMapper->oFilter;
 
   while ( nMapped < nMap ) {
     bDone	= fnBTreeMapIncrement ( pMapper, nIncrement, nIncrement );
@@ -3502,8 +3465,8 @@ FIXNUM DLLEXPORT fnBTreeMapNext		( OBJID oMapper,
       RETURN ( bDone );
     }
     if ( bDone ) {
-      lpoKey [ nMapped ]	= pMapper->oKey;
-      lpoData [ nMapped++ ]	= pMapper->oData;
+      nMapped	= fnApplyFilter ( oFilter, pMapper->oKey, pMapper->oData,
+				  nMapped, lpoKey, lpoData );
     } else {
       /* Finished with iteration. */
       oMapper	= fnBTreeMapLast ( oMapper );
@@ -3740,6 +3703,9 @@ BeginFunction ( BTREERESULT,
   OBJID		oHeap, oBTree;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3769,6 +3735,9 @@ BeginFunction ( FIXNUM,
   OBJID		oBTree;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3799,6 +3768,9 @@ BeginFunction ( BTREERESULT,
   OBJID		oHeap, oBTree, oKey;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3829,6 +3801,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3856,6 +3831,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3883,6 +3861,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3917,6 +3898,9 @@ BeginFunction ( BTREERESULT,
   OBJID		oHeap, oBTree, oKey, oData;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3952,6 +3936,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -3984,6 +3971,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4016,6 +4006,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4053,12 +4046,17 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   FIXNUM	nMapped;
-  OBJID		oHeap, oBTree, oMapper;
+  OBJID		oHeap, oBTree, oMapper, oFilter;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4068,15 +4066,21 @@ BeginFunction ( FIXNUM,
   ASSERT ( StableHeap_is_open );
 
   oMapper	= Short2LongObjId ( oShortObjIdMapper );
+
   oHeap		= ( oShortObjIdHeap != NULLOBJID ) ?
     Short2LongObjId ( oShortObjIdHeap ) : NULLOBJID;
+
+  oFilter	= ( oShortObjIdFilter != NULLOBJID ) ?
+    Short2LongObjId ( oShortObjIdFilter ) : NULLOBJID;
+
   oBTree	= ( oShortObjIdBTree != NULLOBJID ) ?
     Short2LongObjId ( oShortObjIdBTree ) : NULLOBJID;
+
   nMapped	= fnBTreeMapSearch ( oMapper, oHeap, oBTree,
 				     &nValueKeyLower, nTypeTagKeyLower,
 				     eCompareLower,
 				     &nValueKeyUpper, nTypeTagKeyUpper,
-				     eCompareUpper, bDescending );
+				     eCompareUpper, bDescending, oFilter );
 
   UnstoreSession ();
   RETURN ( nMapped );
@@ -4104,11 +4108,16 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   FIXNUM	nMapped;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4122,7 +4131,7 @@ BeginFunction ( FIXNUM,
 				  oShortObjIdHeap, oShortObjIdBTree,
 				  &fKeyLower, nTypeTagKeyLower, eCompareLower,
 				  &fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				  bDescending );
+				  bDescending, oShortObjIdFilter );
 
   UnstoreSession ();
   RETURN ( nMapped );
@@ -4150,11 +4159,16 @@ BeginFunction ( SHORTOBJID,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   FIXNUM	nMapped;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4168,7 +4182,7 @@ BeginFunction ( SHORTOBJID,
 				  oShortObjIdHeap, oShortObjIdBTree,
 				  &fKeyLower, nTypeTagKeyLower, eCompareLower,
 				  &fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				  bDescending );
+				  bDescending, oShortObjIdFilter );
 
   UnstoreSession ();
   RETURN ( nMapped );
@@ -4196,11 +4210,16 @@ BeginFunction ( SHORTOBJID,
 		  and
 		  argument ( COMPARETAG, value_in, eCompareUpper )
 		  and
-		  argument ( BOOL, value_in, bDescending ) ) )
+		  argument ( BOOL, value_in, bDescending )
+		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter ) ) )
 {
   FIXNUM	nMapped;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4214,7 +4233,7 @@ BeginFunction ( SHORTOBJID,
 				  oShortObjIdBTree,
 				  szKeyLower, nTypeTagKeyLower, eCompareLower,
 				  szKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				  bDescending );
+				  bDescending, oShortObjIdFilter );
 
   UnstoreSession ();
   RETURN ( nMapped );
@@ -4243,6 +4262,9 @@ BeginFunction ( FIXNUM,
   OBJID		oMapper, oKey, oData;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4285,6 +4307,9 @@ BeginFunction ( FIXNUM,
   OBJID		oMapper, oData;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4324,6 +4349,8 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ),
@@ -4338,11 +4365,14 @@ BeginFunction ( FIXNUM,
 		  argument ( VECTOR ( u_int, nMap ),
 			     vector_out, pnTypeTagData ) ) )
 {
-  OBJID		oHeap, oBTree, oMapper;
+  OBJID		oHeap, oBTree, oMapper, oFilter;
   FIXNUM	nMapped;
   LPOBJID	lpoKey = (LPOBJID) NULL, lpoData = (LPOBJID) NULL;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       if ( lpoKey != NULL ) {
@@ -4361,7 +4391,11 @@ BeginFunction ( FIXNUM,
 
   oHeap		= ( oShortObjIdHeap != NULLOBJID ) ?
     Short2LongObjId ( oShortObjIdHeap ) : NULLOBJID;
+
   oBTree	= Short2LongObjId ( oShortObjIdBTree );
+
+  oFilter	= ( oShortObjIdFilter != NULLOBJID ) ?
+    Short2LongObjId ( oShortObjIdFilter ) : NULLOBJID;
 
   lpoKey	= (LPOBJID) Malloc ( nMap * sizeof ( *lpoKey ) );
   ASSERT ( lpoKey != NULL );
@@ -4374,7 +4408,8 @@ BeginFunction ( FIXNUM,
 				    eCompareLower,
 				    &nValueKeyUpper, nTypeTagKeyUpper,
 				    eCompareUpper,
-				    bDescending, nMap, lpoKey, lpoData );
+				    bDescending, oFilter,
+				    nMap, lpoKey, lpoData );
   if ( nMapped > 0 ) {
     fnObjIds2Values ( nMapped, lpoKey,
 		      (SHORTOBJID *) pnValueKey,
@@ -4425,6 +4460,8 @@ BeginFunction ( FIXNUM,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ), vector_out, pnValueKey )
@@ -4440,6 +4477,9 @@ BeginFunction ( FIXNUM,
   FIXNUM	nMapped;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       if ( lpoKey != NULL ) {
@@ -4461,7 +4501,7 @@ BeginFunction ( FIXNUM,
 				 oShortObjIdHeap, oShortObjIdBTree,
 				 &fKeyLower, nTypeTagKeyLower, eCompareLower,
 				 &fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				 bDescending, nMap,
+				 bDescending, oShortObjIdFilter, nMap,
 				 &lpoKey, &lpoData,
 				 pnValueKey, pnTypeTagKey,
 				 pnValueData, pnTypeTagData );
@@ -4494,6 +4534,8 @@ BeginFunction ( SHORTOBJID,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ),
@@ -4512,6 +4554,9 @@ BeginFunction ( SHORTOBJID,
   FIXNUM	nMapped;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       if ( lpoKey != NULL ) {
@@ -4533,7 +4578,7 @@ BeginFunction ( SHORTOBJID,
 				 oShortObjIdHeap, oShortObjIdBTree,
 				 &fKeyLower, nTypeTagKeyLower, eCompareLower,
 				 &fKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				 bDescending, nMap,
+				 bDescending, oShortObjIdFilter, nMap,
 				 &lpoKey, &lpoData,
 				 pnValueKey, pnTypeTagKey,
 				 pnValueData, pnTypeTagData );
@@ -4566,6 +4611,8 @@ BeginFunction ( SHORTOBJID,
 		  and
 		  argument ( BOOL, value_in, bDescending )
 		  and
+		  argument ( SHORTOBJID, value_in, oShortObjIdFilter )
+		  and
 		  argument ( FIXNUM, value_in, nMap )
 		  and	/* ouput arguments: */
 		  argument ( VECTOR ( int, nMap ),
@@ -4584,6 +4631,9 @@ BeginFunction ( SHORTOBJID,
   FIXNUM	nMapped;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       if ( lpoKey != NULL ) {
@@ -4605,7 +4655,7 @@ BeginFunction ( SHORTOBJID,
 				 oShortObjIdHeap, oShortObjIdBTree,
 				 szKeyLower, nTypeTagKeyLower, eCompareLower,
 				 szKeyUpper, nTypeTagKeyUpper, eCompareUpper,
-				 bDescending, nMap,
+				 bDescending, oShortObjIdFilter, nMap,
 				 &lpoKey, &lpoData,
 				 pnValueKey, pnTypeTagKey,
 				 pnValueData, pnTypeTagData );
@@ -4637,6 +4687,9 @@ BeginFunction ( FIXNUM,
   LPOBJID	lpoKey	= (LPOBJID) NULL, lpoData = (LPOBJID) NULL;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       if ( lpoKey != NULL ) {
@@ -4690,6 +4743,9 @@ BeginFunction ( SHORTOBJID,
   OBJID		oMapper;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4723,6 +4779,9 @@ BeginFunction ( FIXNUM,
   int		nLine;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4767,6 +4826,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4814,6 +4876,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4856,6 +4921,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4899,6 +4967,9 @@ BeginFunction ( BTREERESULT,
   BTREERESULT	eResult;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4928,6 +4999,9 @@ BeginFunction ( SHORTOBJID,
   SHORTOBJID	oShortRoot;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (SHORTOBJID) 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4956,6 +5030,9 @@ BeginFunction ( FIXNUM,
   OBJID		oBTree;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -4984,6 +5061,9 @@ BeginFunction ( COMPARETAG,
   OBJID		oBTree;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -5088,6 +5168,9 @@ BeginFunction ( FIXNUM,
   OBJID		oBTree;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( (BTREERESULT) eshGeneralError );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -5114,6 +5197,9 @@ BeginFunction ( OBJID,
   SHORTOBJID	oShortParent;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( NULLOBJID );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -5142,6 +5228,9 @@ BeginFunction ( FIXNUM,
   OBJID		oBTreePage;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -5168,6 +5257,9 @@ BeginFunction ( FIXNUM,
   OBJID		oBTreePage;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -5214,6 +5306,9 @@ BeginFunction ( FIXNUM,
   LPBTREEPAGE	pBTreePage;
 
   INITIALIZEPLOB;
+  if ( SuspendedP ) {
+    RETURN ( 0 );
+  }
   if ( StoreSession ( SHORT2LONGOBJID ( oShortObjIdHeap ) ) ) {
     if ( CATCHERROR ) {
       UNSTORESESSION ();
@@ -5258,6 +5353,6 @@ BeginFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

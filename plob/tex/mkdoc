@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -vx
+# set -vx
 
 if [ -n "$1" ]; then
   szSubDirs="$*"
@@ -13,22 +13,33 @@ fi
   make -f win32/makefile doc
 )
 
-szPasses='1 2 3 4 5 6 7'
-# szPasses='6 7'
+latex=pdflatex
+
+# production use:
+szPasses='1 2 3 4 5'
+# szPages='oneside twoside'
+szPages='twoside'
+
+# 2005-04-19 hkirschk: Debug:
+szSubDirs='userg'
+# szSubDirs='iref'
+# szSubDirs='eref'
+# szPasses='1 3'
+# szPasses='1'
+
+
 for pass in ${szPasses}; do
   for dir in ${szSubDirs}; do
-    for pages in oneside twoside; do
+    for pages in ${szPages}; do
       (
         cd ${dir}/${pages}
 	case "${pass}" in
-	1|[34])	nice latex ${dir};;
+	1|[34])	nice ${latex} ${dir};;
 	2)	nice bibtex ${dir};;
-	5)	nice dvips -o ${dir}.ps ${dir}.dvi;;
-	6)	nice ps2pdf ${dir}.ps;;
-	7)	if [ "${pages}" = "oneside" ]; then
-		  cp ${dir}.pdf ../../../doc/${dir}.pdf
+	5)	if [ "${pages}" = "oneside" ]; then
+		  cp ${dir}.pdf ../../../doc/${dir}1.pdf
 		else
-		  cp ${dir}.pdf ../../../doc/${dir}2.pdf
+		  cp ${dir}.pdf ../../../doc/${dir}.pdf
 		fi;;
 	esac
       )
@@ -37,5 +48,5 @@ for pass in ${szPasses}; do
 done
 
 # Local variables:
-# buffer-file-coding-system: iso-latin-1-unix
+# buffer-file-coding-system: raw-text-unix
 # End:

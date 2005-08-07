@@ -60,6 +60,7 @@
 #include	"cploblock.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobroot.h"
 #include	"cplobclos.h"
 
@@ -118,13 +119,15 @@ void			fnDeinitializeStructModule	( void )
 void			fnInvalidateStructCache		( void )
 {
   CLIENT	*pClient	= (CLIENT *) NULL;
-  BOOL		bMapped;
+  BOOL		bMapped, bFreeObjIds;
   POBJBUFFER	pObjBuffer;
   u_int		j, n;
 
   PROCEDURE	( fnInvalidateStructCache );
 
   pClient	= fnClientPlobd ();
+  bFreeObjIds	= ( pClient != NULL && fnClientPlobdFlush ( pClient ) );
+
   for ( bMapped = fnHashFirst ( &PreAllocated, (LPHASHKEY) NULL,
 				(LPVOID *) &pObjBuffer, (size_t *) NULL );
 	bMapped;
@@ -132,7 +135,7 @@ void			fnInvalidateStructCache		( void )
 			       (LPVOID *) &pObjBuffer, (size_t *) NULL ) ) {
     ASSERT ( pObjBuffer->nShortObjIds <=
 	     length ( pObjBuffer->ShortObjIds ) );
-    if ( pClient != NULL ) {
+    if ( bFreeObjIds ) {
       for ( j = 0, n = pObjBuffer->nShortObjIds; j < n; j++ ) {
 	ASSERT ( pObjBuffer->ShortObjIds [ j ] != NULLOBJID );
 	fnServerObjectDestroy ( NULLOBJID, pObjBuffer->ShortObjIds [ j ] );
@@ -222,6 +225,6 @@ BeginFunction ( SHORTOBJID,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

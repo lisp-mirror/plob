@@ -108,6 +108,7 @@
 #include	"ploblock.h"
 #include	"plobheap.h"
 #include	"plobbtree.h"
+#include	"plobregex.h"
 #include	"plobroot.h"
 #include	"plobadmin.h"
 
@@ -613,8 +614,8 @@ int DLLEXPORT		fnStartLocalServer	( LPCSTR	pszDirectory,
 	/* Daemon is not running for szDirectory, so spawn one now. */
 	fnUnstorePid ( pszDirectory );
 #if WIN32
-	if ( spawnl ( _P_DETACH, szPlobd, szPlobd, szOptionDirectory,
-		      pszDirectory, NULL ) == -1 ) {
+	if ( spawnlp ( _P_DETACH, szPlobd, szPlobd, szOptionDirectory,
+		       pszDirectory, NULL ) == -1 ) {
 	  sprintf ( szCommand, "%s %s %s",
 		    szPlobd, szOptionDirectory, pszDirectory );
 	  nReturnCode	= 1;
@@ -675,6 +676,6 @@ int DLLEXPORT		fnStartLocalServer	( LPCSTR	pszDirectory,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

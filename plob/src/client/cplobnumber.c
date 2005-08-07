@@ -63,6 +63,7 @@
 #include	"cploblock.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobroot.h"
 
 #define		RPCNOTYPES
@@ -460,6 +461,6 @@ BeginFunction ( SHLOCK,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

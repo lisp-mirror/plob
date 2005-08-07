@@ -341,7 +341,7 @@
      (setup-last-name->person-list)
      (dolist (person (p-select 'person :where 'soc-sec-#))
        (incf persons)
-       (format t "~4@A ~S~%"
+       (format t "~6@A ~S~%"
 	       (person-soc-sec-# person)
 	       person)))
     (format t "*** Total of ~A persons.~%" persons))
@@ -450,11 +450,17 @@
      (cdr first.sex))))
 
 ;;; ---------------------------------------------------------------------------
+(defparameter *soc-sec-#-offset* 100000
+  "Offset to use for generating social security numbers.")
+(defparameter *soc-sec-#-range*  900000
+  "Offset to use for generating social security numbers.")
+
+;;; ---------------------------------------------------------------------------
 
 (defun random-soc-sec-# ()
   "Generate a random social security number."
   (loop
-   (let ((soc-sec-# (+ (random 9000) 1000)))
+   (let ((soc-sec-# (+ (random *soc-sec-#-range*) *soc-sec-#-offset*)))
      ;; Make sure that the soc-sec-# is unique:
      (unless (p-select 'person :where 'soc-sec-# := soc-sec-# :depth :objid)
        (return soc-sec-#)))))
@@ -471,6 +477,8 @@
 
   (with-transaction ()
     (dotimes (i n)
+      (when (= (mod i 100) 0)
+	(format t "Storing person ~A ...~%" i))
       (random-person))))
 
 ;;; ---------------------------------------------------------------------------
@@ -523,6 +531,20 @@
               person (person-age person)))
     person))
 
+(defun store-people (n)
+  (with-transaction ()
+                    (dotimes (i n)
+                      (when (= (mod i 100) 0)
+                        (format t "Storing person ~A ...~%" i))
+                      (sleep 0.1)
+                      (random-person))))
+
+(defun check-btree ()
+  (let ((b (make-btree)))
+    (with-transaction ()
+                      (setf (getbtree 1 b) "data zu key 1")
+                      (error "nix wie raus hier"))))
+
 ;;;; Local variables:
-;;;; buffer-file-coding-system: iso-latin-1-unix
+;;;; buffer-file-coding-system: raw-text-unix
 ;;;; End:

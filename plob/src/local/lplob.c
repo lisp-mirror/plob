@@ -54,7 +54,6 @@
 #include	"lplobmisc.h"
 #include	"lplobtype.h"
 #include	"lplobnumber.h"
-#include	"lplobsequ.h"
 #include	"lplobstruct.h"
 #include	"lplobclos.h"
 #include	"lploblock.h"
@@ -125,17 +124,28 @@ BeginFunction ( FIXNUM,
 } EndFunction ( fnClientObjectObjIdSize );
 
 /* ----------------------------------------------------------------------- */
+BeginFunction ( BOOL,
+		fnClientDbConnect, "c-sh-connect",
+		( argument ( CONST_STRING, vector_in, szURL ) ) )
+{
+  BOOL	bDone = FALSE;
+
+  INITIALIZEPLOB;
+
+  strncpy ( szGlobalDirectory, szURL, sizeof ( szGlobalDirectory ) );
+  bDone	= TRUE;
+
+  RETURN ( bDone );
+} EndFunction ( fnClientDbConnect );
+
+/* ----------------------------------------------------------------------- */
 BeginFunction ( SHORTOBJID,
-		fnClientDbOpen, "c-sh-short-open",
-		 ( argument ( CONST_STRING, vector_in, szURL )
-		   and
-		   argument ( CONST_STRING, vector_in, szDescription ) 
+		fnClientDbOpen, "c-sh-open",
+		 ( argument ( CONST_STRING, vector_in, szDescription ) 
 		   and
 		   argument ( FIXNUM, value_in, nMinAddrInK ) ) )
 {
-  char		szDirectory [ MAX_FNAME ];
-  LPCSTR	pszUser	= (LPCSTR) NULL;
-  SHORTOBJID	oShortHeap;
+  SHORTOBJID	oShortHeap = NULLOBJID;
 
   INITIALIZEPLOB;
   UNSTORESESSION ();
@@ -146,25 +156,29 @@ BeginFunction ( SHORTOBJID,
   INFO (( "nGlobalFlagWord    %d", nGlobalFlagWord ));
   */
 
-  szDirectory [ 0 ]	= '\0';
-  fnSplitURL ( szURL, (LPSTR) NULL, (LPSTR) NULL, (LPSTR) szDirectory );
-  pszUser		= fnGetUser ();
-
-  if ( ! fnDatabaseP ( szDirectory ) ) {
-    CERROR (( "Try to create it.",
-	      "Could not locate database local:%s", szDirectory ));
-    SH_create_database ( szDirectory, fnPLOBerrorCallback );
+  if ( ! szGlobalDirectory [ 0 ] ) {
+    ERROR (( "Missing call to connect() before open()" ));
+  } else {
+    char	szDirectory [ MAX_FNAME ];
+    LPCSTR	pszUser	= (LPCSTR) NULL;
+    szDirectory [ 0 ]	= '\0';
+    fnSplitURL ( szGlobalDirectory, (LPSTR) NULL, (LPSTR) NULL, (LPSTR) szDirectory );
+    pszUser		= fnGetUser ();
     if ( ! fnDatabaseP ( szDirectory ) ) {
-      ERROR (( "Could not create database local:%s", szDirectory ));
-      RETURN ( NULLOBJID );
+      CERROR (( "Try to create it.",
+		"Could not locate database local:%s", szDirectory ));
+      SH_create_database ( szDirectory, fnPLOBerrorCallback );
+      if ( ! fnDatabaseP ( szDirectory ) ) {
+	ERROR (( "Could not create database local:%s", szDirectory ));
+	RETURN ( NULLOBJID );
+      }
     }
+
+    fnLogSetDirectory ( szDirectory );
+    oShortHeap	=
+      fnServerDbOpen ( szDirectory, pszUser, szDescription, nMinAddrInK,
+		       (LPOBJID) NULL, (LPOBJID) NULL );
   }
-
-  fnLogSetDirectory ( szDirectory );
-
-  oShortHeap	=
-    fnServerDbOpen ( szDirectory, pszUser, szDescription, nMinAddrInK,
-		     (LPOBJID) NULL, (LPOBJID) NULL );
 
   RETURN ( oShortHeap );
 } EndFunction ( fnClientDbOpen );
@@ -453,6 +467,6 @@ BeginFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

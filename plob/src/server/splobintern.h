@@ -73,6 +73,17 @@ extern DLLEXPORTVAR const int	nAtomicLockSetMask	/* = 0x80000000 */;
 extern DLLEXPORTVAR const int	nAtomicLockValMask	/* = 0x00FFFFFF */;
 
 /* -------------------------------------------------------------------------
+| Server administration
+ ------------------------------------------------------------------------- */
+extern DLLEXPORTVAR BOOL	bGlobalSuspended	/* = FALSE */;
+extern DLLEXPORTVAR OBJID	oGlobalSuspendedBy	/* = NULLOBJID */;
+extern DLLEXPORTVAR char	szGlobalSuspendedMsg [ /* 512 */ ];
+
+#define	SuspendedP	((bGlobalSuspended)?\
+			 (fnStoreError(errLvlSuspended,szGlobalSuspendedMsg),TRUE):\
+			 FALSE)
+
+/* -------------------------------------------------------------------------
 | Low-low-low-level atomic locking
  ------------------------------------------------------------------------- */
 extern DLLEXPORTVAR int		nGlobalTouched		/* = 0 */;
@@ -140,6 +151,6 @@ BOOL DLLEXPORT		fnAtomicUnlock		( OBJID oLocked,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

@@ -61,6 +61,7 @@
 #include	"cploblock.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobroot.h"
 #include	"cplobadmin.h"
 
@@ -303,43 +304,6 @@ int DLLEXPORT		fnStartRemoteServer	( CONST_STRING	szURL,
 } /* fnStartRemoteServer */
 
 /* ----------------------------------------------------------------------- */
-SHORTOBJID		fnOpen			( CONST_STRING	szURL,
-						  GETACTION	eAction,
-						  CONST_STRING
-						  szDescription )
-{
-  SHORTOBJID	oHeap = NULLOBJID;
-
-  PROCEDURE	( fnOpen );
-
-  if ( fnStartRemoteServer ( szURL, eAction ) >= 0  ) {
-    PCLIENT	pClient = (PCLIENT) NULL;
-    int		nAuth = -1;
-    AUTH	* pAuth = (AUTH *) NULL;
-    char	szHost [ MAX_FNAME ], szDirectory [ MAX_FNAME ];
-    pClient	= fnClientPlobd ();
-    if ( pClient != NULL ) {
-      fnSplitURL ( szURL, szHost, (LPSTR) NULL, szDirectory );
-      pAuth	= fnCreateAuth ( szHost, &nAuth );
-      if ( pAuth != NULL ) {
-	auth_destroy ( pClient->cl_auth );
-	pClient->cl_auth	= pAuth;
-      }
-      oHeap	= fnServerDbOpen ( szDirectory, fnGetUser (), szDescription,
-				   (FIXNUM) NULL,
-				   &oGlobalMinObjId, &oGlobalMaxObjId );
-      if ( nAuth != AUTH_NONE ) {
-	pAuth			= authnone_create ();
-	auth_destroy ( pClient->cl_auth );
-	pClient->cl_auth	= pAuth;
-      }
-    }
-  }
-
-  RETURN ( oHeap );
-} /* fnOpen */
-
-/* ----------------------------------------------------------------------- */
 PCLIENT		fnClientDestroy		( PCLIENT	pClient )
 {
   PROCEDURE	( fnClientDestroy );
@@ -484,12 +448,29 @@ static void		fnDestroyObjIdToBuffer
 			    SHORTOBJID		oShortObjIdHeap,
 			    SHORTOBJID		oShortObjId )
 {
+  static const char	szIgnoreDestroy []	= "Ignore destroy request.";
+
   PROCEDURE	( fnDestroyObjIdToBuffer );
   if ( pObjIdBuffer != NULL &&
        pObjIdBuffer->nShortObjIds < length ( pObjIdBuffer->ShortObjIds ) ) {
+    BOOL	bNotFound = TRUE;
+    int		i;
+    /* Look if the object is contained already in the buffer: */
+    for ( i = 0; bNotFound && i < pObjIdBuffer->nShortObjIds; i++ ) {
+      bNotFound	= ( pObjIdBuffer->ShortObjIds [ i ] != oShortObjId );
+    }
     /* Put the object back into the PreAllocate table: */
-    pObjIdBuffer->ShortObjIds [ pObjIdBuffer->nShortObjIds++ ]	=
-      oShortObjId;
+    if ( bNotFound ) {
+      pObjIdBuffer->ShortObjIds [ pObjIdBuffer->nShortObjIds++ ]	=
+	oShortObjId;
+    } else {
+      CERROR (( szIgnoreDestroy,
+		"Can't destroy object "
+		UNREADABLE_OBJECT_PREFIX "zombie short-objid=%u"
+		UNREADABLE_OBJECT_SUFFIX "\n"
+		"       because it is already destroyed.",
+		oShortObjId ));
+    }
   } else {
     fnServerObjectDestroy ( oShortObjIdHeap, oShortObjId );
   }
@@ -530,13 +511,15 @@ static void		fnFreeObjIdBuffer	( POBJIDBUFFER	pObjIdBuffer,
 void			fnInvalidatePlobCache		( void )
 {
   PCLIENT	pClient	= (PCLIENT) NULL;
-  BOOL		bMapped;
+  BOOL		bMapped, bFreeObjIds;
   PCLNTTYPEINFO	pClntTypeInfo;
   u_int		i;
 
   PROCEDURE	( fnInvalidatePlobCache );
 
   pClient	= fnClientPlobd ();
+  bFreeObjIds	= ( pClient != NULL && fnClientPlobdFlush ( pClient ) );
+
   for ( bMapped = fnHashFirst ( &PreAllocated, (LPHASHKEY) NULL,
 				(LPVOID *) &pClntTypeInfo, (size_t *) NULL );
 	bMapped;
@@ -544,16 +527,14 @@ void			fnInvalidatePlobCache		( void )
 			       (LPVOID *) &pClntTypeInfo, (size_t *) NULL ) ) {
     if ( ( pClntTypeInfo->nTypeFlags & typeVarSizeMask ) == 0 ) {
       if ( pClntTypeInfo->Buffer.pObjIds != NULL ) {
-	fnFreeObjIdBuffer ( pClntTypeInfo->Buffer.pObjIds,
-			    (BOOL) ( pClient != NULL ) );
+	fnFreeObjIdBuffer ( pClntTypeInfo->Buffer.pObjIds, bFreeObjIds );
 	Free ( pClntTypeInfo->Buffer.pObjIds );
 	pClntTypeInfo->Buffer.pObjIds	= (POBJIDBUFFER) NULL;
       }
     } else if ( pClntTypeInfo->Buffer.ppObjIds != NULL ) {
       for ( i = 0; i < nMaxExtraLengths; i++ ) {
  	if ( pClntTypeInfo->Buffer.ppObjIds [ i ] != NULL ) {
-	  fnFreeObjIdBuffer ( pClntTypeInfo->Buffer.ppObjIds [ i ],
-			      (BOOL) ( pClient != NULL ) );
+	  fnFreeObjIdBuffer ( pClntTypeInfo->Buffer.ppObjIds [ i ], bFreeObjIds );
 	  Free ( pClntTypeInfo->Buffer.ppObjIds [ i ] );
 	  pClntTypeInfo->Buffer.ppObjIds [ i ]	= (POBJIDBUFFER) NULL;
 	}
@@ -605,21 +586,31 @@ PCLIENT		fnClientCreate	( LPCSTR	pszHost,
       int	l;
       LPCSTR	pszMaster	= ( fnPlobdGetPort () == nMasterPort ) ?
 	"master " : szEmpty;
-      if ( ! szContinue [ 0 ] ) {
-	sprintf ( szContinue, "Retry to connect to host %s.", szHost );
-      }
       strncpy ( szError, clnt_spcreateerror ( szHost ),
 		sizeof ( szError ) );
       szError [ sizeof ( szError ) - 1 ]	= '\0';
       for ( l = strlen ( szError ) - 1; l >= 0 && szError [ l ] <= ' '; l-- ) {
 	szError [ l ]	= '\0';
       }
-      CERROR (( szContinue,
-		"Connect to %sserver on host %s failed:\n"
-		"       %s\n"
-		"       Check if a PLOB! %sserver process"
-		" is running on the host.",
-		pszMaster, szHost, szError, pszMaster ));
+      if ( __bDeinitializePlob__ ) {
+	CERROR (( "Continue with shutdown without connecting.",
+		  "Connect to %sserver on host %s at shutdown failed:\n"
+		  "       %s\n"
+		  "       Check if a PLOB! %sserver process"
+		  " is running on the host.",
+		  pszMaster, szHost, szError, pszMaster ));
+	break;
+      } else {
+	if ( ! szContinue [ 0 ] ) {
+	  sprintf ( szContinue, "Retry to connect to host %s.", szHost );
+	}
+	CERROR (( szContinue,
+		  "Connect to %sserver on host %s failed:\n"
+		  "       %s\n"
+		  "       Check if a PLOB! %sserver process"
+		  " is running on the host.",
+		  pszMaster, szHost, szError, pszMaster ));
+      }
     }
   }
   return pClient;
@@ -878,15 +869,33 @@ BeginFunction ( FIXNUM,
 } EndFunction ( fnClientObjectObjIdSize );
 
 /* ----------------------------------------------------------------------- */
+BeginFunction ( BOOL,
+		fnClientDbConnect, "c-sh-connect",
+		( argument ( CONST_STRING, vector_in, szURL ) ) )
+{
+  BOOL	bDone = FALSE;
+
+  INITIALIZEPLOB;
+
+  bDone	= ( fnStartRemoteServer ( szURL, (GETACTION)
+				  ( (unsigned int) eGetPortActive |
+				    (unsigned int) eStartServer ) ) >= 0  );
+
+  RETURN ( bDone );
+} EndFunction ( fnClientDbConnect );
+
+/* ----------------------------------------------------------------------- */
 BeginFunction ( SHORTOBJID,
-		fnClientDbOpen, "c-sh-short-open",
-		( argument ( CONST_STRING, vector_in, szURL )
-		  and
-		  argument ( CONST_STRING, vector_in, szDescription )
+		fnClientDbOpen, "c-sh-open",
+		( argument ( CONST_STRING, vector_in, szDescription )
 		  and
 		  argument ( FIXNUM, value_in, nMinAddrInK ) ) )
 {
-  SHORTOBJID	oHeap;
+  SHORTOBJID	oHeap = NULLOBJID;
+  PCLIENT	pClient = (PCLIENT) NULL;
+  int		nAuth = -1;
+  AUTH	* pAuth = (AUTH *) NULL;
+  char	szHost [ MAX_FNAME ], szDirectory [ MAX_FNAME ];
 
   INITIALIZEPLOB;
 
@@ -896,10 +905,26 @@ BeginFunction ( SHORTOBJID,
   INFO (( "nGlobalFlagWord    %d", nGlobalFlagWord ));
   */
 
-  oHeap	= fnOpen ( szURL, (GETACTION)
-		   ( (unsigned int) eGetPortActive |
-		     (unsigned int) eStartServer ),
-		   szDescription );
+  pClient	= fnClientPlobd ();
+  if ( pClient == NULL ) {
+    ERROR (( "Missing call to connect() before open()" ));
+  } else {
+    fnSplitURL ( szGlobalDirectory, szHost, (LPSTR) NULL, szDirectory );
+    pAuth	= fnCreateAuth ( szHost, &nAuth );
+    if ( pAuth != NULL ) {
+      auth_destroy ( pClient->cl_auth );
+      pClient->cl_auth	= pAuth;
+    }
+    oHeap	= fnServerDbOpen ( szDirectory, fnGetUser (), szDescription,
+				   (FIXNUM) NULL,
+				   &oGlobalMinObjId, &oGlobalMaxObjId );
+    if ( nAuth != AUTH_NONE ) {
+      pAuth			= authnone_create ();
+      auth_destroy ( pClient->cl_auth );
+      pClient->cl_auth	= pAuth;
+    }
+  }
+
   if ( oHeap != NULLOBJID ) {
     fnCacheCreate ( oHeap );
   }
@@ -1763,6 +1788,6 @@ BeginFunction ( FIXNUM,
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */
