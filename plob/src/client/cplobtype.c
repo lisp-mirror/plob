@@ -62,6 +62,7 @@
 #include	"cploblock.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobroot.h"
 
 #define		RPCNOTYPES
@@ -212,9 +213,77 @@ BeginFunction ( FIXNUM,
   RETURN ( strlen ( lpszBuffer ) );
 } EndFunction ( fnClientObjectPrettyPrint );
 
+/* ----------------------------------------------------------------------- */
+BeginFunction ( COMPARETAG,
+		fnClientObjectCompare, "c-sh-compare",
+		( argument ( SHORTOBJID, value_in, oShortObjIdHeap )
+		  and
+		  argument ( FIXNUM, value_in, nValueFirst )
+		  and
+		  argument ( SHTYPETAG, value_in, nTypeTagFirst )
+		  and
+		  argument ( FIXNUM, value_in, nValueSecond )
+		  and
+		  argument ( SHTYPETAG, value_in, nTypeTagSecond ) ) )
+{
+  OBJID		oFirst = NULLOBJID, oSecond = NULLOBJID;
+  COMPARETAG	eCompared = eshNotEq;
+
+  INITIALIZEPLOB;
+
+  oFirst	= ( immediatep ( nTypeTagFirst ) ) ?
+    fnImmediate2ObjId ( nValueFirst, &nTypeTagFirst ) :
+    SHORT2LONGOBJID ( nValueFirst );
+  oSecond	= ( immediatep ( nTypeTagSecond ) ) ?
+    fnImmediate2ObjId ( nValueSecond, &nTypeTagSecond ) :
+    SHORT2LONGOBJID ( nValueSecond );
+
+  if ( oFirst == oSecond ) {
+    eCompared	= eshEq;
+  } else if ( minmarkerp ( oFirst ) || maxmarkerp ( oSecond )) {
+    eCompared	= eshLess;
+  } else if ( maxmarkerp ( oFirst ) || minmarkerp ( oSecond )) {
+    eCompared	= eshGreater;
+  } else if ( matchanymarkerp ( oFirst ) || matchanymarkerp ( oSecond ) ) {
+    eCompared	= eshEqual;
+  } else if ( matchnevermarkerp ( oFirst ) || matchnevermarkerp ( oSecond ) ) {
+    eCompared	= eshNotEqual;
+  } else if ( immediatep ( oFirst ) && immediatep ( oSecond ) ) {
+    if ( nTypeTagFirst == nTypeTagSecond ) {
+      switch ( nTypeTagFirst ) {
+      case eshShortFloatTag:
+	eCompared	= ( OBJID2SINGLEFLOAT ( oFirst ) <
+			    OBJID2SINGLEFLOAT ( oSecond ) ) ?
+	  eshLess : eshGreater;
+	break;
+      default:
+	eCompared	= ( nValueFirst < nValueSecond ) ?
+	  eshLess : eshGreater;
+	break;
+      }
+    } else {
+      eCompared	= eshNotEq;
+    }
+  } else {
+    if ( bGlobalDoCaching ) {
+      if ( oFirst != NULLOBJID && ! immediatep ( nTypeTagFirst)) {
+	fnCacheFlush ( NULLOBJID, LONG2SHORTOBJID ( oFirst ) );
+      }
+      if ( oSecond != NULLOBJID && ! immediatep ( nTypeTagSecond)) {
+	fnCacheFlush ( NULLOBJID, LONG2SHORTOBJID ( oSecond ) );
+      }
+    }
+    eCompared	=
+      fnServerObjectCompare ( SHORT2LONGOBJID ( oShortObjIdHeap ),
+			      oFirst, oSecond );
+  }
+
+  RETURN ( eCompared );
+
+} EndFunction ( fnClientObjectCompare );
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

@@ -64,6 +64,7 @@ STDINCLUDE=\
  $(SRCIDIR) slash fileH(global) spc \
  $(SRCIDIR) slash fileH(hash) spc \
  $(SRCIDIR) slash fileH(generic) spc \
+ $(SRCIDIR) slash fileH(plob) \
  fileH(cplob) spc \
  ddot slash include slash fileH(plobconst) spc \
  ddot slash include slash fileH(plobintern)
@@ -74,8 +75,6 @@ cplobrootDeps=$(SRCIDIR) slash fileH(plobversion)
 
 /* No position-independent code for Windows/NT: */
 PICDIR=$(opsys)
-/* No static library for Windows/NT: */
-#define LibraryTarget
 /* DLL resource file: */
 #define	ResourceTarget $(opsys) slash librpclientplob dot res
 /* Option and name of import library for DLL: */
@@ -85,21 +84,42 @@ paste4(-,implib,:,$(LIBDIR) slash trim(fileLib(librpclientplobimp))) spc
 #else
 
 PICDIR=$(opsys) slash pic
-#define LibraryTarget $(LIBRARY)
 #define	ResourceTarget
 #define ImplibOption
 
 #endif
 
-/* Static library definitions */
+#define LibraryTarget $(LIBRARY)
 
-OBJECTS=trim(PlobFiles($(opsys) slash c,suffixObj))
-
+#include	"../common/filelist.in"
 COMMONOBJECTS=\
  trim(CommonFiles(ddot slash common slash $(opsys) slash,suffixObj))
 
+/* Shared library definitions */
+
+SHAREDCOMMONOBJECTS=\
+ trim(CommonFiles(ddot slash common slash $(PICDIR) slash,suffixObj))
+
+#include	"../lcommon/filelist.in"
 LCOMMONOBJECTS=\
  trim(PlobFiles(ddot slash lcommon slash $(opsys) slash lc,suffixObj))
+
+LSHAREDCOMMONOBJECTS=\
+ trim(PlobFiles(ddot slash lcommon slash $(PICDIR) slash lc,suffixObj))
+
+#include		"filelist.in"
+
+/* Static library definitions */
+
+OBJECTS=trim(PlobFiles($(opsys) slash c,suffixObj))
+SHAREDOBJECTS=trim(PlobFiles($(PICDIR) slash c,suffixObj))
+
+SHAREDLIBFILES=$(SHAREDOBJECTS) spc \
+ $(PICDIR) slash fileObj(plobdclnt) spc \
+ ddot slash common slash $(PICDIR) slash fileObj(plobdxdr) spc \
+ ddot slash common slash $(PICDIR) slash fileObj(plobpxdr) spc \
+ $(SHAREDCOMMONOBJECTS) spc \
+ $(LSHAREDCOMMONOBJECTS)
 
 LIBFILES=$(OBJECTS) spc \
  $(opsys) slash fileObj(plobdclnt) spc \
@@ -110,23 +130,6 @@ LIBFILES=$(OBJECTS) spc \
 
 LIBRPCLIENTLIB=trim(fileLib(librpclientplob))
 LIBRARY=$(LIBDIR) slash $(LIBRPCLIENTLIB)
-
-/* Shared library definitions */
-
-SHAREDOBJECTS=trim(PlobFiles($(PICDIR) slash c,suffixObj))
-
-SHAREDCOMMONOBJECTS=\
- trim(CommonFiles(ddot slash common slash $(PICDIR) slash,suffixObj))
-
-LSHAREDCOMMONOBJECTS=\
- trim(PlobFiles(ddot slash lcommon slash $(PICDIR) slash lc,suffixObj))
-
-SHAREDLIBFILES=$(SHAREDOBJECTS) spc \
- $(PICDIR) slash fileObj(plobdclnt) spc \
- ddot slash common slash $(PICDIR) slash fileObj(plobdxdr) spc \
- ddot slash common slash $(PICDIR) slash fileObj(plobpxdr) spc \
- $(SHAREDCOMMONOBJECTS) spc \
- $(LSHAREDCOMMONOBJECTS)
 
 LIBRPCLIENTPLOBDLL=trim(fileDll(librpclientplob))
 SHAREDLIBRARY=$(LIBDIR) slash $(LIBRPCLIENTPLOBDLL)
@@ -274,6 +277,6 @@ drule ( $(STDTARGETS), \
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */
