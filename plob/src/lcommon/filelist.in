@@ -1,0 +1,36 @@
+/**
+ * generator macros for 'server' files
+ * $Header$
+ */
+
+#if defined(MkPlobFiles31)
+#undef	MkPlobFiles31
+#endif
+#define MkPlobFiles31(wrapper,prefix,suffix) \
+ wrapper(prefix,plob,suffix) spc \
+ wrapper(prefix,plobmisc,suffix)
+
+#if defined(MkPlobFiles32)
+#undef	MkPlobFiles32
+#endif
+#define MkPlobFiles32(wrapper,prefix,suffix) \
+ wrapper(prefix,plobff,suffix)
+
+#if defined(MkPlobFiles33)
+#undef	MkPlobFiles33
+#endif
+#define MkPlobFiles33(wrapper,prefix,suffix) \
+ wrapper(prefix,plobtype,suffix) spc \
+ wrapper(prefix,plobnumber,suffix)
+
+#if defined(MkPlobFiles34)
+#undef	MkPlobFiles34
+#endif
+#define MkPlobFiles34(wrapper,prefix,suffix)
+
+/*
+  Local variables:
+  file-buffer-coding-system: raw-text-unix
+  mode: C
+  End:
+*/
