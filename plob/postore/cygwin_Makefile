@@ -1,0 +1,29 @@
+
+# 2004-03-21 HK: Makefile settings for use with Cygwin
+
+ARCH=cygwin
+
+CC=gcc
+CINCLUDES=-g -I$(POSTOREDIR)/cygwin/include
+
+CLIBS=c:\WINDOWS\system32\msvcrt.dll
+
+CAT=cat
+CHMOD=chmod
+CP=cp
+ECHO=echo '
+ENDECHO='
+MAKE=make
+MKDIR=mkdir
+RANLIB=ranlib -t
+RM=rm -f
+SL=/
+
+MAKEFILE=makefile
+MAKEWIN32=:
+STDLIB=
+SSTOREO=
+
+# Local variables:
+# buffer-file-coding-system: raw-text-unix
+# End:
