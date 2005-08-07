@@ -39,6 +39,12 @@
 #if ! defined(PLOBDADMIN_H)
 #define	PLOBDADMIN_H
 
+#if !(USEDLL+0)
+/* 2005-04-26 hkirschk: static linking */
+#define		DLLEXPORT
+#define		DLLEXPORTVAR
+#endif
+
 #include	<ctype.h>
 #include	<stdio.h>
 #include	<stdlib.h>
@@ -64,6 +70,7 @@
 #include	"cploblock.h"
 #include	"cplobheap.h"
 #include	"cplobbtree.h"
+#include	"cplobregex.h"
 #include	"cplobnumber.h"
 #include	"cplobroot.h"
 #include	"cplobadmin.h"
@@ -79,8 +86,6 @@
 typedef enum {
   eSilent,
   eVerbose,
-  eVeryVerbose,
-  eVeryVeryVerbose,
   eDefaultVerbose	= eVerbose
 }	VERBOSE, * PVERBOSE;
 
@@ -126,6 +131,6 @@ typedef struct {
 
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */

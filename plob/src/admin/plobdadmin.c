@@ -57,6 +57,8 @@ typedef struct {
 typedef const DISPATCHENTRY *	PCDISPATCHENTRY;
 
 static const char	szFormatPrompt []	= "%s>";
+#define			SZSTDIN			"-"
+static const char	szStdIn []		= SZSTDIN;
 
 #define	PLOBDRCVAR	"PLOBDRC"
 static const char	szPlobdRcVar []		= PLOBDRCVAR;
@@ -87,7 +89,8 @@ static void	fnAdminAtExit		( void );
 static LPFILE	fnAdminStreamIn		( PADMINAPPL	pAdmin );
 static LPFILE	fnAdminStreamOut	( PADMINAPPL	pAdmin );
 
-static BOOL	fnAdminAssertOpen	( PADMINAPPL	pAdmin );
+static BOOL	fnAdminAssertOpen	( PADMINAPPL	pAdmin,
+					  BOOL		bOpen );
 static void	fnAdminClose		( PADMINAPPL	pAdmin,
 					  BOOL		bWithGC );
 
@@ -164,19 +167,29 @@ static BOOL	fnAdminCmdReset		( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
 static BOOL	fnAdminCmdRestart	( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
+static BOOL	fnAdminCmdResume	( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory );
 static BOOL	fnAdminCmdRoot		( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
 static BOOL	fnAdminCmdSessions	( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
 static BOOL	fnAdminCmdSource	( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
-static BOOL	fnAdminCmdStart		( PADMINAPPL	pAdmin,
+static BOOL	fnAdminCmdConnect	( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory );
+static BOOL	fnAdminCmdShell		( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory );
+static BOOL	fnAdminCmdSilent	( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
 static BOOL	fnAdminCmdStatistics	( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
 static BOOL	fnAdminCmdStop		( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
+static BOOL	fnAdminCmdSuspend	( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory );
 static BOOL	fnAdminCmdURL		( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory );
+static BOOL	fnAdminCmdVerbose	( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory );
 
 static BOOL	fnAdminRun		( PADMINAPPL	pAdmin );
@@ -205,17 +218,27 @@ static const DISPATCHENTRY GlobalDispatchTable []	= {
     "Get or set the database root directory.\n"
     "\t  Passing a value of `*' will request the current database root\n"
     "\t  directory from the current server. The root directory is only\n"
-    "\t  needed for the start command.",
+    "\t  needed for the `connect' command.",
     fnAdminCmdRoot },
 
+  { "silent",
+    "Switch to silent mode.",
+    fnAdminCmdSilent },
+
+  { "verbose",
+    "Switch to verbose mode.",
+    fnAdminCmdVerbose },
+  
   { "\n\t\tStarting/stopping a server process:",
     (LPCSTR) NULL,
     (LPFNCOMMAND) NULL
   },
 
-  { "start [<url>] [<database root directory>]",
-    "Start a PLOB server process and open a database.",
-    fnAdminCmdStart },
+  { "connect [<url>] [<database root directory>]",
+    "Connect to a PLOB server process and open a database.\n"
+    "\t  If the server for the passed url is not yet running, it will be\n"
+    "\t  started.",
+    fnAdminCmdConnect },
 
   { "close [gc]",
     "Close the current database.\n"
@@ -242,6 +265,17 @@ static const DISPATCHENTRY GlobalDispatchTable []	= {
     "\t  Only the PLOB administrator of a database can stop the server\n"
     "\t  process.",
     fnAdminCmdStop },
+
+  { "suspend [<reason>]",
+    "Suspend the current server. Clients requests will be blocked until\n"
+    "\t  the server resumes its work. When suspending, care is taken that\n"
+    "\t  all data is flushed to disk, e.g. during being suspended, a database\n"
+    "\t  directory backup can be done.",
+    fnAdminCmdSuspend},
+
+  { "resume",
+    "Resume the current server, so that clients requests will handled again.",
+    fnAdminCmdResume },
 
   { "\n\t\tServer process administration:",
     (LPCSTR) NULL,
@@ -284,6 +318,10 @@ static const DISPATCHENTRY GlobalDispatchTable []	= {
     "Comment character.",
     (LPFNCOMMAND) NULL },
 
+  { "! [<command>]",
+    "Execute a shell command.",
+    fnAdminCmdShell },
+
   { "help [<items>]",
     "Echo this help text.\n"
     "\t  If <items> are given, only the help text of commands matching\n"
@@ -295,7 +333,7 @@ static const DISPATCHENTRY GlobalDispatchTable []	= {
     fnAdminCmdEcho },
 
   { "source <file>",
-    "Source in commands from <file>.\n"
+    "Source in commands from <file>. `" SZSTDIN "' means to read from stdin.\n"
     "\t  On startup, " PLOBDADMIN " tries to source in file ${" PLOBDRCVAR
     "};\n"
     "\t  if that file does not exist, file ${HOME}/" PLOBDRCFILE
@@ -364,6 +402,7 @@ static int 	fnAdminErrorHandler	( ERRORLEVEL	eLevel,
 {
   static int	nErrors		= 0;
   const int	nExitCode	= 254;
+  ERRORLEVEL	nErrorMax	= errError;
   int		nReturn = 0, a = 0;
   int		nActionBreak = -1;
   int		nActionContinue = -1;
@@ -377,6 +416,9 @@ static int 	fnAdminErrorHandler	( ERRORLEVEL	eLevel,
     nReturn	= fnGlobalErrorHandler ( eLevel, lpszContinue, lpszErrorMsg );
     RETURN ( nReturn );
   }
+
+  nErrorMax	= ( pGlobalAdmin->eSource == eFromInteractive ) ?
+    errError : errCError;
 
   switch ( eLevel ) {
 
@@ -475,7 +517,7 @@ static int 	fnAdminErrorHandler	( ERRORLEVEL	eLevel,
     break;
   }
 
-  if ( eLevel >= errError ) {
+  if ( eLevel >= nErrorMax ) {
     if ( pGlobalAdmin->bJmpBufErrorValid ) {
       longjmp ( pGlobalAdmin->jmpbufError, 1 );
     } else {
@@ -606,7 +648,8 @@ static LPFILE	fnAdminStreamOut	( PADMINAPPL	pAdmin )
 } /* fnAdminStreamOut */
 
 /* ----------------------------------------------------------------------- */
-static BOOL	fnAdminAssertOpen	( PADMINAPPL	pAdmin )
+static BOOL	fnAdminAssertOpen	( PADMINAPPL	pAdmin,
+					  BOOL		bOpen )
 {
   BOOL	bIsOpen = FALSE;
 
@@ -647,9 +690,12 @@ static BOOL	fnAdminAssertOpen	( PADMINAPPL	pAdmin )
       pAdmin->oHeap	= NULLOBJID;
       bIsOpen		= FALSE;
     } else {
-      pAdmin->oHeap		=
-	fnClientDbOpen ( pAdmin->pszURL, szPlobdAdmin, 0 );
-      bIsOpen			= pAdmin->oHeap != NULLOBJID;
+      bIsOpen		= fnClientDbConnect ( pAdmin->pszURL );
+      if ( bIsOpen && bOpen ) {
+	pAdmin->oHeap		=
+	  fnClientDbOpen ( szPlobdAdmin, 0 );
+	bIsOpen			= ( pAdmin->oHeap != NULLOBJID );;
+      }
     }
     pAdmin->bJmpBufErrorValid	= bJmpBufErrorValid;
     memcpy ( &pAdmin->jmpbufError, &jmpbufError,
@@ -721,7 +767,7 @@ static LPSTR	fnAdminReadRootDirectory( PADMINAPPL	pAdmin,
     }
     if ( strcmp ( szRootDirectory, "*" ) == 0 ) {
       szRootDirectory [ 0 ]	= '\0';
-      if ( fnAdminAssertOpen ( pAdmin ) ) {
+      if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
 	fnServerGetDirectory ( sizeof ( szRootDirectory ),
 			       szRootDirectory );
       }
@@ -868,7 +914,8 @@ static LPFILE	fnAdminFilePush		( PADMINAPPL	pAdmin,
     WARN (( "Nesting depth of %d exceeded at opening command file %s",
 	    pAdmin->nFiles, pszName ));
   } else {
-    pFile	= fopen ( pszName, szStreamRead );
+    pFile	= ( strcmp ( pszName, szStdIn ) == 0 ) ?
+      stdin : fopen ( pszName, szStreamRead );
     if ( pFile != NULL ) {
       pAdmin->nFiles++;
       pAdmin->Files [ pAdmin->nFiles ].pStreamIn	= pFile;
@@ -891,7 +938,9 @@ static BOOL	fnAdminFilePop		( PADMINAPPL	pAdmin )
   PROCEDURE	( fnAdminFilePop );
 
   if ( bPopped ) {
-    fclose ( pAdmin->Files [ pAdmin->nFiles ].pStreamIn );
+    if ( pAdmin->Files [ pAdmin->nFiles ].pStreamIn != stdin ) {
+      fclose ( pAdmin->Files [ pAdmin->nFiles ].pStreamIn );
+    }
     pAdmin->Files [ pAdmin->nFiles ].pStreamIn	= NULL;
     if ( pAdmin->Files [ pAdmin->nFiles ].pszFilename != NULL ) {
       free ( pAdmin->Files [ pAdmin->nFiles ].pszFilename );
@@ -1255,7 +1304,7 @@ static int	fnAdminCreateStartLocal	( PADMINAPPL	pAdmin,
     BOOL	bJmpBufErrorValid;
     jmp_buf	jmpbufError;
     int		nCaughtError;
-    strncpy ( szPlobd, "./plobd", MAX_FNAME );
+    strncpy ( szPlobd, "plobd", MAX_FNAME );
     bJmpBufErrorValid		= pAdmin->bJmpBufErrorValid;
     memcpy ( &jmpbufError, &pAdmin->jmpbufError, sizeof ( jmpbufError ) );
     pAdmin->bJmpBufErrorValid	= TRUE;
@@ -1386,8 +1435,10 @@ static BOOL	fnAdminCmdStop		( PADMINAPPL	pAdmin,
     RETURN ( bFinish );
   }
 
-  fnAdminClose ( pAdmin, FALSE );
-  fnClientExit ( pszURL, TRUE );
+  if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
+    fnClientExit ( pAdmin->oHeap, TRUE );
+    pAdmin->oHeap	= NULLOBJID;
+  }
 
   if ( szURL [ 0 ] != '\0' ) {
     fnAdminSetURL ( pAdmin, szURL );
@@ -1397,6 +1448,33 @@ static BOOL	fnAdminCmdStop		( PADMINAPPL	pAdmin,
 } /* fnAdminCmdStop */
 
 /* ----------------------------------------------------------------------- */
+static BOOL	fnAdminCmdSuspend	( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory )
+{
+  LPSTR	pszPeeked	= NULL;
+  BOOL	bFinish	= FALSE;
+  char	szReason [ 1024 ];
+  int	i = 0;
+
+  PROCEDURE	( fnAdminCmdSuspend );
+
+  szReason [ i ]	= '\0';
+  while ( ( pszPeeked = fnAdminArgPeek ( pAdmin ) ) != NULL ) {
+    if ( i > 0 ) {
+      strncpy ( & szReason [ i++ ], szSpace, sizeof ( szReason ) - 1 - i );
+    }
+    strncpy ( & szReason [ i ], pszPeeked, sizeof ( szReason ) -1 - i );
+    fnAdminArgPop ( pAdmin, NULL, 0 );
+    i	+= strlen ( & szReason [ i ] );
+  }
+  if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
+    fnClientSuspend ( pAdmin->oHeap, szReason );
+  }
+
+  RETURN ( bFinish );
+} /* fnAdminCmdSuspend */
+
+/* ----------------------------------------------------------------------- */
 static BOOL	fnAdminCmdFlush		( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory )
 {
@@ -1404,7 +1482,7 @@ static BOOL	fnAdminCmdFlush		( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCmdFlush );
 
-  if ( fnAdminAssertOpen ( pAdmin ) ) {
+  if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
     fnClientDbStabilise ( pAdmin->oHeap );
   }
 
@@ -1419,7 +1497,7 @@ static BOOL	fnAdminCmdInfo		( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCmdInfo );
 
-  if ( fnAdminAssertOpen ( pAdmin ) ) {
+  if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
     char	szRootDirectory [ 256 ];
     int		i;
     char	szVersions [ esvVersionLen ] [ 16 ];
@@ -1472,8 +1550,10 @@ static BOOL	fnAdminCmdReset		( PADMINAPPL	pAdmin,
     RETURN ( bFinish );
   }
 
-  fnAdminClose ( pAdmin, FALSE );
-  fnClientDbReset ( pszURL, TRUE );
+  if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
+    fnClientDbReset ( pAdmin->oHeap, TRUE );
+    fnAdminClose ( pAdmin, TRUE );
+  }
 
   if ( szURL [ 0 ] != '\0' ) {
     fnAdminSetURL ( pAdmin, szURL );
@@ -1497,8 +1577,10 @@ static BOOL	fnAdminCmdRestart	( PADMINAPPL	pAdmin,
     RETURN ( bFinish );
   }
 
-  fnAdminClose ( pAdmin, FALSE );
-  fnClientRestart ( pszURL, TRUE );
+  if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
+    fnClientRestart ( pAdmin->oHeap, TRUE );
+    pAdmin->oHeap	= NULLOBJID;
+  }
 
   if ( szURL [ 0 ] != '\0' ) {
     fnAdminSetURL ( pAdmin, szURL );
@@ -1506,6 +1588,21 @@ static BOOL	fnAdminCmdRestart	( PADMINAPPL	pAdmin,
 
   RETURN ( bFinish );
 } /* fnAdminCmdRestart */
+
+/* ----------------------------------------------------------------------- */
+static BOOL	fnAdminCmdResume	( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory )
+{
+  BOOL		bFinish	= FALSE;
+
+  PROCEDURE	( fnAdminCmdResume );
+
+  if ( fnAdminAssertOpen ( pAdmin, FALSE ) ) {
+    fnClientResume ();
+  }
+
+  RETURN ( bFinish );
+} /* fnAdminCmdResume */
 
 /* ----------------------------------------------------------------------- */
 static BOOL	fnAdminCmdRoot		( PADMINAPPL	pAdmin,
@@ -1536,7 +1633,7 @@ static BOOL	fnAdminCmdSessions	( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCmdSessions );
 
-  if ( fnAdminAssertOpen ( pAdmin ) ) {
+  if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
     SHORTOBJID	oSessions	= fnClientDbSessions ( pAdmin->oHeap );
     if ( oSessions != NULLOBJID ) {
       SHORTOBJID	oMapper	= NULLOBJID;
@@ -1549,8 +1646,7 @@ static BOOL	fnAdminCmdSessions	( PADMINAPPL	pAdmin,
 	      fnClientBtreemapFirst ( &oMapper, pAdmin->oHeap, oSessions,
 				      minmarker, minmarker, eshGreaterEqual,
 				      maxmarker, maxmarker, eshLessEqual,
-				      FALSE,
-				      1, 
+				      FALSE, NULLOBJID, 1,
 				      &nValueKey, &nTypeTagKey,
 				      &nValueData, &nTypeTagData );
 	    nMapped == 1;
@@ -1592,19 +1688,53 @@ static BOOL	fnAdminCmdSource	( PADMINAPPL	pAdmin,
 } /* fnAdminCmdSource */
 
 /* ----------------------------------------------------------------------- */
-static BOOL	fnAdminCmdStart		( PADMINAPPL	pAdmin,
+static BOOL	fnAdminCmdConnect	( PADMINAPPL	pAdmin,
 					  BOOL		bMandatory )
 {
   BOOL	bFinish	= FALSE;
 
-  PROCEDURE	( fnAdminCmdStart );
+  PROCEDURE	( fnAdminCmdConnect );
 
   bFinish	= fnAdminCreateStart ( pAdmin, bMandatory, (GETACTION)
 				       ( (unsigned int) eGetPortActive |
 					 (unsigned int) eStartServer ) );
 
   RETURN ( bFinish );
-} /* fnAdminCmdStart */
+} /* fnAdminCmdConnect */
+
+/* ----------------------------------------------------------------------- */
+static BOOL	fnAdminCmdShell		( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory )
+{
+  LPSTR	pszPeeked	= NULL;
+  BOOL	bFinish	= FALSE;
+  char	szCommand [ 1024 ];
+  int	i = 0;
+
+  szCommand [ i ]	= '\0';
+  while ( ( pszPeeked = fnAdminArgPeek ( pAdmin ) ) != NULL ) {
+    if ( i > 0 ) {
+      strncpy ( & szCommand [ i++ ], szSpace, sizeof ( szCommand ) - 1 - i );
+    }
+    strncpy ( & szCommand [ i ], pszPeeked, sizeof ( szCommand ) -1 - i );
+    fnAdminArgPop ( pAdmin, NULL, 0 );
+    i	+= strlen ( & szCommand [ i ] );
+  }
+  system ( szCommand );
+
+  RETURN ( bFinish );
+} /* fnAdminCmdShell */
+
+/* ----------------------------------------------------------------------- */
+static BOOL	fnAdminCmdSilent	( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory )
+{
+  BOOL	bFinish	= FALSE;
+
+  pAdmin->eVerbose	= eSilent;
+
+  RETURN ( bFinish );
+} /* fnAdminCmdSilent */
 
 /* ----------------------------------------------------------------------- */
 static BOOL	fnAdminCmdStatistics	( PADMINAPPL	pAdmin,
@@ -1617,7 +1747,7 @@ static BOOL	fnAdminCmdStatistics	( PADMINAPPL	pAdmin,
 
   PROCEDURE	( fnAdminCmdStatistics );
 
-  if ( fnAdminAssertOpen ( pAdmin ) ) {
+  if ( fnAdminAssertOpen ( pAdmin, TRUE ) ) {
     FIXNUM	nMaximumSpace			= 0;
     char	szMaximumSpace [ 32 ];
     char	szMaximumSpaceKB [ 32 ];
@@ -1704,6 +1834,17 @@ static BOOL	fnAdminCmdURL		( PADMINAPPL	pAdmin,
 } /* fnAdminCmdURL */
 
 /* ----------------------------------------------------------------------- */
+static BOOL	fnAdminCmdVerbose	( PADMINAPPL	pAdmin,
+					  BOOL		bMandatory )
+{
+  BOOL	bFinish	= FALSE;
+
+  pAdmin->eVerbose	= eVerbose;
+
+  RETURN ( bFinish );
+} /* fnAdminCmdVerbose */
+
+/* ----------------------------------------------------------------------- */
 static BOOL	fnAdminRun		( PADMINAPPL	pAdmin )
 {
 
@@ -1746,7 +1887,7 @@ static BOOL	fnAdminRun		( PADMINAPPL	pAdmin )
     nCommand	= strlen ( pszCommand );
     nFound	= -1;
     if ( nCommand > 0 ) {
-      for ( i = 0, nFound = 0; i < length ( GlobalDispatchTable ); i++ ) {
+      for ( i = 0, nFound = 0; i < length ( GlobalDispatchTable ) && nFound < 2; i++ ) {
 	int	n;
 	for ( n = 0; GlobalDispatchTable [ i ].pszCommand [ n ] > ' '; n++ );
 	if ( GlobalDispatchTable [ i ].pfnCommand != (LPFNCOMMAND) NULL &&
@@ -1755,8 +1896,8 @@ static BOOL	fnAdminRun		( PADMINAPPL	pAdmin )
 		       nCommand ) == 0 ) {
 	  if ( nFound == 0 ) {
 	    pEntry	= &GlobalDispatchTable [ i ];
-	    nFound++;
 	  }
+	  nFound++;
 	}
       }
     }
@@ -1826,9 +1967,11 @@ int		main			( int		argc,
   }
 
   while ( ! fnAdminRun ( pAdmin ) );
+
+  exit ( 0 );
 }
 /*
   Local variables:
-  buffer-file-coding-system: iso-latin-1-unix
+  buffer-file-coding-system: raw-text-unix
   End:
 */
