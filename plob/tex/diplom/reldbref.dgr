@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 \input{diagdefs}%
 %
@@ -46,3 +45,8 @@
 Kopplung \"{u}ber {\em{}Join}}}}\restore%
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

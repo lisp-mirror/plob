@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % ?.7.94
 %
@@ -78,3 +77,8 @@
 			    \footnotesize\centering%
 		            Persistente\\Objekte}}\restore%
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

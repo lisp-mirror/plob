@@ -1,4 +1,3 @@
-%       This is -*-LaTeX-*-
 %
 % 8.7.94
 %
@@ -72,3 +71,8 @@ _(0.6){\Text{\textrm{\footnotesize{}Transparenter}\\%
                                      \parbox{\colvw}{\hfill\postore}%
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

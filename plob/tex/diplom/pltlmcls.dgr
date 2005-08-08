@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 \input{diagdefs}%
 \def\class#1{#1}
@@ -43,3 +42,8 @@
 			 \subclassof[-1,0]|>\stip\\
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

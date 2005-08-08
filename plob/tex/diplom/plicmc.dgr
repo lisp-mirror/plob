@@ -1,4 +1,3 @@
-%       This is -*-LaTeX-*-
 %
 \input{diagdefs}%
 %
@@ -85,3 +84,8 @@ persistenten \clsdo.
                   \Drop{\usebox{\cleg}}\restore
 %
 \end{diagram}
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

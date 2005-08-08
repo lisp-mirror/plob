@@ -1,4 +1,3 @@
-%       This is -*-LaTeX-*-
 %
 % 15.09.93
 %
@@ -86,3 +85,8 @@
 &\ogrow{\text{\lisp{GEHALT=3000}}}%
                 &&\ogrow{\text{\lisp{GEHALT=6000}}}%
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

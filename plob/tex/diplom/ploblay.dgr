@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % 15.09.93
 %
@@ -61,3 +60,8 @@
 				  \text{\textrm{\small\sh-Datei}}}\restore
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 \input{diagdefs}%
 \def\class#1{#1}
@@ -36,3 +35,8 @@
 		  \rule{\wd\mdescr}{0em}
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

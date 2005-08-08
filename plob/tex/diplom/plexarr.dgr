@@ -1,4 +1,3 @@
-%       This is -*-LaTeX-*-
 %
 % 1.9.94
 %
@@ -91,3 +90,8 @@
 \colibox{\em 1.\ dimension}
         &&\frtxt{4}
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

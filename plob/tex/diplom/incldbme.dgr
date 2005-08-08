@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % incldbme.dgr
 % 17.8.95
@@ -19,3 +18,8 @@
 				  \mkbox{2}{Real\\system R}
 \end{diagram}
 \end{small}
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

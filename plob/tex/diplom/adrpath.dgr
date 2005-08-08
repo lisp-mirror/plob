@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % 10.8.94
 %
@@ -71,3 +70,7 @@
 $\rightarrow$: Lokalisierungspfad
 }}\restore%
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

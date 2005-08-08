@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % 20.09.93
 %
@@ -80,3 +79,8 @@
   &\rule{\csep}{0ex}
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

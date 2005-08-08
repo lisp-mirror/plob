@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % 20.09.93
 %
@@ -111,3 +110,8 @@ Klassenname $\rightarrow$\\%
 		      \raisebox{0ex}[0ex][\stdomargin]{}}
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 \input{diagdefs}%
 %
@@ -33,3 +32,8 @@
 		&&\Text{\rule{0em}{2ex}\\{}\textrm{Datenobjekte}}%
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

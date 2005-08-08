@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % 10.8.94
 %
@@ -117,3 +116,7 @@
 \oiii: Objekt mit Zustand \oslotii\ in \Slt\ \oslotname
 }}\restore%
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

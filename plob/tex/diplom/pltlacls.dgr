@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 \input{diagdefs}%
 \def\class#1{#1}
@@ -44,3 +43,8 @@
 		  \rule{0em}{\ht\perwm}
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

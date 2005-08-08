@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % 03.09.93
 %
@@ -45,3 +44,8 @@
   Datenflu\ss{}}}}\restore
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

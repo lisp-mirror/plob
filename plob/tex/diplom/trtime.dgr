@@ -1,4 +1,3 @@
-%	This is -*-LaTeX-*-
 %
 % 11.8.94
 %
@@ -48,3 +47,8 @@
 _{\text{\textrm{\small Transaktion}}}&\vbar
 %
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 

@@ -1,4 +1,3 @@
-%       This is -*-LaTeX-*-
 %
 % 21.10.93
 %
@@ -109,3 +108,8 @@ Transientes\\Objektsystem}}\restore%
 \ov, \ovi: Von der transienten Variable \lisp{P}\ erreichbare Objekte%
 }}\restore%
 \end{diagram}%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% buffer-file-coding-system: raw-text-unix
+%%% End: 
