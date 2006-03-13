@@ -59,7 +59,7 @@ input xyd
 
 bye.
 %
-% $Log$
+% $Log: xybsql10.mf,v $
 % Revision 1.2  2001/02/14 10:57:04  hkirschk
 % Plob 2.10 beta 1 checkin
 %

@@ -61,7 +61,7 @@ input xyd2
 
 bye.
 %
-% $Log$
+% $Log: xydash10.mf,v $
 % Revision 1.3  2005/08/07 20:06:49  hkirschk
 % Update to Plob 2.11.
 %

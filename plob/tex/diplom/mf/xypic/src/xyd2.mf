@@ -47,7 +47,7 @@ for cc =  0 step 1 until  30: chartowards(cc,(31-cc)/32,         1); endfor;
 for cc = 31 step 1 until  63: chartowards(cc,(cc-31)/32,        -1); endfor;
 for cc = 64 step 1 until 127: chartowards(cc,         1,(cc-95)/32); endfor;
 %
-% $Log$
+% $Log: xyd2.mf,v $
 % Revision 1.3  2005/08/07 20:06:49  hkirschk
 % Update to Plob 2.11.
 %
