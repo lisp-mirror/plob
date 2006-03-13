@@ -366,3 +366,8 @@ print_stat(dec)
 	}
 	print_ifstat(1, prefix, type, rel, amax, name, dec->name);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

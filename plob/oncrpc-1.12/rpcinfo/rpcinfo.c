@@ -696,3 +696,8 @@ get_inet_address(addr, host)
 	}
 	addr->sin_family = AF_INET;
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

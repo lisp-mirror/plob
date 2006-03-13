@@ -30,3 +30,8 @@ int *val;
 	printf("set called; value: %d\n", count);
 	return (&count);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

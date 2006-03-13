@@ -25,5 +25,5 @@ clean:
 rpcinfo.obj: rpcinfo.c getopt.c
 
 #### Local variables:
-#### buffer-file-coding-system: raw-text-dos
+#### buffer-file-coding-system: raw-text-unix
 #### End:

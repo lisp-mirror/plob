@@ -308,3 +308,8 @@ Report(LPTSTR lpszMsg)
         (VOID) DeregisterEventSource(hEventSource);
     }
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

@@ -166,3 +166,8 @@ typedef struct definition definition;
 
 /* @(#)rpc_parse.h	2.1 88/08/01 4.0 RPCSRC */
 definition *get_definition();
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

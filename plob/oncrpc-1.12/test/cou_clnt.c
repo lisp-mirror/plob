@@ -48,3 +48,8 @@ set_1(argp, clnt)
 	return (&res);
 }
 
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

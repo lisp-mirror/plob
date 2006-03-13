@@ -44,3 +44,8 @@ main(argc, argv)
 
   exit(0);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

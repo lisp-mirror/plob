@@ -26,4 +26,8 @@ extern int *set_1(...);
 #else
 extern int *set_1();
 #endif /* __cplusplus */
-
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

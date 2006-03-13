@@ -368,3 +368,8 @@ callit(rqstp, xprt)
 	}
 	(void)closesocket(socket);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

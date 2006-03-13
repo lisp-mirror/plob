@@ -451,3 +451,8 @@ printwhere()
 	}
 	(void) fputc('\n', stderr);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

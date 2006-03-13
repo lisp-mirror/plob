@@ -127,3 +127,8 @@ void write_programs();
  * rpc_clntout routines
  */
 void write_stubs();
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

@@ -110,3 +110,8 @@ void scan_num();
 void peek();
 int peekscan();
 void get_token();
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

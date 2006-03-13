@@ -9,3 +9,6 @@ copy ..\etc\rpc %SystemRoot%\system32\drivers\etc
 :inst_pm
 ..\bin\inst_pm %SystemRoot%\system32\portmap.exe
 echo "Done."
+rem Local variables:
+rem buffer-file-coding-system: raw-text-unix
+rem End:

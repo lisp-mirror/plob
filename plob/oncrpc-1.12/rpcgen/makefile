@@ -56,5 +56,5 @@ rpc_clnt.obj: .\rpc_pars.h
 rpc_clnt.obj: .\rpc_util.h
 
 #### Local variables:
-#### buffer-file-coding-system: raw-text-dos
+#### buffer-file-coding-system: raw-text-unix
 #### End:

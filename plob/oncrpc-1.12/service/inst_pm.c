@@ -89,3 +89,8 @@ main(int argc, char *argv[])
 
     CloseServiceHandle(manager);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/
