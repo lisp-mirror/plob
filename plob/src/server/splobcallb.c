@@ -5,7 +5,7 @@
 | Date		1998/07/08 created
 | Description	Callbacks for server
 |
-| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2006 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -32,7 +32,7 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
-| $Header$
+| $Id$
 |
  ------------------------------------------------------------------------- */
 #include	<stdarg.h>

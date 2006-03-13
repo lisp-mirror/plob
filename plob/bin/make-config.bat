@@ -1,7 +1,7 @@
 @echo off
 rem PLOB installation script for Windows/NT
 rem PLOB (C) 1994--2001 Heiko Kirschke Heiko.Kirschke@acm.org
-rem $Header$
+rem $Header: /cvsroot/plob/plob/bin/make-config.bat,v 1.3 2005/08/07 20:06:29 hkirschk Exp $
 
 if '%1' == '-goto' goto %2
 

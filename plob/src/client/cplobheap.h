@@ -15,7 +15,7 @@
 | server; the end-of-transaction call is trapped by the client and will
 | delete all cahced objects too.
 |
-| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2006 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -42,7 +42,7 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
-| $Header$
+| $Id$
 |
  ------------------------------------------------------------------------- */
 

@@ -1,0 +1,326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Bugfixes &amp; changes on PLOB</title>
+  </head>
+
+  <body>
+    <h1>Bugfixes &amp; changes on PLOB</h1>
+
+This page contains the descriptions of all bugfixes and changes before
+the current version, mainly for archiving purposes.
+
+<hr>
+
+<h2>Bugfixes for version 2.09</a></h2>
+
+None available.
+
+<h2>Bugfixes for version 2.08</h2>
+
+<h3>Serverless mode for LispWorks 3.2 on Solaris</h3>
+
+The serverless mode in LispWorks Common LISP 3.2/Solaris crashes with
+a segmentation violation when the last database is closed. To fix
+this, change file <kbd>plob-2.08/src/lispworks/plob-low.lisp</kbd>
+around line 310 to:
+
+<blockquote><pre>
+(defparameter *max-lisp-addr*
+    (or
+     #+(and :allegro :alpha)
+     (+ (max #x30000000 #x54000000) *heap-spare-size*)
+     #+(and :allegro :hpux)
+     (+ (max #x20000000 #x64000000) *heap-spare-size*)
+     #+(and :allegro :mips)
+     (+ (max #x30000000 #x64000000) *heap-spare-size*)
+     #+(and :allegro :aix)
+     (+ (max #x30000000 #x64000000) *heap-spare-size*)
+     #+(and :allegro :solaris2)
+     (+ (max #x8000000 #x5000000) *heap-spare-size*)
+     #+(and :allegro :linux86)
+     (+ (max #x20000000 #x64000000) *heap-spare-size*)
+     #+(and :lispworks :solaris2)
+     (logand #xff000000 (+ (sys::object-address nil) #x20000000)))
+  #+:lisp-doc "... documentation omitted here ...")
+</pre></blockquote>
+
+Thanks again to Harlequin's excellent support on LispWorks for
+supplying the information necessary to fix this bug.
+
+<h3>Bug in installation script</h3>
+
+After unpacking <kbd>plob-2.08.tar</kbd> and before starting an
+installation, change file <kbd>plob-2.08/conf/make.server.in</kbd>
+around line 63 from:
+
+<blockquote><pre>
+MkCopyRule($(DEFAULTROOT) slash, \
+           $(LIBDIR) slash, \
+           fileExe(plobdadmin))
+</pre></blockquote>
+
+to:
+
+<blockquote><pre>
+MkCopyRule($(DEFAULTROOT) slash, \
+           $(BINDIR) slash, \
+           fileExe(plobdadmin))
+</pre></blockquote>
+
+<h3>Upgrading from Plob 2.08 to Plob 2.08a</h3>
+
+Plob 2.08a contains some minor bug fixes in some of the install
+scripts and the documentation, and some performance improvements for
+inserting bulk data into a database.
+
+<p>For already done downloads of 2.08, the archive <a
+href="upgrade-2.08a.tar.gz">upgrade-2.08a.tar.gz</a> contains all
+changed files. For installing the archive, unpack it onto the current
+2.08 installation, and in directory <kbd>plob-2.08</kbd>, call
+<kbd>make config</kbd> anew.
+
+<h3>ACL 5.0 for NT's debugger has problems getting back to toplevel
+listener</h3>
+
+With ACL 5.0 for NT, there is a problem with CERRORs raised from the
+lower C layer of <b>PLOB</b>: A <kbd>:pop</kbd> does not return to the
+toplevel listener, but raises the CERROR anew. This seems to be a bug
+in ACL 5.0 for NT's debugger. The workaround for the moment is for a
+CERROR raised because of a not running <b>PLOB</b> server to start the
+server manually; this will return ACL 5.0 for NT to the toplevel
+listener.
+
+<p>For this reason, <kbd>plob::*verbose*</kbd> should not be set to
+<kbd>nil</kbd> when running under ACL 5.0 for NT, since this might put
+<b>PLOB</b> into an infinite loop.
+
+<h3><kbd>+plob-{min,max}-marker+</kbd> as {lower,upper} interval
+bounds</h3>
+
+When using the <kbd>+plob-{min,max}-marker+</kbd> as {lower,upper}
+interval bounds for a search in a btree, the search will start always
+on the {first,last} element in the btree, that means, the compare
+criterion used is always {<kbd>&gt;=</kbd>,<kbd>&lt;=</kbd>}, even
+if {<kbd>&gt;</kbd>,<kbd>&lt;</kbd>} has been specified to get the
+{second,last before the last} element as first element of the
+interval.
+
+<h3>Bitvectors in LispWorks Common LISP 4.0.1</h3>
+
+Please note that with the LispWorks 4.0.1 for Windows/NT client,
+bitvectors cannot be stored and loaded at the moment. This is due to
+the new foreign language interface introduced with 4.0.1; Harlequin is
+aware of this problem and will extend the interface.
+
+<p></p><hr>
+
+<h2>Changes from version 2.08 to 2.09</a></h2>
+
+<ul type="disc">
+
+<li> Multiple databases on a single system are now better supported;
+for disciminating different databases, the port number is now used
+instead of the RPC version number. Thanks to Jon Dyte for providing
+the hint to this improvement.
+
+<li> Structure classes are now stored correctly in LispWorks 4, too.
+
+<li> Build is now completely supported for CYGWIN on Windows/NT.
+
+<li> In <kbd>ps/plobelugm99.pdf</a></kbd>, find my paper on the
+architecture of <b>PLOB!</b> presented at ELUGM '99 in Amsterdam.
+
+</ul>
+
+<h2>Changes from version 2.07 to 2.08</h2>
+
+<ul type="disc">
+
+<li> Various bugfixes
+
+<ul type="circle">
+
+<li> Short-floats now work again for LispWorks 3.2
+
+<li> Bignums should now work for ACL 5.0.
+
+<li> The client handling for <kbd>write-lock-store</kbd> did not work
+properly under certain circumstances; this has been fixed. At end of
+transaction of a write-locked database, the server spent much time
+unlocking not locked objects; this has been fixed.
+
+<li> Object preallocation had a bug which made the preallocation not
+work at all under certain circumstances; this has been fixed.
+
+<li> The client/server marshalling code has been fixed to pass objects
+correctly between heterogenous, arbitrary architectures. Earlier
+versions had problems with such configurations for example when
+handling floats or bignums.
+
+</ul>
+
+<li> The server code has been made 64 bit proof (the client code is
+already 64 bit proof).
+
+<li> The <kbd>plobdadmin</kbd> utility has been rewritten in C; its
+functionality has been extended. See file
+<kbd>plob-2.08/src/admin/README</kbd> for details; directory
+<kbd>plob-2.08/src/admin/scripts/</kbd> contains example scripts for
+using <kbd>plobdadmin</kbd> automatically.
+
+</ul>
+
+<h2>Changes from version 2.06 to 2.07</h2>
+
+<ul type="disc">
+
+<li> Support for ACL 5.0 beta on Windows/NT has been added.
+
+<li> A serverless mode has been added. This has the following
+advantages:
+<ul type="circle">
+
+<li> Performance is improved by a factor of at least 2 compared to a
+client connected to a server running on <kbd>localhost</kbd>.  Please
+consult the user's guide, chapter `Administration', section `Running
+<b>PLOB!</b> serverless', and chapter `Database functionality',
+section `Performance' for details.
+
+<li> No server process or server administration is needed at all.
+
+</ul>
+
+For technical reasons, the serverless mode works only for LispWorks
+Common LISP 4.0.1 on Windows/NT, for Allegro Common LISP 5.0 on
+Windows/NT and Allegro Common LISP 4.3 on Solaris. It definitely does
+not work for LispWorks 3.2.2 on Solaris, Allegro Common LISP 5.0
+beta on Linux and Allegro Common LISP 4.3.1 on Irix.
+
+<li> The documentation in the user's guide has been improved:
+<ul type="circle">
+ 
+<li> Section 4.1 has been added explaining some database terms as used
+in <b>PLOB</b>.
+
+<li> The performance numbers have been moved from the Web page into
+section 4.10. The numbers have been corrected, and numbers for
+<b>PLOB!</b> running in serverless mode have been added.
+
+<li> Section 5.3 has been added explaining the serverless mode of
+<b>PLOB</b>.
+
+<li> Section D.2 has been added clarifying how to submit a bug
+report.
+
+</ul>
+
+<li> The license terms have changed. <b>PLOB</b> is no longer
+published under the GNU General Public License, but as free
+software. See section D.6 in the user's guide for details.
+
+<li> Bugfix: For LispWorks 3.2.2, the library containing the foreign
+function code is now properly loaded.
+
+<li> Bugfix: <b>PLOB</b>'s internal `metaheap' conflicted with the
+local LISP thread's persistent heap when doing locking [on `store'
+level].
+
+<li> Bugfix: The <kbd>:type</kbd> slot option was not passed to a
+class definition for classes which had been compiled from a class
+description into the current LISP image.
+
+<li> Bugfix: Although <kbd>plob::*verbose*</kbd> was set to
+<kbd>nil</kbd>, some <kbd>cerror</kbd>s had not been continued
+automatically.
+
+</ul>
+
+<h2>Changes from version 2.05 to 2.06</h2>
+
+<ul type="disc">
+
+<li> The btree interface has been completed and improved:
+
+<ul type="circle">
+
+<li> Mapping is now possible for btree keys in left-sided or
+right-sided opened or closed intervals.
+
+<li> The mapping through a btree's keys can now be done ascending or
+descending.
+
+<li> A new access method has been added for btrees. It is silimar to a
+file interface or to the <em>cursor</em> interface known from SQL.
+Please consult the user's guide, chapter `Database functionality',
+section `Persistent btrees', subsection `Cursors on btrees' for
+details.
+
+</ul>
+
+<li> Support for ACL 5.0 beta on Linux has been added.
+
+<li> Faster allocation of dynamic sized objects (strings and vectors).
+
+<li> More simple and (hopefully :-) more robust installation
+procedure.
+
+</ul>
+
+<h2>Changes from version 2.04 to 2.05</h2>
+
+In 2.04, the installation script had a bug, this has been fixed.
+Following new features have been introduced:
+
+<ul type="disc">
+
+<li> Full support for LispWorks Common LISP 4.0.1 for Windows/NT
+clients. In conjunction with <b>PLOB</b>'s Windows/NT server, the
+whole system can run on a single Windows/NT machine.
+
+<li> Improved inspector methods for LispWorks Common LISP.
+
+<li> The client C code is now multithread safe.
+
+<li>Simplified installation on Windows/NT, see the <a
+href="#InstallationGuide">Installation Guide</a> for details.</li>
+
+</ul>
+
+<h2>Changes from version 2.02 to 2.04</h2>
+
+The 2.02 distribution had some minor flaws, namely storing and loading
+of defstruct instances and hash tables did not work properly; this has
+been fixed. Besides that, these new features have been introduced:
+
+<ul type="disc">
+
+<li> The restriction of only one open database per server machine does
+not longer exist. Now, a server can open any (reasonable) number of
+databases. Clients are still restricted to one open database at a
+time.
+
+<li> New databases can now be created from the client's side.
+
+<li> Url-like database names have been introduced.
+
+<li> The distribution now contains a <b>PLOB!</b> server running under
+Windows/NT 4.0
+
+<li> Improvements on btrees: Page size can now be requested and set,
+the minimum and maximum key of a btree can now be requested.
+
+<li> Built-in classes are now represented as first class objects.</li>
+
+</ul>
+
+NB: Version 2.03 has never been a public version but a private one for
+my main customer, so it is omitted here.
+    <hr>
+    <address><a href="mailto:Heiko.Kirschke@acm.org">Heiko Kirschke</a></address>
+<!-- Created: Wed Apr 17 13:15:19 Westeuropäische Sommerzeit 2002 -->
+<!-- hhmts start -->
+Last modified: Wed Apr 17 13:26:10 Westeuropäische Sommerzeit 2002
+<!-- hhmts end -->
+  </body>
+</html>

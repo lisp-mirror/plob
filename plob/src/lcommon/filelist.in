@@ -1,6 +1,6 @@
 /**
  * generator macros for 'server' files
- * $Header$
+ * $Header: /cvsroot/plob/plob/src/lcommon/filelist.in,v 1.1 2005/08/07 19:55:03 hkirschk Exp $
  */
 
 #if defined(MkPlobFiles31)

@@ -1,7 +1,7 @@
 @echo off
 rem ------------------------------------------------------------
 rem 1998/05/07 Heiko Kirschke Heiko.Kirschke@acm.org
-rem $Header$
+rem $Header: /cvsroot/plob/plob/bin/restore-plob.bat,v 1.2 2001/02/14 10:56:10 hkirschk Exp $
 rem This script is a replacement for the UNIX one-liner:
 rem	cat plob-*.gz.* > plob.tar.gz
 rem I *really* like DOS ... it cares for good jobs

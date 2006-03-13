@@ -6,7 +6,7 @@
 | Description	Contains the 'secret' constants, types & functions necessary
 |		to implement PLOB built-in types.
 |
-| Copyright	PLOB! Copyright 1994--2002 Heiko Kirschke.
+| Copyright	PLOB! Copyright 1994--2006 Heiko Kirschke.
 |		All rights reserved.
 |
 | Unlimited use, reproduction, modification and distribution of this
@@ -33,7 +33,7 @@
 | University of St. Andrews for getting their license terms on
 | POSTORE.
 |
-| $Header$
+| $Id$
 |
  ------------------------------------------------------------------------- */
 
