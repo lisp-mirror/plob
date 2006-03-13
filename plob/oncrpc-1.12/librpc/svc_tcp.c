@@ -496,3 +496,8 @@ int xabort()
 	abort();
 }
 #endif
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

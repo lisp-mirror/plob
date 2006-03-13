@@ -441,3 +441,8 @@ done_broad:
 	return (stat);
 }
 
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

@@ -67,3 +67,8 @@ getrpcport(host, prognum, versnum, proto)
 	addr.sin_port =  0;
 	return (pmap_getport(&addr, prognum, versnum, proto));
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

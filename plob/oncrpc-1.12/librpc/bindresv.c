@@ -110,3 +110,8 @@ bindresvport(sd, sin)
 	}
 	return (res);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

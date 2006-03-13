@@ -127,3 +127,8 @@ callrpc(host, prognum, versnum, procnum, inproc, in, outproc, out)
 		crp->valid = 0;
 	return ((int) clnt_stat);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

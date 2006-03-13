@@ -559,3 +559,8 @@ writetcp(ct, buf, len)
 	}
 	return (len);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

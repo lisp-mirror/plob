@@ -94,3 +94,8 @@ pmap_getport(address, program, version, protocol)
 	address->sin_port = 0;
 	return (port);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

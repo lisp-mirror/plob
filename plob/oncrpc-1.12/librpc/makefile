@@ -74,5 +74,5 @@ oncrpc.dll:     $(OBJS) oncrpc.lib oncrpc.exp
 	copy oncrpc.dll ..\rpcgen
 
 #### Local variables:
-#### buffer-file-coding-system: raw-text-dos
+#### buffer-file-coding-system: raw-text-unix
 #### End:

@@ -150,3 +150,8 @@ _svcauth_short(rqst, msg)
 {
 	return (AUTH_REJECTEDCRED);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

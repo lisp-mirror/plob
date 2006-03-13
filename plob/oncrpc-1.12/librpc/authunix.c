@@ -82,3 +82,8 @@ xdr_authunix_parms(xdrs, p)
 	return (FALSE);
 }
 
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

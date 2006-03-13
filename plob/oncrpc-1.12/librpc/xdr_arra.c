@@ -166,3 +166,8 @@ xdr_vector(xdrs, basep, nelem, elemsize, xdr_elem)
 	return(TRUE);
 }
 
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

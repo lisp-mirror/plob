@@ -302,3 +302,8 @@ _seterr_reply(msg, error)
 		break;
 	}
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

@@ -62,3 +62,8 @@ bcmp(s1, s2, len)
 	return 0;
 }
 	
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

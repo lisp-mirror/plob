@@ -70,3 +70,8 @@ xdr_pmap(xdrs, regs)
 		return (xdr_u_long(xdrs, &regs->pm_port));
 	return (FALSE);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

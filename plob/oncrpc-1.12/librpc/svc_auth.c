@@ -123,3 +123,8 @@ _svcauth_null(/*rqst, msg*/)
 
 	return (AUTH_OK);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

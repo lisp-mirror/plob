@@ -199,3 +199,8 @@ xdr_callmsg(xdrs, cmsg)
 	return (FALSE);
 }
 
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

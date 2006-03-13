@@ -136,3 +136,8 @@ clnt_create(hostname, prog, vers, proto)
 	}
 	return (client);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

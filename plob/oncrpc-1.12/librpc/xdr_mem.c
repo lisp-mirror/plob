@@ -198,3 +198,8 @@ xdrmem_inline(xdrs, len)
 	}
 	return (buf);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

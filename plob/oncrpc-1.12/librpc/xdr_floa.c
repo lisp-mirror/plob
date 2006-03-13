@@ -296,3 +296,8 @@ xdr_double(xdrs, dp)
 	}
 	return (FALSE);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

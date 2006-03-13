@@ -145,3 +145,8 @@ xdr_pointer(xdrs,objpp,obj_size,xdr_obj)
 	}
 	return (xdr_reference(xdrs,objpp,obj_size,xdr_obj));
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

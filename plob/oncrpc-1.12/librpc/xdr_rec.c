@@ -603,3 +603,8 @@ fix_buf_size(s)
 		s = 4000;
 	return (RNDUP(s));
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

@@ -125,3 +125,8 @@ char my_name[MAX_NAME_LEN];
 	(void) close(s);
 #endif
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

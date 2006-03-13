@@ -59,3 +59,8 @@ int svc_fds;
 __declspec(dllexport)
 #endif
 struct rpc_createerr rpc_createerr;
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

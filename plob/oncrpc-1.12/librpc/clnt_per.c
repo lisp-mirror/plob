@@ -344,3 +344,8 @@ auth_errmsg(stat)
 	}
 	return(NULL);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

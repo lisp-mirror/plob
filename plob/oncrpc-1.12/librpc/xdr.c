@@ -594,3 +594,8 @@ xdr_wrapstring(xdrs, cpp)
 	}
 	return (FALSE);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

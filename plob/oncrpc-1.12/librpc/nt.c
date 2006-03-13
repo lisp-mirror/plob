@@ -69,3 +69,8 @@ nt_rpc_report(LPTSTR lpszMsg)
     }
 }
 
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

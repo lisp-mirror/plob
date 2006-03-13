@@ -506,3 +506,8 @@ clntudp_destroy(cl)
 	mem_free((caddr_t)cu, (sizeof(*cu) + cu->cu_sendsz + cu->cu_recvsz));
 	mem_free((caddr_t)cl, sizeof(CLIENT));
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

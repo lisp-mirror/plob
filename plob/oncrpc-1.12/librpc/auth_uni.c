@@ -355,3 +355,8 @@ marshal_new_auth(auth)
 	}
 	XDR_DESTROY(xdrs);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

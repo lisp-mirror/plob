@@ -185,3 +185,8 @@ universal(rqstp, transp)
 	exit(1);
 }
 
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

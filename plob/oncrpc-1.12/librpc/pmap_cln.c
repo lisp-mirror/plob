@@ -137,3 +137,8 @@ pmap_unset(program, version)
 #endif
 	return (rslt);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

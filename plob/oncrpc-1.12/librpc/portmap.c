@@ -10,7 +10,7 @@
  *********************************************************************/
 
 #if !defined(lint) && !defined(_NOIDENT)
-static char rcsid[] = "@(#)$RCSfile$ $Revision$ (OSF) $Date$";
+static char rcsid[] = "@(#)$RCSfile: portmap.c,v $ $Revision: 1.2 $ (OSF) $Date: 2001/01/03 12:02:19 $";
 #endif
 #ifndef lint
 static	char sccsid[] = "@(#)portmap.c 1.2 85/03/13 Copyr 1984 Sun Micro";
@@ -451,3 +451,8 @@ callit(rqstp, xprt)
 	}
 	(void)closesocket(socket);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

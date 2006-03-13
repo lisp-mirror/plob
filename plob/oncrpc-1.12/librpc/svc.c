@@ -548,3 +548,8 @@ svc_getreqset(readfds)
 		} while (stat == XPRT_MOREREQS);
 	}
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

@@ -202,3 +202,8 @@ xdrstdio_inline(xdrs, len)
 	 */
 	return (NULL);
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/

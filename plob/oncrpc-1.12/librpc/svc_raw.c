@@ -175,3 +175,8 @@ static void
 svcraw_destroy()
 {
 }
+/*
+  Local variables:
+  buffer-file-coding-system: raw-text-unix
+  End:
+*/
